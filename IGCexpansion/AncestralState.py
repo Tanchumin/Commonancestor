@@ -294,38 +294,41 @@ class AncestralState:
 if __name__ == '__main__':
 
     paralog = ['EDN', 'ECP']
-    alignment_file = '../test/EDN_ECP_Cleaned.fasta'
-    newicktree = '../test/input_tree.newick'
-    Force = None
+    alignment_file = '../test/EEEE.fasta'
+    newicktree = '../test/EEEE.newick'
+    Force = {5:0}
     Force1=None
     model = 'MG94'
 
 
-    save_name = '../test/save/' + model + 'EDN_ECP_c_nonclock_save.txt'
+    name='EDN_ECP'
+    type='c_new_f111'
+    save_name = '../test/save/' + model + name+'_'+type+'_nonclock_save.txt'
+    save_name1 ='../test/save/In3_MG94_EDN_ECP_nonclock_save11.txt'
     geneconv = ReCodonGeneconv(newicktree, alignment_file, paralog, Model=model, Force=Force, clock=None,
-                               save_path='../test/save/', save_name=save_name)
+                               save_path='../test/save/', save_name=save_name1)
     test = AncestralState(geneconv)
     self = test
+
+    print(test.geneconv.codon_to_state)
     scene = self.get_scene()
 
 
-    name='EDN_ECP'
-    type='c_new'
     save=self.get_maxpro_matrix(True,1)
-    save_namep = '../test/savecommon3/Ind_' + model + '_1_'+type+'_'+name+'_maxpro.txt'
+    save_namep = '../test/savecommon32/Ind_' + model + '_1_'+type+'_'+name+'_maxpro.txt'
     np.savetxt(open(save_namep, 'w+'), save.T)
 
 
     save=self.get_maxpro_matrix(True,2)
-    save_namep = '../test/savecommon3/Ind_' + model + '_2_'+type+'_'+name+'_maxpro.txt'
+    save_namep = '../test/savecommon32/Ind_' + model + '_2_'+type+'_'+name+'_maxpro.txt'
     np.savetxt(open(save_namep, 'w+'), save.T)
 
     save=self.get_maxpro_index(True,1)
-    save_namep = '../test/savecommon3/Ind_' + model + '_1_'+type+'_'+name+'_maxproind.txt'
+    save_namep = '../test/savecommon32/Ind_' + model + '_1_'+type+'_'+name+'_maxproind.txt'
     np.savetxt(open(save_namep, 'w+'), save.T)
 
     save=self.get_maxpro_index(True,2)
-    save_namep = '../test/savecommon3/Ind_' + model + '_2_'+type+'_'+name+'_maxproind.txt'
+    save_namep = '../test/savecommon32/Ind_' + model + '_2_'+type+'_'+name+'_maxproind.txt'
     np.savetxt(open(save_namep, 'w+'), save.T)
 
     #

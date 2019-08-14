@@ -16,7 +16,7 @@ import ast
 
 #import matplotlib.pyplot as plt
 
-def get_HKYGeneconvRate1(pair_from, pair_to, Qbasic, tau, c):
+def get_HKYGeneconvRate1(pair_from, pair_to, Qbasic, tau1, tau2,c):
     na, nb = pair_from
     nc, nd = pair_to
     if (na != nc and nb!= nd) or (na == nc and nb == nd):
@@ -24,13 +24,13 @@ def get_HKYGeneconvRate1(pair_from, pair_to, Qbasic, tau, c):
     if na ==nc and nb != nd:
         Qb = Qbasic['ACGT'.index(nb), 'ACGT'.index(nd)]
         if na == nd:
-            return c*Qb + tau
+            return c*Qb + tau1
         else:
             return c*Qb
     if nb == nd and na != nc:
         Qb = Qbasic['ACGT'.index(na), 'ACGT'.index(nc)]
         if nb == nc:
-            return Qb + tau
+            return Qb + tau2
         else:
             return Qb
     print ('Warning: Check get_HKYGeneconvRate Func. You should not see this.')
@@ -93,8 +93,9 @@ class ReCodonGeneconv:
         self.pi             = None      # real values
         self.kappa          = 1.2       # real values
         self.omega          = 0.9       # real values
-        self.tau            = 1.4       # real values
-        self.c = 1.1                    # specific parameter for showing differnet rate
+        self.tau1            = 1
+        self.tau2           =1          # real values
+        self.c = 1                      # specific parameter for showing differnet rate
 
         self.processes      = None      # list of basic and geneconv rate matrices. Each matrix is a dictionary used for json parsing
 
@@ -190,14 +191,14 @@ class ReCodonGeneconv:
         count = count / count.sum()
 
         if self.Model == 'MG94':
-            # x_process[] = %AG, %A, %C, kappa, omega, tau ,c
+            # x_process[] = %AG, %A, %C, kappa, omega, tau1,tau2 ,c
             self.x_process = np.log(np.array([count[0] + count[2], count[0] / (count[0] + count[2]), count[1] / (count[1] + count[3]),
-                                  self.kappa, self.omega, self.tau, self.c]))
+                                  self.kappa, self.omega, self.tau1, self.tau2,self.c]))
         elif self.Model == 'HKY':
-            # x_process[] = %AG, %A, %C, kappa, tau, c
+            # x_process[] = %AG, %A, %C, kappa, tau1,tau2, c
             self.omega = 1.0
             self.x_process = np.log(np.array([count[0] + count[2], count[0] / (count[0] + count[2]), count[1] / (count[1] + count[3]),
-                                  self.kappa, self.tau, self.c]))
+                                  self.kappa, self.tau1, self.tau2, self.c]))
 
         self.x_rates = np.log(np.array([ 0.1 * self.edge_to_blen[edge] for edge in self.edge_to_blen.keys()]))
 
@@ -318,7 +319,7 @@ class ReCodonGeneconv:
 
         if self.Model == 'MG94':
             # x_process[] = %AG, %A, %C, kappa, tau, omega,c
-            assert(len(self.x_process) == 7)
+            assert(len(self.x_process) == 8)
             
             pi_a = x_process[0] * x_process[1]
             pi_c = (1 - x_process[0]) * x_process[2]
@@ -327,19 +328,21 @@ class ReCodonGeneconv:
             self.pi = [pi_a, pi_c, pi_g, pi_t]
             self.kappa = x_process[3]
             self.omega = x_process[4]
-            self.tau = x_process[5]
-            self.c = x_process[6]
+            self.tau1 = x_process[5]
+            self.tau2=x_process[6]
+            self.c = x_process[7]
         elif self.Model == 'HKY':
             # x_process[] = %AG, %A, %C, kappa, tau,c
-            assert(len(self.x_process) == 6)
+            assert(len(self.x_process) == 7)
             pi_a = x_process[0] * x_process[1]
             pi_c = (1 - x_process[0]) * x_process[2]
             pi_g = x_process[0] * (1 - x_process[1])
             pi_t = (1 - x_process[0]) * (1 - x_process[2])
             self.pi = [pi_a, pi_c, pi_g, pi_t]
             self.kappa = x_process[3]
-            self.tau = x_process[4]
-            self.c = x_process[5]
+            self.tau1 = x_process[4]
+            self.tau2=x_process[5]
+            self.c = x_process[6]
 
 
 
@@ -405,17 +408,21 @@ class ReCodonGeneconv:
                 col.append((sa, sa))
                 Qb = Qbasic[sb, sa]
                 if isNonsynonymous(cb, ca, self.codon_table):
-                    Tgeneconv = self.tau * self.omega
+                    Tgeneconv1 = self.tau1 * self.omega
                 else:
-                    Tgeneconv = self.tau
-                rate_geneconv.append(self.c*(Qb + Tgeneconv))
+                    Tgeneconv1 = self.tau1
+                rate_geneconv.append(self.c*(Qb + Tgeneconv1))
                 rate_basic.append(0.0)
                 
                 # (ca, cb) to (cb, cb)
+                if isNonsynonymous(cb, ca, self.codon_table):
+                    Tgeneconv2 = self.tau2 * self.omega
+                else:
+                    Tgeneconv2 = self.tau2
                 row.append((sa, sb))
                 col.append((sb, sb))
                 Qb = Qbasic[sa, sb]
-                rate_geneconv.append(Qb + Tgeneconv)
+                rate_geneconv.append(Qb + Tgeneconv2)
                 rate_basic.append(0.0)
 
             else:
@@ -496,7 +503,7 @@ class ReCodonGeneconv:
                 sd = self.nt_to_state[nd]
                 if i == j:
                     continue
-                GeneconvRate = get_HKYGeneconvRate1(pair_from, pair_to, Qbasic, self.tau, self.c)
+                GeneconvRate = get_HKYGeneconvRate1(pair_from, pair_to, Qbasic, self.tau1,self.tau2,self.c)
                 if GeneconvRate != 0.0:
                     row.append((sa, sb))
                     col.append((sc, sd))
@@ -1550,9 +1557,9 @@ if __name__ == '__main__':
     Force = None
     alignment_file = '../test/EDN_ECP_Cleaned.fasta'
     newicktree = '../test/input_tree.newick'
-    Force = {6:1}
+    Force = None
     model = 'MG94'
-    save_name = '../test/save/In1_HKY_EDN_ECP_nonclock_save.txt'
+    save_name = '../test/save/In3_MG94_EDN_ECP_nonclock_save.txt'
 ##    test.get_mle(True, True, 0, 'BFGS')
 ##    test.get_individual_summary(summary_path = '../test/Summary/')
 ##    test.get_SitewisePosteriorSummary(summary_path = '../test/Summary/')
