@@ -296,17 +296,17 @@ if __name__ == '__main__':
     paralog = ['EDN', 'ECP']
     alignment_file = '../test/EEEE.fasta'
     newicktree = '../test/EEEE.newick'
-    Force = {5:0}
+    Force = {5:0,6:0}
     Force1=None
     model = 'MG94'
 
 
     name='EDN_ECP'
-    type='c_new_f111'
+    type='situation1'
     save_name = '../test/save/' + model + name+'_'+type+'_nonclock_save.txt'
-    save_name1 ='../test/save/In3_MG94_EDN_ECP_nonclock_save11.txt'
+    save_name1 ='../test/save/In3_MG94_EDN_ECP_nonclock_save110.txt'
     geneconv = ReCodonGeneconv(newicktree, alignment_file, paralog, Model=model, Force=Force, clock=None,
-                               save_path='../test/save/', save_name=save_name1)
+                               save_path='../test/save/', save_name=save_name)
     test = AncestralState(geneconv)
     self = test
 
@@ -414,5 +414,5 @@ if __name__ == '__main__':
 ##    get_maxpro=get_maxpro(list_commonan,list_node)
 ##    # print(get_maxpro[2][2]%61)
 ##    translate=translate_into_seq(promax=get_maxpro,len_node=len_node,dict=dict,model=model,len_se=len_se)
-##    print(translate)
+
 

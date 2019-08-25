@@ -96,6 +96,7 @@ class ReCodonGeneconv:
         self.tau1            = 1
         self.tau2           =1          # real values
         self.c = 1                      # specific parameter for showing differnet rate
+        self.eqtau12=True               # specific parameter for same tau
 
         self.processes      = None      # list of basic and geneconv rate matrices. Each matrix is a dictionary used for json parsing
 
@@ -375,80 +376,155 @@ class ReCodonGeneconv:
         col = []
         rate_geneconv = []
         rate_basic = []
+        if self.eqtau12==False:
+            for i, pair in enumerate(product(self.codon_nonstop, repeat = 2)):
+                # use ca, cb, cc to denote codon_a, codon_b, codon_c, where cc != ca, cc != cb
+                ca, cb = pair
+                sa = self.codon_to_state[ca]
+                sb = self.codon_to_state[cb]
+                if ca != cb:
+                    for cc in self.codon_nonstop:
+                        if cc == ca or cc == cb:
+                            continue
+                        sc = self.codon_to_state[cc]
+                        # (ca, cb) to (ca, cc)
+                        Qb = Qbasic[sb, sc]
+                        if Qb != 0:
+                            row.append((sa, sb))
+                            col.append((sa, sc))
+                            rate_geneconv.append(self.c*Qb)
+                            rate_basic.append(0.0)
 
-        for i, pair in enumerate(product(self.codon_nonstop, repeat = 2)):
-            # use ca, cb, cc to denote codon_a, codon_b, codon_c, where cc != ca, cc != cb
-            ca, cb = pair
-            sa = self.codon_to_state[ca]
-            sb = self.codon_to_state[cb]
-            if ca != cb:
-                for cc in self.codon_nonstop:
-                    if cc == ca or cc == cb:
-                        continue
-                    sc = self.codon_to_state[cc]
-                    # (ca, cb) to (ca, cc)
-                    Qb = Qbasic[sb, sc]
-                    if Qb != 0:
-                        row.append((sa, sb))
-                        col.append((sa, sc))
-                        rate_geneconv.append(self.c*Qb)
-                        rate_basic.append(0.0)
+                        # (ca, cb) to (cc, cb)
+                        Qb = Qbasic[sa, sc]
+                        if Qb != 0:
+                            row.append((sa, sb))
+                            col.append((sc, sb))
+                            rate_geneconv.append(Qb)
+                            rate_basic.append(0.0)
 
-                    # (ca, cb) to (cc, cb)
-                    Qb = Qbasic[sa, sc]
-                    if Qb != 0:
-                        row.append((sa, sb))
-                        col.append((sc, sb))
-                        rate_geneconv.append(Qb)
-                        rate_basic.append(0.0)
 
-                        
-                # (ca, cb) to (ca, ca)
-                row.append((sa, sb))
-                col.append((sa, sa))
-                Qb = Qbasic[sb, sa]
-                if isNonsynonymous(cb, ca, self.codon_table):
-                    Tgeneconv1 = self.tau1 * self.omega
+                    # (ca, cb) to (ca, ca)
+                    row.append((sa, sb))
+                    col.append((sa, sa))
+                    Qb = Qbasic[sb, sa]
+                    if isNonsynonymous(cb, ca, self.codon_table):
+                        Tgeneconv1 = self.tau1 * self.omega
+                    else:
+                        Tgeneconv1 = self.tau1
+                    rate_geneconv.append(self.c*(Qb + Tgeneconv1))
+                    rate_basic.append(0.0)
+
+                    # (ca, cb) to (cb, cb)
+                    if isNonsynonymous(cb, ca, self.codon_table):
+                        Tgeneconv2 = self.tau2 * self.omega
+                    else:
+                        Tgeneconv2 = self.tau2
+                    row.append((sa, sb))
+                    col.append((sb, sb))
+                    Qb = Qbasic[sa, sb]
+                    rate_geneconv.append(Qb + Tgeneconv2)
+                    rate_basic.append(0.0)
+
                 else:
-                    Tgeneconv1 = self.tau1
-                rate_geneconv.append(self.c*(Qb + Tgeneconv1))
-                rate_basic.append(0.0)
-                
-                # (ca, cb) to (cb, cb)
-                if isNonsynonymous(cb, ca, self.codon_table):
-                    Tgeneconv2 = self.tau2 * self.omega
+                    for cc in self.codon_nonstop:
+                        if cc == ca:
+                            continue
+                        sc = self.codon_to_state[cc]
+
+                        # (ca, ca) to (ca,  cc)
+                        Qb = Qbasic[sa, sc]
+                        if Qb != 0:
+                            row.append((sa, sb))
+                            col.append((sa, sc))
+                            rate_geneconv.append(self.c*Qb)
+                            rate_basic.append(0.0)
+                        # (ca, ca) to (cc, ca)
+                            row.append((sa, sb))
+                            col.append((sc, sa))
+                            rate_geneconv.append(Qb)
+                            rate_basic.append(0.0)
+
+                        # (ca, ca) to (cc, cc)
+                            row.append((sa, sb))
+                            col.append((sc, sc))
+                            rate_geneconv.append(0.0)
+                            rate_basic.append(Qb)
+
+        else:
+
+            for i, pair in enumerate(product(self.codon_nonstop, repeat=2)):
+                # use ca, cb, cc to denote codon_a, codon_b, codon_c, where cc != ca, cc != cb
+                ca, cb = pair
+                sa = self.codon_to_state[ca]
+                sb = self.codon_to_state[cb]
+                if ca != cb:
+                    for cc in self.codon_nonstop:
+                        if cc == ca or cc == cb:
+                            continue
+                        sc = self.codon_to_state[cc]
+                        # (ca, cb) to (ca, cc)
+                        Qb = Qbasic[sb, sc]
+                        if Qb != 0:
+                            row.append((sa, sb))
+                            col.append((sa, sc))
+                            rate_geneconv.append(self.c * Qb)
+                            rate_basic.append(0.0)
+
+                        # (ca, cb) to (cc, cb)
+                        Qb = Qbasic[sa, sc]
+                        if Qb != 0:
+                            row.append((sa, sb))
+                            col.append((sc, sb))
+                            rate_geneconv.append(Qb)
+                            rate_basic.append(0.0)
+
+                    # (ca, cb) to (ca, ca)
+                    row.append((sa, sb))
+                    col.append((sa, sa))
+                    Qb = Qbasic[sb, sa]
+                    if isNonsynonymous(cb, ca, self.codon_table):
+                        Tgeneconv1 = self.tau1 * self.omega
+                    else:
+                        Tgeneconv1 = self.tau1
+                    rate_geneconv.append(self.c * (Qb + Tgeneconv1))
+                    rate_basic.append(0.0)
+
+                    # (ca, cb) to (cb, cb)
+                    if isNonsynonymous(cb, ca, self.codon_table):
+                        Tgeneconv2 = self.tau1 * self.omega
+                    else:
+                        Tgeneconv2 = self.tau1
+                    row.append((sa, sb))
+                    col.append((sb, sb))
+                    Qb = Qbasic[sa, sb]
+                    rate_geneconv.append(Qb + Tgeneconv2)
+                    rate_basic.append(0.0)
+
                 else:
-                    Tgeneconv2 = self.tau2
-                row.append((sa, sb))
-                col.append((sb, sb))
-                Qb = Qbasic[sa, sb]
-                rate_geneconv.append(Qb + Tgeneconv2)
-                rate_basic.append(0.0)
+                    for cc in self.codon_nonstop:
+                        if cc == ca:
+                            continue
+                        sc = self.codon_to_state[cc]
 
-            else:
-                for cc in self.codon_nonstop:
-                    if cc == ca:
-                        continue
-                    sc = self.codon_to_state[cc]
+                        # (ca, ca) to (ca,  cc)
+                        Qb = Qbasic[sa, sc]
+                        if Qb != 0:
+                            row.append((sa, sb))
+                            col.append((sa, sc))
+                            rate_geneconv.append(self.c * Qb)
+                            rate_basic.append(0.0)
+                            # (ca, ca) to (cc, ca)
+                            row.append((sa, sb))
+                            col.append((sc, sa))
+                            rate_geneconv.append(Qb)
+                            rate_basic.append(0.0)
 
-                    # (ca, ca) to (ca,  cc)
-                    Qb = Qbasic[sa, sc]
-                    if Qb != 0:
-                        row.append((sa, sb))
-                        col.append((sa, sc))
-                        rate_geneconv.append(self.c*Qb)
-                        rate_basic.append(0.0)
-                    # (ca, ca) to (cc, ca)
-                        row.append((sa, sb))
-                        col.append((sc, sa))
-                        rate_geneconv.append(Qb)
-                        rate_basic.append(0.0)
-
-                    # (ca, ca) to (cc, cc)
-                        row.append((sa, sb))
-                        col.append((sc, sc))
-                        rate_geneconv.append(0.0)
-                        rate_basic.append(Qb)
+                            # (ca, ca) to (cc, cc)
+                            row.append((sa, sb))
+                            col.append((sc, sc))
+                            rate_geneconv.append(0.0)
+                            rate_basic.append(Qb)
                 
         process_geneconv = dict(
             row = row,
