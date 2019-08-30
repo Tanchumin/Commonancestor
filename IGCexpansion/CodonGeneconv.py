@@ -36,7 +36,7 @@ def get_HKYGeneconvRate1(pair_from, pair_to, Qbasic, tau1, tau2,c):
     print ('Warning: Check get_HKYGeneconvRate Func. You should not see this.')
 
 class ReCodonGeneconv:
-    def __init__(self, tree_newick, alignment, paralog, Model = 'MG94', nnsites = None, clock = False, Force = None, save_path = './save/', save_name = None, post_dup = 'N1'):
+    def __init__(self, tree_newick, alignment, paralog, Model = 'MG94', nnsites = None, clock = False, Force = None, save_path = './save/', save_name = None, post_dup = 'N1',ptau1=1,ptau2=1,pc=1,eqtau12=True):
         self.newicktree  = tree_newick  # newick tree file loc
         self.seqloc      = alignment    # multiple sequence alignment, now need to remove gap before-hand
         self.paralog     = paralog      # parlaog list
@@ -93,10 +93,10 @@ class ReCodonGeneconv:
         self.pi             = None      # real values
         self.kappa          = 1.2       # real values
         self.omega          = 0.9       # real values
-        self.tau1            = 1
-        self.tau2           =1          # real values
-        self.c = 1                      # specific parameter for showing differnet rate
-        self.eqtau12=True               # specific parameter for same tau
+        self.tau1            = ptau1
+        self.tau2           =ptau2         # real values
+        self.c = pc                     # specific parameter for showing differnet rate
+        self.eqtau12=eqtau12       # specific parameter for same tau
 
         self.processes      = None      # list of basic and geneconv rate matrices. Each matrix is a dictionary used for json parsing
 
@@ -194,7 +194,7 @@ class ReCodonGeneconv:
         if self.Model == 'MG94':
             # x_process[] = %AG, %A, %C, kappa, omega, tau1,tau2 ,c
             self.x_process = np.log(np.array([count[0] + count[2], count[0] / (count[0] + count[2]), count[1] / (count[1] + count[3]),
-                                  self.kappa, self.omega, self.tau1, self.tau2,self.c]))
+                                  self.kappa, self.omega, self.tau1, self.tau2, self.c]))
         elif self.Model == 'HKY':
             # x_process[] = %AG, %A, %C, kappa, tau1,tau2, c
             self.omega = 1.0
@@ -1066,16 +1066,20 @@ class ReCodonGeneconv:
                 column_states.append((sa, sa))
                 Qb = Qbasic[sb, sa]
                 if isNonsynonymous(cb, ca, self.codon_table):
-                    Tgeneconv = self.tau * self.omega
+                    Tgeneconv1 = self.tau1 * self.omega
                 else:
-                    Tgeneconv = self.tau
-                proportions.append(Tgeneconv / (self.c*Qb + Tgeneconv) if (Qb + Tgeneconv) >0 else 0.0)
+                    Tgeneconv1 = self.tau1
+                proportions.append(Tgeneconv1 / (Qb + Tgeneconv1) if (Qb + Tgeneconv1) >0 else 0.0)
 
                 # (ca, cb) to (cb, cb)
                 row_states.append((sa, sb))
                 column_states.append((sb, sb))
                 Qb = Qbasic[sa, sb]
-                proportions.append(Tgeneconv / (Qb + Tgeneconv) if (Qb + Tgeneconv) >0 else 0.0)
+                if isNonsynonymous(cb, ca, self.codon_table):
+                    Tgeneconv2 = self.tau2 * self.omega
+                else:
+                    Tgeneconv2 = self.tau2
+                proportions.append(Tgeneconv2 / (Qb + Tgeneconv2) if (Qb + Tgeneconv2) >0 else 0.0)
             
         elif self.Model == 'HKY':
             Qbasic = self.get_HKYBasic()
@@ -1476,11 +1480,11 @@ class ReCodonGeneconv:
         out = [self.nsites, self.ll]
         out.extend(self.pi)
         if self.Model == 'HKY': # HKY model doesn't have omega parameter
-            out.extend([self.kappa, self.tau])
-            label = ['length', 'll','pi_a', 'pi_c', 'pi_g', 'pi_t', 'kappa', 'tau']
+            out.extend([self.kappa, self.tau1,self.tau2,self.c])
+            label = ['length', 'll','pi_a', 'pi_c', 'pi_g', 'pi_t', 'kappa', 'tau1','tau2','c']
         elif self.Model == 'MG94':
-            out.extend([self.kappa, self.omega, self.tau])
-            label = ['length', 'll','pi_a', 'pi_c', 'pi_g', 'pi_t', 'kappa', 'omega', 'tau']
+            out.extend([self.kappa, self.omega, self.tau1,self.tau2,self.c])
+            label = ['length', 'll','pi_a', 'pi_c', 'pi_g', 'pi_t', 'kappa', 'omega', 'tau1','tau2','c']
 
         k = len(label)  # record the length of non-blen parameters
 

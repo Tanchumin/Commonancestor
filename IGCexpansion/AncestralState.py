@@ -296,13 +296,13 @@ if __name__ == '__main__':
     paralog = ['EDN', 'ECP']
     alignment_file = '../test/EEEE.fasta'
     newicktree = '../test/EEEE.newick'
-    Force = {5:0,6:0}
+    Force = {5:0,6:0,7:1}
     Force1=None
     model = 'MG94'
 
 
     name='EDN_ECP'
-    type='situation1'
+    type='situation5'
     save_name = '../test/save/' + model + name+'_'+type+'_nonclock_save.txt'
     save_name1 ='../test/save/In3_MG94_EDN_ECP_nonclock_save110.txt'
     geneconv = ReCodonGeneconv(newicktree, alignment_file, paralog, Model=model, Force=Force, clock=None,
