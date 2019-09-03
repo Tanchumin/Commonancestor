@@ -6,9 +6,15 @@ import argparse
 #from jsonctmctree.extras import optimize_em
 import ast
 
-from IGCexpansion.CodonGeneconv import ReCodonGeneconv
+from CodonGeneconv import ReCodonGeneconv
 import argparse, os
 import numpy as np
+
+def check_folder(folder_name):
+    # if the folder doesn't exist,
+    # this function creats it by assuming the outer folder exists (potential bug...)
+    if not os.path.isdir(folder_name):
+        os.mkdir(folder_name)
 
 if __name__ == '__main__':
 
@@ -20,10 +26,11 @@ if __name__ == '__main__':
 
 
     name='EDN_ECP'
-    type='situation7'
+    type='situation1'
+
     save_name = '../test/save/' + model + name+'_'+type+'_nonclock_save.txt'
-    test = ReCodonGeneconv(newicktree, alignment_file, paralog, Model=model, Force=Force, clock=None,
-                               save_path='../test/save/', save_name=save_name,ptau1=1,ptau2=1,pc=1,eqtau12=True)
+    test = ReCodonGeneconv(newicktree, alignment_file, paralog, ptau1=1, ptau2=1, pc=1, eqtau12=True ,Model=model, Force=Force, clock=None,
+                               save_path='../test/save/', save_name=save_name)
 
     test.get_mle()
 

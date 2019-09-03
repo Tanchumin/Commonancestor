@@ -36,7 +36,7 @@ def get_HKYGeneconvRate1(pair_from, pair_to, Qbasic, tau1, tau2,c):
     print ('Warning: Check get_HKYGeneconvRate Func. You should not see this.')
 
 class ReCodonGeneconv:
-    def __init__(self, tree_newick, alignment, paralog, Model = 'MG94', nnsites = None, clock = False, Force = None, save_path = './save/', save_name = None, post_dup = 'N1',ptau1=1,ptau2=1,pc=1,eqtau12=True):
+    def __init__(self, tree_newick, alignment, paralog, ptau1=1, ptau2=1, pc=1, eqtau12=True, Model='MG94', nnsites = None, clock = False, Force = None, save_path = './save/', save_name = None, post_dup = 'N1'):
         self.newicktree  = tree_newick  # newick tree file loc
         self.seqloc      = alignment    # multiple sequence alignment, now need to remove gap before-hand
         self.paralog     = paralog      # parlaog list
