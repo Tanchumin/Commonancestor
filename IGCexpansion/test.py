@@ -29,10 +29,22 @@ if __name__ == '__main__':
     type='situation1'
 
     save_name = '../test/save/' + model + name+'_'+type+'_nonclock_save.txt'
+
+    summary_folder = '../summary/'
+    check_folder(summary_folder)
+
     test = ReCodonGeneconv(newicktree, alignment_file, paralog, ptau1=1, ptau2=1, pc=1, eqtau12=True ,Model=model, Force=Force, clock=None,
                                save_path='../test/save/', save_name=save_name)
 
     test.get_mle()
+    test.get_ExpectedNumGeneconv()
+    test.get_individual_summary(summary_path=summary_folder)
+
+    IGC_sitewise_lnL_file = summary_folder + model + '_'+name+'type'+'_'.join(paralog) + '_nonclock_sitewise_lnL_summary.txt'
+    test.get_sitewise_loglikelihood_summary(IGC_sitewise_lnL_file)
+
+    test.get_SitewisePosteriorSummary(summary_path=summary_folder)
+
 
 
 

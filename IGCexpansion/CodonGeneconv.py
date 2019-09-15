@@ -1052,56 +1052,103 @@ class ReCodonGeneconv:
         row_states = []
         column_states = []
         proportions = []
-        if self.Model == 'MG94':
-            Qbasic = self.get_MG94Basic()
-            for i, pair in enumerate(product(self.codon_nonstop, repeat = 2)):
-                ca, cb = pair
-                sa = self.codon_to_state[ca]
-                sb = self.codon_to_state[cb]
-                if ca == cb:
-                    continue
-                
-                # (ca, cb) to (ca, ca)
-                row_states.append((sa, sb))
-                column_states.append((sa, sa))
-                Qb = Qbasic[sb, sa]
-                if isNonsynonymous(cb, ca, self.codon_table):
-                    Tgeneconv1 = self.tau1 * self.omega
-                else:
-                    Tgeneconv1 = self.tau1
-                proportions.append(Tgeneconv1 / (Qb + Tgeneconv1) if (Qb + Tgeneconv1) >0 else 0.0)
+        if self.eqtau12==False:
 
-                # (ca, cb) to (cb, cb)
-                row_states.append((sa, sb))
-                column_states.append((sb, sb))
-                Qb = Qbasic[sa, sb]
-                if isNonsynonymous(cb, ca, self.codon_table):
-                    Tgeneconv2 = self.tau2 * self.omega
-                else:
-                    Tgeneconv2 = self.tau2
-                proportions.append(Tgeneconv2 / (Qb + Tgeneconv2) if (Qb + Tgeneconv2) >0 else 0.0)
+            if self.Model == 'MG94':
+                Qbasic = self.get_MG94Basic()
+                for i, pair in enumerate(product(self.codon_nonstop, repeat = 2)):
+                    ca, cb = pair
+                    sa = self.codon_to_state[ca]
+                    sb = self.codon_to_state[cb]
+                    if ca == cb:
+                        continue
+
+                    # (ca, cb) to (ca, ca)
+                    row_states.append((sa, sb))
+                    column_states.append((sa, sa))
+                    Qb = Qbasic[sb, sa]
+                    if isNonsynonymous(cb, ca, self.codon_table):
+                        Tgeneconv1 = self.tau1 * self.omega
+                    else:
+                        Tgeneconv1 = self.tau1
+                    proportions.append(Tgeneconv1 / (Qb + Tgeneconv1) if (Qb + Tgeneconv1) >0 else 0.0)
+
+                    # (ca, cb) to (cb, cb)
+                    row_states.append((sa, sb))
+                    column_states.append((sb, sb))
+                    Qb = Qbasic[sa, sb]
+                    if isNonsynonymous(cb, ca, self.codon_table):
+                        Tgeneconv2 = self.tau2 * self.omega
+                    else:
+                        Tgeneconv2 = self.tau2
+                    proportions.append(Tgeneconv2 / (self.c*(Qb + Tgeneconv2)) if (self.c*(Qb + Tgeneconv2)) >0 else 0.0)
             
-        elif self.Model == 'HKY':
-            Qbasic = self.get_HKYBasic()
-            for i, pair in enumerate(product('ACGT', repeat = 2)):
-                na, nb = pair
-                sa = self.nt_to_state[na]
-                sb = self.nt_to_state[nb]
-                if na == nb:
-                    continue
+            elif self.Model == 'HKY':
+                Qbasic = self.get_HKYBasic()
+                for i, pair in enumerate(product('ACGT', repeat = 2)):
+                    na, nb = pair
+                    sa = self.nt_to_state[na]
+                    sb = self.nt_to_state[nb]
+                    if na == nb:
+                        continue
 
-                # (na, nb) to (na, na)
-                row_states.append((sa, sb))
-                column_states.append((sa, sa))
-                GeneconvRate = get_HKYGeneconvRate1(pair, na + na, Qbasic, self.tau,self.c)
-                proportions.append(self.tau / GeneconvRate if GeneconvRate > 0 else 0.0)
-                
+                    # (na, nb) to (na, na)
+                    row_states.append((sa, sb))
+                    column_states.append((sa, sa))
+                    GeneconvRate = get_HKYGeneconvRate1(pair, na + na, Qbasic, self.tau1,self.c)
+                    proportions.append(self.tau / GeneconvRate if GeneconvRate > 0 else 0.0)
 
+        else:
+            if self.Model == 'MG94':
+                Qbasic = self.get_MG94Basic()
+                for i, pair in enumerate(product(self.codon_nonstop, repeat=2)):
+                    ca, cb = pair
+                    sa = self.codon_to_state[ca]
+                    sb = self.codon_to_state[cb]
+                    if ca == cb:
+                        continue
+
+                    # (ca, cb) to (ca, ca)
+                    row_states.append((sa, sb))
+                    column_states.append((sa, sa))
+                    Qb = Qbasic[sb, sa]
+                    if isNonsynonymous(cb, ca, self.codon_table):
+                        Tgeneconv1 = self.tau1 * self.omega
+                    else:
+                        Tgeneconv1 = self.tau1
+                    proportions.append(Tgeneconv1 / (Qb + Tgeneconv1) if (Qb + Tgeneconv1) > 0 else 0.0)
+
+                    # (ca, cb) to (cb, cb)
+                    row_states.append((sa, sb))
+                    column_states.append((sb, sb))
+                    Qb = Qbasic[sa, sb]
+                    if isNonsynonymous(cb, ca, self.codon_table):
+                        Tgeneconv1 = self.tau1 * self.omega
+                    else:
+                        Tgeneconv1 = self.tau1
+                    proportions.append(Tgeneconv1 /( self.c*(Qb + Tgeneconv1)) if(self.c*(Qb + Tgeneconv1)) > 0 else 0.0)
+
+            elif self.Model == 'HKY':
+                Qbasic = self.get_HKYBasic()
+                for i, pair in enumerate(product('ACGT', repeat=2)):
+                    na, nb = pair
+                    sa = self.nt_to_state[na]
+                    sb = self.nt_to_state[nb]
+                    if na == nb:
+                        continue
+
+                    # (na, nb) to (na, na)
+
+
+                    row_states.append((sa, sb))
+                    column_states.append((sa, sa))
+                    GeneconvRate = get_HKYGeneconvRate1(pair, na + na, Qbasic, self.tau1,self.c)
+                    proportions.append(self.tau1 / GeneconvRate if GeneconvRate > 0 else 0.0)
                 # (na, nb) to (nb, nb)
-                row_states.append((sa, sb))
-                column_states.append((sb, sb))
-                GeneconvRate = get_HKYGeneconvRate(pair, nb + nb, Qbasic, self.tau)
-                proportions.append(self.tau / GeneconvRate if GeneconvRate > 0 else 0.0)
+                    row_states.append((sa, sb))
+                    column_states.append((sb, sb))
+                    GeneconvRate = get_HKYGeneconvRate(pair, nb + nb, Qbasic, self.tau1)
+                    proportions.append(self.tau1 / GeneconvRate if GeneconvRate > 0 else 0.0)
                 
         return {'row_states' : row_states, 'column_states' : column_states, 'weights' : proportions}
 
@@ -1207,53 +1254,110 @@ class ReCodonGeneconv:
         row21_states = []
         column21_states = []
         proportions21 = []
-        if self.Model == 'MG94':
-            Qbasic = self.get_MG94Basic()
-            for i, pair in enumerate(product(self.codon_nonstop, repeat = 2)):
-                ca, cb = pair
-                sa = self.codon_to_state[ca]
-                sb = self.codon_to_state[cb]
-                if ca == cb:
-                    continue
-                
-                # (ca, cb) to (ca, ca)
-                row12_states.append((sa, sb))
-                column12_states.append((sa, sa))
-                Qb = Qbasic[sb, sa]
-                if isNonsynonymous(cb, ca, self.codon_table):
-                    Tgeneconv = self.tau * self.omega
-                else:
-                    Tgeneconv = self.tau
-                proportions12.append(Tgeneconv / (self.c*Qb + Tgeneconv) if (Qb + Tgeneconv) >0 else 0.0)
+        if self.eqtau12==False:
 
-                # (ca, cb) to (cb, cb)
-                row21_states.append((sa, sb))
-                column21_states.append((sb, sb))
-                Qb = Qbasic[sa, sb]
-                proportions21.append(Tgeneconv / (Qb + Tgeneconv) if (Qb + Tgeneconv) >0 else 0.0)
-            
-        elif self.Model == 'HKY':
-            Qbasic = self.get_HKYBasic()
-            for i, pair in enumerate(product('ACGT', repeat = 2)):
-                na, nb = pair
-                sa = self.nt_to_state[na]
-                sb = self.nt_to_state[nb]
-                if na == nb:
-                    continue
+            if self.Model == 'MG94':
+                Qbasic = self.get_MG94Basic()
+                for i, pair in enumerate(product(self.codon_nonstop, repeat = 2)):
+                    ca, cb = pair
+                    sa = self.codon_to_state[ca]
+                    sb = self.codon_to_state[cb]
+                    if ca == cb:
+                        continue
 
-                # (na, nb) to (na, na)
-                row12_states.append((sa, sb))
-                column12_states.append((sa, sa))
-                GeneconvRate = get_HKYGeneconvRate1(pair, na + na, Qbasic, self.tau,self.c)
-                proportions12.append(self.tau / GeneconvRate if GeneconvRate > 0 else 0.0)
-                
+                    # (ca, cb) to (ca, ca)
+                    row12_states.append((sa, sb))
+                    column12_states.append((sa, sa))
+                    Qb = Qbasic[sb, sa]
+                    if isNonsynonymous(cb, ca, self.codon_table):
+                        Tgeneconv1 = self.tau1 * self.omega
+                    else:
+                        Tgeneconv1 = self.tau1
+                    proportions12.append(Tgeneconv1 / (self.c*Qb + Tgeneconv1) if (Qb + Tgeneconv1) >0 else 0.0)
 
-                # (na, nb) to (nb, nb)
-                row21_states.append((sa, sb))
-                column21_states.append((sb, sb))
-                GeneconvRate = get_HKYGeneconvRate(pair, nb + nb, Qbasic, self.tau)
-                proportions21.append(self.tau / GeneconvRate if GeneconvRate > 0 else 0.0)
-                
+                    # (ca, cb) to (cb, cb)
+                    row21_states.append((sa, sb))
+                    column21_states.append((sb, sb))
+                    Qb = Qbasic[sa, sb]
+                    if isNonsynonymous(cb, ca, self.codon_table):
+                        Tgeneconv2 = self.tau2 * self.omega
+                    else:
+                        Tgeneconv2 = self.tau2
+                    proportions21.append(Tgeneconv2 / (self.c*(Qb + Tgeneconv2) )if (self.c*(Qb + Tgeneconv2)) >0 else 0.0)
+
+            elif self.Model == 'HKY':
+                Qbasic = self.get_HKYBasic()
+                for i, pair in enumerate(product('ACGT', repeat = 2)):
+                    na, nb = pair
+                    sa = self.nt_to_state[na]
+                    sb = self.nt_to_state[nb]
+                    if na == nb:
+                        continue
+
+                    # (na, nb) to (na, na)
+                    row12_states.append((sa, sb))
+                    column12_states.append((sa, sa))
+                    GeneconvRate = get_HKYGeneconvRate1(pair, na + na, Qbasic, self.tau1,self.c)
+                    proportions12.append(self.tau1/ GeneconvRate if GeneconvRate > 0 else 0.0)
+
+
+                    # (na, nb) to (nb, nb)
+                    row21_states.append((sa, sb))
+                    column21_states.append((sb, sb))
+                    GeneconvRate = get_HKYGeneconvRate(pair, nb + nb, Qbasic, self.tau1)
+                    proportions21.append(self.tau1 / GeneconvRate if GeneconvRate > 0 else 0.0)
+        else:
+            if self.Model == 'MG94':
+                Qbasic = self.get_MG94Basic()
+                for i, pair in enumerate(product(self.codon_nonstop, repeat=2)):
+                    ca, cb = pair
+                    sa = self.codon_to_state[ca]
+                    sb = self.codon_to_state[cb]
+                    if ca == cb:
+                        continue
+
+                    # (ca, cb) to (ca, ca)
+                    row12_states.append((sa, sb))
+                    column12_states.append((sa, sa))
+                    Qb = Qbasic[sb, sa]
+                    if isNonsynonymous(cb, ca, self.codon_table):
+                        Tgeneconv1 = self.tau1 * self.omega
+                    else:
+                        Tgeneconv1 = self.tau1
+                    proportions12.append(Tgeneconv1 / (Qb + Tgeneconv1) if (Qb + Tgeneconv1) > 0 else 0.0)
+
+                    # (ca, cb) to (cb, cb)
+                    row21_states.append((sa, sb))
+                    column21_states.append((sb, sb))
+                    Qb = Qbasic[sa, sb]
+                    if isNonsynonymous(cb, ca, self.codon_table):
+                        Tgeneconv1 = self.tau1 * self.omega
+                    else:
+                        Tgeneconv1 = self.tau1
+                    proportions21.append(
+                        Tgeneconv1 / (self.c * (Qb + Tgeneconv1)) if (self.c * (Qb + Tgeneconv1)) > 0 else 0.0)
+
+            elif self.Model == 'HKY':
+                Qbasic = self.get_HKYBasic()
+                for i, pair in enumerate(product('ACGT', repeat=2)):
+                    na, nb = pair
+                    sa = self.nt_to_state[na]
+                    sb = self.nt_to_state[nb]
+                    if na == nb:
+                        continue
+
+                    # (na, nb) to (na, na)
+                    row12_states.append((sa, sb))
+                    column12_states.append((sa, sa))
+                    GeneconvRate = get_HKYGeneconvRate1(pair, na + na, Qbasic, self.tau1, self.c)
+                    proportions12.append(self.tau1 / GeneconvRate if GeneconvRate > 0 else 0.0)
+
+                    # (na, nb) to (nb, nb)
+                    row21_states.append((sa, sb))
+                    column21_states.append((sb, sb))
+                    GeneconvRate = get_HKYGeneconvRate(pair, nb + nb, Qbasic, self.tau1)
+                    proportions21.append(self.tau1 / GeneconvRate if GeneconvRate > 0 else 0.0)
+
         return [{'row_states' : row12_states, 'column_states' : column12_states, 'weights' : proportions12},
                 {'row_states' : row21_states, 'column_states' : column21_states, 'weights' : proportions21}]
         
@@ -1261,122 +1365,246 @@ class ReCodonGeneconv:
         row_states = []
         col_states = []
         proportions = []
-        
-        if self.Model == 'MG94':
-            Qbasic = self.get_MG94Basic()
-            for i, pair in enumerate(product(self.codon_nonstop, repeat = 2)):
-                ca, cb = pair
-                sa = self.codon_to_state[ca]
-                sb = self.codon_to_state[cb]
-                if ca != cb:                        
-                    for cc in self.codon_nonstop:
-                        if cc == ca or cc == cb:
-                            continue
-                        sc = self.codon_to_state[cc]
 
-                        # (ca, cb) to (ca, cc)
-                        Qb = Qbasic[sb, sc]
-                        if Qb != 0:
-                            row_states.append((sa, sb))
-                            col_states.append((sa, sc))
-                            proportions.append(1.0)
+        if self.eqtau12==False:
 
-                        # (ca, cb) to (cc, cb)
-                        Qb = Qbasic[sa, sc]
-                        if Qb != 0:
-                            row_states.append((sa, sb))
-                            col_states.append((sc, sb))
-                            proportions.append(1.0)
-                    # (ca, cb) to (ca, ca)
-                    row_states.append((sa, sb))
-                    col_states.append((sa, sa))
-                    Qb = Qbasic[sb, sa]
-                    if isNonsynonymous(cb, ca, self.codon_table):
-                        Tgeneconv = self.tau * self.omega
+            if self.Model == 'MG94':
+                Qbasic = self.get_MG94Basic()
+                for i, pair in enumerate(product(self.codon_nonstop, repeat = 2)):
+                    ca, cb = pair
+                    sa = self.codon_to_state[ca]
+                    sb = self.codon_to_state[cb]
+                    if ca != cb:
+                        for cc in self.codon_nonstop:
+                            if cc == ca or cc == cb:
+                                continue
+                            sc = self.codon_to_state[cc]
+
+                            # (ca, cb) to (ca, cc)
+                            Qb = Qbasic[sb, sc]
+                            if Qb != 0:
+                                row_states.append((sa, sb))
+                                col_states.append((sa, sc))
+                                proportions.append(1.0)
+
+                            # (ca, cb) to (cc, cb)
+                            Qb = Qbasic[sa, sc]
+                            if Qb != 0:
+                                row_states.append((sa, sb))
+                                col_states.append((sc, sb))
+                                proportions.append(1.0)
+                        # (ca, cb) to (ca, ca)
+                        row_states.append((sa, sb))
+                        col_states.append((sa, sa))
+                        Qb = Qbasic[sb, sa]
+                        if isNonsynonymous(cb, ca, self.codon_table):
+                            Tgeneconv1 = self.tau1 * self.omega
+                        else:
+                            Tgeneconv1 = self.tau1
+                        proportions.append(1.0 - Tgeneconv1 /( Qb + Tgeneconv1) if (Qb + Tgeneconv1) >0 else 0.0)
+
+                        # (ca, cb) to (cb, cb)
+                        row_states.append((sa, sb))
+                        col_states.append((sb, sb))
+                        Qb = Qbasic[sa, sb]
+                        if isNonsynonymous(cb, ca, self.codon_table):
+                            Tgeneconv2 = self.tau2 * self.omega
+                        else:
+                            Tgeneconv2 = self.tau2
+                        proportions.append(1.0 - Tgeneconv2 / (self.c*(Qb + Tgeneconv2) )if (self.c*(Qb + Tgeneconv2)) >0 else 0.0)
                     else:
-                        Tgeneconv = self.tau
-                    proportions.append(1.0 - Tgeneconv / (self.c*Qb + Tgeneconv) if (self.c*Qb + Tgeneconv) >0 else 0.0)
+                        for cc in self.codon_nonstop:
+                            if cc == ca:
+                                continue
+                            sc = self.codon_to_state[cc]
 
-                    # (ca, cb) to (cb, cb)
-                    row_states.append((sa, sb))
-                    col_states.append((sb, sb))
-                    Qb = Qbasic[sa, sb]
-                    proportions.append(1.0 - Tgeneconv / (Qb + Tgeneconv) if (Qb + Tgeneconv) >0 else 0.0)
-                else:
-                    for cc in self.codon_nonstop:
-                        if cc == ca:
-                            continue
-                        sc = self.codon_to_state[cc]
+                            # (ca, ca) to (ca,  cc)
+                            Qb = Qbasic[sa, sc]
+                            if Qb != 0:
+                                row_states.append((sa, sb))
+                                col_states.append((sa, sc))
+                                proportions.append(1.0)
+                            # (ca, ca) to (cc, ca)
+                                row_states.append((sa, sb))
+                                col_states.append((sc, sa))
+                                proportions.append(1.0)
 
-                        # (ca, ca) to (ca,  cc)
-                        Qb = Qbasic[sa, sc]
-                        if Qb != 0:
-                            row_states.append((sa, sb))
-                            col_states.append((sa, sc))
-                            proportions.append(1.0)
-                        # (ca, ca) to (cc, ca)
-                            row_states.append((sa, sb))
-                            col_states.append((sc, sa))
-                            proportions.append(1.0)
+                            # (ca, ca) to (cc, cc)
+                                row_states.append((sa, sb))
+                                col_states.append((sc, sc))
+                                proportions.append(1.0)
+            elif self.Model == 'HKY':
+                Qbasic = self.get_HKYBasic()
+                for i, pair in enumerate(product('ACGT', repeat = 2)):
+                    na, nb = pair
+                    sa = self.nt_to_state[na]
+                    sb = self.nt_to_state[nb]
+                    if na!= nb:
+                        for nc in 'ACGT':
+                            if nc == na or nc == nb:
+                                continue
+                            sc = self.nt_to_state[nc]
 
-                        # (ca, ca) to (cc, cc)
-                            row_states.append((sa, sb))
-                            col_states.append((sc, sc))
-                            proportions.append(1.0)
-        elif self.Model == 'HKY':
-            Qbasic = self.get_HKYBasic()
-            for i, pair in enumerate(product('ACGT', repeat = 2)):
-                na, nb = pair
-                sa = self.nt_to_state[na]
-                sb = self.nt_to_state[nb]
-                if na!= nb:
-                    for nc in 'ACGT':
-                        if nc == na or nc == nb:
-                            continue
-                        sc = self.nt_to_state[nc]
+                            # (na, nb) to (na, nc)
+                            Qb = Qbasic[sb, sc]
+                            if Qb != 0:
+                                row_states.append((sa, sb))
+                                col_states.append((sa, sc))
+                                proportions.append(1.0)
 
-                        # (na, nb) to (na, nc)
-                        Qb = Qbasic[sb, sc]
-                        if Qb != 0:
-                            row_states.append((sa, sb))
-                            col_states.append((sa, sc))
-                            proportions.append(1.0)
+                            # (na, nb) to (nc, nb)
+                            Qb = Qbasic[sa, sc]
+                            if Qb != 0:
+                                row_states.append((sa, sb))
+                                col_states.append((sc, sb))
+                                proportions.append(1.0)
 
-                        # (na, nb) to (nc, nb)
-                        Qb = Qbasic[sa, sc]
-                        if Qb != 0:
-                            row_states.append((sa, sb))
-                            col_states.append((sc, sb))
-                            proportions.append(1.0)
+                        # (na, nb) to (na, na)
+                        row_states.append((sa, sb))
+                        col_states.append((sa, sa))
+                        Qb = Qbasic[sb, sa]
+                        proportions.append((self.c*Qb )/ (self.c*Qb + self.tau1))
 
-                    # (na, nb) to (na, na)
-                    row_states.append((sa, sb))
-                    col_states.append((sa, sa))
-                    Qb = Qbasic[sb, sa]
-                    proportions.append((self.c*Qb )/ (self.c*Qb + self.tau))
+                        # (na, nb) to (nb, nb)
+                        row_states.append((sa, sb))
+                        col_states.append((sb, sb))
+                        Qb = Qbasic[sa, sb]
+                        proportions.append(Qb / (Qb + self.tau1))
+                    else:
+                        for nc in 'ACGT':
+                            if nc == na:
+                                continue
+                            sc = self.nt_to_state[nc]
 
-                    # (na, nb) to (nb, nb)
-                    row_states.append((sa, sb))
-                    col_states.append((sb, sb))
-                    Qb = Qbasic[sa, sb]
-                    proportions.append(Qb / (Qb + self.tau))
-                else:
-                    for nc in 'ACGT':
-                        if nc == na:
-                            continue
-                        sc = self.nt_to_state[nc]
+                            Qb = Qbasic[sa, sc]
+                            if Qb != 0.0:
+                                row_states.append((sa, sb))
+                                col_states.append((sa, sc))
+                                proportions.append(1.0)
 
-                        Qb = Qbasic[sa, sc]
-                        if Qb != 0.0:
-                            row_states.append((sa, sb))
-                            col_states.append((sa, sc))
-                            proportions.append(1.0)
+                                row_states.append((sa, sb))
+                                col_states.append((sc, sa))
+                                proportions.append(1.0)
 
-                            row_states.append((sa, sb))
-                            col_states.append((sc, sa))
-                            proportions.append(1.0)                           
+        else:
+            if self.Model == 'MG94':
+                Qbasic = self.get_MG94Basic()
+                for i, pair in enumerate(product(self.codon_nonstop, repeat=2)):
+                    ca, cb = pair
+                    sa = self.codon_to_state[ca]
+                    sb = self.codon_to_state[cb]
+                    if ca != cb:
+                        for cc in self.codon_nonstop:
+                            if cc == ca or cc == cb:
+                                continue
+                            sc = self.codon_to_state[cc]
 
-                     
+                            # (ca, cb) to (ca, cc)
+                            Qb = Qbasic[sb, sc]
+                            if Qb != 0:
+                                row_states.append((sa, sb))
+                                col_states.append((sa, sc))
+                                proportions.append(1.0)
+
+                            # (ca, cb) to (cc, cb)
+                            Qb = Qbasic[sa, sc]
+                            if Qb != 0:
+                                row_states.append((sa, sb))
+                                col_states.append((sc, sb))
+                                proportions.append(1.0)
+                        # (ca, cb) to (ca, ca)
+                        row_states.append((sa, sb))
+                        col_states.append((sa, sa))
+                        Qb = Qbasic[sb, sa]
+                        if isNonsynonymous(cb, ca, self.codon_table):
+                            Tgeneconv1 = self.tau1 * self.omega
+                        else:
+                            Tgeneconv1 = self.tau1
+                        proportions.append(1.0 - Tgeneconv1 / (Qb + Tgeneconv1) if (Qb + Tgeneconv1) > 0 else 0.0)
+
+                        # (ca, cb) to (cb, cb)
+                        row_states.append((sa, sb))
+                        col_states.append((sb, sb))
+                        Qb = Qbasic[sa, sb]
+                        if isNonsynonymous(cb, ca, self.codon_table):
+                            Tgeneconv1 = self.tau1 * self.omega
+                        else:
+                            Tgeneconv1 = self.tau1
+                        proportions.append(1.0 - Tgeneconv1 / (self.c * (Qb + Tgeneconv1)) if (self.c * ( Qb + Tgeneconv1)) > 0 else 0.0)
+                    else:
+                        for cc in self.codon_nonstop:
+                            if cc == ca:
+                                continue
+                            sc = self.codon_to_state[cc]
+
+                            # (ca, ca) to (ca,  cc)
+                            Qb = Qbasic[sa, sc]
+                            if Qb != 0:
+                                row_states.append((sa, sb))
+                                col_states.append((sa, sc))
+                                proportions.append(1.0)
+                                # (ca, ca) to (cc, ca)
+                                row_states.append((sa, sb))
+                                col_states.append((sc, sa))
+                                proportions.append(1.0)
+
+                                # (ca, ca) to (cc, cc)
+                                row_states.append((sa, sb))
+                                col_states.append((sc, sc))
+                                proportions.append(1.0)
+            elif self.Model == 'HKY':
+                Qbasic = self.get_HKYBasic()
+                for i, pair in enumerate(product('ACGT', repeat=2)):
+                    na, nb = pair
+                    sa = self.nt_to_state[na]
+                    sb = self.nt_to_state[nb]
+                    if na != nb:
+                        for nc in 'ACGT':
+                            if nc == na or nc == nb:
+                                continue
+                            sc = self.nt_to_state[nc]
+
+                            # (na, nb) to (na, nc)
+                            Qb = Qbasic[sb, sc]
+                            if Qb != 0:
+                                row_states.append((sa, sb))
+                                col_states.append((sa, sc))
+                                proportions.append(1.0)
+
+                            # (na, nb) to (nc, nb)
+                            Qb = Qbasic[sa, sc]
+                            if Qb != 0:
+                                row_states.append((sa, sb))
+                                col_states.append((sc, sb))
+                                proportions.append(1.0)
+
+                        # (na, nb) to (na, na)
+                        row_states.append((sa, sb))
+                        col_states.append((sa, sa))
+                        Qb = Qbasic[sb, sa]
+                        proportions.append((self.c * Qb) / (self.c * Qb + self.tau1))
+
+                        # (na, nb) to (nb, nb)
+                        row_states.append((sa, sb))
+                        col_states.append((sb, sb))
+                        Qb = Qbasic[sa, sb]
+                        proportions.append(Qb / (Qb + self.tau1))
+                    else:
+                        for nc in 'ACGT':
+                            if nc == na:
+                                continue
+                            sc = self.nt_to_state[nc]
+
+                            Qb = Qbasic[sa, sc]
+                            if Qb != 0.0:
+                                row_states.append((sa, sb))
+                                col_states.append((sa, sc))
+                                proportions.append(1.0)
+
+                                row_states.append((sa, sb))
+                                col_states.append((sc, sa))
+                                proportions.append(1.0)
+
         return [{'row_states' : row_states, 'column_states' : col_states, 'weights' : proportions}]
 
     def _ExpectedpointMutationNum(self, package = 'new', display = False):
