@@ -1658,14 +1658,14 @@ class ReCodonGeneconv:
         else:
             print ('Need to implement this for old package')
 
-    def get_SitewisePosteriorSummary(self, summary_path, file_name = None):
+    def get_SitewisePosteriorSummary(self, summary_path, name,type,file_name = None):
         SitewiseExpectedpointMutation = self._SitewiseExpectedpointMutationNum()
         SiteExpectedDirectionalNumGeneconv = self._SitewiseExpectedDirectionalNumGeneconv()
         if file_name == None:
             if not self.Force:
-                prefix_summary = summary_path + self.Model + '_'
+                prefix_summary = summary_path + self.Model + '_'+name+'_'+type+'_'
             else:
-                prefix_summary = summary_path + 'Force_' + self.Model + '_'
+                prefix_summary = summary_path + 'Force_' + self.Model + '_'+name+'_'+type+'_'
                 
 
             if self.clock:
@@ -1752,12 +1752,12 @@ class ReCodonGeneconv:
         else:
             return out        
 
-    def get_individual_summary(self, summary_path, file_name = None):
+    def get_individual_summary(self, summary_path,name,type,file_name = None):
         if file_name == None:
             if not self.Force:
-                prefix_summary = summary_path + self.Model + '_'
+                prefix_summary = summary_path + self.Model + '_'+name+'_'+type+'_'
             else:
-                prefix_summary = summary_path + 'Force_' + self.Model + '_'
+                prefix_summary = summary_path + 'Force_' + self.Model + '_'+name+'_'+type+'_'
                 
 
             if self.clock:
@@ -1767,7 +1767,7 @@ class ReCodonGeneconv:
 
             summary_file = prefix_summary + '_'.join(self.paralog) + suffix_summary
         else:
-            summary_file = file_name
+            summary_file = summary_path +file_name
         res = self.get_summary(True)
         summary = np.matrix(res[0])
         label = res[1]

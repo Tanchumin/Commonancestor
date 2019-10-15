@@ -21,14 +21,14 @@ if __name__ == '__main__':
     paralog = ['EDN', 'ECP']
     alignment_file = '../test/EEEE.fasta'
     newicktree = '../test/EEEE.newick'
-    Force = {5:0,6:0,7:1}
+    Force = {7:1}
     model = 'MG94'
 
 
-    name='EDN_ECP'
-    type='situation1'
+    name='YYYYYY'
+    type='situation8'
 
-    save_name = '../test/save/' + model + name+'_'+type+'_nonclock_save.txt'
+    save_name = '../test/save/' + model+'_' + name+'_'+type+'_nonclock_save.txt'
 
     summary_folder = '../summary/'
     check_folder(summary_folder)
@@ -38,12 +38,12 @@ if __name__ == '__main__':
 
     test.get_mle()
     test.get_ExpectedNumGeneconv()
-    test.get_individual_summary(summary_path=summary_folder)
+    test.get_individual_summary(summary_path=summary_folder,name=name,type=type)
 
-    IGC_sitewise_lnL_file = summary_folder + model + '_'+name+'type'+'_'.join(paralog) + '_nonclock_sitewise_lnL_summary.txt'
+    IGC_sitewise_lnL_file = summary_folder + model + '_'+name+"_"+type+'_'+'_'.join(paralog) + '_nonclock_sitewise_lnL_summary.txt'
     test.get_sitewise_loglikelihood_summary(IGC_sitewise_lnL_file)
 
-    test.get_SitewisePosteriorSummary(summary_path=summary_folder)
+    test.get_SitewisePosteriorSummary(summary_path=summary_folder,name=name,type=type)
 
 
 
