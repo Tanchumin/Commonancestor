@@ -94,7 +94,7 @@ class ReCodonGeneconv:
         self.kappa          = 1.2       # real values
         self.omega          = 0.9       # real values
         self.tau1            = ptau1
-        self.tau2           =ptau2         # real values
+        self.tau2           =  ptau2         # real values
         self.c = pc                     # specific parameter for showing differnet rate
         self.eqtau12=eqtau12       # specific parameter for same tau
 
@@ -569,27 +569,53 @@ class ReCodonGeneconv:
         rate_geneconv = []
         rate_basic = []
 
-        for i, pair_from in enumerate(product('ACGT', repeat = 2)):
-            na, nb = pair_from
-            sa = self.nt_to_state[na]
-            sb = self.nt_to_state[nb]
-            for j, pair_to in enumerate(product('ACGT', repeat = 2)):
-                nc, nd = pair_to
-                sc = self.nt_to_state[nc]
-                sd = self.nt_to_state[nd]
-                if i == j:
-                    continue
-                GeneconvRate = get_HKYGeneconvRate1(pair_from, pair_to, Qbasic, self.tau1,self.tau2,self.c)
-                if GeneconvRate != 0.0:
-                    row.append((sa, sb))
-                    col.append((sc, sd))
-                    rate_geneconv.append(GeneconvRate)
-                    rate_basic.append(0.0)
-                if na == nb and nc == nd:
-                    row.append((sa, sb))
-                    col.append((sc, sd))
-                    rate_geneconv.append(GeneconvRate)
-                    rate_basic.append(Qbasic['ACGT'.index(na), 'ACGT'.index(nc)])
+        if self.eqtau12 ==True:
+            for i, pair_from in enumerate(product('ACGT', repeat = 2)):
+                na, nb = pair_from
+                sa = self.nt_to_state[na]
+                sb = self.nt_to_state[nb]
+                for j, pair_to in enumerate(product('ACGT', repeat = 2)):
+                    nc, nd = pair_to
+                    sc = self.nt_to_state[nc]
+                    sd = self.nt_to_state[nd]
+                    if i == j:
+                        continue
+                    GeneconvRate = get_HKYGeneconvRate1(pair_from, pair_to, Qbasic, self.tau1,self.tau2,self.c)
+                    if GeneconvRate != 0.0:
+                        row.append((sa, sb))
+                        col.append((sc, sd))
+                        rate_geneconv.append(GeneconvRate)
+                        rate_basic.append(0.0)
+                    if na == nb and nc == nd:
+                        row.append((sa, sb))
+                        col.append((sc, sd))
+                        rate_geneconv.append(GeneconvRate)
+                        rate_basic.append(Qbasic['ACGT'.index(na), 'ACGT'.index(nc)])
+
+        else:
+            for i, pair_from in enumerate(product('ACGT', repeat = 2)):
+                na, nb = pair_from
+                sa = self.nt_to_state[na]
+                sb = self.nt_to_state[nb]
+                for j, pair_to in enumerate(product('ACGT', repeat = 2)):
+                    nc, nd = pair_to
+                    sc = self.nt_to_state[nc]
+                    sd = self.nt_to_state[nd]
+                    if i == j:
+                        continue
+                    GeneconvRate = get_HKYGeneconvRate(pair_from, pair_to, Qbasic, self.tau1, self.c)
+                    if GeneconvRate != 0.0:
+                        row.append((sa, sb))
+                        col.append((sc, sd))
+                        rate_geneconv.append(GeneconvRate)
+                        rate_basic.append(0.0)
+                    if na == nb and nc == nd:
+                        row.append((sa, sb))
+                        col.append((sc, sd))
+                        rate_geneconv.append(GeneconvRate)
+                        rate_basic.append(Qbasic['ACGT'.index(na), 'ACGT'.index(nc)])
+
+
 
         process_geneconv = dict(
             row = row,
@@ -601,6 +627,7 @@ class ReCodonGeneconv:
             col = col,
             rate = rate_basic
             )
+
         # process_basic is for HKY_Basic which is equivalent to 4by4 rate matrix
         return [process_basic, process_geneconv]
     
