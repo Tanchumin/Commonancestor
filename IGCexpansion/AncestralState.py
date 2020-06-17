@@ -28,8 +28,6 @@ def get_maxpro(list, nodecom):
     return (sites)
 
 
-
-
 class AncestralState:
 
     def __init__(self,
@@ -66,7 +64,6 @@ class AncestralState:
 
         if isinstance(geneconv, JSGeneconv):
             raise RuntimeError('Not yet implemented!')
-
 
     def get_mle(self):
         self.geneconv.get_mle()
@@ -128,9 +125,6 @@ class AncestralState:
 
         return (sites)
 
-
-
-
     def get_site_ancestral_dist(self, site_num):
         # site_num starts from 0 where 0 corresponds to the first site
         if self.ancestral_state_response is None:
@@ -146,13 +140,12 @@ class AncestralState:
             node_state_prob_dict[self.num_to_node[node_num]] =state_prob_dict
         return node_state_prob_dict
 
-
-    def get_maxpro_index(self,ifmarginal=False,paralog=1):
+    def get_maxpro_index(self, ifmarginal=False, paralog=1):
 
         if self.ancestral_state_response is None:
             self.ancestral_state_response = self.get_ancestral_state_response()
 
-        if ifmarginal==False:
+        if ifmarginal == False:
             self.node_length=len(self.get_num_to_node())
             sites = np.zeros(shape=(self.node_length,self.sites_length ))
             for site in range(self.sites_length):
@@ -176,32 +169,30 @@ class AncestralState:
                     mat=self.get_marginal(node,paralog)
                     for site in range(self.sites_length):
                         sites[node][site] = np.argmax(np.array(mat)[site,:])
-                self.sites2=sites
+                self.sites2 = sites
 
         return (sites)
 
-    def get_maxpro_matrix(self,ifmarginal=False,paralog=1):
+    def get_maxpro_matrix(self, ifmarginal=False, paralog=1):
 
         if self.ancestral_state_response is None:
             self.ancestral_state_response = self.get_ancestral_state_response()
 
-        if ifmarginal==False:
+        if ifmarginal == False:
             self.node_length=len(self.get_num_to_node())
-            sites = np.zeros(shape=(self.node_length,self.sites_length ))
+            sites = np.zeros(shape=(self.node_length, self.sites_length))
             for site in range(self.sites_length):
                 for node in range(self.node_length):
                     sites[node][site] = np.max(np.array(self.ancestral_state_response[site])[:, node])
 
         else:
-            if paralog==1:
+            if paralog == 1:
                 self.node_length = len(self.get_num_to_node())
                 sites = np.zeros(shape=(self.node_length, self.sites_length))
                 for node in range(self.node_length):
                     mat=self.get_marginal(node)
                     for site in range(self.sites_length):
                         sites[node][site] = np.max(np.array(mat)[site,:])
-
-
 
             else:
                 self.node_length = len(self.get_num_to_node())
@@ -267,18 +258,19 @@ class AncestralState:
             self.num_to_node = self.geneconv.num_to_node
         return self.num_to_node
 
-    def get_marginal(self,node,paralog=1):
+    def get_marginal(self, node, paralog=1):
         if self.ancestral_state_response is None:
             self.ancestral_state_response = self.get_ancestral_state_response()
 
-        if paralog==1:
+        if paralog == 1:
 
-            if self.Model=='MG94':
+            if self.Model == 'MG94':
                 marginal_sites = np.zeros(shape=(self.sites_length,61))
                 for site in range(self.sites_length):
-                    i=0
+                    i = 0
                     for marginal in range(61):
-                        marginal_sites[site][marginal] = sum(np.array(self.ancestral_state_response[site])[i:(i+61), node])
+                        marginal_sites[site][marginal] = sum(np.array(self.ancestral_state_response[site])[
+                                                             i:(i+61), node])
                         i=i+61
 
             else:
@@ -286,7 +278,8 @@ class AncestralState:
                 for site in range(self.sites_length):
                     i = 0
                     for marginal in range(4):
-                        marginal_sites[site][marginal] = sum(np.array(self.ancestral_state_response[site])[i:(i + 4), node])
+                        marginal_sites[site][marginal] = sum(np.array(self.ancestral_state_response[site])[
+                                                             i:(i + 4), node])
                         i = i + 4
         else:
             if self.Model == 'MG94':
@@ -294,8 +287,9 @@ class AncestralState:
                 for site in range(self.sites_length):
                     i = 0
                     for marginal in range(61):
-                        index_pra2=range(i,3671+i,61)
-                        marginal_sites[site][marginal] = sum(np.array(self.ancestral_state_response[site])[index_pra2, node])
+                        index_pra2 = range(i, 3671+i, 61)
+                        marginal_sites[site][marginal] = sum(np.array(self.ancestral_state_response[site])[
+                                                                 index_pra2, node])
                         i = i + 1
 
             else:
@@ -304,55 +298,53 @@ class AncestralState:
                     i = 0
                     for marginal in range(4):
                         index_pra2=range(i,i+16,4)
-                        marginal_sites[site][marginal] = sum(np.array(self.ancestral_state_response[site])[index_pra2, node])
+                        marginal_sites[site][marginal] = sum(np.array(self.ancestral_state_response[site])[
+                                                                 index_pra2, node])
                         i = i + 1
-
 
         return marginal_sites
 
     def get_interior_node(self):
+
         if self.node_length is None:
-             self.node_length= len(self.get_num_to_node())
+             self.node_length = len(self.get_num_to_node())
 
         node = np.arange(self.node_length)
         interior_node = set(node) - set(self.scene["observed_data"]["nodes"])
         c = [i for i in interior_node]
+
         return (c)
 
 
-# help build dictional for how difference of a paralog
+# help build dictionary for how difference of a paralog
 
     def making_dic_di(self):
 
-        if self.Model =="HKY":
+        if self.Model == "HKY":
             dicts = {}
             keys = range(16)
             for i in keys:
-                if ((i//4)==(i%4)):
+                if (i//4) == (i % 4):
                     dicts[i] = 0
                 else:
                     dicts[i] = 1
-
 
         else:
             dicts = {}
             keys = range(3721)
             for i in keys:
-                if ((i//61)==(i%61)):
+                if (i//61) == (i % 61):
                     dicts[i] = 0
                 else:
                     dicts[i] = 1
 
-        self.dic_di =dicts
+        self.dic_di = dicts
 
-
-
-
-
+# making Q matrix
     def making_Qmatrix(self):
-        scene=self.get_scene()
-        actua_number=(len(scene['process_definitions'][1]['transition_rates']))
 
+        scene = self.get_scene()
+        actual_number=(len(scene['process_definitions'][1]['transition_rates']))
 
         global x_i
         x_i = 0
@@ -362,38 +354,41 @@ class AncestralState:
 
 # dic is from 1:16
 
+        if self.Model == 'HKY':
+            self.Q=np.zeros(shape=(16, 9))
+            self.dic_col=np.zeros(shape=(16, 9))
+            for i in range(actual_number):
 
-        if self.Model=='HKY':
-            self.Q=np.zeros(shape=(16,9))
-            self.dic_col=np.zeros(shape=(16,9))
-            for i in range(actua_number):
+# x_io means current index for row states,x_i is states for last times
+# self.dic_col indicts the coordinates for ending states
 
-                x_io=(scene['process_definitions'][1]['row_states'][i][0])*4+(scene['process_definitions'][1]['row_states'][i][1])
+                x_io = (scene['process_definitions'][1]['row_states'][i][0])*4+(scene['process_definitions'][1][
+                        'row_states'][i][1])
 
-                if x_i==x_io:
-                    self.Q[x_io,index]=scene['process_definitions'][1]['transition_rates'][i]
-                    self.dic_col[x_io, index] =1+ (scene['process_definitions'][1]['column_states'][i][0]) * 4 + \
-                                               (scene['process_definitions'][1]['column_states'][i][1])
-                    x_i=x_io
-                    index=index+1
-
-
-                else:
-                    self.Q[x_io,0]=scene['process_definitions'][1]['transition_rates'][i]
-                    self.dic_col[x_io, 0] =1+ (scene['process_definitions'][1]['column_states'][i][0]) * 4 + \
-                                           (scene['process_definitions'][1]['column_states'][i][1])
-                    x_i=x_io
-                    index=1
-
-        else :
-            self.Q = np.zeros(shape=(3721,27))
-            self.dic_col = np.zeros(shape=(3721,27))
-            for i in range(actua_number):
-                x_io = (scene['process_definitions'][1]['row_states'][i][0]) * 61 + (scene['process_definitions'][1]['row_states'][i][1])
                 if x_i == x_io:
                     self.Q[x_io, index] = scene['process_definitions'][1]['transition_rates'][i]
-                    self.dic_col[x_io, index] =1+ (scene['process_definitions'][1]['column_states'][i][0]) * 61 + (
-                    scene['process_definitions'][1]['column_states'][i][1])
+                    self.dic_col[x_io, index] = 1 + (scene['process_definitions'][1]['column_states'][i][0]) * 4+(
+                                               scene['process_definitions'][1]['column_states'][i][1])
+                    x_i = x_io
+                    index = index+1
+
+                else:
+                    self.Q[x_io, 0]=scene['process_definitions'][1]['transition_rates'][i]
+                    self.dic_col[x_io, 0] = 1 + (scene['process_definitions'][1]['column_states'][i][0]) * 4 + (
+                                           scene['process_definitions'][1]['column_states'][i][1])
+                    x_i = x_io
+                    index = 1
+
+        else:
+            self.Q = np.zeros(shape=(3721, 27))
+            self.dic_col = np.zeros(shape=(3721, 27))
+            for i in range(actual_number):
+                x_io = (scene['process_definitions'][1]['row_states'][i][0]) * 61 + (scene[
+                       'process_definitions'][1]['row_states'][i][1])
+                if x_i == x_io:
+                    self.Q[x_io, index] = scene['process_definitions'][1]['transition_rates'][i]
+                    self.dic_col[x_io, index] = 1 + (scene['process_definitions'][1]['column_states'][i][0]) * 61 + (
+                                                scene['process_definitions'][1]['column_states'][i][1])
                     x_i = x_io
                     index = index + 1
 
@@ -401,24 +396,26 @@ class AncestralState:
                 else:
                     self.Q[x_io, 0] = scene['process_definitions'][1]['transition_rates'][i]
                     self.dic_col[x_io, 0] = 1+(scene['process_definitions'][1]['column_states'][i][0]) * 61 + (
-                    scene['process_definitions'][1]['column_states'][i][1])
+                                            scene['process_definitions'][1]['column_states'][i][1])
                     x_i = x_io
                     index = 1
 
 
-        return self.Q,  self.dic_col
+        return self.Q, self.dic_col
 
 
-# making initital state and end state
+# making initial state and end state
 
-    def make_ie(self,node_i,node_e):
+    def make_ie(self, node_i, node_e):
+
         if self.sites1 is None:
             self.get_maxpro_index(True, 1)
         if self.sites2 is None:
             self.get_maxpro_index(True, 2)
 
-        ini=np.ones((self.sites_length))
-        end=np.ones((self.sites_length))
+        ini = np.ones(self.sites_length)
+        end = np.ones(self.sites_length)
+
         if self.Model == "HKY":
             for site in range(self.sites_length):
                ini[site] = self.sites2[node_i, site]+self.sites1[node_i, site]*4
@@ -428,7 +425,6 @@ class AncestralState:
             for site in range(self.sites_length):
                ini[site] = self.sites2[node_i, site]+self.sites1[node_i, site]*61
                end[site] = self.sites2[node_e, site]+self.sites1[node_e, site]*61
-
 
         return ini, end
 
@@ -547,8 +543,7 @@ class AncestralState:
 
         return time_matrix, state_matrix, effect_number, big_number
 
-
-    def GLS_m(self,t=0.36,ini=None,end=None,repeat=2):
+    def GLS_m(self,t=0.1, ini=None, end=None, repeat=2):
 
         global di
         global di1
@@ -557,7 +552,7 @@ class AncestralState:
 
             di=16
             di1=9
-            self.Q_new=np.zeros(shape=(16,9))
+            self.Q_new=np.zeros(shape=(16, 9))
         else:
             di=3721
             di1=27
@@ -566,77 +561,81 @@ class AncestralState:
         if self.Q is None:
            self.making_Qmatrix()
 
-        Q_iiii = np.ones((di))
+        Q_iiii = np.ones(di)
         for ii in range(di):
-            qii=sum(self.Q[ii,])
+            qii = sum(self.Q[ii, ])
             if qii !=0:
-               Q_iiii[ii] = sum(self.Q[ii,])
+               Q_iiii[ii] = qii
+
         for d in range(di):
-            self.Q_new[d,] = self.Q[d,] / Q_iiii[d]
-
-
+            self.Q_new[d, ] = self.Q[d, ] / Q_iiii[d]
 
         max_number = 10
 
         time_list = []
-        state_list =[]
-        dis_matrix = np.ones(shape=(self.sites_length))
-
-
+        state_list = []
+        dis_matrix = np.ones(self.sites_length)
 
         for i in range(self.sites_length):
-            if(ini[i]!=end[i]):
+            if ini[i] != end[i]:
                 time_list.append(0)
                 state_list.append(0)
-                dis_matrix[i]=0
+                dis_matrix[i] = 0
             else:
                 time_list.append(1)
                 state_list.append(1)
-        effect_matrix = np.zeros(shape=(self.sites_length,repeat))
-        big_number_matrix=np.zeros(shape=(self.sites_length,repeat))
+        effect_matrix = np.zeros(shape=(self.sites_length, repeat))
+        big_number_matrix=np.zeros(shape=(self.sites_length, repeat))
 
-
+        # start simulation
 
         for ii in range(self.sites_length):
-            if(time_list[ii]!=1):
+
+            # time_list ! =1 means there is a mutation
+
+            if time_list[ii] != 1:
 
                 time_matrix = 100*np.ones(shape=(repeat, max_number))
                 state_matrix = np.zeros(shape=(repeat, max_number))
 
                 for jj in range(repeat):
                         # most transfer 10 times
-                        curent_state = ini[ii]
+                        current_state = ini[ii]
                         i = 0
                         time = [0]
                         state = [0]
 
-
                         effect_number = 0
                         big_number = 0
 
-                        while (curent_state != end[ii]):
-                            curent_state = ini[ii]
+                        while current_state != end[ii]:
+                            current_state = ini[ii]
                             u = 0
                             i = 0
                             time = [100]
                             state = [0]
-                            while (u <= t):
+                            while u < t:
                                 # state may from 0 or 1
                                 i = i + 1
-                                u1 = random.exponential(Q_iiii[int(curent_state)])
+                                u1 = random.exponential(Q_iiii[int(current_state)])
                                 u = u + u1
-                                time.append(u)
-                                a = np.random.choice(range(di1), 1, p=self.Q_new[int(curent_state),])[0]
-                                old = curent_state
-                                curent_state = self.dic_col[int(curent_state), a] - 1
-                                while (sum(self.Q_new[int(curent_state),]) == 0 and u <= t):
-                                    a = np.random.choice(range(di1), 1, p=self.Q_new[int(old),])[0]
-                                    curent_state = self.dic_col[int(old), a] - 1
-                                state.append(int(curent_state))
+                                if u < t:
+                                    time.append(u)
+                                    a = np.random.choice(range(di1), 1, p=self.Q_new[int(current_state), ])[0]
+                                    old = current_state
+                                    current_state = self.dic_col[int(current_state), a] - 1
 
-                            curent_state = state[i - 1]
+                                    # if jump to absorbing state and without finishing process, we need to resample
 
-                        if (i > max_number):
+                                    while sum(self.Q_new[int(current_state), ]) == 0:
+                                        a = np.random.choice(range(di1), 1, p=self.Q_new[int(old), ])[0]
+                                        current_state = self.dic_col[int(old), a] - 1
+                                    state.append(int(current_state))
+
+                                elif i>1:
+                                    current_state = state[i - 1]
+
+                        if i > max_number:
                             big_number = i
                             time_matrix_old = time_matrix
                             state_matrix_old = state_matrix
@@ -648,18 +647,17 @@ class AncestralState:
                             state_matrix[jj, 0:i] = state[0:i]
                         else:
                             big_number = max(big_number, i)
-                            if (i > 0):
+                            if i > 0:
                                 effect_number = (i - 1) + effect_number
                             time_matrix[jj, 0:i] = time[0:i]
                             state_matrix[jj, 0:i] = state[0:i]
                             state_matrix[jj, 0] = ini[ii]
-                        effect_matrix[ii,jj]=int(effect_number)
-                        big_number_matrix[ii,jj]=int(big_number)
+                        effect_matrix[ii,jj] = int(effect_number)
+                        big_number_matrix[ii,jj] = int(big_number)
                 time_list[ii]=time_matrix
                 state_list[ii]=state_matrix
 
             print(ii)
-
 
         self.time_list=time_list
         self.state_list=state_list
@@ -669,14 +667,10 @@ class AncestralState:
 
         return self.time_list,self.state_list,self.effect_matrix, self.big_number_matrix, self.dis_matrix
 
-    def GLS_s(self, t=0.36, repeat=2, ini=None, end=None, ifrecal=True):
-
+    def GLS_s(self, t=0.1, repeat=2, ini=None, end=None, ifrecal=True):
 
         if ifrecal==True:
-            print(ini)
-            print("iiiiiiiiiiiiii")
-            print(end)
-            self.GLS_m(t=t,ini=ini,end=end,repeat= repeat)
+            self.GLS_m(t=t, ini=ini, end=end, repeat = repeat)
 
         time_list=self.time_list
         state_list=self.state_list
@@ -684,17 +678,16 @@ class AncestralState:
         big_number_matrix=self.big_number_matrix
         dis_matrix=self.dis_matrix
 
-
-
         max_number = 10
         time_matrix = 100*np.ones(shape=(self.sites_length, max_number))
         state_matrix = np.zeros(shape=(self.sites_length, max_number))
         effect_number=0
         big_number=0
+
         for i in range(self.sites_length):
-            a = np.random.choice(range(repeat), 1, p=(1 / float(repeat)) * np.ones(shape=(repeat)))[0]
-            if(dis_matrix[i]!=1):
-                if(big_number_matrix[i,a]<=max_number):
+            a = np.random.choice(range(repeat), 1, p=(1 / float(repeat)) * np.ones(repeat))[0]
+            if dis_matrix[i] != 1:
+                if big_number_matrix[i,a]<=max_number:
 
                     time_matrix[i, 0:max_number] = time_list[i][a,]
                     state_matrix[i, 0:max_number] = state_list[i][a,]
@@ -702,7 +695,7 @@ class AncestralState:
                     effect_number=effect_number+effect_matrix[i,a]
                 else:
                     big_number=max(big_number_matrix[i,a],big_number)
-                    effect_number=effect_number+effect_matrix[i,ia]
+                    effect_number=effect_number+effect_matrix[i,a]
 
                     time_matrix_old = time_matrix
                     state_matrix_old = state_matrix
@@ -727,30 +720,30 @@ class AncestralState:
 
 # 0 difference, 1 time, 2 whether igc
 
-        if self.Model =="HKY":
+        if self.Model == "HKY":
             for ii in range(effect_number):
                 p_h[ii,0]=history_matrix[ii,1]
                 p_h[ii, 1] = history_matrix[ii, 4]
 
                 i_b=int(history_matrix[ii, 6])//4
-                j_b = int(history_matrix[ii, 6]) %4
-                i_p = int(history_matrix[ii, 7]) //4
+                j_b = int(history_matrix[ii, 6]) % 4
+                i_p = int(history_matrix[ii, 7]) // 4
                 j_p = int(history_matrix[ii, 7]) % 4
 
-                if(i_p==j_p):
-                    if(i_b!=j_b and i_b==i_p):
-
-                        y_coor=np.argwhere(self.dic_col[int(history_matrix[ii, 6]),] == (int(history_matrix[ii, 7]) + 1))[0]
-                        qq=self.Q[int(history_matrix[ii, 6]),y_coor]
+                if i_p == j_p:
+                    if i_b != j_b and i_b == i_p:
+                        # y_coor is corresponding coor for igc
+                        y_coor = np.argwhere(self.dic_col[int(history_matrix[ii, 6]),] == (int(history_matrix[ii, 7]) + 1))[0]
+                        qq=self.Q[int(history_matrix[ii, 6]), y_coor]
                         u=random.uniform(0,1)
-                        if(u<=float((np.exp(self.tau))/qq)):
-                            p_h[ii, 2] =1
+                        if u <= float((np.exp(self.tau))/qq):
+                            p_h[ii, 2] = 1
 
                     elif(i_b!=j_b and j_b==j_p):
                         y_coor=np.argwhere(self.dic_col[int(history_matrix[ii, 6]),] == (int(history_matrix[ii, 7]) + 1))[0]
                         qq=self.Q[int(history_matrix[ii, 6]),y_coor]
                         u=random.uniform(0,1)
-                        if(u<=float((np.exp(self.tau))/qq)):
+                        if u<=float((np.exp(self.tau))/qq):
                             p_h[ii, 2] =1
 
         else:
@@ -826,11 +819,11 @@ class AncestralState:
         return history_matrix,effect_number
 
 
-    def monte_carol(self,times=45,repeat=15,ifwholetree=False):
+    def monte_carol(self,times=70,repeat=20,ifwholetree=False):
 
         if ifwholetree==False:
-            ini1 = self.make_ie(0, 2)[0]
-            end1 = self.make_ie(0, 2)[1]
+            ini1 = self.make_ie(1, 2)[0]
+            end1 = self.make_ie(1, 2)[1]
             re = self.GLS_s(repeat=repeat,ini=ini1,end=end1)
 
             sam = self.rank_ts(time=re[0], state=re[1], ini=self.make_ie(0, 2)[0], effect_number=re[2])
@@ -898,7 +891,7 @@ class AncestralState:
         return re1,effect_number
 
 
-    def divide_Q(self, times=45, method="simple", simple_state_number=7):
+    def divide_Q(self, times=70, method="simple", simple_state_number=7):
 
         re=self.monte_carol(times=times)
         history_matrix=re[0]
@@ -982,26 +975,23 @@ if __name__ == '__main__':
 
 
     scene = self.get_scene()
-
-    self.get_maxpro_matrix(True, 1)
-    self.get_maxpro_matrix(True, 2)
-
-    print(self.node_length)
-
-    print(geneconv.edge_to_blen)
-    print(geneconv.num_to_node)
-    print(geneconv.edge_list)
-    print(scene['tree'])
-
-    for i in range(len(scene['tree']["column_nodes"])):
-        print(scene['tree']["column_nodes"][i])
-        print(geneconv.edge_list[i])
+    print(scene['process_definitions'][1]['column_states'])
+    print(scene['process_definitions'][1]['row_states'])
 
 
-    print(self.get_igcr_pad())
-
-
-
+    # print(self.node_length)
+    #
+    # print(geneconv.edge_to_blen)
+    # print(geneconv.num_to_node)
+    # print(geneconv.edge_list)
+    # print(scene['tree'])
+    #
+    # for i in range(len(scene['tree']["column_nodes"])):
+    #     print(scene['tree']["column_nodes"][i])
+    #     print(geneconv.edge_list[i])
+    #
+    #
+    # print(self.get_igcr_pad())
 
 
 
