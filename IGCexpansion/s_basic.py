@@ -366,3 +366,9 @@ print(np.min(time))
 print(time[x_aixs,y_aixs])
 
 print (np.zeros(shape=(2,2)))
+
+
+aaa=np.random.choice(range(4), 1, p=[0.1,0.9,0,0 ])[0]
+print (aaa)
+
+print (np.random.uniform(0,1))

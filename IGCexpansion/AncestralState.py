@@ -617,9 +617,10 @@ class AncestralState:
                             while u < t:
                                 # state may from 0 or 1
                                 i = i + 1
-                                u1 = random.exponential(Q_iiii[int(current_state)])
-                                u = u + u1
-                                if u < t:
+                                if i==1:
+                                    u1 = np.random.uniform(0,1)
+                                    u= -np.log(1-(1-np.exp(-Q_iiii[int(current_state)]*t))*u1)/\
+                                       (Q_iiii[int(current_state)])
                                     time.append(u)
                                     a = np.random.choice(range(di1), 1, p=self.Q_new[int(current_state), ])[0]
                                     old = current_state
@@ -632,8 +633,22 @@ class AncestralState:
                                         current_state = self.dic_col[int(old), a] - 1
                                     state.append(int(current_state))
 
-                                elif i>1:
-                                    current_state = state[i - 1]
+                                else :
+                                    u1 = random.exponential(Q_iiii[int(current_state)])
+                                    u = u + u1
+                                    time.append(u)
+                                    a = np.random.choice(range(di1), 1, p=self.Q_new[int(current_state), ])[0]
+                                    old = current_state
+                                    current_state = self.dic_col[int(current_state), a] - 1
+
+                                    # if jump to absorbing state and without finishing process, we need to resample
+
+                                    while sum(self.Q_new[int(current_state), ]) == 0:
+                                        a = np.random.choice(range(di1), 1, p=self.Q_new[int(old), ])[0]
+                                        current_state = self.dic_col[int(old), a] - 1
+                                    state.append(int(current_state))
+                            current_state = state[i - 1]
+
 
                         if i > max_number:
                             big_number = i
@@ -664,6 +679,7 @@ class AncestralState:
         self.effect_matrix=effect_matrix
         self.big_number_matrix=big_number_matrix
         self.dis_matrix=dis_matrix
+
 
         return self.time_list,self.state_list,self.effect_matrix, self.big_number_matrix, self.dis_matrix
 
@@ -819,21 +835,21 @@ class AncestralState:
         return history_matrix,effect_number
 
 
-    def monte_carol(self,times=70,repeat=20,ifwholetree=False):
+    def monte_carol(self,times=10,repeat=2,ifwholetree=False):
 
-        if ifwholetree==False:
+        if ifwholetree == False:
             ini1 = self.make_ie(1, 2)[0]
             end1 = self.make_ie(1, 2)[1]
             re = self.GLS_s(repeat=repeat,ini=ini1,end=end1)
 
-            sam = self.rank_ts(time=re[0], state=re[1], ini=self.make_ie(0, 2)[0], effect_number=re[2])
+            sam = self.rank_ts(time=re[0], state=re[1], ini=ini1, effect_number=re[2])
             re1=self.whether_IGC(history_matrix=sam[0],effect_number=sam[1])
             effect_number=re1[1]
             re1=re1[0]
 
             for i in range(times-1):
                 re = self.GLS_s(ifrecal=False,ini=ini1,end=end1)
-                sam = self.rank_ts(time=re[0], state=re[1], ini=self.make_ie(0, 2)[0], effect_number=re[2])
+                sam = self.rank_ts(time=re[0], state=re[1], ini=ini1, effect_number=re[2])
                 re2 = self.whether_IGC(history_matrix=sam[0], effect_number=sam[1])
                 re1=np.vstack((re1,re2[0]))
                 effect_number=effect_number+re2[1]
@@ -843,19 +859,18 @@ class AncestralState:
             for j in range(len(scene['tree']["column_nodes"])):
                 if j ==0:
                     ini2=self.geneconv.node_to_num[geneconv.edge_list[j][0]]
-                    end2 = self.geneconv.node_to_num[geneconv.edge_list[j][1]]
+                    end2 = 2
                     ini1 = self.make_ie(ini2, end2)[0]
                     end1 = self.make_ie(ini2, end2)[1]
                     re = self.GLS_s(repeat=repeat,ini=ini1,end=end1)
-
-                    sam = self.rank_ts(time=re[0], state=re[1], ini=self.make_ie(0, 2)[0], effect_number=re[2])
+                    sam = self.rank_ts(time=re[0], state=re[1], ini=ini1, effect_number=re[2])
                     re1=self.whether_IGC(history_matrix=sam[0],effect_number=sam[1])
                     effect_number=re1[1]
                     re1=re1[0]
 
                     for i in range(times-1):
                         re = self.GLS_s(ifrecal=False,ini=ini1,end=end1)
-                        sam = self.rank_ts(time=re[0], state=re[1], ini=self.make_ie(0, 2)[0], effect_number=re[2])
+                        sam = self.rank_ts(time=re[0], state=re[1], ini=ini1, effect_number=re[2])
                         re2 = self.whether_IGC(history_matrix=sam[0], effect_number=sam[1])
                         re1=np.vstack((re1,re2[0]))
                         effect_number=effect_number+re2[1]
@@ -873,27 +888,27 @@ class AncestralState:
                     end1 = self.make_ie(ini2, end2)[1]
                     re = self.GLS_s(repeat=repeat,ini=ini1,end=end1)
 
-                    sam = self.rank_ts(time=re[0], state=re[1], ini=self.make_ie(0, 2)[0], effect_number=re[2])
+                    sam = self.rank_ts(time=re[0], state=re[1], ini=ini1, effect_number=re[2])
                     re2=self.whether_IGC(history_matrix=sam[0],effect_number=sam[1])
-                    effect_number1=re1[1]
+                    effect_number1=re2[1]
                     re2=re2[0]
 
                     for i in range(times-1):
                         re = self.GLS_s(ifrecal=False,ini=ini1,end=end1)
-                        sam = self.rank_ts(time=re[0], state=re[1], ini=self.make_ie(0, 2)[0], effect_number=re[2])
+                        sam = self.rank_ts(time=re[0], state=re[1], ini=ini1, effect_number=re[2])
                         re3 = self.whether_IGC(history_matrix=sam[0], effect_number=sam[1])
                         re2=np.vstack((re2,re3[0]))
                         effect_number1=effect_number1+re3[1]
 
-                re1 = np.vstack((re1, re2))
-                effect_number=effect_number1+effect_number
+            re1 = np.vstack((re1, re2))
+            effect_number=effect_number1+effect_number
 
         return re1,effect_number
 
 
-    def divide_Q(self, times=70, method="simple", simple_state_number=7):
+    def divide_Q(self, times=20, repeat=5,method="simple", simple_state_number=8):
 
-        re=self.monte_carol(times=times)
+        re=self.monte_carol(times=times,repeat=repeat,ifwholetree=True)
         history_matrix=re[0]
         effect_number=re[1]
         if (method == "simple"):
@@ -941,21 +956,11 @@ class AncestralState:
                 relationship[i, 2]=float(relationship[i,2])
                 relationship[i, 3] = float(relationship[i, 0]) / (relationship[i, 1])
 
-
-
         return relationship
 
 
-
-
-
-
-
-
-
-
-
 if __name__ == '__main__':
+
 
     paralog = ['EDN', 'ECP']
     alignment_file = '../test/EDN_ECP_Cleaned.fasta'
@@ -970,14 +975,12 @@ if __name__ == '__main__':
     save_name = '../test/save/' + model + name+'_'+type+'_nonclock_save.txt'
     geneconv = ReCodonGeneconv(newicktree, alignment_file, paralog, Model=model, Force=Force, clock=None,
                                save_path='../test/save/', save_name=save_name)
+
     test = AncestralState(geneconv)
     self = test
 
-
     scene = self.get_scene()
-    print(scene['process_definitions'][1]['column_states'])
-    print(scene['process_definitions'][1]['row_states'])
-
+    print(self.get_igcr_pad())
 
     # print(self.node_length)
     #
@@ -991,7 +994,12 @@ if __name__ == '__main__':
     #     print(geneconv.edge_list[i])
     #
     #
-    # print(self.get_igcr_pad())
+    #self.rank_ts()
+       # self.monte_carol(times=2,repeat=2)
+        # print(self.igc_com)
+
+    #aa=self.monte_carol(times=1,repeat=2)
+
 
 
 
@@ -1098,6 +1106,6 @@ if __name__ == '__main__':
 ##    len_se=len(list_commonan)
 ##    get_maxpro=get_maxpro(list_commonan,list_node)
 ##    # print(get_maxpro[2][2]%61)
-##    translate=translate_into_seq(promax=get_maxpro,len_node=len_node,dict=dict,model=model,len_se=len_se)
+    ##    translate=translate_into_seq(promax=get_maxpro,len_node=len_node,dict=dict,model=model,len_se=len_se)
 
 
