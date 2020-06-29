@@ -610,30 +610,26 @@ class AncestralState:
 
                         while current_state != end[ii]:
                             current_state = ini[ii]
-                            u = 0
-                            i = 0
+                            i = 1
                             time = [100]
                             state = [0]
-                            while u < t:
-                                # state may from 0 or 1
-                                i = i + 1
-                                if i==1:
-                                    u1 = np.random.uniform(0,1)
-                                    u= -np.log(1-(1-np.exp(-Q_iiii[int(current_state)]*t))*u1)/\
+                            u1 = np.random.uniform(0,1)
+                            u= -np.log(1-(1-np.exp(-Q_iiii[int(current_state)]*t))*u1)/\
                                        (Q_iiii[int(current_state)])
-                                    time.append(u)
-                                    a = np.random.choice(range(di1), 1, p=self.Q_new[int(current_state), ])[0]
-                                    old = current_state
-                                    current_state = self.dic_col[int(current_state), a] - 1
+                            time.append(u)
+                            a = np.random.choice(range(di1), 1, p=self.Q_new[int(current_state), ])[0]
+                            old = current_state
+                            current_state = self.dic_col[int(current_state), a] - 1
 
                                     # if jump to absorbing state and without finishing process, we need to resample
 
-                                    while sum(self.Q_new[int(current_state), ]) == 0:
-                                        a = np.random.choice(range(di1), 1, p=self.Q_new[int(old), ])[0]
-                                        current_state = self.dic_col[int(old), a] - 1
-                                    state.append(int(current_state))
+                            while sum(self.Q_new[int(current_state), ]) == 0:
+                                    a = np.random.choice(range(di1), 1, p=self.Q_new[int(old), ])[0]
+                                    current_state = self.dic_col[int(old), a] - 1
+                            state.append(int(current_state))
 
-                                else :
+                            while u<=t:
+                                    i=i+1
                                     u1 = random.exponential(Q_iiii[int(current_state)])
                                     u = u + u1
                                     time.append(u)
@@ -683,7 +679,6 @@ class AncestralState:
                     # most transfer 10 times
                     current_state = ini[ii]
                     i = 0
-                    state = [0]
 
                     effect_number = 0
                     big_number = 0
@@ -691,22 +686,22 @@ class AncestralState:
                     u = 0
                     time = [100]
                     state = [0]
-                    while u < t:
-                        # state may from 0 or 1
-                        i = i + 1
+                    while u<=t:
                         u1 = random.exponential(Q_iiii[int(current_state)])
                         u = u + u1
-                        time.append(u)
-                        a = np.random.choice(range(di1), 1, p=self.Q_new[int(current_state),])[0]
-                        old = current_state
-                        current_state = self.dic_col[int(current_state), a] - 1
+                        i=i+1
+                        if u<=t:
+                            time.append(u)
+                            a = np.random.choice(range(di1), 1, p=self.Q_new[int(current_state),])[0]
+                            old = current_state
+                            current_state = self.dic_col[int(current_state), a] - 1
 
                                 # if jump to absorbing state and without finishing process, we need to resample
 
-                        while sum(self.Q_new[int(current_state),]) == 0:
-                            a = np.random.choice(range(di1), 1, p=self.Q_new[int(old),])[0]
-                            current_state = self.dic_col[int(old), a] - 1
-                        state.append(int(current_state))
+                            while sum(self.Q_new[int(current_state),]) == 0:
+                              a = np.random.choice(range(di1), 1, p=self.Q_new[int(old),])[0]
+                              current_state = self.dic_col[int(old), a] - 1
+                            state.append(int(current_state))
                     current_state = state[i - 1]
                     if current_state != end[ii]:
                         state = [0]
@@ -738,7 +733,7 @@ class AncestralState:
                 state_list[ii]=state_matrix
 
 
-            print(ii)
+            #print(ii)
 
         self.time_list=time_list
         self.state_list=state_list
@@ -852,6 +847,11 @@ class AncestralState:
                         if (u <= (float((np.exp(self.tau)))/qq)):
                             p_h[ii, 2] = 1
 
+        for ii in range(effect_number-1):
+            if p_h[ii,1]==0:
+                p_h=p_h[0:ii-1,0:4]
+                effect_number=ii-1
+                break
 
 
         return p_h, effect_number
@@ -900,11 +900,12 @@ class AncestralState:
         return history_matrix,effect_number
 
 
-    def monte_carol(self,times=10,repeat=2,ifwholetree=False):
+
+    def monte_carol(self,times=60,repeat=15,ifwholetree=False):
 
         if ifwholetree == False:
-            ini1 = self.make_ie(1, 2)[0]
-            end1 = self.make_ie(1, 2)[1]
+            ini1 = self.make_ie(2, 3)[0]
+            end1 = self.make_ie(2, 3)[1]
             re = self.GLS_s(repeat=repeat,ini=ini1,end=end1)
 
             sam = self.rank_ts(time=re[0], state=re[1], ini=ini1, effect_number=re[2])
@@ -933,6 +934,7 @@ class AncestralState:
                     effect_number=re1[1]
                     re1=re1[0]
 
+
                     for i in range(times-1):
                         re = self.GLS_s(ifrecal=False,ini=ini1,end=end1)
                         sam = self.rank_ts(time=re[0], state=re[1], ini=ini1, effect_number=re[2])
@@ -949,6 +951,7 @@ class AncestralState:
                 else:
                     ini2=self.geneconv.node_to_num[geneconv.edge_list[j][0]]
                     end2 = self.geneconv.node_to_num[geneconv.edge_list[j][1]]
+
                     ini1 = self.make_ie(ini2, end2)[0]
                     end1 = self.make_ie(ini2, end2)[1]
                     re = self.GLS_s(repeat=repeat,ini=ini1,end=end1)
@@ -971,9 +974,9 @@ class AncestralState:
         return re1,effect_number
 
 
-    def divide_Q(self, times=60, repeat=15,method="simple", simple_state_number=8):
+    def divide_Q(self, times=1, repeat=1,method="simple", simple_state_number=8):
 
-        re=self.monte_carol(times=times,repeat=repeat,ifwholetree=False)
+        re=self.monte_carol(times=times,repeat=repeat,ifwholetree=True)
         history_matrix=re[0]
         effect_number=re[1]
         if (method == "simple"):
@@ -1007,8 +1010,8 @@ class AncestralState:
 
 
 
-    def get_igcr_pad(self):
-        self.divide_Q()
+    def get_igcr_pad(self,times=1, repeat=1,simple_state_number=8):
+        self.divide_Q(times=times,repeat=repeat,simple_state_number=simple_state_number)
         relationship=np.zeros(shape=(self.type_number, 5))
         for i in range(self.type_number):
             for j in range(self.last_effct):

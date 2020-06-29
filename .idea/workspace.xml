@@ -2,9 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="a9952ef3-53b5-4976-ba05-bb25560d8c3b" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/IGCexpansion/AncestralState.py" beforeDir="false" afterPath="$PROJECT_DIR$/IGCexpansion/AncestralState.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/IGCexpansion/s_basic.py" beforeDir="false" afterPath="$PROJECT_DIR$/IGCexpansion/s_basic.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/test/save/HKYEDN_ECP_full_situation1_nonclock_save.txt" beforeDir="false" afterPath="$PROJECT_DIR$/test/save/HKYEDN_ECP_full_situation1_nonclock_save.txt" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -21,8 +19,8 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/IGCexpansion/AncestralState.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="1522">
-              <caret line="979" column="49" lean-forward="true" selection-start-line="979" selection-start-column="49" selection-end-line="979" selection-end-column="49" />
+            <state relative-caret-position="182">
+              <caret line="1052" column="29" lean-forward="true" selection-start-line="1052" selection-start-column="29" selection-end-line="1052" selection-end-column="29" />
               <folding>
                 <element signature="e#196#233#0" expanded="true" />
               </folding>
@@ -97,10 +95,11 @@
       </list>
     </option>
   </component>
-  <component name="ProjectFrameBounds" extendedState="6">
+  <component name="ProjectFrameBounds">
+    <option name="x" value="98" />
     <option name="y" value="23" />
     <option name="width" value="1440" />
-    <option name="height" value="822" />
+    <option name="height" value="816" />
   </component>
   <component name="ProjectView">
     <navigator proportions="" version="1">
@@ -315,7 +314,7 @@
     <servers />
   </component>
   <component name="ToolWindowManager">
-    <frame x="0" y="23" width="1440" height="816" extended-state="6" />
+    <frame x="98" y="23" width="1440" height="816" extended-state="0" />
     <editor active="true" />
     <layout>
       <window_info content_ui="combo" id="Project" order="0" sideWeight="0.49785408" weight="0.17829457" />
@@ -492,8 +491,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/IGCexpansion/AncestralState.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1522">
-          <caret line="979" column="49" lean-forward="true" selection-start-line="979" selection-start-column="49" selection-end-line="979" selection-end-column="49" />
+        <state relative-caret-position="182">
+          <caret line="1052" column="29" lean-forward="true" selection-start-line="1052" selection-start-column="29" selection-end-line="1052" selection-end-column="29" />
           <folding>
             <element signature="e#196#233#0" expanded="true" />
           </folding>
