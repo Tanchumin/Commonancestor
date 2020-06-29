@@ -669,8 +669,74 @@ class AncestralState:
                             state_matrix[jj, 0] = ini[ii]
                         effect_matrix[ii,jj] = int(effect_number)
                         big_number_matrix[ii,jj] = int(big_number)
+
+
                 time_list[ii]=time_matrix
                 state_list[ii]=state_matrix
+
+            else:
+
+                time_matrix = 100 * np.ones(shape=(repeat, max_number))
+                state_matrix = np.zeros(shape=(repeat, max_number))
+
+                for jj in range(repeat):
+                    # most transfer 10 times
+                    current_state = ini[ii]
+                    i = 0
+                    state = [0]
+
+                    effect_number = 0
+                    big_number = 0
+
+                    u = 0
+                    time = [100]
+                    state = [0]
+                    while u < t:
+                        # state may from 0 or 1
+                        i = i + 1
+                        u1 = random.exponential(Q_iiii[int(current_state)])
+                        u = u + u1
+                        time.append(u)
+                        a = np.random.choice(range(di1), 1, p=self.Q_new[int(current_state),])[0]
+                        old = current_state
+                        current_state = self.dic_col[int(current_state), a] - 1
+
+                                # if jump to absorbing state and without finishing process, we need to resample
+
+                        while sum(self.Q_new[int(current_state),]) == 0:
+                            a = np.random.choice(range(di1), 1, p=self.Q_new[int(old),])[0]
+                            current_state = self.dic_col[int(old), a] - 1
+                        state.append(int(current_state))
+                    current_state = state[i - 1]
+                    if current_state != end[ii]:
+                        state = [0]
+                        effect_number = 0
+                        big_number = 0
+                        time=[100]
+
+                    if i > max_number:
+                        big_number = i
+                        time_matrix_old = time_matrix
+                        state_matrix_old = state_matrix
+                        time_matrix = np.zeros(shape=(self.sites_length, i))
+                        state_matrix = np.zeros(shape=(self.sites_length, i))
+                        time_matrix[0:self.sites_length, 0:max_number] = time_matrix_old
+                        state_matrix[0:self.sites_length, 0:max_number] = state_matrix_old
+                        time_matrix[jj, 0:i] = time[0:i]
+                        state_matrix[jj, 0:i] = state[0:i]
+                    else:
+                        big_number = max(big_number, i)
+                        if i > 0:
+                            effect_number = (i - 1) + effect_number
+                        time_matrix[jj, 0:i] = time[0:i]
+                        state_matrix[jj, 0:i] = state[0:i]
+                        state_matrix[jj, 0] = ini[ii]
+                    effect_matrix[ii, jj] = int(effect_number)
+                    big_number_matrix[ii, jj] = int(big_number)
+
+                time_list[ii]=time_matrix
+                state_list[ii]=state_matrix
+
 
             print(ii)
 
@@ -702,14 +768,13 @@ class AncestralState:
 
         for i in range(self.sites_length):
             a = np.random.choice(range(repeat), 1, p=(1 / float(repeat)) * np.ones(repeat))[0]
-            if dis_matrix[i] != 1:
-                if big_number_matrix[i,a]<=max_number:
+            if big_number_matrix[i,a]<=max_number:
 
                     time_matrix[i, 0:max_number] = time_list[i][a,]
                     state_matrix[i, 0:max_number] = state_list[i][a,]
                     big_number=max(big_number_matrix[i,a],big_number)
                     effect_number=effect_number+effect_matrix[i,a]
-                else:
+            else:
                     big_number=max(big_number_matrix[i,a],big_number)
                     effect_number=effect_number+effect_matrix[i,a]
 
@@ -906,9 +971,9 @@ class AncestralState:
         return re1,effect_number
 
 
-    def divide_Q(self, times=20, repeat=5,method="simple", simple_state_number=8):
+    def divide_Q(self, times=60, repeat=15,method="simple", simple_state_number=8):
 
-        re=self.monte_carol(times=times,repeat=repeat,ifwholetree=True)
+        re=self.monte_carol(times=times,repeat=repeat,ifwholetree=False)
         history_matrix=re[0]
         effect_number=re[1]
         if (method == "simple"):

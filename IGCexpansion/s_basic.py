@@ -57,6 +57,8 @@ def GLS(Q,t,ini,end,di,length):
                 state.append(curent_state)
 
             curent_state=state[i-1]
+        print(state[0:i])
+
 
 
         if(i>max_number):
@@ -74,6 +76,7 @@ def GLS(Q,t,ini,end,di,length):
         else:
             big_number=max(big_number,i)
             if(i>0):
+                print(i)
                 effect_number = (i-1)+effect_number
             time_matrix[ll,0:i]=time[0:i]
             state_matrix[ll,0:i]=state[0:i]
@@ -324,6 +327,9 @@ length=14
 
 
 aa=GLS(m2,t,ini,end,di,length)
+
+
+print(aa)
 
 aaa=GLS_m(m2,t,ini,end,di,length,repeat=3)
 
