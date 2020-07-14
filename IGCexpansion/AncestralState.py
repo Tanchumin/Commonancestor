@@ -42,7 +42,9 @@ class AncestralState:
         self.node_length              = None
         self.dic_col                  = None
 
-        self.tau =self.geneconv.tau1
+        self.codon_table = geneconv.codon_table
+        self.tau =geneconv.tau1
+        self.omega=geneconv.omega
         self.Q_new = None
         self.Q= None
 
@@ -427,11 +429,6 @@ class AncestralState:
                end[site] = self.sites2[node_e, site]+self.sites1[node_e, site]*61
 
         return ini, end
-
-
-
-
-
 
 
 
@@ -837,14 +834,35 @@ class AncestralState:
                         y_coor = np.argwhere(self.dic_col[int(history_matrix[ii, 6]),] == (int(history_matrix[ii, 7]) + 1))[0]
                         qq = self.Q[int(history_matrix[ii, 6]), y_coor]
                         u = random.uniform(0, 1)
-                        if (u <= (float((np.exp(self.tau))) / qq)):
+
+                        ca = geneconv.state_to_codon[j_b]
+                        ca=self.codon_table[ca]
+                        cb = geneconv.state_to_codon[j_p]
+                        cb=self.codon_table[cb]
+
+                        if isNonsynonymous(cb, ca, self.codon_table):
+                            tau = self.tau * self.omega
+                        else:
+                            tau = self.tau
+
+                        if (u <= (float(tau) / qq)):
                             p_h[ii, 2] = 1
 
                     elif (i_b != j_b and j_b==j_p):
                         y_coor = np.argwhere(self.dic_col[int(history_matrix[ii, 6]),] == (int(history_matrix[ii, 7]) + 1))[0]
                         qq = self.Q[int(history_matrix[ii, 6]), y_coor]
                         u = random.uniform(0, 1)
-                        if (u <= (float((np.exp(self.tau)))/qq)):
+
+                        ca = geneconv.state_to_codon[i_b]
+                        ca = self.codon_table[ca]
+                        cb = geneconv.state_to_codon[i_p]
+                        cb = self.codon_table[cb]
+
+                        if isNonsynonymous(cb, ca, self.codon_table):
+                            tau = self.tau * self.omega
+                        else:
+                            tau = self.tau
+                        if (u <= (float(tau)/qq)):
                             p_h[ii, 2] = 1
 
         for ii in range(effect_number-1):
@@ -974,9 +992,9 @@ class AncestralState:
         return re1,effect_number
 
 
-    def divide_Q(self, times=1, repeat=1,method="simple", simple_state_number=8):
+    def divide_Q(self, times=1, repeat=1,method="simple", ifwholetree=True,simple_state_number=8):
 
-        re=self.monte_carol(times=times,repeat=repeat,ifwholetree=True)
+        re=self.monte_carol(times=times,repeat=repeat,ifwholetree=ifwholetree)
         history_matrix=re[0]
         effect_number=re[1]
         if (method == "simple"):
@@ -1010,8 +1028,8 @@ class AncestralState:
 
 
 
-    def get_igcr_pad(self,times=1, repeat=1,simple_state_number=8):
-        self.divide_Q(times=times,repeat=repeat,simple_state_number=simple_state_number)
+    def get_igcr_pad(self,times=1, repeat=1,simple_state_number=8,ifwholetree=True):
+        self.divide_Q(times=times,repeat=repeat,simple_state_number=simple_state_number,ifwholetree=ifwholetree)
         relationship=np.zeros(shape=(self.type_number, 5))
         for i in range(self.type_number):
             for j in range(self.last_effct):
@@ -1048,10 +1066,13 @@ if __name__ == '__main__':
     self = test
 
     scene = self.get_scene()
-    print(self.get_igcr_pad())
+
+
+
+    #print(self.get_igcr_pad())
 
     # print(self.node_length)
-    #
+
     # print(geneconv.edge_to_blen)
     # print(geneconv.num_to_node)
     # print(geneconv.edge_list)
@@ -1067,10 +1088,6 @@ if __name__ == '__main__':
         # print(self.igc_com)
 
     #aa=self.monte_carol(times=1,repeat=2)
-
-
-
-
 
 
 

@@ -311,7 +311,7 @@ class ReCodonGeneconv:
         elif transformation == 'None':
             x_process = self.x_process
         elif transformation == 'Exp_Neg':
-            x_process = x_process = np.concatenate((self.x_process[:3], -np.log(self.x_process[3:])))
+            x_process = np.concatenate((self.x_process[:3], -np.log(self.x_process[3:])))
             
 
         if Force_process != None:
