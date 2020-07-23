@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-   
-
 # Uses Alex Griffing's JsonCTMCTree package for likelihood and gradient calculation
 # Re-write of my previous CodonGeneconv class
 # commit number: Oct 22nd, 2014 for old package
@@ -8,35 +6,17 @@
 # 33e393a973161e3a29149e82bfda23882b5826f3
 
   
+
 from __future__ import print_function, absolute_import
-from IGCexpansion.CodonGeneconFunc import *
+from CodonGeneconFunc import *
 import argparse
 #from jsonctmctree.extras import optimize_em
 import ast
 
 #import matplotlib.pyplot as plt
 
-def get_HKYGeneconvRate1(pair_from, pair_to, Qbasic, tau1, tau2,c):
-    na, nb = pair_from
-    nc, nd = pair_to
-    if (na != nc and nb!= nd) or (na == nc and nb == nd):
-        return 0.0
-    if na ==nc and nb != nd:
-        Qb = Qbasic['ACGT'.index(nb), 'ACGT'.index(nd)]
-        if na == nd:
-            return c*Qb + tau1
-        else:
-            return c*Qb
-    if nb == nd and na != nc:
-        Qb = Qbasic['ACGT'.index(na), 'ACGT'.index(nc)]
-        if nb == nc:
-            return Qb + tau2
-        else:
-            return Qb
-    print ('Warning: Check get_HKYGeneconvRate Func. You should not see this.')
-
 class ReCodonGeneconv:
-    def __init__(self, tree_newick, alignment, paralog, ptau1=1, ptau2=1, pc=1, eqtau12=True, Model='MG94', nnsites = None, clock = False, Force = None, save_path = './save/', save_name = None, post_dup = 'N1'):
+    def __init__(self, tree_newick, alignment, paralog, Model = 'MG94', nnsites = None, clock = False, Force = None, save_path = './save/', save_name = None, post_dup = 'N1'):
         self.newicktree  = tree_newick  # newick tree file loc
         self.seqloc      = alignment    # multiple sequence alignment, now need to remove gap before-hand
         self.paralog     = paralog      # parlaog list
@@ -50,7 +30,6 @@ class ReCodonGeneconv:
         self.save_path   = save_path    # location for auto-save files
         self.save_name   = save_name    # save file name
         self.auto_save   = 0            # auto save control
-
 
         self.logzero     = -15.0        # used to avoid log(0), replace log(0) with -15
         self.infinity    = 1e6          # used to avoid -inf in gradiance calculation of the clock case
@@ -93,10 +72,7 @@ class ReCodonGeneconv:
         self.pi             = None      # real values
         self.kappa          = 1.2       # real values
         self.omega          = 0.9       # real values
-        self.tau1            = ptau1
-        self.tau2           =  ptau2         # real values
-        self.c = pc                     # specific parameter for showing differnet rate
-        self.eqtau12=eqtau12       # specific parameter for same tau
+        self.tau            = 1.4       # real values
 
         self.processes      = None      # list of basic and geneconv rate matrices. Each matrix is a dictionary used for json parsing
 
@@ -122,10 +98,8 @@ class ReCodonGeneconv:
         self.get_tree()
         self.get_data()
         self.get_initial_x_process()
-        if self.save_name == None:
-            save_file = self.gen_save_file_name()
-        else:
-            save_file = self.save_name
+        save_file = self.get_save_file_name()
+
         if os.path.isfile(save_file):  # if the save txt file exists and not empty, then read in parameter values
             if os.stat(save_file).st_size > 0:
                 self.initialize_by_save(save_file)
@@ -140,7 +114,7 @@ class ReCodonGeneconv:
     def nts_to_codons(self):
         for name in self.name_to_seq.keys():
             assert(len(self.name_to_seq[name]) % 3 == 0)
-            tmp_seq = [self.name_to_seq[name][3 * j : 3 * j + 3] for j in range(len(self.name_to_seq[name]) / 3 )]
+            tmp_seq = [self.name_to_seq[name][3 * j : 3 * j + 3] for j in range(int(len(self.name_to_seq[name]) / 3) )]
             self.name_to_seq[name] = tmp_seq
        
     def get_data(self):
@@ -158,20 +132,17 @@ class ReCodonGeneconv:
 
         # change the number of sites for calculation if requested
         if self.nsites is None:
-            self.nsites = len(self.name_to_seq[self.name_to_seq.keys()[0]])
+            self.nsites = len(self.name_to_seq[list(self.name_to_seq.keys())[0]])
         else:
             for name in self.name_to_seq:
                 self.name_to_seq[name] = self.name_to_seq[name][: self.nsites]
         print ('number of sites to be analyzed: ', self.nsites)
 
         # assign observable parameters
-        suffix_len = len(self.paralog[0])
-        self.observable_names = [n for n in self.name_to_seq.keys() if n[:-suffix_len] in self.node_to_num.keys()]
-        paralog_len = [len(a) for a in self.paralog]
-        assert(paralog_len[1:] == paralog_len[:-1])  # check if all paralog names have same length
-        suffix_to_axis = {n:i for (i, n) in enumerate(list(set(self.paralog))) }
-        self.observable_nodes = [self.node_to_num[n[:-suffix_len]] for n in self.observable_names]
-        self.observable_axes = [suffix_to_axis[s[-suffix_len:]] for s in self.observable_names]
+        self.observable_names = [n for n in self.name_to_seq.keys() if self.separate_species_paralog_names(n)[0] in self.node_to_num.keys()]
+        suffix_to_axis = {n:i for (i, n) in enumerate(list(set(self.paralog)))}
+        self.observable_nodes = [self.node_to_num[self.separate_species_paralog_names(n)[0]] for n in self.observable_names]
+        self.observable_axes = [suffix_to_axis[self.separate_species_paralog_names(s)[1]] for s in self.observable_names]
         
         # Now convert alignment into state list
         iid_observations = []
@@ -183,6 +154,12 @@ class ReCodonGeneconv:
             iid_observations.append(observations)
         self.iid_observations = iid_observations
 
+    def separate_species_paralog_names(self, seq_name):
+        assert(seq_name in self.name_to_seq)  # check if it is a valid sequence name
+        matched_paralog = [paralog for paralog in self.paralog if paralog in seq_name]
+        # check if there is exactly one paralog name in the sequence name
+        return [seq_name.replace(matched_paralog[0], ''), matched_paralog[0]]
+
     def get_initial_x_process(self, transformation = 'log'):
         
         count = np.array([0, 0, 0, 0], dtype = float) # count for A, C, G, T in all seq
@@ -192,14 +169,14 @@ class ReCodonGeneconv:
         count = count / count.sum()
 
         if self.Model == 'MG94':
-            # x_process[] = %AG, %A, %C, kappa, omega, tau1,tau2 ,c
+            # x_process[] = %AG, %A, %C, kappa, omega, tau
             self.x_process = np.log(np.array([count[0] + count[2], count[0] / (count[0] + count[2]), count[1] / (count[1] + count[3]),
-                                  self.kappa, self.omega, self.tau1, self.tau2, self.c]))
+                                  self.kappa, self.omega, self.tau]))
         elif self.Model == 'HKY':
-            # x_process[] = %AG, %A, %C, kappa, tau1,tau2, c
+            # x_process[] = %AG, %A, %C, kappa, tau
             self.omega = 1.0
             self.x_process = np.log(np.array([count[0] + count[2], count[0] / (count[0] + count[2]), count[1] / (count[1] + count[3]),
-                                  self.kappa, self.tau1, self.tau2, self.c]))
+                                  self.kappa, self.tau]))
 
         self.x_rates = np.log(np.array([ 0.1 * self.edge_to_blen[edge] for edge in self.edge_to_blen.keys()]))
 
@@ -311,7 +288,7 @@ class ReCodonGeneconv:
         elif transformation == 'None':
             x_process = self.x_process
         elif transformation == 'Exp_Neg':
-            x_process = np.concatenate((self.x_process[:3], -np.log(self.x_process[3:])))
+            x_process = x_process = np.concatenate((self.x_process[:3], -np.log(self.x_process[3:])))
             
 
         if Force_process != None:
@@ -319,8 +296,8 @@ class ReCodonGeneconv:
                 x_process[i] = Force_process[i]
 
         if self.Model == 'MG94':
-            # x_process[] = %AG, %A, %C, kappa, tau, omega,c
-            assert(len(self.x_process) == 8)
+            # x_process[] = %AG, %A, %C, kappa, tau, omega
+            assert(len(self.x_process) == 6)
             
             pi_a = x_process[0] * x_process[1]
             pi_c = (1 - x_process[0]) * x_process[2]
@@ -329,23 +306,17 @@ class ReCodonGeneconv:
             self.pi = [pi_a, pi_c, pi_g, pi_t]
             self.kappa = x_process[3]
             self.omega = x_process[4]
-            self.tau1 = x_process[5]
-            self.tau2=x_process[6]
-            self.c = x_process[7]
+            self.tau = x_process[5]
         elif self.Model == 'HKY':
-            # x_process[] = %AG, %A, %C, kappa, tau,c
-            assert(len(self.x_process) == 7)
+            # x_process[] = %AG, %A, %C, kappa, tau
+            assert(len(self.x_process) == 5)
             pi_a = x_process[0] * x_process[1]
             pi_c = (1 - x_process[0]) * x_process[2]
             pi_g = x_process[0] * (1 - x_process[1])
             pi_t = (1 - x_process[0]) * (1 - x_process[2])
             self.pi = [pi_a, pi_c, pi_g, pi_t]
             self.kappa = x_process[3]
-            self.tau1 = x_process[4]
-            self.tau2=x_process[5]
-            self.c = x_process[6]
-
-
+            self.tau = x_process[4]
 
         # Now update the prior distribution
         self.get_prior()
@@ -356,7 +327,7 @@ class ReCodonGeneconv:
     def get_prior(self):
         if self.Model == 'MG94':
             self.prior_feasible_states = [(self.codon_to_state[codon], self.codon_to_state[codon]) for codon in self.codon_nonstop]
-            distn = [ reduce(mul, [self.pi['ACGT'.index(b)]  for b in codon], 1) for codon in self.codon_nonstop ]
+            distn = [reduce(mul, [self.pi['ACGT'.index(b)]  for b in codon], 1) for codon in self.codon_nonstop ]
             distn = np.array(distn) / sum(distn)
         elif self.Model == 'HKY':
             self.prior_feasible_states = [(self.nt_to_state[nt], self.nt_to_state[nt]) for nt in 'ACGT']
@@ -376,155 +347,76 @@ class ReCodonGeneconv:
         col = []
         rate_geneconv = []
         rate_basic = []
-        if self.eqtau12==False:
-            for i, pair in enumerate(product(self.codon_nonstop, repeat = 2)):
-                # use ca, cb, cc to denote codon_a, codon_b, codon_c, where cc != ca, cc != cb
-                ca, cb = pair
-                sa = self.codon_to_state[ca]
-                sb = self.codon_to_state[cb]
-                if ca != cb:
-                    for cc in self.codon_nonstop:
-                        if cc == ca or cc == cb:
-                            continue
-                        sc = self.codon_to_state[cc]
-                        # (ca, cb) to (ca, cc)
-                        Qb = Qbasic[sb, sc]
-                        if Qb != 0:
-                            row.append((sa, sb))
-                            col.append((sa, sc))
-                            rate_geneconv.append(self.c*Qb)
-                            rate_basic.append(0.0)
 
-                        # (ca, cb) to (cc, cb)
-                        Qb = Qbasic[sa, sc]
-                        if Qb != 0:
-                            row.append((sa, sb))
-                            col.append((sc, sb))
-                            rate_geneconv.append(Qb)
-                            rate_basic.append(0.0)
+        for i, pair in enumerate(product(self.codon_nonstop, repeat = 2)):
+            # use ca, cb, cc to denote codon_a, codon_b, codon_c, where cc != ca, cc != cb
+            ca, cb = pair
+            sa = self.codon_to_state[ca]
+            sb = self.codon_to_state[cb]
+            if ca != cb:
+                for cc in self.codon_nonstop:
+                    if cc == ca or cc == cb:
+                        continue
+                    sc = self.codon_to_state[cc]
+                    # (ca, cb) to (ca, cc)
+                    Qb = Qbasic[sb, sc]
+                    if Qb != 0:
+                        row.append((sa, sb))
+                        col.append((sa, sc))
+                        rate_geneconv.append(Qb)
+                        rate_basic.append(0.0)
 
+                    # (ca, cb) to (cc, cb)
+                    Qb = Qbasic[sa, sc]
+                    if Qb != 0:
+                        row.append((sa, sb))
+                        col.append((sc, sb))
+                        rate_geneconv.append(Qb)
+                        rate_basic.append(0.0)
 
-                    # (ca, cb) to (ca, ca)
-                    row.append((sa, sb))
-                    col.append((sa, sa))
-                    Qb = Qbasic[sb, sa]
-                    if isNonsynonymous(cb, ca, self.codon_table):
-                        Tgeneconv1 = self.tau1 * self.omega
-                    else:
-                        Tgeneconv1 = self.tau1
-                    rate_geneconv.append(self.c*(Qb + Tgeneconv1))
-                    rate_basic.append(0.0)
-
-                    # (ca, cb) to (cb, cb)
-                    if isNonsynonymous(cb, ca, self.codon_table):
-                        Tgeneconv2 = self.tau2 * self.omega
-                    else:
-                        Tgeneconv2 = self.tau2
-                    row.append((sa, sb))
-                    col.append((sb, sb))
-                    Qb = Qbasic[sa, sb]
-                    rate_geneconv.append(Qb + Tgeneconv2)
-                    rate_basic.append(0.0)
-
+                        
+                # (ca, cb) to (ca, ca)
+                row.append((sa, sb))
+                col.append((sa, sa))
+                Qb = Qbasic[sb, sa]
+                if isNonsynonymous(cb, ca, self.codon_table):
+                    Tgeneconv = self.tau * self.omega
                 else:
-                    for cc in self.codon_nonstop:
-                        if cc == ca:
-                            continue
-                        sc = self.codon_to_state[cc]
+                    Tgeneconv = self.tau
+                rate_geneconv.append(Qb + Tgeneconv)
+                rate_basic.append(0.0)
+                
+                # (ca, cb) to (cb, cb)
+                row.append((sa, sb))
+                col.append((sb, sb))
+                Qb = Qbasic[sa, sb]
+                rate_geneconv.append(Qb + Tgeneconv)
+                rate_basic.append(0.0)
 
-                        # (ca, ca) to (ca,  cc)
-                        Qb = Qbasic[sa, sc]
-                        if Qb != 0:
-                            row.append((sa, sb))
-                            col.append((sa, sc))
-                            rate_geneconv.append(self.c*Qb)
-                            rate_basic.append(0.0)
-                        # (ca, ca) to (cc, ca)
-                            row.append((sa, sb))
-                            col.append((sc, sa))
-                            rate_geneconv.append(Qb)
-                            rate_basic.append(0.0)
+            else:
+                for cc in self.codon_nonstop:
+                    if cc == ca:
+                        continue
+                    sc = self.codon_to_state[cc]
 
-                        # (ca, ca) to (cc, cc)
-                            row.append((sa, sb))
-                            col.append((sc, sc))
-                            rate_geneconv.append(0.0)
-                            rate_basic.append(Qb)
+                    # (ca, ca) to (ca,  cc)
+                    Qb = Qbasic[sa, sc]
+                    if Qb != 0:
+                        row.append((sa, sb))
+                        col.append((sa, sc))
+                        rate_geneconv.append(Qb)
+                        rate_basic.append(0.0)
+                    # (ca, ca) to (cc, ca)
+                        row.append((sa, sb))
+                        col.append((sc, sa))
+                        rate_geneconv.append(Qb)
+                        rate_basic.append(0.0)
 
-        else:
-
-            for i, pair in enumerate(product(self.codon_nonstop, repeat=2)):
-                # use ca, cb, cc to denote codon_a, codon_b, codon_c, where cc != ca, cc != cb
-                ca, cb = pair
-                sa = self.codon_to_state[ca]
-                sb = self.codon_to_state[cb]
-                if ca != cb:
-                    for cc in self.codon_nonstop:
-                        if cc == ca or cc == cb:
-                            continue
-                        sc = self.codon_to_state[cc]
-                        # (ca, cb) to (ca, cc)
-                        Qb = Qbasic[sb, sc]
-                        if Qb != 0:
-                            row.append((sa, sb))
-                            col.append((sa, sc))
-                            rate_geneconv.append(self.c * Qb)
-                            rate_basic.append(0.0)
-
-                        # (ca, cb) to (cc, cb)
-                        Qb = Qbasic[sa, sc]
-                        if Qb != 0:
-                            row.append((sa, sb))
-                            col.append((sc, sb))
-                            rate_geneconv.append(Qb)
-                            rate_basic.append(0.0)
-
-                    # (ca, cb) to (ca, ca)
-                    row.append((sa, sb))
-                    col.append((sa, sa))
-                    Qb = Qbasic[sb, sa]
-                    if isNonsynonymous(cb, ca, self.codon_table):
-                        Tgeneconv1 = self.tau1 * self.omega
-                    else:
-                        Tgeneconv1 = self.tau1
-                    rate_geneconv.append(self.c * (Qb + Tgeneconv1))
-                    rate_basic.append(0.0)
-
-                    # (ca, cb) to (cb, cb)
-                    if isNonsynonymous(cb, ca, self.codon_table):
-                        Tgeneconv2 = self.tau1 * self.omega
-                    else:
-                        Tgeneconv2 = self.tau1
-                    row.append((sa, sb))
-                    col.append((sb, sb))
-                    Qb = Qbasic[sa, sb]
-                    rate_geneconv.append(Qb + Tgeneconv2)
-                    rate_basic.append(0.0)
-
-                else:
-                    for cc in self.codon_nonstop:
-                        if cc == ca:
-                            continue
-                        sc = self.codon_to_state[cc]
-
-                        # (ca, ca) to (ca,  cc)
-                        Qb = Qbasic[sa, sc]
-                        if Qb != 0:
-                            row.append((sa, sb))
-                            col.append((sa, sc))
-                            rate_geneconv.append(self.c * Qb)
-                            rate_basic.append(0.0)
-                            # (ca, ca) to (cc, ca)
-                            row.append((sa, sb))
-                            col.append((sc, sa))
-                            rate_geneconv.append(Qb)
-                            rate_basic.append(0.0)
-
-                            # (ca, ca) to (cc, cc)
-                            row.append((sa, sb))
-                            col.append((sc, sc))
-                            rate_geneconv.append(0.0)
-                            rate_basic.append(Qb)
+                    # (ca, ca) to (cc, cc)
+                        row.append((sa, sb))
+                        col.append((sc, sc))
+                        rate_geneconv.append(0.0)
+                        rate_basic.append(Qb)
                 
         process_geneconv = dict(
             row = row,
@@ -569,53 +461,27 @@ class ReCodonGeneconv:
         rate_geneconv = []
         rate_basic = []
 
-        if self.eqtau12 ==True:
-            for i, pair_from in enumerate(product('ACGT', repeat = 2)):
-                na, nb = pair_from
-                sa = self.nt_to_state[na]
-                sb = self.nt_to_state[nb]
-                for j, pair_to in enumerate(product('ACGT', repeat = 2)):
-                    nc, nd = pair_to
-                    sc = self.nt_to_state[nc]
-                    sd = self.nt_to_state[nd]
-                    if i == j:
-                        continue
-                    GeneconvRate = get_HKYGeneconvRate1(pair_from, pair_to, Qbasic, self.tau1,self.tau2,self.c)
-                    if GeneconvRate != 0.0:
-                        row.append((sa, sb))
-                        col.append((sc, sd))
-                        rate_geneconv.append(GeneconvRate)
-                        rate_basic.append(0.0)
-                    if na == nb and nc == nd:
-                        row.append((sa, sb))
-                        col.append((sc, sd))
-                        rate_geneconv.append(GeneconvRate)
-                        rate_basic.append(Qbasic['ACGT'.index(na), 'ACGT'.index(nc)])
-
-        else:
-            for i, pair_from in enumerate(product('ACGT', repeat = 2)):
-                na, nb = pair_from
-                sa = self.nt_to_state[na]
-                sb = self.nt_to_state[nb]
-                for j, pair_to in enumerate(product('ACGT', repeat = 2)):
-                    nc, nd = pair_to
-                    sc = self.nt_to_state[nc]
-                    sd = self.nt_to_state[nd]
-                    if i == j:
-                        continue
-                    GeneconvRate = get_HKYGeneconvRate(pair_from, pair_to, Qbasic, self.tau1, self.c)
-                    if GeneconvRate != 0.0:
-                        row.append((sa, sb))
-                        col.append((sc, sd))
-                        rate_geneconv.append(GeneconvRate)
-                        rate_basic.append(0.0)
-                    if na == nb and nc == nd:
-                        row.append((sa, sb))
-                        col.append((sc, sd))
-                        rate_geneconv.append(GeneconvRate)
-                        rate_basic.append(Qbasic['ACGT'.index(na), 'ACGT'.index(nc)])
-
-
+        for i, pair_from in enumerate(product('ACGT', repeat = 2)):
+            na, nb = pair_from
+            sa = self.nt_to_state[na]
+            sb = self.nt_to_state[nb]
+            for j, pair_to in enumerate(product('ACGT', repeat = 2)):
+                nc, nd = pair_to
+                sc = self.nt_to_state[nc]
+                sd = self.nt_to_state[nd]
+                if i == j:
+                    continue
+                GeneconvRate = get_HKYGeneconvRate(pair_from, pair_to, Qbasic, self.tau)
+                if GeneconvRate != 0.0:
+                    row.append((sa, sb))
+                    col.append((sc, sd))
+                    rate_geneconv.append(GeneconvRate)
+                    rate_basic.append(0.0)
+                if na == nb and nc == nd:
+                    row.append((sa, sb))
+                    col.append((sc, sd))
+                    rate_geneconv.append(GeneconvRate)
+                    rate_basic.append(Qbasic['ACGT'.index(na), 'ACGT'.index(nc)])
 
         process_geneconv = dict(
             row = row,
@@ -627,7 +493,6 @@ class ReCodonGeneconv:
             col = col,
             rate = rate_basic
             )
-
         # process_basic is for HKY_Basic which is equivalent to 4by4 rate matrix
         return [process_basic, process_geneconv]
     
@@ -1047,7 +912,6 @@ class ReCodonGeneconv:
         print (result)
         self.save_x()
         return result
-
     def check_boundary(self, x, f, accepted):
         print("at minimum %.4f accepted %d" % (f, int(accepted)))
         return self.edge_to_blen[self.edge_list[1]] > np.exp(self.minlogblen)
@@ -1079,103 +943,52 @@ class ReCodonGeneconv:
         row_states = []
         column_states = []
         proportions = []
-        if self.eqtau12==False:
+        if self.Model == 'MG94':
+            Qbasic = self.get_MG94Basic()
+            for i, pair in enumerate(product(self.codon_nonstop, repeat = 2)):
+                ca, cb = pair
+                sa = self.codon_to_state[ca]
+                sb = self.codon_to_state[cb]
+                if ca == cb:
+                    continue
+                
+                # (ca, cb) to (ca, ca)
+                row_states.append((sa, sb))
+                column_states.append((sa, sa))
+                Qb = Qbasic[sb, sa]
+                if isNonsynonymous(cb, ca, self.codon_table):
+                    Tgeneconv = self.tau * self.omega
+                else:
+                    Tgeneconv = self.tau
+                proportions.append(Tgeneconv / (Qb + Tgeneconv) if (Qb + Tgeneconv) >0 else 0.0)
 
-            if self.Model == 'MG94':
-                Qbasic = self.get_MG94Basic()
-                for i, pair in enumerate(product(self.codon_nonstop, repeat = 2)):
-                    ca, cb = pair
-                    sa = self.codon_to_state[ca]
-                    sb = self.codon_to_state[cb]
-                    if ca == cb:
-                        continue
-
-                    # (ca, cb) to (ca, ca)
-                    row_states.append((sa, sb))
-                    column_states.append((sa, sa))
-                    Qb = Qbasic[sb, sa]
-                    if isNonsynonymous(cb, ca, self.codon_table):
-                        Tgeneconv1 = self.tau1 * self.omega
-                    else:
-                        Tgeneconv1 = self.tau1
-                    proportions.append(Tgeneconv1 / (Qb + Tgeneconv1) if (Qb + Tgeneconv1) >0 else 0.0)
-
-                    # (ca, cb) to (cb, cb)
-                    row_states.append((sa, sb))
-                    column_states.append((sb, sb))
-                    Qb = Qbasic[sa, sb]
-                    if isNonsynonymous(cb, ca, self.codon_table):
-                        Tgeneconv2 = self.tau2 * self.omega
-                    else:
-                        Tgeneconv2 = self.tau2
-                    proportions.append(Tgeneconv2 / (self.c*(Qb + Tgeneconv2)) if (self.c*(Qb + Tgeneconv2)) >0 else 0.0)
+                # (ca, cb) to (cb, cb)
+                row_states.append((sa, sb))
+                column_states.append((sb, sb))
+                Qb = Qbasic[sa, sb]
+                proportions.append(Tgeneconv / (Qb + Tgeneconv) if (Qb + Tgeneconv) >0 else 0.0)
             
-            elif self.Model == 'HKY':
-                Qbasic = self.get_HKYBasic()
-                for i, pair in enumerate(product('ACGT', repeat = 2)):
-                    na, nb = pair
-                    sa = self.nt_to_state[na]
-                    sb = self.nt_to_state[nb]
-                    if na == nb:
-                        continue
+        elif self.Model == 'HKY':
+            Qbasic = self.get_HKYBasic()
+            for i, pair in enumerate(product('ACGT', repeat = 2)):
+                na, nb = pair
+                sa = self.nt_to_state[na]
+                sb = self.nt_to_state[nb]
+                if na == nb:
+                    continue
 
-                    # (na, nb) to (na, na)
-                    row_states.append((sa, sb))
-                    column_states.append((sa, sa))
-                    GeneconvRate = get_HKYGeneconvRate1(pair, na + na, Qbasic, self.tau1,self.c)
-                    proportions.append(self.tau / GeneconvRate if GeneconvRate > 0 else 0.0)
+                # (na, nb) to (na, na)
+                row_states.append((sa, sb))
+                column_states.append((sa, sa))
+                GeneconvRate = get_HKYGeneconvRate(pair, na + na, Qbasic, self.tau)
+                proportions.append(self.tau / GeneconvRate if GeneconvRate > 0 else 0.0)
+                
 
-        else:
-            if self.Model == 'MG94':
-                Qbasic = self.get_MG94Basic()
-                for i, pair in enumerate(product(self.codon_nonstop, repeat=2)):
-                    ca, cb = pair
-                    sa = self.codon_to_state[ca]
-                    sb = self.codon_to_state[cb]
-                    if ca == cb:
-                        continue
-
-                    # (ca, cb) to (ca, ca)
-                    row_states.append((sa, sb))
-                    column_states.append((sa, sa))
-                    Qb = Qbasic[sb, sa]
-                    if isNonsynonymous(cb, ca, self.codon_table):
-                        Tgeneconv1 = self.tau1 * self.omega
-                    else:
-                        Tgeneconv1 = self.tau1
-                    proportions.append(Tgeneconv1 / (Qb + Tgeneconv1) if (Qb + Tgeneconv1) > 0 else 0.0)
-
-                    # (ca, cb) to (cb, cb)
-                    row_states.append((sa, sb))
-                    column_states.append((sb, sb))
-                    Qb = Qbasic[sa, sb]
-                    if isNonsynonymous(cb, ca, self.codon_table):
-                        Tgeneconv1 = self.tau1 * self.omega
-                    else:
-                        Tgeneconv1 = self.tau1
-                    proportions.append(Tgeneconv1 /( self.c*(Qb + Tgeneconv1)) if(self.c*(Qb + Tgeneconv1)) > 0 else 0.0)
-
-            elif self.Model == 'HKY':
-                Qbasic = self.get_HKYBasic()
-                for i, pair in enumerate(product('ACGT', repeat=2)):
-                    na, nb = pair
-                    sa = self.nt_to_state[na]
-                    sb = self.nt_to_state[nb]
-                    if na == nb:
-                        continue
-
-                    # (na, nb) to (na, na)
-
-
-                    row_states.append((sa, sb))
-                    column_states.append((sa, sa))
-                    GeneconvRate = get_HKYGeneconvRate1(pair, na + na, Qbasic, self.tau1,self.c)
-                    proportions.append(self.tau1 / GeneconvRate if GeneconvRate > 0 else 0.0)
                 # (na, nb) to (nb, nb)
-                    row_states.append((sa, sb))
-                    column_states.append((sb, sb))
-                    GeneconvRate = get_HKYGeneconvRate(pair, nb + nb, Qbasic, self.tau1)
-                    proportions.append(self.tau1 / GeneconvRate if GeneconvRate > 0 else 0.0)
+                row_states.append((sa, sb))
+                column_states.append((sb, sb))
+                GeneconvRate = get_HKYGeneconvRate(pair, nb + nb, Qbasic, self.tau)
+                proportions.append(self.tau / GeneconvRate if GeneconvRate > 0 else 0.0)
                 
         return {'row_states' : row_states, 'column_states' : column_states, 'weights' : proportions}
 
@@ -1281,110 +1094,53 @@ class ReCodonGeneconv:
         row21_states = []
         column21_states = []
         proportions21 = []
-        if self.eqtau12==False:
+        if self.Model == 'MG94':
+            Qbasic = self.get_MG94Basic()
+            for i, pair in enumerate(product(self.codon_nonstop, repeat = 2)):
+                ca, cb = pair
+                sa = self.codon_to_state[ca]
+                sb = self.codon_to_state[cb]
+                if ca == cb:
+                    continue
+                
+                # (ca, cb) to (ca, ca)
+                row12_states.append((sa, sb))
+                column12_states.append((sa, sa))
+                Qb = Qbasic[sb, sa]
+                if isNonsynonymous(cb, ca, self.codon_table):
+                    Tgeneconv = self.tau * self.omega
+                else:
+                    Tgeneconv = self.tau
+                proportions12.append(Tgeneconv / (Qb + Tgeneconv) if (Qb + Tgeneconv) >0 else 0.0)
 
-            if self.Model == 'MG94':
-                Qbasic = self.get_MG94Basic()
-                for i, pair in enumerate(product(self.codon_nonstop, repeat = 2)):
-                    ca, cb = pair
-                    sa = self.codon_to_state[ca]
-                    sb = self.codon_to_state[cb]
-                    if ca == cb:
-                        continue
+                # (ca, cb) to (cb, cb)
+                row21_states.append((sa, sb))
+                column21_states.append((sb, sb))
+                Qb = Qbasic[sa, sb]
+                proportions21.append(Tgeneconv / (Qb + Tgeneconv) if (Qb + Tgeneconv) >0 else 0.0)
+            
+        elif self.Model == 'HKY':
+            Qbasic = self.get_HKYBasic()
+            for i, pair in enumerate(product('ACGT', repeat = 2)):
+                na, nb = pair
+                sa = self.nt_to_state[na]
+                sb = self.nt_to_state[nb]
+                if na == nb:
+                    continue
 
-                    # (ca, cb) to (ca, ca)
-                    row12_states.append((sa, sb))
-                    column12_states.append((sa, sa))
-                    Qb = Qbasic[sb, sa]
-                    if isNonsynonymous(cb, ca, self.codon_table):
-                        Tgeneconv1 = self.tau1 * self.omega
-                    else:
-                        Tgeneconv1 = self.tau1
-                    proportions12.append(Tgeneconv1 / (self.c*Qb + Tgeneconv1) if (Qb + Tgeneconv1) >0 else 0.0)
+                # (na, nb) to (na, na)
+                row12_states.append((sa, sb))
+                column12_states.append((sa, sa))
+                GeneconvRate = get_HKYGeneconvRate(pair, na + na, Qbasic, self.tau)
+                proportions12.append(self.tau / GeneconvRate if GeneconvRate > 0 else 0.0)
+                
 
-                    # (ca, cb) to (cb, cb)
-                    row21_states.append((sa, sb))
-                    column21_states.append((sb, sb))
-                    Qb = Qbasic[sa, sb]
-                    if isNonsynonymous(cb, ca, self.codon_table):
-                        Tgeneconv2 = self.tau2 * self.omega
-                    else:
-                        Tgeneconv2 = self.tau2
-                    proportions21.append(Tgeneconv2 / (self.c*(Qb + Tgeneconv2) )if (self.c*(Qb + Tgeneconv2)) >0 else 0.0)
-
-            elif self.Model == 'HKY':
-                Qbasic = self.get_HKYBasic()
-                for i, pair in enumerate(product('ACGT', repeat = 2)):
-                    na, nb = pair
-                    sa = self.nt_to_state[na]
-                    sb = self.nt_to_state[nb]
-                    if na == nb:
-                        continue
-
-                    # (na, nb) to (na, na)
-                    row12_states.append((sa, sb))
-                    column12_states.append((sa, sa))
-                    GeneconvRate = get_HKYGeneconvRate1(pair, na + na, Qbasic, self.tau1,self.c)
-                    proportions12.append(self.tau1/ GeneconvRate if GeneconvRate > 0 else 0.0)
-
-
-                    # (na, nb) to (nb, nb)
-                    row21_states.append((sa, sb))
-                    column21_states.append((sb, sb))
-                    GeneconvRate = get_HKYGeneconvRate(pair, nb + nb, Qbasic, self.tau1)
-                    proportions21.append(self.tau1 / GeneconvRate if GeneconvRate > 0 else 0.0)
-        else:
-            if self.Model == 'MG94':
-                Qbasic = self.get_MG94Basic()
-                for i, pair in enumerate(product(self.codon_nonstop, repeat=2)):
-                    ca, cb = pair
-                    sa = self.codon_to_state[ca]
-                    sb = self.codon_to_state[cb]
-                    if ca == cb:
-                        continue
-
-                    # (ca, cb) to (ca, ca)
-                    row12_states.append((sa, sb))
-                    column12_states.append((sa, sa))
-                    Qb = Qbasic[sb, sa]
-                    if isNonsynonymous(cb, ca, self.codon_table):
-                        Tgeneconv1 = self.tau1 * self.omega
-                    else:
-                        Tgeneconv1 = self.tau1
-                    proportions12.append(Tgeneconv1 / (Qb + Tgeneconv1) if (Qb + Tgeneconv1) > 0 else 0.0)
-
-                    # (ca, cb) to (cb, cb)
-                    row21_states.append((sa, sb))
-                    column21_states.append((sb, sb))
-                    Qb = Qbasic[sa, sb]
-                    if isNonsynonymous(cb, ca, self.codon_table):
-                        Tgeneconv1 = self.tau1 * self.omega
-                    else:
-                        Tgeneconv1 = self.tau1
-                    proportions21.append(
-                        Tgeneconv1 / (self.c * (Qb + Tgeneconv1)) if (self.c * (Qb + Tgeneconv1)) > 0 else 0.0)
-
-            elif self.Model == 'HKY':
-                Qbasic = self.get_HKYBasic()
-                for i, pair in enumerate(product('ACGT', repeat=2)):
-                    na, nb = pair
-                    sa = self.nt_to_state[na]
-                    sb = self.nt_to_state[nb]
-                    if na == nb:
-                        continue
-
-                    # (na, nb) to (na, na)
-                    row12_states.append((sa, sb))
-                    column12_states.append((sa, sa))
-                    GeneconvRate = get_HKYGeneconvRate1(pair, na + na, Qbasic, self.tau1, self.c)
-                    proportions12.append(self.tau1 / GeneconvRate if GeneconvRate > 0 else 0.0)
-
-                    # (na, nb) to (nb, nb)
-                    row21_states.append((sa, sb))
-                    column21_states.append((sb, sb))
-                    GeneconvRate = get_HKYGeneconvRate(pair, nb + nb, Qbasic, self.tau1)
-                    proportions21.append(self.tau1 / GeneconvRate if GeneconvRate > 0 else 0.0)
-
+                # (na, nb) to (nb, nb)
+                row21_states.append((sa, sb))
+                column21_states.append((sb, sb))
+                GeneconvRate = get_HKYGeneconvRate(pair, nb + nb, Qbasic, self.tau)
+                proportions21.append(self.tau / GeneconvRate if GeneconvRate > 0 else 0.0)
+                
         return [{'row_states' : row12_states, 'column_states' : column12_states, 'weights' : proportions12},
                 {'row_states' : row21_states, 'column_states' : column21_states, 'weights' : proportions21}]
         
@@ -1392,246 +1148,122 @@ class ReCodonGeneconv:
         row_states = []
         col_states = []
         proportions = []
+        
+        if self.Model == 'MG94':
+            Qbasic = self.get_MG94Basic()
+            for i, pair in enumerate(product(self.codon_nonstop, repeat = 2)):
+                ca, cb = pair
+                sa = self.codon_to_state[ca]
+                sb = self.codon_to_state[cb]
+                if ca != cb:                        
+                    for cc in self.codon_nonstop:
+                        if cc == ca or cc == cb:
+                            continue
+                        sc = self.codon_to_state[cc]
 
-        if self.eqtau12==False:
+                        # (ca, cb) to (ca, cc)
+                        Qb = Qbasic[sb, sc]
+                        if Qb != 0:
+                            row_states.append((sa, sb))
+                            col_states.append((sa, sc))
+                            proportions.append(1.0)
 
-            if self.Model == 'MG94':
-                Qbasic = self.get_MG94Basic()
-                for i, pair in enumerate(product(self.codon_nonstop, repeat = 2)):
-                    ca, cb = pair
-                    sa = self.codon_to_state[ca]
-                    sb = self.codon_to_state[cb]
-                    if ca != cb:
-                        for cc in self.codon_nonstop:
-                            if cc == ca or cc == cb:
-                                continue
-                            sc = self.codon_to_state[cc]
-
-                            # (ca, cb) to (ca, cc)
-                            Qb = Qbasic[sb, sc]
-                            if Qb != 0:
-                                row_states.append((sa, sb))
-                                col_states.append((sa, sc))
-                                proportions.append(1.0)
-
-                            # (ca, cb) to (cc, cb)
-                            Qb = Qbasic[sa, sc]
-                            if Qb != 0:
-                                row_states.append((sa, sb))
-                                col_states.append((sc, sb))
-                                proportions.append(1.0)
-                        # (ca, cb) to (ca, ca)
-                        row_states.append((sa, sb))
-                        col_states.append((sa, sa))
-                        Qb = Qbasic[sb, sa]
-                        if isNonsynonymous(cb, ca, self.codon_table):
-                            Tgeneconv1 = self.tau1 * self.omega
-                        else:
-                            Tgeneconv1 = self.tau1
-                        proportions.append(1.0 - Tgeneconv1 /( Qb + Tgeneconv1) if (Qb + Tgeneconv1) >0 else 0.0)
-
-                        # (ca, cb) to (cb, cb)
-                        row_states.append((sa, sb))
-                        col_states.append((sb, sb))
-                        Qb = Qbasic[sa, sb]
-                        if isNonsynonymous(cb, ca, self.codon_table):
-                            Tgeneconv2 = self.tau2 * self.omega
-                        else:
-                            Tgeneconv2 = self.tau2
-                        proportions.append(1.0 - Tgeneconv2 / (self.c*(Qb + Tgeneconv2) )if (self.c*(Qb + Tgeneconv2)) >0 else 0.0)
+                        # (ca, cb) to (cc, cb)
+                        Qb = Qbasic[sa, sc]
+                        if Qb != 0:
+                            row_states.append((sa, sb))
+                            col_states.append((sc, sb))
+                            proportions.append(1.0)
+                    # (ca, cb) to (ca, ca)
+                    row_states.append((sa, sb))
+                    col_states.append((sa, sa))
+                    Qb = Qbasic[sb, sa]
+                    if isNonsynonymous(cb, ca, self.codon_table):
+                        Tgeneconv = self.tau * self.omega
                     else:
-                        for cc in self.codon_nonstop:
-                            if cc == ca:
-                                continue
-                            sc = self.codon_to_state[cc]
+                        Tgeneconv = self.tau
+                    proportions.append(1.0 - Tgeneconv / (Qb + Tgeneconv) if (Qb + Tgeneconv) >0 else 0.0)
 
-                            # (ca, ca) to (ca,  cc)
-                            Qb = Qbasic[sa, sc]
-                            if Qb != 0:
-                                row_states.append((sa, sb))
-                                col_states.append((sa, sc))
-                                proportions.append(1.0)
-                            # (ca, ca) to (cc, ca)
-                                row_states.append((sa, sb))
-                                col_states.append((sc, sa))
-                                proportions.append(1.0)
+                    # (ca, cb) to (cb, cb)
+                    row_states.append((sa, sb))
+                    col_states.append((sb, sb))
+                    Qb = Qbasic[sa, sb]
+                    proportions.append(1.0 - Tgeneconv / (Qb + Tgeneconv) if (Qb + Tgeneconv) >0 else 0.0)
+                else:
+                    for cc in self.codon_nonstop:
+                        if cc == ca:
+                            continue
+                        sc = self.codon_to_state[cc]
 
-                            # (ca, ca) to (cc, cc)
-                                row_states.append((sa, sb))
-                                col_states.append((sc, sc))
-                                proportions.append(1.0)
-            elif self.Model == 'HKY':
-                Qbasic = self.get_HKYBasic()
-                for i, pair in enumerate(product('ACGT', repeat = 2)):
-                    na, nb = pair
-                    sa = self.nt_to_state[na]
-                    sb = self.nt_to_state[nb]
-                    if na!= nb:
-                        for nc in 'ACGT':
-                            if nc == na or nc == nb:
-                                continue
-                            sc = self.nt_to_state[nc]
+                        # (ca, ca) to (ca,  cc)
+                        Qb = Qbasic[sa, sc]
+                        if Qb != 0:
+                            row_states.append((sa, sb))
+                            col_states.append((sa, sc))
+                            proportions.append(1.0)
+                        # (ca, ca) to (cc, ca)
+                            row_states.append((sa, sb))
+                            col_states.append((sc, sa))
+                            proportions.append(1.0)
 
-                            # (na, nb) to (na, nc)
-                            Qb = Qbasic[sb, sc]
-                            if Qb != 0:
-                                row_states.append((sa, sb))
-                                col_states.append((sa, sc))
-                                proportions.append(1.0)
+                        # (ca, ca) to (cc, cc)
+                            row_states.append((sa, sb))
+                            col_states.append((sc, sc))
+                            proportions.append(1.0)
+        elif self.Model == 'HKY':
+            Qbasic = self.get_HKYBasic()
+            for i, pair in enumerate(product('ACGT', repeat = 2)):
+                na, nb = pair
+                sa = self.nt_to_state[na]
+                sb = self.nt_to_state[nb]
+                if na!= nb:
+                    for nc in 'ACGT':
+                        if nc == na or nc == nb:
+                            continue
+                        sc = self.nt_to_state[nc]
 
-                            # (na, nb) to (nc, nb)
-                            Qb = Qbasic[sa, sc]
-                            if Qb != 0:
-                                row_states.append((sa, sb))
-                                col_states.append((sc, sb))
-                                proportions.append(1.0)
+                        # (na, nb) to (na, nc)
+                        Qb = Qbasic[sb, sc]
+                        if Qb != 0:
+                            row_states.append((sa, sb))
+                            col_states.append((sa, sc))
+                            proportions.append(1.0)
 
-                        # (na, nb) to (na, na)
-                        row_states.append((sa, sb))
-                        col_states.append((sa, sa))
-                        Qb = Qbasic[sb, sa]
-                        proportions.append((self.c*Qb )/ (self.c*Qb + self.tau1))
+                        # (na, nb) to (nc, nb)
+                        Qb = Qbasic[sa, sc]
+                        if Qb != 0:
+                            row_states.append((sa, sb))
+                            col_states.append((sc, sb))
+                            proportions.append(1.0)
 
-                        # (na, nb) to (nb, nb)
-                        row_states.append((sa, sb))
-                        col_states.append((sb, sb))
-                        Qb = Qbasic[sa, sb]
-                        proportions.append(Qb / (Qb + self.tau1))
-                    else:
-                        for nc in 'ACGT':
-                            if nc == na:
-                                continue
-                            sc = self.nt_to_state[nc]
+                    # (na, nb) to (na, na)
+                    row_states.append((sa, sb))
+                    col_states.append((sa, sa))
+                    Qb = Qbasic[sb, sa]
+                    proportions.append(Qb / (Qb + self.tau))
 
-                            Qb = Qbasic[sa, sc]
-                            if Qb != 0.0:
-                                row_states.append((sa, sb))
-                                col_states.append((sa, sc))
-                                proportions.append(1.0)
+                    # (na, nb) to (nb, nb)
+                    row_states.append((sa, sb))
+                    col_states.append((sb, sb))
+                    Qb = Qbasic[sa, sb]
+                    proportions.append(Qb / (Qb + self.tau))
+                else:
+                    for nc in 'ACGT':
+                        if nc == na:
+                            continue
+                        sc = self.nt_to_state[nc]
 
-                                row_states.append((sa, sb))
-                                col_states.append((sc, sa))
-                                proportions.append(1.0)
+                        Qb = Qbasic[sa, sc]
+                        if Qb != 0.0:
+                            row_states.append((sa, sb))
+                            col_states.append((sa, sc))
+                            proportions.append(1.0)
 
-        else:
-            if self.Model == 'MG94':
-                Qbasic = self.get_MG94Basic()
-                for i, pair in enumerate(product(self.codon_nonstop, repeat=2)):
-                    ca, cb = pair
-                    sa = self.codon_to_state[ca]
-                    sb = self.codon_to_state[cb]
-                    if ca != cb:
-                        for cc in self.codon_nonstop:
-                            if cc == ca or cc == cb:
-                                continue
-                            sc = self.codon_to_state[cc]
+                            row_states.append((sa, sb))
+                            col_states.append((sc, sa))
+                            proportions.append(1.0)                           
 
-                            # (ca, cb) to (ca, cc)
-                            Qb = Qbasic[sb, sc]
-                            if Qb != 0:
-                                row_states.append((sa, sb))
-                                col_states.append((sa, sc))
-                                proportions.append(1.0)
-
-                            # (ca, cb) to (cc, cb)
-                            Qb = Qbasic[sa, sc]
-                            if Qb != 0:
-                                row_states.append((sa, sb))
-                                col_states.append((sc, sb))
-                                proportions.append(1.0)
-                        # (ca, cb) to (ca, ca)
-                        row_states.append((sa, sb))
-                        col_states.append((sa, sa))
-                        Qb = Qbasic[sb, sa]
-                        if isNonsynonymous(cb, ca, self.codon_table):
-                            Tgeneconv1 = self.tau1 * self.omega
-                        else:
-                            Tgeneconv1 = self.tau1
-                        proportions.append(1.0 - Tgeneconv1 / (Qb + Tgeneconv1) if (Qb + Tgeneconv1) > 0 else 0.0)
-
-                        # (ca, cb) to (cb, cb)
-                        row_states.append((sa, sb))
-                        col_states.append((sb, sb))
-                        Qb = Qbasic[sa, sb]
-                        if isNonsynonymous(cb, ca, self.codon_table):
-                            Tgeneconv1 = self.tau1 * self.omega
-                        else:
-                            Tgeneconv1 = self.tau1
-                        proportions.append(1.0 - Tgeneconv1 / (self.c * (Qb + Tgeneconv1)) if (self.c * ( Qb + Tgeneconv1)) > 0 else 0.0)
-                    else:
-                        for cc in self.codon_nonstop:
-                            if cc == ca:
-                                continue
-                            sc = self.codon_to_state[cc]
-
-                            # (ca, ca) to (ca,  cc)
-                            Qb = Qbasic[sa, sc]
-                            if Qb != 0:
-                                row_states.append((sa, sb))
-                                col_states.append((sa, sc))
-                                proportions.append(1.0)
-                                # (ca, ca) to (cc, ca)
-                                row_states.append((sa, sb))
-                                col_states.append((sc, sa))
-                                proportions.append(1.0)
-
-                                # (ca, ca) to (cc, cc)
-                                row_states.append((sa, sb))
-                                col_states.append((sc, sc))
-                                proportions.append(1.0)
-            elif self.Model == 'HKY':
-                Qbasic = self.get_HKYBasic()
-                for i, pair in enumerate(product('ACGT', repeat=2)):
-                    na, nb = pair
-                    sa = self.nt_to_state[na]
-                    sb = self.nt_to_state[nb]
-                    if na != nb:
-                        for nc in 'ACGT':
-                            if nc == na or nc == nb:
-                                continue
-                            sc = self.nt_to_state[nc]
-
-                            # (na, nb) to (na, nc)
-                            Qb = Qbasic[sb, sc]
-                            if Qb != 0:
-                                row_states.append((sa, sb))
-                                col_states.append((sa, sc))
-                                proportions.append(1.0)
-
-                            # (na, nb) to (nc, nb)
-                            Qb = Qbasic[sa, sc]
-                            if Qb != 0:
-                                row_states.append((sa, sb))
-                                col_states.append((sc, sb))
-                                proportions.append(1.0)
-
-                        # (na, nb) to (na, na)
-                        row_states.append((sa, sb))
-                        col_states.append((sa, sa))
-                        Qb = Qbasic[sb, sa]
-                        proportions.append((self.c * Qb) / (self.c * Qb + self.tau1))
-
-                        # (na, nb) to (nb, nb)
-                        row_states.append((sa, sb))
-                        col_states.append((sb, sb))
-                        Qb = Qbasic[sa, sb]
-                        proportions.append(Qb / (Qb + self.tau1))
-                    else:
-                        for nc in 'ACGT':
-                            if nc == na:
-                                continue
-                            sc = self.nt_to_state[nc]
-
-                            Qb = Qbasic[sa, sc]
-                            if Qb != 0.0:
-                                row_states.append((sa, sb))
-                                col_states.append((sa, sc))
-                                proportions.append(1.0)
-
-                                row_states.append((sa, sb))
-                                col_states.append((sc, sa))
-                                proportions.append(1.0)
-
+                     
         return [{'row_states' : row_states, 'column_states' : col_states, 'weights' : proportions}]
 
     def _ExpectedpointMutationNum(self, package = 'new', display = False):
@@ -1685,14 +1317,14 @@ class ReCodonGeneconv:
         else:
             print ('Need to implement this for old package')
 
-    def get_SitewisePosteriorSummary(self, summary_path, name,type,file_name = None):
+    def get_SitewisePosteriorSummary(self, summary_path, file_name = None):
         SitewiseExpectedpointMutation = self._SitewiseExpectedpointMutationNum()
         SiteExpectedDirectionalNumGeneconv = self._SitewiseExpectedDirectionalNumGeneconv()
         if file_name == None:
             if not self.Force:
-                prefix_summary = summary_path + self.Model + '_'+name+'_'+type+'_'
+                prefix_summary = summary_path + self.Model + '_'
             else:
-                prefix_summary = summary_path + 'Force_' + self.Model + '_'+name+'_'+type+'_'
+                prefix_summary = summary_path + 'Force_' + self.Model + '_'
                 
 
             if self.clock:
@@ -1735,11 +1367,11 @@ class ReCodonGeneconv:
         out = [self.nsites, self.ll]
         out.extend(self.pi)
         if self.Model == 'HKY': # HKY model doesn't have omega parameter
-            out.extend([self.kappa, self.tau1,self.tau2,self.c])
-            label = ['length', 'll','pi_a', 'pi_c', 'pi_g', 'pi_t', 'kappa', 'tau1','tau2','c']
+            out.extend([self.kappa, self.tau])
+            label = ['length', 'll','pi_a', 'pi_c', 'pi_g', 'pi_t', 'kappa', 'tau']
         elif self.Model == 'MG94':
-            out.extend([self.kappa, self.omega, self.tau1,self.tau2,self.c])
-            label = ['length', 'll','pi_a', 'pi_c', 'pi_g', 'pi_t', 'kappa', 'omega', 'tau1','tau2','c']
+            out.extend([self.kappa, self.omega, self.tau])
+            label = ['length', 'll','pi_a', 'pi_c', 'pi_g', 'pi_t', 'kappa', 'omega', 'tau']
 
         k = len(label)  # record the length of non-blen parameters
 
@@ -1779,12 +1411,12 @@ class ReCodonGeneconv:
         else:
             return out        
 
-    def get_individual_summary(self, summary_path,name,type,file_name = None):
+    def get_individual_summary(self, summary_path, file_name = None):
         if file_name == None:
             if not self.Force:
-                prefix_summary = summary_path + self.Model + '_'+name+'_'+type+'_'
+                prefix_summary = summary_path + self.Model + '_'
             else:
-                prefix_summary = summary_path + 'Force_' + self.Model + '_'+name+'_'+type+'_'
+                prefix_summary = summary_path + 'Force_' + self.Model + '_'
                 
 
             if self.clock:
@@ -1794,7 +1426,7 @@ class ReCodonGeneconv:
 
             summary_file = prefix_summary + '_'.join(self.paralog) + suffix_summary
         else:
-            summary_file = summary_path +file_name
+            summary_file = file_name
         res = self.get_summary(True)
         summary = np.matrix(res[0])
         label = res[1]
@@ -1802,23 +1434,26 @@ class ReCodonGeneconv:
         footer = ' '.join(label)  # row labels
         np.savetxt(open(summary_file, 'w+'), summary.T, delimiter = ' ', footer = footer)
 
-    def gen_save_file_name(self):
-        prefix_save = self.save_path + self.Model
-        if self.Force:
-            prefix_save = prefix_save + '_Force'
+    def get_save_file_name(self):
+        if self.save_name is None:
+            prefix_save = self.save_path + self.Model
+            if self.Force:
+                prefix_save = prefix_save + '_Force'
 
-##        if self.Dir:
-##            prefix_save = prefix_save + '_Dir'
-##
-##        if self.gBGC:
-##            prefix_save = prefix_save + '_gBGC'
+    ##        if self.Dir:
+    ##            prefix_save = prefix_save + '_Dir'
+    ##
+    ##        if self.gBGC:
+    ##            prefix_save = prefix_save + '_gBGC'
 
-        if self.clock:
-            suffix_save = '_clock_save.txt'
+            if self.clock:
+                suffix_save = '_clock_save.txt'
+            else:
+                suffix_save = '_nonclock_save.txt'
+
+            save_file = prefix_save +'_' + '_'.join(self.paralog) + suffix_save
         else:
-            suffix_save = '_nonclock_save.txt'
-
-        save_file = prefix_save +'_' + '_'.join(self.paralog) + suffix_save
+            save_file = self.save_name
         return save_file
 
     def save_x(self):
@@ -1827,12 +1462,9 @@ class ReCodonGeneconv:
         else:
             save = self.x
 
-        if self.save_name == None:
-            save_file = self.gen_save_file_name()
-        else:
-            save_file = self.save_name
+        save_file = self.get_save_file_name()
             
-        np.savetxt(open(save_file, 'w+'), save.T)
+        np.savetxt(save_file, save.T)
 
     def initialize_by_save(self, save_file):
             
@@ -1841,26 +1473,22 @@ class ReCodonGeneconv:
             self.update_by_x_clock()
         else:
             self.x = np.loadtxt(open(save_file, 'r'))
-            self.update_by_x()
-
-    def test(self):
-        return 1
-            
+            self.update_by_x()     
     
 if __name__ == '__main__':
-##    paralog = ['YLR406C', 'YDL075W']
-##    Force = None
-##    alignment_file = '../test/YLR406C_YDL075W_test_input.fasta'
-##    newicktree = '../test/YeastTree.newick'
-##    ##    test.get_individual_summary(summary_path = '../test/Summary/')
-##    ##    test.get_SitewisePosteriorSummary(summary_path = '../test/Summary/')
-##    # Force MG94:{5:0.0} HKY:{4:0.0}
-##    
-##    #MG94+tau
-##    MG94_tau = ReCodonGeneconv( newicktree, alignment_file, paralog, Model = 'MG94', Force = Force, clock = None, save_path = '../test/save/')
-##    MG94_tau.get_mle(True, True, 0, 'BFGS')
-##    MG94_tau.site_reconstruction()
-##    MG94_tau_series = MG94_tau.reconstruction_series
+    paralog = ['YLR406C', 'YDL075W']
+    Force = None
+    alignment_file = '../test/YLR406C_YDL075W_test_input.fasta'
+    newicktree = '../test/YeastTree.newick'
+    ##    test.get_individual_summary(summary_path = '../test/Summary/')
+    ##    test.get_SitewisePosteriorSummary(summary_path = '../test/Summary/')
+    # Force MG94:{5:0.0} HKY:{4:0.0}
+
+    #MG94+tau
+    MG94_tau = ReCodonGeneconv( newicktree, alignment_file, paralog, Model = 'MG94', Force = Force, clock = None, save_path = '../test/save/')
+    MG94_tau.get_mle(True, True, 0, 'BFGS')
+    # MG94_tau.site_reconstruction()
+    # MG94_tau_series = MG94_tau.reconstruction_series
 ##    
 ##    #MG94
 ##    MG94 = ReCodonGeneconv( newicktree, alignment_file, paralog, Model = 'MG94', Force = {5:0.0}, clock = None, save_path = '../test/save/')
@@ -1888,39 +1516,23 @@ if __name__ == '__main__':
 ######################################################################################
 ######################################################################################
     
-    paralog = ['EDN', 'ECP']
-    Force = None
-    alignment_file = '../test/EDN_ECP_Cleaned.fasta'
-    newicktree = '../test/input_tree.newick'
-    Force = None
-    model = 'MG94'
-    save_name = '../test/save/In3_MG94_EDN_ECP_nonclock_save.txt'
+    # paralog = ['EDN', 'ECP']
+    # Force = None
+    # ##    alignment_file = '../test/EDN_ECP_Cleaned.fasta'
+    # ##    newicktree = '../test/input_tree.newick'
+    # alignment_file = '../test/EDN_ECP_Outgroup_test.fasta'
+    # newicktree = '../test/Outgroup_test_tree.newick'
+    # Force = None
+    # model = 'MG94'
+    # save_name = '../test/save/Ind_' + model + '_EDN_ECP_nonclock_Outgroup_test_save.txt'
+    #
+    # test = ReCodonGeneconv( newicktree, alignment_file, paralog, Model = model, Force = Force, clock = None, save_path = '../test/save/', save_name = save_name)
+    # test.get_mle()
 ##    test.get_mle(True, True, 0, 'BFGS')
 ##    test.get_individual_summary(summary_path = '../test/Summary/')
 ##    test.get_SitewisePosteriorSummary(summary_path = '../test/Summary/')
-
-    test = ReCodonGeneconv( newicktree, alignment_file, paralog, Model = model, Force = Force, clock = None, save_path = '../test/save/', save_name = save_name)
-    test.get_mle()
-    test._loglikelihood2()
+    # test._loglikelihood2()
     #scene = test.get_scene()
     #test.update_by_x(np.concatenate((np.log([0.1, 0.9, 0.3, 11.0, 3.4]), test.x_rates)))
-    # self = test
-    #
-    # test.get_ExpectedNumGeneconv()
-    # summary, label = test.get_summary(True)
-    # for i, ss in enumerate(summary):
-    #     print(label[i], ss)
-    # #print (test._loglikelihood2())
-    # #test.get_mle(True, True, 0, 'BFGS')
-    # #s1 = test.get_scene()
-    # #s2 = test.get_NOIGC_scene()
-    # #sitewise_ll = test._sitewise_loglikelihood(True)
-    # IGC_sitewise_lnL_file = '../test/Summary/' + '_'.join(paralog) + '_' + model + 't1_nonclock_sw_lnL_check.txt'
-    #
-    # test.get_sitewise_loglikelihood_summary(IGC_sitewise_lnL_file)
-    # outgroup_branch = [edge for edge in test.edge_list if edge[0] == 'N0' and edge[1] != 'N1'][0]
-    # Total_blen = sum([test.edge_to_blen[edge] for edge in test.edge_list if edge != outgroup_branch])
-    # print(test.get_HKYGeneconv())
-    # print(test.get_HKYBasic())
 
-
+    

@@ -3,6 +3,8 @@
   <component name="ChangeListManager">
     <list default="true" id="a9952ef3-53b5-4976-ba05-bb25560d8c3b" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/save/HKYEDN_ECP_full_situation1_nonclock_save.txt" beforeDir="false" afterPath="$PROJECT_DIR$/test/save/HKYEDN_ECP_full_situation1_nonclock_save.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/save/MG94_YYYYYY_situation8_nonclock_save.txt" beforeDir="false" afterPath="$PROJECT_DIR$/test/save/MG94_YYYYYY_situation8_nonclock_save.txt" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -18,8 +20,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/IGCexpansion/AncestralState.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-2571">
-              <caret line="858" column="49" selection-start-line="858" selection-start-column="49" selection-end-line="858" selection-end-column="49" />
+            <state relative-caret-position="337">
+              <caret line="51" column="26" selection-end-line="1196" />
               <folding>
                 <element signature="e#196#233#0" expanded="true" />
               </folding>
@@ -28,10 +30,22 @@
         </entry>
       </file>
       <file pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/IGCexpansion/as.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="4235">
+              <caret line="512" column="51" selection-start-line="512" selection-start-column="51" selection-end-line="512" selection-end-column="51" />
+              <folding>
+                <element signature="e#195#232#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/IGCexpansion/test.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="160">
-              <caret line="17" lean-forward="true" selection-start-line="17" selection-end-line="17" />
+            <state relative-caret-position="120">
+              <caret line="18" column="26" selection-start-line="18" selection-start-column="26" selection-end-line="18" selection-end-column="26" />
               <folding>
                 <element signature="e#0#23#0" expanded="true" />
               </folding>
@@ -92,17 +106,17 @@
       </list>
     </option>
   </component>
-  <component name="ProjectFrameBounds" extendedState="6">
-    <option name="x" value="72" />
+  <component name="ProjectFrameBounds">
     <option name="y" value="23" />
     <option name="width" value="1440" />
-    <option name="height" value="826" />
+    <option name="height" value="821" />
   </component>
   <component name="ProjectView">
     <navigator proportions="" version="1">
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
+      <pane id="Scope" />
       <pane id="ProjectPane">
         <subPane>
           <expand>
@@ -141,7 +155,6 @@
           <select />
         </subPane>
       </pane>
-      <pane id="Scope" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -160,7 +173,7 @@
       </list>
     </option>
   </component>
-  <component name="RunManager" selected="Python.test">
+  <component name="RunManager" selected="Python.AncestralState">
     <configuration name="AncestralState" type="PythonConfigurationType" factoryName="Python" temporary="true">
       <module name="Commonancestor" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -289,8 +302,8 @@
     </configuration>
     <recent_temporary>
       <list>
-        <item itemvalue="Python.test" />
         <item itemvalue="Python.AncestralState" />
+        <item itemvalue="Python.test" />
         <item itemvalue="Python.as" />
         <item itemvalue="Python.test1" />
         <item itemvalue="Python.Run_IS_IGC_Old" />
@@ -311,7 +324,7 @@
     <servers />
   </component>
   <component name="ToolWindowManager">
-    <frame x="0" y="23" width="1440" height="826" extended-state="6" />
+    <frame x="0" y="23" width="1440" height="821" extended-state="6" />
     <editor active="true" />
     <layout>
       <window_info active="true" content_ui="combo" id="Project" order="0" sideWeight="0.49785408" visible="true" weight="0.17829457" />
@@ -319,7 +332,7 @@
       <window_info id="Favorites" order="2" sideWeight="0.50214595" side_tool="true" weight="0.24945612" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Find" order="1" />
-      <window_info anchor="bottom" id="Run" order="2" weight="0.35694823" />
+      <window_info anchor="bottom" id="Run" order="2" weight="0.35675675" />
       <window_info anchor="bottom" id="Debug" order="3" weight="0.4" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
@@ -481,12 +494,22 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/IGCexpansion/as.py">
+    <entry file="file://$PROJECT_DIR$/IGCexpansion/AncestralState.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="657">
-          <caret line="512" column="51" selection-start-line="512" selection-start-column="51" selection-end-line="512" selection-end-column="51" />
+        <state relative-caret-position="337">
+          <caret line="51" column="26" selection-end-line="1196" />
           <folding>
-            <element signature="e#195#232#0" expanded="true" />
+            <element signature="e#196#233#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/IGCexpansion/test.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="120">
+          <caret line="18" column="26" selection-start-line="18" selection-start-column="26" selection-end-line="18" selection-end-column="26" />
+          <folding>
+            <element signature="e#0#23#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -505,22 +528,12 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/IGCexpansion/AncestralState.py">
+    <entry file="file://$PROJECT_DIR$/IGCexpansion/as.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-2571">
-          <caret line="858" column="49" selection-start-line="858" selection-start-column="49" selection-end-line="858" selection-end-column="49" />
+        <state relative-caret-position="4235">
+          <caret line="512" column="51" selection-start-line="512" selection-start-column="51" selection-end-line="512" selection-end-column="51" />
           <folding>
-            <element signature="e#196#233#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/IGCexpansion/test.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="160">
-          <caret line="17" lean-forward="true" selection-start-line="17" selection-end-line="17" />
-          <folding>
-            <element signature="e#0#23#0" expanded="true" />
+            <element signature="e#195#232#0" expanded="true" />
           </folding>
         </state>
       </provider>

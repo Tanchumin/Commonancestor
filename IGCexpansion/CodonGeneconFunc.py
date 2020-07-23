@@ -6,7 +6,7 @@
 
 from operator import mul
 from itertools import product
-from functools import partial
+from functools import partial, reduce
 from copy import deepcopy
 import os, sys
 
@@ -29,7 +29,7 @@ import jsonctmctree.ll, jsonctmctree.interface
 ##    else:
 ##        return pi['ACGT'.index(nb)]
 
-def get_HKYGeneconvRate(pair_from, pair_to, Qbasic, tau, c):
+def get_HKYGeneconvRate(pair_from, pair_to, Qbasic, tau):
     na, nb = pair_from
     nc, nd = pair_to
     if (na != nc and nb!= nd) or (na == nc and nb == nd):
@@ -37,9 +37,9 @@ def get_HKYGeneconvRate(pair_from, pair_to, Qbasic, tau, c):
     if na ==nc and nb != nd:
         Qb = Qbasic['ACGT'.index(nb), 'ACGT'.index(nd)]
         if na == nd:
-            return c*Qb + tau
+            return Qb + tau
         else:
-            return c*Qb
+            return Qb
     if nb == nd and na != nc:
         Qb = Qbasic['ACGT'.index(na), 'ACGT'.index(nc)]
         if nb == nc:
@@ -138,7 +138,7 @@ def read_newick(newick_file, post_dup = 'N1'):
     tree = Phylo.read(newick_file, 'newick', rooted=True)
 
     # locate 1st post-duplication node
-    post_dup_clade = tree.find_clades(post_dup).next()
+    post_dup_clade = list(tree.find_clades(post_dup))[0]
 
     # if the root node is the 1st post-duplication node,
     # then add a duplication node before the root
