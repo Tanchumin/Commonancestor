@@ -9,6 +9,8 @@
 
 from __future__ import print_function, absolute_import
 from CodonGeneconFunc import *
+import numpy as np
+import jsonctmctree
 import argparse
 #from jsonctmctree.extras import optimize_em
 import ast

@@ -14,6 +14,8 @@ import numpy as np
 import pandas as pd
 from numpy import random
 
+from IGCexpansion.CodonGeneconFunc import isNonsynonymous
+
 
 def get_maxpro(list, nodecom):
     sites = np.zeros(shape=(len(nodecom), len(list)))
@@ -735,7 +737,10 @@ class AncestralState:
 
         return self.time_list,self.state_list,self.effect_matrix, self.big_number_matrix, self.dis_matrix
 
-    def GLS_s(self, t=0.1, repeat=2, ini=None, end=None, ifrecal=True):
+
+## ifrecall indicate we need do GLS_m again
+
+    def GLS_s(self, t, repeat=2, ini=None, end=None, ifrecal=True):
 
         if ifrecal==True:
             self.GLS_m(t=t, ini=ini, end=end, repeat = repeat)
@@ -926,7 +931,7 @@ class AncestralState:
             re1=re1[0]
 
             for i in range(times-1):
-                re = self.GLS_s(ifrecal=False,ini=ini1,end=end1)
+                re = self.GLS_s(repeat=repeat,ifrecal=False,ini=ini1,end=end1)
                 sam = self.rank_ts(time=re[0], state=re[1], ini=ini1, effect_number=re[2])
                 re2 = self.whether_IGC(history_matrix=sam[0], effect_number=sam[1])
                 re1=np.vstack((re1,re2[0]))
@@ -935,12 +940,14 @@ class AncestralState:
 
         else:
             for j in range(len(scene['tree']["column_nodes"])):
+                t=np.exp(geneconv.x_rates[j])
+                print(j)
                 if j ==0:
                     ini2=self.geneconv.node_to_num[geneconv.edge_list[j][0]]
                     end2 = 2
                     ini1 = self.make_ie(ini2, end2)[0]
                     end1 = self.make_ie(ini2, end2)[1]
-                    re = self.GLS_s(repeat=repeat,ini=ini1,end=end1)
+                    re = self.GLS_s(t=t,repeat=repeat,ini=ini1,end=end1)
                     sam = self.rank_ts(time=re[0], state=re[1], ini=ini1, effect_number=re[2])
                     re1=self.whether_IGC(history_matrix=sam[0],effect_number=sam[1])
                     effect_number=re1[1]
@@ -948,11 +955,14 @@ class AncestralState:
 
 
                     for i in range(times-1):
-                        re = self.GLS_s(ifrecal=False,ini=ini1,end=end1)
+                        re = self.GLS_s(t=t,repeat=repeat,ifrecal=False,ini=ini1,end=end1)
                         sam = self.rank_ts(time=re[0], state=re[1], ini=ini1, effect_number=re[2])
                         re2 = self.whether_IGC(history_matrix=sam[0], effect_number=sam[1])
                         re1=np.vstack((re1,re2[0]))
                         effect_number=effect_number+re2[1]
+
+
+
 
 
 
@@ -966,7 +976,7 @@ class AncestralState:
 
                     ini1 = self.make_ie(ini2, end2)[0]
                     end1 = self.make_ie(ini2, end2)[1]
-                    re = self.GLS_s(repeat=repeat,ini=ini1,end=end1)
+                    re = self.GLS_s(t=t,repeat=repeat,ini=ini1,end=end1)
 
                     sam = self.rank_ts(time=re[0], state=re[1], ini=ini1, effect_number=re[2])
                     re2=self.whether_IGC(history_matrix=sam[0],effect_number=sam[1])
@@ -974,19 +984,22 @@ class AncestralState:
                     re2=re2[0]
 
                     for i in range(times-1):
-                        re = self.GLS_s(ifrecal=False,ini=ini1,end=end1)
+                        re = self.GLS_s(t=t,ifrecal=False,repeat=repeat,ini=ini1,end=end1)
                         sam = self.rank_ts(time=re[0], state=re[1], ini=ini1, effect_number=re[2])
                         re3 = self.whether_IGC(history_matrix=sam[0], effect_number=sam[1])
                         re2=np.vstack((re2,re3[0]))
                         effect_number1=effect_number1+re3[1]
 
-            re1 = np.vstack((re1, re2))
-            effect_number=effect_number1+effect_number
 
-        return re1,effect_number
+                    re1 = np.vstack((re1, re2))
+                    effect_number=effect_number1+effect_number
+
+            print(re1)
+
+        return re1 , effect_number
 
 
-    def divide_Q(self, times=1, repeat=1,method="simple", ifwholetree=True,simple_state_number=8):
+    def divide_Q(self, times, repeat,method="simple", ifwholetree=True,simple_state_number=5):
 
         re=self.monte_carol(times=times,repeat=repeat,ifwholetree=ifwholetree)
         history_matrix=re[0]
@@ -1022,7 +1035,7 @@ class AncestralState:
 
 
 
-    def get_igcr_pad(self,times=1, repeat=1,simple_state_number=8,ifwholetree=True):
+    def get_igcr_pad(self,times=1, repeat=1,simple_state_number=5,ifwholetree=True):
         self.divide_Q(times=times,repeat=repeat,simple_state_number=simple_state_number,ifwholetree=ifwholetree)
         relationship=np.zeros(shape=(self.type_number, 5))
         for i in range(self.type_number):
@@ -1045,8 +1058,8 @@ if __name__ == '__main__':
     paralog = ['EDN', 'ECP']
     alignment_file = '../test/EDN_ECP_Cleaned.fasta'
     newicktree = '../test/EDN_ECP_tree.newick'
-    Force = {6:1}
-    Force1=None
+    Force = None
+    Force1= None
     model = 'HKY'
 
 
@@ -1060,7 +1073,6 @@ if __name__ == '__main__':
     self = test
 
     scene = self.get_scene()
-
 
 
     print(self.get_igcr_pad())
