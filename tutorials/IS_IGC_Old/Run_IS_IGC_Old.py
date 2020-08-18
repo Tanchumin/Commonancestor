@@ -14,10 +14,10 @@ if __name__ == '__main__':
     alignment_file = './EDN_ECP_Cleaned.fasta'
     newicktree = './EDN_ECP_tree.newick'
     Force = None
-    model = 'HKY'  # choose from 'HKY' and 'MG94'
+    model = 'MG94'  # choose from 'HKY' and 'MG94'
     save_folder = './save/'
     check_folder(save_folder)
-    save_name = save_folder + model + '_EDN_ECP_nonclock_save.txt'
+    save_name = save_folder + model + '_EDN_ECP_nonclock_save1.txt'
 
     summary_folder = './summary/'
     check_folder(summary_folder)

@@ -428,7 +428,7 @@ class AncestralState:
 
 
 
-    def GLS( self,t=0.36):
+    def GLS( self,t,ini=None, end=None):
 
         # Q_iiii is diagnal of Q
         # max is biggest change in a line
@@ -468,11 +468,6 @@ class AncestralState:
         # big_number how to trunct the matrix
         effect_number = 0
         big_number = 0
-
-        ini=self.make_ie(1,2)[0]
-        end=self.make_ie(1,2)[1]
-
-
 
 
 
@@ -534,7 +529,7 @@ class AncestralState:
         time_matrix = time_matrix[0:self.sites_length, 0:big_number]
         state_matrix = state_matrix[0:self.sites_length, 0:big_number]
 
-        return time_matrix, state_matrix, effect_number, big_number
+        return time_matrix, state_matrix, int(effect_number), int(big_number)
 
     def GLS_m(self,t=0.1, ini=None, end=None, repeat=2):
 
@@ -794,7 +789,7 @@ class AncestralState:
 
         if self.Model == "HKY":
             for ii in range(effect_number):
-                p_h[ii,0]=history_matrix[ii,1]
+                p_h[ii,0]=history_matrix[ii,0]
                 p_h[ii, 1] = history_matrix[ii, 4]
 
                 i_b=int(history_matrix[ii, 6])//4
@@ -918,90 +913,159 @@ class AncestralState:
 
 
 
-    def monte_carol(self,times=60,repeat=15,ifwholetree=False):
+    def monte_carol(self,t=0.1,times=60,repeat=15,ifwholetree=False,ifpermutation=True):
 
-        if ifwholetree == False:
-            ini1 = self.make_ie(2, 3)[0]
-            end1 = self.make_ie(2, 3)[1]
-            re = self.GLS_s(repeat=repeat,ini=ini1,end=end1)
+        if ifpermutation==True:
 
-            sam = self.rank_ts(time=re[0], state=re[1], ini=ini1, effect_number=re[2])
-            re1=self.whether_IGC(history_matrix=sam[0],effect_number=sam[1])
-            effect_number=re1[1]
-            re1=re1[0]
+            if ifwholetree == False:
+                ini1 = self.make_ie(2, 3)[0]
+                end1 = self.make_ie(2, 3)[1]
+                re = self.GLS_s(t=t,repeat=repeat,ini=ini1,end=end1)
 
-            for i in range(times-1):
-                re = self.GLS_s(repeat=repeat,ifrecal=False,ini=ini1,end=end1)
                 sam = self.rank_ts(time=re[0], state=re[1], ini=ini1, effect_number=re[2])
-                re2 = self.whether_IGC(history_matrix=sam[0], effect_number=sam[1])
-                re1=np.vstack((re1,re2[0]))
-                effect_number=effect_number+re2[1]
+                re1=self.whether_IGC(history_matrix=sam[0],effect_number=sam[1])
+                effect_number=re1[1]
+                re1=re1[0]
 
+                for i in range(times-1):
+                    re = self.GLS_s(t=t,repeat=repeat,ifrecal=False,ini=ini1,end=end1)
+                    sam = self.rank_ts(time=re[0], state=re[1], ini=ini1, effect_number=re[2])
+                    re2 = self.whether_IGC(history_matrix=sam[0], effect_number=sam[1])
+                    re1=np.vstack((re1,re2[0]))
+                    effect_number=effect_number+re2[1]
+
+
+            else:
+                for j in range(len(scene['tree']["column_nodes"])):
+                    t1=np.exp(geneconv.x_rates[j])
+                    print(j)
+                    if j ==0:
+                        ini2=self.geneconv.node_to_num[geneconv.edge_list[j][0]]
+                        end2 = 2
+                        ini1 = self.make_ie(ini2, end2)[0]
+                        end1 = self.make_ie(ini2, end2)[1]
+                        re = self.GLS_s(t=t1,repeat=repeat,ini=ini1,end=end1)
+                        sam = self.rank_ts(time=re[0], state=re[1], ini=ini1, effect_number=re[2])
+                        re1=self.whether_IGC(history_matrix=sam[0],effect_number=sam[1])
+                        effect_number=re1[1]
+                        re1=re1[0]
+
+
+                        for i in range(times-1):
+                            re = self.GLS_s(t=t1,repeat=repeat,ifrecal=False,ini=ini1,end=end1)
+                            sam = self.rank_ts(time=re[0], state=re[1], ini=ini1, effect_number=re[2])
+                            re2 = self.whether_IGC(history_matrix=sam[0], effect_number=sam[1])
+                            re1=np.vstack((re1,re2[0]))
+                            effect_number=effect_number+re2[1]
+
+
+
+                    elif j==1:
+                        print("Ingore the outgroup")
+
+
+                    else:
+                        ini2=self.geneconv.node_to_num[geneconv.edge_list[j][0]]
+                        end2 = self.geneconv.node_to_num[geneconv.edge_list[j][1]]
+
+                        ini1 = self.make_ie(ini2, end2)[0]
+                        end1 = self.make_ie(ini2, end2)[1]
+                        re = self.GLS_s(t=t1,repeat=repeat,ini=ini1,end=end1)
+
+                        sam = self.rank_ts(time=re[0], state=re[1], ini=ini1, effect_number=re[2])
+                        re2=self.whether_IGC(history_matrix=sam[0],effect_number=sam[1])
+                        effect_number1=re2[1]
+                        re2=re2[0]
+
+                        for i in range(times-1):
+                            re = self.GLS_s(t=t1,ifrecal=False,repeat=repeat,ini=ini1,end=end1)
+                            sam = self.rank_ts(time=re[0], state=re[1], ini=ini1, effect_number=re[2])
+                            re3 = self.whether_IGC(history_matrix=sam[0], effect_number=sam[1])
+                            re2=np.vstack((re2,re3[0]))
+                            effect_number1=effect_number1+re3[1]
+
+
+                        re1 = np.vstack((re1, re2))
+                        effect_number=effect_number1+effect_number
 
         else:
-            for j in range(len(scene['tree']["column_nodes"])):
-                t=np.exp(geneconv.x_rates[j])
-                print(j)
-                if j ==0:
-                    ini2=self.geneconv.node_to_num[geneconv.edge_list[j][0]]
-                    end2 = 2
-                    ini1 = self.make_ie(ini2, end2)[0]
-                    end1 = self.make_ie(ini2, end2)[1]
-                    re = self.GLS_s(t=t,repeat=repeat,ini=ini1,end=end1)
+
+            if ifwholetree == False:
+                ini1 = self.make_ie(2, 3)[0]
+                end1 = self.make_ie(2, 3)[1]
+                re = self.GLS_s(t=t, repeat=1, ini=ini1, end=end1)
+
+                sam = self.rank_ts(time=re[0], state=re[1], ini=ini1, effect_number=re[2])
+                re1 = self.whether_IGC(history_matrix=sam[0], effect_number=sam[1])
+                effect_number = re1[1]
+                re1 = re1[0]
+
+                for i in range(times - 1):
+                    re = self.GLS_s(t=t, repeat=1, ifrecal=False, ini=ini1, end=end1)
                     sam = self.rank_ts(time=re[0], state=re[1], ini=ini1, effect_number=re[2])
-                    re1=self.whether_IGC(history_matrix=sam[0],effect_number=sam[1])
-                    effect_number=re1[1]
-                    re1=re1[0]
+                    re2 = self.whether_IGC(history_matrix=sam[0], effect_number=sam[1])
+                    re1 = np.vstack((re1, re2[0]))
+                    effect_number = effect_number + re2[1]
 
 
-                    for i in range(times-1):
-                        re = self.GLS_s(t=t,repeat=repeat,ifrecal=False,ini=ini1,end=end1)
+            else:
+                for j in range(len(scene['tree']["column_nodes"])):
+                    t1 = np.exp(geneconv.x_rates[j])
+                    print(j)
+                    if j == 0:
+                        ini2 = self.geneconv.node_to_num[geneconv.edge_list[j][0]]
+                        end2 = 2
+                        ini1 = self.make_ie(ini2, end2)[0]
+                        end1 = self.make_ie(ini2, end2)[1]
+                        re = self.GLS_s(t=t1, repeat=1, ini=ini1, end=end1)
+                        sam = self.rank_ts(time=re[0], state=re[1], ini=ini1, effect_number=re[2])
+                        re1 = self.whether_IGC(history_matrix=sam[0], effect_number=sam[1])
+                        effect_number = re1[1]
+                        re1 = re1[0]
+
+                        for i in range(times - 1):
+                            re = self.GLS_s(t=t1, repeat=1, ifrecal=False, ini=ini1, end=end1)
+                            sam = self.rank_ts(time=re[0], state=re[1], ini=ini1, effect_number=re[2])
+                            re2 = self.whether_IGC(history_matrix=sam[0], effect_number=sam[1])
+                            re1 = np.vstack((re1, re2[0]))
+                            effect_number = effect_number + re2[1]
+
+
+
+                    elif j == 1:
+                        print("Ingore the outgroup")
+
+
+                    else:
+                        ini2 = self.geneconv.node_to_num[geneconv.edge_list[j][0]]
+                        end2 = self.geneconv.node_to_num[geneconv.edge_list[j][1]]
+
+                        ini1 = self.make_ie(ini2, end2)[0]
+                        end1 = self.make_ie(ini2, end2)[1]
+                        re = self.GLS_s(t=t1, repeat=1, ini=ini1, end=end1)
+
                         sam = self.rank_ts(time=re[0], state=re[1], ini=ini1, effect_number=re[2])
                         re2 = self.whether_IGC(history_matrix=sam[0], effect_number=sam[1])
-                        re1=np.vstack((re1,re2[0]))
-                        effect_number=effect_number+re2[1]
+                        effect_number1 = re2[1]
+                        re2 = re2[0]
 
+                        for i in range(times - 1):
+                            re = self.GLS_s(t=t1, ifrecal=False, repeat=1, ini=ini1, end=end1)
+                            sam = self.rank_ts(time=re[0], state=re[1], ini=ini1, effect_number=re[2])
+                            re3 = self.whether_IGC(history_matrix=sam[0], effect_number=sam[1])
+                            re2 = np.vstack((re2, re3[0]))
+                            effect_number1 = effect_number1 + re3[1]
 
+                        re1 = np.vstack((re1, re2))
+                        effect_number = effect_number1 + effect_number
 
-
-
-
-                elif j==1:
-                    print("Ingore the outgroup")
-
-
-                else:
-                    ini2=self.geneconv.node_to_num[geneconv.edge_list[j][0]]
-                    end2 = self.geneconv.node_to_num[geneconv.edge_list[j][1]]
-
-                    ini1 = self.make_ie(ini2, end2)[0]
-                    end1 = self.make_ie(ini2, end2)[1]
-                    re = self.GLS_s(t=t,repeat=repeat,ini=ini1,end=end1)
-
-                    sam = self.rank_ts(time=re[0], state=re[1], ini=ini1, effect_number=re[2])
-                    re2=self.whether_IGC(history_matrix=sam[0],effect_number=sam[1])
-                    effect_number1=re2[1]
-                    re2=re2[0]
-
-                    for i in range(times-1):
-                        re = self.GLS_s(t=t,ifrecal=False,repeat=repeat,ini=ini1,end=end1)
-                        sam = self.rank_ts(time=re[0], state=re[1], ini=ini1, effect_number=re[2])
-                        re3 = self.whether_IGC(history_matrix=sam[0], effect_number=sam[1])
-                        re2=np.vstack((re2,re3[0]))
-                        effect_number1=effect_number1+re3[1]
-
-
-                    re1 = np.vstack((re1, re2))
-                    effect_number=effect_number1+effect_number
-
-            print(re1)
 
         return re1 , effect_number
 
 
-    def divide_Q(self, times, repeat,method="simple", ifwholetree=True,simple_state_number=5):
+    def divide_Q(self, times, repeat,method="simple", ifwholetree=True,simple_state_number=5,ifpermutation=True):
 
-        re=self.monte_carol(times=times,repeat=repeat,ifwholetree=ifwholetree)
+        re=self.monte_carol(times=times,repeat=repeat,ifwholetree=ifwholetree,ifpermutation=ifpermutation)
         history_matrix=re[0]
         effect_number=re[1]
         if (method == "simple"):
@@ -1035,21 +1099,23 @@ class AncestralState:
 
 
 
-    def get_igcr_pad(self,times=1, repeat=1,simple_state_number=5,ifwholetree=True):
-        self.divide_Q(times=times,repeat=repeat,simple_state_number=simple_state_number,ifwholetree=ifwholetree)
-        relationship=np.zeros(shape=(self.type_number, 5))
-        for i in range(self.type_number):
-            for j in range(self.last_effct):
-                if(self.igc_com[j,3]==i):
-                    relationship[i,0]= self.igc_com[j,2]+relationship[i,0]
-                    relationship[i, 1] = self.igc_com[j, 1]+relationship[i, 1]
-                    relationship[i, 2] = self.igc_com[j, 0]+relationship[i, 2]
-                    relationship[i,4]=1+relationship[i,4]
+    def get_igcr_pad(self,times=10, repeat=1,simple_state_number=10,ifwholetree=True,ifpermutation=True):
+             self.divide_Q(times=times,repeat=repeat,simple_state_number=simple_state_number,ifwholetree=ifwholetree,
+                           ifpermutation=ifpermutation)
+             relationship=np.zeros(shape=(self.type_number, 5))
+             for i in range(self.type_number):
+                for j in range(self.last_effct):
+                    if(self.igc_com[j,3]==i):
+                        relationship[i,0]= self.igc_com[j,2]+relationship[i,0]
+                        relationship[i, 1] = self.igc_com[j, 1]+relationship[i, 1]
+                        relationship[i, 2] = self.igc_com[j, 0]+relationship[i, 2]
+                        relationship[i,4]=1+relationship[i,4]
 
                 relationship[i, 2]=float(relationship[i,2])
                 relationship[i, 3] = float(relationship[i, 0]) / (relationship[i, 1])
 
-        return relationship
+
+             return relationship
 
 
 if __name__ == '__main__':
@@ -1075,7 +1141,7 @@ if __name__ == '__main__':
     scene = self.get_scene()
 
 
-    print(self.get_igcr_pad())
+    print(self.get_igcr_pad(ifpermutation=False))
 
     # print(self.node_length)
 
@@ -1134,7 +1200,7 @@ if __name__ == '__main__':
 
 
     # site_num = 0
-    # save=self.get_marginal(1)
+        # save=self.get_marginal(1)
 
     # print(scene)
 #     save=self.get_maxpro_matrix(True,1)
