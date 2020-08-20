@@ -913,7 +913,7 @@ class AncestralState:
 
 
 
-    def monte_carol(self,t=0.1,times=60,repeat=15,ifwholetree=False,ifpermutation=True):
+    def monte_carol(self,t=0.1,times=60,repeat=15,ifwholetree=False,ifpermutation=True,ifsave=True):
 
         if ifpermutation==True:
 
@@ -1058,14 +1058,22 @@ class AncestralState:
 
                         re1 = np.vstack((re1, re2))
                         effect_number = effect_number1 + effect_number
+                        print(geneconv.save_name)
+                        print(geneconv.Model)
+                        print(geneconv.paralog[1])
+
+        if ifsave==True:
+
+           save_nameP = '../test/savesample/Ind_' + geneconv.Model+ geneconv.paralog[0]+geneconv.paralog[1]+'sample.txt'
+           np.savetxt(open(save_nameP, 'w+'), re1.T)
 
 
         return re1 , effect_number
 
 
-    def divide_Q(self, times, repeat,method="simple", ifwholetree=True,simple_state_number=5,ifpermutation=True):
+    def divide_Q(self, times, repeat,method="simple", ifwholetree=True,simple_state_number=5,ifpermutation=True,ifsave=True):
 
-        re=self.monte_carol(times=times,repeat=repeat,ifwholetree=ifwholetree,ifpermutation=ifpermutation)
+        re=self.monte_carol(times=times,repeat=repeat,ifwholetree=ifwholetree,ifpermutation=ifpermutation,ifsave=ifsave)
         history_matrix=re[0]
         effect_number=re[1]
         if (method == "simple"):
@@ -1099,9 +1107,9 @@ class AncestralState:
 
 
 
-    def get_igcr_pad(self,times=10, repeat=1,simple_state_number=10,ifwholetree=True,ifpermutation=True):
+    def get_igcr_pad(self,times=10, repeat=1,simple_state_number=10,ifwholetree=True,ifpermutation=True,ifsave=True):
              self.divide_Q(times=times,repeat=repeat,simple_state_number=simple_state_number,ifwholetree=ifwholetree,
-                           ifpermutation=ifpermutation)
+                           ifpermutation=ifpermutation,ifsave=ifsave)
              relationship=np.zeros(shape=(self.type_number, 5))
              for i in range(self.type_number):
                 for j in range(self.last_effct):
@@ -1141,7 +1149,7 @@ if __name__ == '__main__':
     scene = self.get_scene()
 
 
-    print(self.get_igcr_pad(ifpermutation=False))
+    print(self.get_igcr_pad(ifpermutation=False,ifsave=True))
 
     # print(self.node_length)
 
@@ -1203,10 +1211,7 @@ if __name__ == '__main__':
         # save=self.get_marginal(1)
 
     # print(scene)
-#     save=self.get_maxpro_matrix(True,1)
-#     save_namep = '../test/savecommon3/Ind_' + model + '_1_Force_'+name+'_maxpro.txt'
-#     np.savetxt(open(save_namep, 'w+'), save.T)
-#
+
 #     save=self.get_maxpro_matrix(True,2)
 #     save_namep = '../test/savecommon3/Ind_' + model + '_2_Force_'+name+'_maxpro.txt'
 #     np.savetxt(open(save_namep, 'w+'), save.T)
