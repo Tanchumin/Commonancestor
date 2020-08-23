@@ -577,11 +577,13 @@ class AncestralState:
 
         # start simulation
 
+
         for ii in range(self.sites_length):
 
             # time_list ! =1 means there is a mutation
 
             if time_list[ii] != 1:
+
 
                 time_matrix = 100*np.ones(shape=(repeat, max_number))
                 state_matrix = np.zeros(shape=(repeat, max_number))
@@ -721,7 +723,7 @@ class AncestralState:
                 state_list[ii]=state_matrix
 
 
-            #print(ii)
+
 
         self.time_list=time_list
         self.state_list=state_list
@@ -730,12 +732,13 @@ class AncestralState:
         self.dis_matrix=dis_matrix
 
 
+
         return self.time_list,self.state_list,self.effect_matrix, self.big_number_matrix, self.dis_matrix
 
 
 ## ifrecall indicate we need do GLS_m again
 
-    def GLS_s(self, t, repeat=2, ini=None, end=None, ifrecal=True):
+    def GLS_s(self, t, repeat=1, ini=None, end=None, ifrecal=True):
 
         if ifrecal==True:
             self.GLS_m(t=t, ini=ini, end=end, repeat = repeat)
@@ -941,7 +944,7 @@ class AncestralState:
                     print(j)
                     if j ==0:
                         ini2=self.geneconv.node_to_num[geneconv.edge_list[j][0]]
-                        end2 = 2
+                        end2 = 1
                         ini1 = self.make_ie(ini2, end2)[0]
                         end1 = self.make_ie(ini2, end2)[1]
                         re = self.GLS_s(t=t1,repeat=repeat,ini=ini1,end=end1)
@@ -993,9 +996,7 @@ class AncestralState:
             if ifwholetree == False:
                 ini1 = self.make_ie(0, 1)[0]
                 end1 = self.make_ie(0, 1)[1]
-                print(ini1)
-                print(end1)
-                print(ini1 - end1)
+
                 re = self.GLS_s(t=t, repeat=1, ini=ini1, end=end1)
 
                 sam = self.rank_ts(time=re[0], state=re[1], ini=ini1, effect_number=re[2])
@@ -1003,8 +1004,9 @@ class AncestralState:
                 effect_number = re1[1]
                 re1 = re1[0]
 
+
                 for i in range(times - 1):
-                    re = self.GLS_s(t=t, repeat=1, ifrecal=False, ini=ini1, end=end1)
+                    re = self.GLS_s(t=t, repeat=1, ifrecal=True, ini=ini1, end=end1)
                     sam = self.rank_ts(time=re[0], state=re[1], ini=ini1, effect_number=re[2])
                     re2 = self.whether_IGC(history_matrix=sam[0], effect_number=sam[1])
                     re1 = np.vstack((re1, re2[0]))
@@ -1027,6 +1029,10 @@ class AncestralState:
                         re1 = re1[0]
 
                         for i in range(times - 1):
+                            ini1 = self.make_ie(ini2, end2)[0]
+                            end1 = self.make_ie(ini2, end2)[1]
+
+
                             re = self.GLS_s(t=t1, repeat=1, ifrecal=True, ini=ini1, end=end1)
                             sam = self.rank_ts(time=re[0], state=re[1], ini=ini1, effect_number=re[2])
                             re2 = self.whether_IGC(history_matrix=sam[0], effect_number=sam[1])
@@ -1042,19 +1048,21 @@ class AncestralState:
                     else:
                         ini2 = self.geneconv.node_to_num[geneconv.edge_list[j][0]]
                         end2 = self.geneconv.node_to_num[geneconv.edge_list[j][1]]
-                        print(ini2)
-                        print(end2)
-
                         ini1 = self.make_ie(ini2, end2)[0]
                         end1 = self.make_ie(ini2, end2)[1]
 
+
                         re = self.GLS_s(t=t1, ifrecal=True,repeat=1, ini=ini1, end=end1)
+
                         sam = self.rank_ts(time=re[0], state=re[1], ini=ini1, effect_number=re[2])
                         re2 = self.whether_IGC(history_matrix=sam[0], effect_number=sam[1])
                         effect_number1 = re2[1]
                         re2 = re2[0]
 
                         for i in range(times - 1):
+                            ini1 = self.make_ie(ini2, end2)[0]
+                            end1 = self.make_ie(ini2, end2)[1]
+
                             re = self.GLS_s(t=t1, ifrecal=True,repeat=1, ini=ini1, end=end1)
                             sam = self.rank_ts(time=re[0], state=re[1], ini=ini1, effect_number=re[2])
                             re3 = self.whether_IGC(history_matrix=sam[0], effect_number=sam[1])
@@ -1065,16 +1073,11 @@ class AncestralState:
                         effect_number = effect_number1 + effect_number
 
 
-
-
-
-
         if ifsave==True:
 
            save_nameP = '../test/savesample/Ind_' + geneconv.Model+ geneconv.paralog[0]+geneconv.paralog[1]+'sample.txt'
            np.savetxt(open(save_nameP, 'w+'), re1.T)
 
-        print(re1)
 
 
         return re1 , effect_number
@@ -1118,14 +1121,16 @@ class AncestralState:
             zzz = np.argmax(history_matrix[:, 0])
          #   big_quan = history_matrix[zzz, 0] / self.sites_length
             max_quan = history_matrix[zzz, 0]
+            print(max_quan)
             zzz = np.argmin(history_matrix[:, 0])
             #   big_quan = history_matrix[zzz, 0] / self.sites_length
             #min_quan = history_matrix[zzz, 0]
-            stat_rank = pd.DataFrame(history_matrix[:, 0])
-            min_quan=np.quantile(stat_rank, 0.05)
+            #stat_rank = pd.DataFrame(history_matrix[:, 0])
+            #min_quan=np.quantile(stat_rank, 0.05)
 
+            min_quan=0
             quan=(max_quan-min_quan)/(simple_state_number-1)
-            quan_c = min_quan
+            quan_c = quan
 
             stat_vec = np.zeros(shape=(simple_state_number - 1, 1))
             for i in range(simple_state_number - 1):
@@ -1133,13 +1138,14 @@ class AncestralState:
                 quan_c = quan_c + quan
 
             print(stat_vec)
+            print(stat_vec[simple_state_number - 2])
             for ii in range(effect_number):
                 if (history_matrix[ii, 0] <= stat_vec[0]):
                     history_matrix[ii, 3] = 0
                 elif (history_matrix[ii, 0] > stat_vec[simple_state_number - 2]):
                     history_matrix[ii, 3] = simple_state_number - 1
                 else:
-                    for iii in range(simple_state_number - 1):
+                    for iii in range(simple_state_number - 2):
                         if (history_matrix[ii, 0] <= stat_vec[iii + 1] and history_matrix[ii, 0] > stat_vec[iii]):
                             history_matrix[ii, 3] = iii + 1
                             break
@@ -1196,14 +1202,14 @@ if __name__ == '__main__':
     test = AncestralState(geneconv)
     self = test
 
-    print(geneconv.observable_nodes)
 
     scene = self.get_scene()
 
 ## method "simple" is default method， which focus on quail from post dis
 ## method "divide" is using the biggest difference among paralogs, and make category
 
-    print(self.get_igcr_pad(times=25, repeat=1,ifpermutation=False,ifwholetree=True,ifsave=True,method="divide"))
+    print(self.get_igcr_pad(times=40, repeat=12,ifpermutation=True,ifwholetree=True,ifsave=True,method="divide"))
+    #print(self.get_igcr_pad(times=25, repeat=10, ifpermutation=True, ifwholetree=True, ifsave=True, method="simple"))
     #print(self.get_igcr_pad(times=1, repeat=1,ifpermutation=False,ifwholetree=False,ifsave=True,method="divide"))
 
     # print(self.node_length)
