@@ -459,8 +459,6 @@ class AncestralState:
         time_matrix = 100 * np.ones(shape=(self.sites_length, max_number))
         state_matrix = np.zeros(shape=(self.sites_length, max_number))
 
-
-
         for d in range(di):
             self.Q_new[d,] = self.Q[d,] / Q_iiii[d]
 
@@ -782,9 +780,11 @@ class AncestralState:
         return time_matrix, state_matrix, int(effect_number), int(big_number)
 
 
+# method can be select as statue or label
+# the mnethod statue is more useful, since it can avoid the bias in sampling regarding small sample size
 
 
-    def whether_IGC(self,history_matrix,effect_number):
+    def whether_IGC(self,history_matrix,effect_number,method="statue"):
 
         p_h=np.zeros(shape=(effect_number, 4))
 
@@ -806,15 +806,23 @@ class AncestralState:
                         y_coor = np.argwhere(self.dic_col[int(history_matrix[ii, 6]),] == (int(history_matrix[ii, 7]) + 1))[0]
                         qq=self.Q[int(history_matrix[ii, 6]), y_coor]
                         u=random.uniform(0,1)
-                        if u <= float((np.exp(self.tau))/qq):
-                            p_h[ii, 2] = 1
+                        if method=="statue":
+                            p_h[ii, 2]=(self.tau)/qq
+                        else:
+                            if u<=float((np.exp(self.tau))/qq):
+                                p_h[ii, 2] =1
+
+
 
                     elif(i_b!=j_b and j_b==j_p):
                         y_coor=np.argwhere(self.dic_col[int(history_matrix[ii, 6]),] == (int(history_matrix[ii, 7]) + 1))[0]
                         qq=self.Q[int(history_matrix[ii, 6]),y_coor]
                         u=random.uniform(0,1)
-                        if u<=float((np.exp(self.tau))/qq):
-                            p_h[ii, 2] =1
+                        if method=="statue":
+                            p_h[ii, 2]=(self.tau)/qq
+                        else:
+                            if u<=float((np.exp(self.tau))/qq):
+                                p_h[ii, 2] =1
 
         else:
             for ii in range(effect_number):
@@ -841,9 +849,13 @@ class AncestralState:
                             tau = self.tau * self.omega
                         else:
                             tau = self.tau
+                        if method=="statue":
+                            p_h[ii, 2]=float(tau)/qq
+                        else:
+                            if u<=float(tau)/qq:
+                                p_h[ii, 2] =1
 
-                        if (u <= (float(tau) / qq)):
-                            p_h[ii, 2] = 1
+
 
                     elif (i_b != j_b and j_b==j_p):
                         y_coor = np.argwhere(self.dic_col[int(history_matrix[ii, 6]),] == (int(history_matrix[ii, 7]) + 1))[0]
@@ -859,8 +871,12 @@ class AncestralState:
                             tau = self.tau * self.omega
                         else:
                             tau = self.tau
-                        if (u <= (float(tau)/qq)):
-                            p_h[ii, 2] = 1
+
+                        if method == "statue":
+                            p_h[ii, 2] = float(tau) / qq
+                        else:
+                            if u <= float(tau) / qq:
+                                p_h[ii, 2] = 1
 
         for ii in range(effect_number-1):
             if p_h[ii,1]==0:
@@ -1124,11 +1140,10 @@ class AncestralState:
             print(max_quan)
             zzz = np.argmin(history_matrix[:, 0])
             #   big_quan = history_matrix[zzz, 0] / self.sites_length
-            #min_quan = history_matrix[zzz, 0]
+            min_quan = history_matrix[zzz, 0]
             #stat_rank = pd.DataFrame(history_matrix[:, 0])
             #min_quan=np.quantile(stat_rank, 0.05)
 
-            min_quan=0
             quan=(max_quan-min_quan)/(simple_state_number-1)
             quan_c = quan
 
@@ -1153,29 +1168,41 @@ class AncestralState:
 
 
         self.igc_com=history_matrix
-        # print(history_matrix)
+        print(history_matrix)
 
 
         return history_matrix
 
 
 
-    def get_igcr_pad(self,times=5, repeat=2,simple_state_number=8,ifwholetree=True,ifpermutation=True,ifsave=True,
+    def get_igcr_pad(self,times=3, repeat=2,simple_state_number=8,ifwholetree=True,ifpermutation=True,ifsave=True,
                      method="divide"):
 
              self.divide_Q(times=times,repeat=repeat,simple_state_number=simple_state_number,ifwholetree=ifwholetree,
                            ifpermutation=ifpermutation,ifsave=ifsave,method=method)
+             ## self.igc_com 0 difference number, 1 time difference,2 igc_number,3 statue
+
              relationship=np.zeros(shape=(self.type_number, 5))
+
+
+             ## relation ship 0 denominator of igc : time * difference,
+             ## 1 sum of igc events, 2 total time (may be usless),3 ratio: igc rates
              for i in range(self.type_number):
+                deno=0
+                no=0
+                total_time=0
+
                 for j in range(self.last_effct):
                     if(self.igc_com[j,3]==i):
-                        relationship[i,0]= self.igc_com[j,2]+relationship[i,0]
-                        relationship[i, 1] = self.igc_com[j, 1]+relationship[i, 1]
-                        relationship[i, 2] = self.igc_com[j, 0]+relationship[i, 2]
-                        relationship[i,4]=1+relationship[i,4]
+                        deno=deno+(self.igc_com[j,1]*self.igc_com[j, 0])
+                        no=no+self.igc_com[j, 2]
+                        total_time=total_time+self.igc_com[j, 1]
+                relationship[i,0]=deno
+                relationship[i, 1] =no
+                relationship[i, 2] = total_time
+                relationship[i, 3] = float(relationship[i, 1]) / (relationship[i, 0])
 
-                relationship[i, 2]=float(relationship[i,2])
-                relationship[i, 3] = float(relationship[i, 0]) / (relationship[i, 1])
+
 
 
              return relationship
@@ -1202,14 +1229,13 @@ if __name__ == '__main__':
     test = AncestralState(geneconv)
     self = test
 
-
     scene = self.get_scene()
 
 ## method "simple" is default method， which focus on quail from post dis
 ## method "divide" is using the biggest difference among paralogs, and make category
 
-    print(self.get_igcr_pad(times=40, repeat=12,ifpermutation=True,ifwholetree=True,ifsave=True,method="divide"))
-    #print(self.get_igcr_pad(times=25, repeat=10, ifpermutation=True, ifwholetree=True, ifsave=True, method="simple"))
+    #print(self.get_igcr_pad(times=30, repeat=10,ifpermutation=True,ifwholetree=True,ifsave=True,method="divide"))
+    print(self.get_igcr_pad(times=20, repeat=1, ifpermutation=False, ifwholetree=True, ifsave=True, method="divide"))
     #print(self.get_igcr_pad(times=1, repeat=1,ifpermutation=False,ifwholetree=False,ifsave=True,method="divide"))
 
     # print(self.node_length)
