@@ -63,6 +63,11 @@ class AncestralState:
         self.Model=self.geneconv.Model
         self.ifmarginal = False
 
+# relationship is a matrix about igc rates on different paralog
+# igc_com is matrix contain paralog difference,difference time, igc statue, paralog category
+        self.relationship=None
+        self.igc_com=None
+
     def get_mle(self):
         self.geneconv.get_mle()
 
@@ -1168,7 +1173,7 @@ class AncestralState:
 
 
         self.igc_com=history_matrix
-        print(history_matrix)
+        #  print(history_matrix)
 
 
         return history_matrix
@@ -1203,9 +1208,28 @@ class AncestralState:
                 relationship[i, 3] = float(relationship[i, 1]) / (relationship[i, 0])
 
 
-
+             self.relationship=relationship
 
              return relationship
+
+# we can select different kernal method , the default one is "exp"
+
+
+    def get_parameter(self,function="exp"):
+        if function=="exp":
+            igc=np.sum(self.igc_com[:,2])
+            pro=0
+            for i in range(self.last_effct):
+                pro=np.exp(self.igc_com[0,2]/geneconv.nsites)*(self.igc_com[i,1])+pro
+
+            alpha=igc/pro
+
+
+        return alpha
+
+
+
+
 
 
 if __name__ == '__main__':
@@ -1234,8 +1258,9 @@ if __name__ == '__main__':
 ## method "simple" is default method， which focus on quail from post dis
 ## method "divide" is using the biggest difference among paralogs, and make category
 
-    #print(self.get_igcr_pad(times=30, repeat=10,ifpermutation=True,ifwholetree=True,ifsave=True,method="divide"))
-    print(self.get_igcr_pad(times=20, repeat=1, ifpermutation=False, ifwholetree=True, ifsave=True, method="divide"))
+    print(self.get_igcr_pad(times=60, repeat=20,ifpermutation=True,ifwholetree=True,ifsave=True,method="divide"))
+    #print(self.get_igcr_pad(times=20, repeat=1, ifpermutation=False, ifwholetree=True, ifsave=True, method="divide"))
+    print(self.get_parameter())
     #print(self.get_igcr_pad(times=1, repeat=1,ifpermutation=False,ifwholetree=False,ifsave=True,method="divide"))
 
     # print(self.node_length)
