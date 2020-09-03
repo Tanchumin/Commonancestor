@@ -72,9 +72,9 @@ class ReCodonGeneconv:
         self.x_Lr           = None      # values of clock blen parameters
         self.x_clock        = None      # x_process + Lr
         self.pi             = None      # real values
-        self.kappa          = 1.2       # real values
+        self.kappa          = 2.1      # real values
         self.omega          = 0.9       # real values
-        self.tau            = 1.4       # real values
+        self.tau            = 1.8       # real values
 
         self.processes      = None      # list of basic and geneconv rate matrices. Each matrix is a dictionary used for json parsing
 

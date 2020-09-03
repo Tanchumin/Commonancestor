@@ -15,6 +15,7 @@ import pandas as pd
 from numpy import random
 
 from IGCexpansion.CodonGeneconFunc import isNonsynonymous
+import pickle
 
 
 def get_maxpro(list, nodecom):
@@ -1038,6 +1039,7 @@ class AncestralState:
         else:
 
             if ifwholetree == False:
+
                 ini1 = self.make_ie(0, 1)[0]
                 end1 = self.make_ie(0, 1)[1]
 
@@ -1061,6 +1063,7 @@ class AncestralState:
                 for j in range(len(scene['tree']["column_nodes"])):
                     t1 = np.exp(geneconv.x_rates[j])
                     print(j)
+                    print(t1)
                     if j == 0:
                         ini2 = self.geneconv.node_to_num[geneconv.edge_list[j][0]]
                         end2 = 1
@@ -1216,7 +1219,7 @@ class AncestralState:
 
 
 
-    def get_igcr_pad(self,times=30, repeat=10,simple_state_number=8,ifwholetree=True,ifpermutation=True,ifsave=True,
+    def get_igcr_pad(self,times=2, repeat=1,simple_state_number=8,ifwholetree=True,ifpermutation=True,ifsave=True,
                      method="divide"):
 
              self.divide_Q(times=times,repeat=repeat,simple_state_number=simple_state_number,ifwholetree=ifwholetree,
@@ -1273,7 +1276,7 @@ class AncestralState:
 # we can select different kernal method , the default one is "exp"
 
 
-    def get_parameter(self,function="exp"):
+    def get_parameter(self,function="linear"):
 
         if function=="exp":
             igc=np.sum(self.igc_com[:,2])
@@ -1304,39 +1307,236 @@ class AncestralState:
 
 
 
+##################################
+# This part is used for simulation
+# sizen/3 %==0
+#################################
+    def make_ini(self,sizen=150):
+            ini = np.ones(sizen)
+
+            if self.Model=="HKY":
+                sample=np.ones(4)
+                for i in range(16):
+                    if(i // 4 == i%4):
+                        sample[i%4]=i
+
+                for i in range(sizen):
+                    ini[i] = np.random.choice(sample, 1, p=(1 / float(4)) * np.ones(4))[0]
+            else:
+                sample = np.ones(61)
+                for i in range(3721):
+                    if (i // 61 == i % 61):
+                        sample[i % 61] = i
+
+                for i in range(sizen):
+                    ini[i] = np.random.choice(sample, 1, p=(1 / float(61)) * np.ones(61))[0]
+
+            return (ini)
+
+    def GLS_si(self,t=0.2,ini =None,sizen=150):
+        if self.Q is None:
+           self.making_Qmatrix()
+
+        global di
+        global di1
+
+        if self.Model == "HKY":
+
+            di=16
+            di1=9
+            self.Q_new=np.zeros(shape=(16,9))
+        else:
+            di=3721
+            di1=27
+            self.Q_new = np.zeros(shape=(3721, 27))
+
+        Q_iiii = np.ones((di))
+        for ii in range(di):
+            qii = sum(self.Q[ii,])
+            if qii != 0:
+                Q_iiii[ii] = sum(self.Q[ii,])
+
+        end = np.ones(sizen)
+
+
+        for d in range(di):
+            self.Q_new[d,] = self.Q[d,] / Q_iiii[d]
+
+
+
+        for ll in range(sizen):
+            # most transfer 5 times
+
+                curent_state = ini[ll]
+                u = random.exponential(Q_iiii[int(curent_state)])
+                while(u<=t):
+                    a = np.random.choice(range(di1), 1, p=self.Q_new[int(curent_state),])[0]
+                    curent_state = self.dic_col[int(curent_state), a] - 1
+                    u=u+random.exponential(Q_iiii[int(curent_state)])
+
+                end[ll]=curent_state
+
+
+
+        return ini,end
+
+
+    def remake_matrix(self):
+        if self.Model=="HKY":
+            Q=geneconv.get_HKYBasic()
+
+        if self.Model=="MG94":
+            Q=geneconv.get_MG94Basic()
+
+        return Q
+
+### this one is more flexiable
+
+    def trans_into_seq(self,ini=None,leafnode=4,sizen=333):
+        list = []
+
+        if self.Model == 'MG94':
+            dict = self.geneconv.state_to_codon
+            for i in range(leafnode):
+                p0 = ">paralog0"
+                p1 = ">paralog1"
+                for j in range(sizen):
+                    p0 = p0 + dict[(ini[i][j]) // 61]
+                    p1 = p1 + dict[(ini[i][j]) % 61]
+                list.append(p0)
+                list.append(p1)
+        else:
+            dict = self.geneconv.state_to_nt
+            for i in range(leafnode):
+                p0 = ">paralog0"
+                p1 = ">paralog1"
+                for j in range(sizen):
+                    p0 = p0 + dict[(ini[i][j]) // 4]
+                    p1 = p1 + dict[(ini[i][j]) % 4]
+
+
+                list.append(p0)
+                list.append(p1)
+
+            p0 = ">paralog0"
+            for j in range(sizen):
+                p0 = p0 + dict[(ini[int(leafnode)][j])]
+
+            list.append(p0)
+
+        save_nameP = '../test/savesample/' + 'sample1.txt'
+        with open(save_nameP, 'wb') as f:
+            pickle.dump(list, f)
+
+
+        return (list)
+
+
+    ##### topology is pretty simple
+
+    def topo(self,leafnode=4,sizen=333,t=0.4):
+        ini=self.make_ini(sizen=sizen)
+
+###### calculate the outgrou
+
+        list=[]
+
+        if self.Model=="HKY":
+
+            Q = self.remake_matrix()
+            end1 = np.ones(sizen)
+            Q_iiii = np.ones((4))
+            for ii in range(4):
+                qii = sum(Q[ii,])
+                if qii != 0:
+                    Q_iiii[ii] = sum(Q[ii,])
+
+            for d in range(4):
+                Q[d,] = Q[d,] / Q_iiii[d]
+
+            for ll in range(sizen):
+                # most transfer 5 time
+                    curent_state = ini[ll]//4
+                    u = random.exponential(Q_iiii[int(curent_state)])
+                    while(u<=t):
+                        a = np.random.choice(range(4), 1, p=Q[int(curent_state),])[0]
+                        curent_state = a
+                        u=u+random.exponential(Q_iiii[int(curent_state)])
+
+                    end1[ll]=curent_state
+
+
+
+        for i in range(leafnode):
+
+            if(i== leafnode-1):
+                leaf = self.GLS_si(ini=ini, sizen=sizen)[1]
+                list.append(leaf)
+
+            else:
+                ini = self.GLS_si(ini=ini, sizen=sizen)[1]
+                leaf = self.GLS_si(ini=ini, sizen=sizen)[1]
+                list.append(leaf)
+
+        list.append(end1)
+
+
+        return list
+
+
+
+
+
 
 
 
 if __name__ == '__main__':
 
 
-    paralog = ['EDN', 'ECP']
-    alignment_file = '../test/EDN_ECP_Cleaned.fasta'
-    newicktree = '../test/EDN_ECP_tree.newick'
-    Force = None
-    Force1= None
+   # paralog = ['EDN', 'ECP']
+   # alignment_file = '../test/EDN_ECP_Cleaned.fasta'
+   # newicktree = '../test/EDN_ECP_tree.newick'
+    paralog = ['paralog1', 'paralog0']
+    alignment_file = '../test/sample1.fasta'
+    newicktree = '../test/sample1.newick'
+    Force ={0:np.exp(-0.71464127), 1:np.exp(-0.55541915), 2:np.exp(-0.68806275),3: np.exp( 0.74691342),4: np.exp( 0.59045814),
+            }
+    #Force= None
     model = 'HKY'
 
+    name = 'pp_fullll'
+    #name='EDN_ECP_full'
 
-
-    name='EDN_ECP_full'
     type='situation1'
-    save_name = '../test/save/' + model + name+'_'+type+'_nonclock_save.txt'
+    save_name = '../test/save/' + model + name+'_'+type+'_nonclock_save1.txt'
     geneconv = ReCodonGeneconv(newicktree, alignment_file, paralog, Model=model, Force=Force, clock=None,
                                save_path='../test/save/', save_name=save_name)
 
     test = AncestralState(geneconv)
+    scene = geneconv.get_scene()
+
+
+
     self = test
 
-    scene = self.get_scene()
+
+
+
+    #print(self.make_ini())
+    #aaa=self.topo()
+    #print(self.trans_into_seq(ini=aaa))
+
 
 ## method "simple" is default method， which focus on quail from post dis
 ## method "divide" is using the biggest difference among paralogs, and make category
 
    # print(self.get_igcr_pad(times=30, repeat=10,ifpermutation=True,ifwholetree=True,ifsave=True,method="divide"))
-    print(self.get_igcr_pad(times=2, repeat=1, ifpermutation=False, ifwholetree=True, ifsave=True, method="divide"))
+    print(self.get_igcr_pad(times=100, repeat=1, ifpermutation=False, ifwholetree=True, ifsave=True, method="divide"))
     print(self.get_parameter(function="linear"))
-    print(self.get_parameter(function="squre"))
+
+    print(11111111111111)
+    print(self.tau)
+    #print(self.get_parameter(function="squre"))
     #print(self.get_igcr_pad(times=1, repeat=1,ifpermutation=False,ifwholetree=False,ifsave=True,method="divide"))
 
     # print(self.node_length)
