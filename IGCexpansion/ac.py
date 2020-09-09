@@ -1617,18 +1617,18 @@ class AncestralState:
 if __name__ == '__main__':
 
 
-   # paralog = ['EDN', 'ECP']
-   # alignment_file = '../test/EDN_ECP_Cleaned.fasta'
-   # newicktree = '../test/EDN_ECP_tree.newick'
-    paralog = ['01', '02']
-    alignment_file = '../test/aaa.fasta'
-    newicktree = '../test/aaa.newick'
-   #Force ={0:np.exp(-0.71464127), 1:np.exp(-0.55541915), 2:np.exp(-0.68806275),3: np.exp( 0.74691342),4: np.exp( 0.59045814)}
+    paralog = ['EDN', 'ECP']
+    alignment_file = '../test/EDN_ECP_Cleaned.fasta'
+    newicktree = '../test/EDN_ECP_tree.newick'
+   # paralog = ['01', '02']
+   # alignment_file = '../test/aaa.fasta'
+   # newicktree = '../test/aaa.newick'
+    Force ={0:np.exp(-0.71464127), 1:np.exp(-0.55541915), 2:np.exp(-0.68806275),3: np.exp( 0.74691342),4: np.exp( 0.59045814)}
 
-    Force= None
+   # Force= None
     model = 'HKY'
 
-    name = 'pp_fYYu'
+    name = 'pp_fY'
     #name='EDN_ECP_full'
 
     type='situation1'

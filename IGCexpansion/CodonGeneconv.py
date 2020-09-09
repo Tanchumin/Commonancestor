@@ -1435,10 +1435,7 @@ class ReCodonGeneconv:
         label = res[1]
             
         footer = ' '.join(label)  # row labels
-        print(summary)
-        print(11111)
-        np.savetxt(open(summary_file, 'w+'), summary.T, delimiter = ' ', footer = footer)
-        print(111111)
+
 
         with open(summary_file, 'w+') as f:
             np.savetxt(f, summary.T, delimiter=' ', footer=footer)

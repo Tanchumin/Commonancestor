@@ -2,16 +2,9 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="a9952ef3-53b5-4976-ba05-bb25560d8c3b" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/IGCexpansion/CodonGeneconv.py" beforeDir="false" afterPath="$PROJECT_DIR$/IGCexpansion/CodonGeneconv.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/IGCexpansion/ac.py" beforeDir="false" afterPath="$PROJECT_DIR$/IGCexpansion/ac.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/test/save/HKYpp_fu_situation1_nonclock_save1.txt" beforeDir="false" afterPath="$PROJECT_DIR$/test/save/HKYpp_fu_situation1_nonclock_save1.txt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/test/savesample/sample1.txt" beforeDir="false" afterPath="$PROJECT_DIR$/test/savesample/sample1.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tutorials/IS_IGC_Old/Run_IS_IGC_Old.py" beforeDir="false" afterPath="$PROJECT_DIR$/tutorials/IS_IGC_Old/Run_IS_IGC_Old.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tutorials/IS_IGC_Old/save/HKY_EDN_ECP_nonclock_save1.txt" beforeDir="false" afterPath="$PROJECT_DIR$/tutorials/IS_IGC_Old/save/HKY_EDN_ECP_nonclock_save1.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tutorials/IS_IGC_Old/save/HKY_EDN_ECP_nonclock_summary.txt" beforeDir="false" afterPath="$PROJECT_DIR$/tutorials/IS_IGC_Old/save/HKY_EDN_ECP_nonclock_summary.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tutorials/IS_IGC_Old/save/MG94_EDN_ECP_nonclock_save1.txt" beforeDir="false" afterPath="$PROJECT_DIR$/tutorials/IS_IGC_Old/save/MG94_EDN_ECP_nonclock_save1.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tutorials/IS_IGC_Old/save/MG94_EDN_ECP_nonclock_summary.txt" beforeDir="false" afterPath="$PROJECT_DIR$/tutorials/IS_IGC_Old/save/MG94_EDN_ECP_nonclock_summary.txt" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -24,11 +17,11 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file pinned="false" current-in-tab="true">
+      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/IGCexpansion/ac.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="2080">
-              <caret line="1629" selection-start-line="1629" selection-end-line="1629" />
+            <state relative-caret-position="23689">
+              <caret line="1649" column="21" lean-forward="true" selection-start-line="1649" selection-start-column="21" selection-end-line="1649" selection-end-column="21" />
               <folding>
                 <element signature="e#210#247#0" expanded="true" />
               </folding>
@@ -36,35 +29,14 @@
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/tutorials/IS_IGC_Old/Run_IS_IGC_Old.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="307">
-              <caret line="29" lean-forward="true" selection-start-line="29" selection-end-line="29" />
-              <folding>
-                <element signature="e#0#54#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
+      <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/IGCexpansion/CodonGeneconv.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="281">
-              <caret line="1439" column="42" lean-forward="true" selection-start-line="1439" selection-start-column="42" selection-end-line="1439" selection-end-column="42" />
+            <state relative-caret-position="246">
+              <caret line="1437" lean-forward="true" selection-start-line="1437" selection-end-line="1437" />
               <folding>
                 <element signature="e#317#371#0" expanded="true" />
               </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/IGCexpansion/CodonGeneconFunc.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-753">
-              <caret line="76" column="43" selection-start-line="76" selection-start-column="43" selection-end-line="76" selection-end-column="43" />
             </state>
           </provider>
         </entry>
@@ -101,9 +73,9 @@
         <option value="$PROJECT_DIR$/IGCexpansion/s_basic.py" />
         <option value="$PROJECT_DIR$/IGCexpansion/CodonGeneconFunc.py" />
         <option value="$PROJECT_DIR$/IGCexpansion/AncestralState.py" />
+        <option value="$PROJECT_DIR$/tutorials/IS_IGC_Old/Run_IS_IGC_Old.py" />
         <option value="$PROJECT_DIR$/IGCexpansion/ac.py" />
         <option value="$PROJECT_DIR$/IGCexpansion/CodonGeneconv.py" />
-        <option value="$PROJECT_DIR$/tutorials/IS_IGC_Old/Run_IS_IGC_Old.py" />
       </list>
     </option>
   </component>
@@ -182,7 +154,7 @@
       </list>
     </option>
   </component>
-  <component name="RunManager" selected="Python.Run_IS_IGC_Old">
+  <component name="RunManager" selected="Python.ac">
     <configuration name="AncestralState" type="PythonConfigurationType" factoryName="Python" temporary="true">
       <module name="Commonancestor" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -538,13 +510,6 @@
     <entry file="file://$PROJECT_DIR$/test/savesample/sample1.txt">
       <provider selected="true" editor-type-id="text-editor" />
     </entry>
-    <entry file="file://$PROJECT_DIR$/IGCexpansion/CodonGeneconFunc.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-753">
-          <caret line="76" column="43" selection-start-line="76" selection-start-column="43" selection-end-line="76" selection-end-column="43" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/tutorials/IS_IGC_Old/save/MG94_EDN_ECP_nonc111lock_summary.txt">
       <provider selected="true" editor-type-id="text-editor" />
     </entry>
@@ -555,34 +520,43 @@
       <provider selected="true" editor-type-id="text-editor" />
     </entry>
     <entry file="file://$PROJECT_DIR$/tutorials/IS_IGC_Old/save/HKY_EDN_ECP_nonclockqq_summary.txt">
-      <provider selected="true" editor-type-id="text-editor" />
-    </entry>
-    <entry file="file://$PROJECT_DIR$/IGCexpansion/CodonGeneconv.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="281">
-          <caret line="1439" column="42" lean-forward="true" selection-start-line="1439" selection-start-column="42" selection-end-line="1439" selection-end-column="42" />
-          <folding>
-            <element signature="e#317#371#0" expanded="true" />
-          </folding>
-        </state>
+        <state relative-caret-position="-402" />
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/tutorials/IS_IGC_Old/Run_IS_IGC_Old.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="307">
-          <caret line="29" lean-forward="true" selection-start-line="29" selection-end-line="29" />
+        <state relative-caret-position="255">
+          <caret line="17" column="27" lean-forward="true" selection-start-line="17" selection-start-column="27" selection-end-line="17" selection-end-column="27" />
           <folding>
             <element signature="e#0#54#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/IGCexpansion/CodonGeneconFunc.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-1643">
+          <caret line="76" column="43" selection-start-line="76" selection-start-column="43" selection-end-line="76" selection-end-column="43" />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/IGCexpansion/ac.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="2080">
-          <caret line="1629" selection-start-line="1629" selection-end-line="1629" />
+        <state relative-caret-position="23689">
+          <caret line="1649" column="21" lean-forward="true" selection-start-line="1649" selection-start-column="21" selection-end-line="1649" selection-end-column="21" />
           <folding>
             <element signature="e#210#247#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/IGCexpansion/CodonGeneconv.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="246">
+          <caret line="1437" lean-forward="true" selection-start-line="1437" selection-end-line="1437" />
+          <folding>
+            <element signature="e#317#371#0" expanded="true" />
           </folding>
         </state>
       </provider>
