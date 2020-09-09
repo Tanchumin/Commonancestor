@@ -14,7 +14,7 @@ if __name__ == '__main__':
     alignment_file = './EDN_ECP_Cleaned.fasta'
     newicktree = './EDN_ECP_tree.newick'
     Force = None
-    model = 'MG94'  # choose from 'HKY' and 'MG94'
+    model = 'HKY'  # choose from 'HKY' and 'MG94'
     save_folder = './save/'
     check_folder(save_folder)
     save_name = save_folder + model + '_EDN_ECP_nonclock_save1.txt'
@@ -25,6 +25,5 @@ if __name__ == '__main__':
     test = ReCodonGeneconv( newicktree, alignment_file, paralog, Model = model, Force = Force, clock = None, save_path = './save/', save_name = save_name)
     test.get_mle()
     test.get_ExpectedNumGeneconv()
-    test.get_summary(True)
 
     test.get_individual_summary(summary_path='./save/')

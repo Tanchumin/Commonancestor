@@ -13,6 +13,7 @@ import os
 import numpy as np
 import pandas as pd
 from numpy import random
+from scipy import linalg
 
 from IGCexpansion.CodonGeneconFunc import isNonsynonymous
 import pickle
@@ -1411,6 +1412,7 @@ class AncestralState:
 
                 curent_state = ini[ll]
                 u = random.exponential(Q_iiii[int(curent_state)])
+                print(u)
                 while(u<=t):
                     a = np.random.choice(range(di1), 1, p=self.Q_new[int(curent_state),])[0]
                     curent_state = self.dic_col[int(curent_state), a] - 1
@@ -1431,9 +1433,48 @@ class AncestralState:
 
         return Q
 
+
+
+# used  before topo so  that can make new Q
+    def change_t_Q(self,tau=30):
+
+        if self.Q is None:
+           self.making_Qmatrix()
+
+
+        if self.Model == "HKY":
+            for ii in range(16):
+                for jj in range(9):
+                    print(ii)
+                    print(jj)
+                    print(self.dic_col[ii,jj]-1)
+                    i_b=ii//4
+                    j_b=ii%4
+                    i_p=(self.dic_col[ii,jj]-1)//4
+                    j_p=(self.dic_col[ii,jj]-1)%4
+                    if i_p == j_p:
+                        print(11111111)
+                        if i_b != j_b and i_b == i_p:
+                            self.Q[ii, jj] = self.Q[ii, jj] - self.tau + tau
+
+                        elif (i_b != j_b and j_b == j_p):
+                            self.Q[ii, jj] = self.Q[ii, jj] - self.tau + tau
+
+
+        else:
+
+            for ii in range(61):
+                for jj in range(27):
+                    if ii==self.dic_col[ii,jj]-1:
+                        self.Q[ii,jj]=self.Q[ii,jj]-self.tau+tau
+
+
+        return self.Q
+
+
 ### this one is more flexiable
 
-    def trans_into_seq(self,ini=None,leafnode=4,sizen=333):
+    def trans_into_seq(self,ini=None,leafnode=4,sizen=0):
         list = []
 
         if self.Model == 'MG94':
@@ -1445,12 +1486,13 @@ class AncestralState:
                     p0 = p0 + dict[(ini[i][j]) // 61]
                     p1 = p1 + dict[(ini[i][j]) % 61]
                 list.append(p0)
+
                 list.append(p1)
         else:
             dict = self.geneconv.state_to_nt
             for i in range(leafnode):
-                p0 = ">paralog0"
-                p1 = ">paralog1"
+                p0 = "\n"+">paralog0"+"\n"
+                p1 = "\n"+">paralog1"+"\n"
                 for j in range(sizen):
                     p0 = p0 + dict[(ini[i][j]) // 4]
                     p1 = p1 + dict[(ini[i][j]) % 4]
@@ -1459,7 +1501,7 @@ class AncestralState:
                 list.append(p0)
                 list.append(p1)
 
-            p0 = ">paralog0"
+            p0 = "\n"+">paralog0"+"\n"
             for j in range(sizen):
                 p0 = p0 + dict[(ini[leafnode][j])]
 
@@ -1473,9 +1515,45 @@ class AncestralState:
         return (list)
 
 
+
+### calculat how different of paralog:
+    def difference(self,ini,selecr=(0,4),sizen=999):
+
+
+        Q=self.remake_matrix()
+        for  i in range(4):
+            Q[i,i]=sum(-Q[i,])
+        Q=linalg.expm(Q*0.8)
+
+
+        if self.Model == 'MG94':
+            dict = self.geneconv.state_to_nt
+            site= np.zeros(shape=(61, 61))
+            for j in  range(sizen):
+                    p0 =  dict[(ini[selecr[0]][j]) // 61]
+                    p1 =  (ini[selecr[1]][j])
+                    site[p0][p1]=site[p0][p1]+1
+
+
+        else:
+            site= np.zeros(shape=(4, 4))
+            site1 = np.zeros(shape=(4, 4))
+
+            for j in  range(sizen):
+                    p0 =  int((ini[selecr[0]][j]) // 4)
+                    p1 =  int((ini[selecr[1]][j]))
+                    site[p0,p1]=int(site[p0,p1])+1
+                    site1[p0,]=Q[p0,]+site1[p0,]
+
+
+
+        print(site)
+        print(site1)
+
+
     ##### topology is pretty simple
 
-    def topo(self,leafnode=4,sizen=333,t=0.4):
+    def topo(self,leafnode=4,sizen=999,t=0.4):
         ini=self.make_ini(sizen=sizen)
         ini1=ini
 
@@ -1533,21 +1611,24 @@ class AncestralState:
 
 
 
+
+
+
 if __name__ == '__main__':
 
 
    # paralog = ['EDN', 'ECP']
    # alignment_file = '../test/EDN_ECP_Cleaned.fasta'
    # newicktree = '../test/EDN_ECP_tree.newick'
-    paralog = ['paralog1', 'paralog0']
-    alignment_file = '../test/sample1.fasta'
-    newicktree = '../test/sample1.newick'
-    Force ={0:np.exp(-0.71464127), 1:np.exp(-0.55541915), 2:np.exp(-0.68806275),3: np.exp( 0.74691342),4: np.exp( 0.59045814)}
+    paralog = ['01', '02']
+    alignment_file = '../test/aaa.fasta'
+    newicktree = '../test/aaa.newick'
+   #Force ={0:np.exp(-0.71464127), 1:np.exp(-0.55541915), 2:np.exp(-0.68806275),3: np.exp( 0.74691342),4: np.exp( 0.59045814)}
 
-   # Force= None
+    Force= None
     model = 'HKY'
 
-    name = 'pp_fu'
+    name = 'pp_fYYu'
     #name='EDN_ECP_full'
 
     type='situation1'
@@ -1559,13 +1640,19 @@ if __name__ == '__main__':
     self = test
     scene = self.get_scene()
 
-    print(self.geneconv.edge_to_blen)
-    print(np.exp(self.geneconv.x_rates))
+    #print(self.geneconv.edge_to_blen)
+    #print(np.exp(self.geneconv.x_rates))
 
 
     #print(self.make_ini())
-    aaa=self.topo()
-    print(self.trans_into_seq(ini=aaa))
+    sizen=333
+
+    self.change_t_Q()
+    print(self.Q)
+    aaa=self.topo(sizen=sizen)
+    print(self.Q_new)
+    self.difference(ini=aaa,sizen=sizen)
+    print(self.trans_into_seq(ini=aaa,sizen=sizen))
 
 
 ## method "simple" is default method， which focus on quail from post dis

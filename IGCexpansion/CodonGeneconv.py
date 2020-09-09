@@ -1424,17 +1424,24 @@ class ReCodonGeneconv:
             if self.clock:
                 suffix_summary = '_clock_summary.txt'
             else:
-                suffix_summary = '_nonclock_summary.txt'    
+                suffix_summary = '_nonclockqq_summary.txt'
 
             summary_file = prefix_summary + '_'.join(self.paralog) + suffix_summary
         else:
             summary_file = file_name
+
         res = self.get_summary(True)
         summary = np.matrix(res[0])
         label = res[1]
             
         footer = ' '.join(label)  # row labels
+        print(summary)
+        print(11111)
         np.savetxt(open(summary_file, 'w+'), summary.T, delimiter = ' ', footer = footer)
+        print(111111)
+
+        with open(summary_file, 'w+') as f:
+            np.savetxt(f, summary.T, delimiter=' ', footer=footer)
 
     def get_save_file_name(self):
         if self.save_name is None:
