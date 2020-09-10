@@ -2,8 +2,13 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="a9952ef3-53b5-4976-ba05-bb25560d8c3b" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/IGCexpansion/CodonGeneconv.py" beforeDir="false" afterPath="$PROJECT_DIR$/IGCexpansion/CodonGeneconv.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/IGCexpansion/ac.py" beforeDir="false" afterPath="$PROJECT_DIR$/IGCexpansion/ac.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/sample1.fasta" beforeDir="false" afterPath="$PROJECT_DIR$/test/sample1.fasta" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/save/HKYpp_fY_situation1_nonclock_save1.txt" beforeDir="false" afterPath="$PROJECT_DIR$/test/save/HKYpp_fY_situation1_nonclock_save1.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/savesample/Ind_HKYparalog0paralog1sample.txt" beforeDir="false" afterPath="$PROJECT_DIR$/test/savesample/Ind_HKYparalog0paralog1sample.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/savesample/Ind_re_HKYparalog0paralog1sample.txt" beforeDir="false" afterPath="$PROJECT_DIR$/test/savesample/Ind_re_HKYparalog0paralog1sample.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/savesample/sample1.fasta" beforeDir="false" afterPath="$PROJECT_DIR$/test/savesample/sample1.fasta" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/test/savesample/sample1.txt" beforeDir="false" afterPath="$PROJECT_DIR$/test/savesample/sample1.txt" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -17,25 +22,13 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file pinned="false" current-in-tab="false">
+      <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/IGCexpansion/ac.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="23689">
-              <caret line="1649" column="21" lean-forward="true" selection-start-line="1649" selection-start-column="21" selection-end-line="1649" selection-end-column="21" />
+            <state relative-caret-position="-185">
+              <caret line="1623" selection-start-line="1623" selection-end-line="1623" />
               <folding>
                 <element signature="e#210#247#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/IGCexpansion/CodonGeneconv.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="246">
-              <caret line="1437" lean-forward="true" selection-start-line="1437" selection-end-line="1437" />
-              <folding>
-                <element signature="e#317#371#0" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -58,6 +51,8 @@
       <find>number of si</find>
       <find>ini</find>
       <find>self.last_effct</find>
+      <find>random.exponential</find>
+      <find>print</find>
     </findStrings>
   </component>
   <component name="Git.Settings">
@@ -74,22 +69,22 @@
         <option value="$PROJECT_DIR$/IGCexpansion/CodonGeneconFunc.py" />
         <option value="$PROJECT_DIR$/IGCexpansion/AncestralState.py" />
         <option value="$PROJECT_DIR$/tutorials/IS_IGC_Old/Run_IS_IGC_Old.py" />
-        <option value="$PROJECT_DIR$/IGCexpansion/ac.py" />
         <option value="$PROJECT_DIR$/IGCexpansion/CodonGeneconv.py" />
+        <option value="$PROJECT_DIR$/IGCexpansion/ac.py" />
       </list>
     </option>
   </component>
   <component name="ProjectFrameBounds">
-    <option name="x" value="74" />
     <option name="y" value="23" />
     <option name="width" value="1440" />
-    <option name="height" value="822" />
+    <option name="height" value="828" />
   </component>
   <component name="ProjectView">
     <navigator proportions="" version="1">
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
+      <pane id="Scope" />
       <pane id="ProjectPane">
         <subPane>
           <expand>
@@ -104,38 +99,16 @@
             </path>
             <path>
               <item name="Commonancestor" type="b2602c69:ProjectViewProjectNode" />
-              <item name="Commonancestor" type="462c0819:PsiDirectoryNode" />
-              <item name="test" type="462c0819:PsiDirectoryNode" />
+              <item name="External Libraries" type="cb654da1:ExternalLibrariesNode" />
             </path>
             <path>
               <item name="Commonancestor" type="b2602c69:ProjectViewProjectNode" />
-              <item name="Commonancestor" type="462c0819:PsiDirectoryNode" />
-              <item name="test" type="462c0819:PsiDirectoryNode" />
-              <item name="savesample" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="Commonancestor" type="b2602c69:ProjectViewProjectNode" />
-              <item name="Commonancestor" type="462c0819:PsiDirectoryNode" />
-              <item name="tutorials" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="Commonancestor" type="b2602c69:ProjectViewProjectNode" />
-              <item name="Commonancestor" type="462c0819:PsiDirectoryNode" />
-              <item name="tutorials" type="462c0819:PsiDirectoryNode" />
-              <item name="IS_IGC_Old" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="Commonancestor" type="b2602c69:ProjectViewProjectNode" />
-              <item name="Commonancestor" type="462c0819:PsiDirectoryNode" />
-              <item name="tutorials" type="462c0819:PsiDirectoryNode" />
-              <item name="IS_IGC_Old" type="462c0819:PsiDirectoryNode" />
-              <item name="save" type="462c0819:PsiDirectoryNode" />
+              <item name="Scratches and Consoles" type="1a2a3e82:ScratchProjectViewPane$MyProjectNode" />
             </path>
           </expand>
           <select />
         </subPane>
       </pane>
-      <pane id="Scope" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -304,8 +277,8 @@
     </configuration>
     <recent_temporary>
       <list>
-        <item itemvalue="Python.Run_IS_IGC_Old" />
         <item itemvalue="Python.CodonGeneconv" />
+        <item itemvalue="Python.Run_IS_IGC_Old" />
         <item itemvalue="Python.AncestralState" />
         <item itemvalue="Python.test" />
         <item itemvalue="Python.as" />
@@ -326,16 +299,16 @@
     <servers />
   </component>
   <component name="ToolWindowManager">
-    <frame x="74" y="23" width="1440" height="822" extended-state="0" />
+    <frame x="0" y="23" width="1440" height="828" extended-state="0" />
     <editor active="true" />
     <layout>
-      <window_info active="true" content_ui="combo" id="Project" order="0" sideWeight="0.49785408" visible="true" weight="0.17829457" />
+      <window_info content_ui="combo" id="Project" order="0" sideWeight="0.49785408" visible="true" weight="0.17829457" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info id="Favorites" order="2" sideWeight="0.50214595" side_tool="true" weight="0.24945612" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Find" order="1" />
-      <window_info anchor="bottom" id="Run" order="2" visible="true" weight="0.3931507" />
-      <window_info anchor="bottom" id="Debug" order="3" weight="0.3994528" />
+      <window_info anchor="bottom" id="Run" order="2" weight="0.39130434" />
+      <window_info anchor="bottom" id="Debug" order="3" weight="0.3423913" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
       <window_info anchor="bottom" id="TODO" order="6" />
@@ -374,11 +347,6 @@
           <url>file://$PROJECT_DIR$/tutorials/IS_IGC_Old/Run_IS_IGC_Old.py</url>
           <line>11</line>
           <option name="timeStamp" value="1" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/IGCexpansion/ac.py</url>
-          <line>86</line>
-          <option name="timeStamp" value="8" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>
@@ -510,28 +478,14 @@
     <entry file="file://$PROJECT_DIR$/test/savesample/sample1.txt">
       <provider selected="true" editor-type-id="text-editor" />
     </entry>
-    <entry file="file://$PROJECT_DIR$/tutorials/IS_IGC_Old/save/MG94_EDN_ECP_nonc111lock_summary.txt">
-      <provider selected="true" editor-type-id="text-editor" />
-    </entry>
-    <entry file="file://$PROJECT_DIR$/tutorials/IS_IGC_Old/save/HKY_EDN_ECP_nonc111lock_summary.txt">
-      <provider selected="true" editor-type-id="text-editor" />
-    </entry>
+    <entry file="file://$PROJECT_DIR$/tutorials/IS_IGC_Old/save/MG94_EDN_ECP_nonc111lock_summary.txt" />
+    <entry file="file://$PROJECT_DIR$/tutorials/IS_IGC_Old/save/HKY_EDN_ECP_nonc111lock_summary.txt" />
     <entry file="file://$PROJECT_DIR$/tutorials/IS_IGC_Old/save/HKY_EDN_ECP_nonclock_summary.txt">
       <provider selected="true" editor-type-id="text-editor" />
     </entry>
     <entry file="file://$PROJECT_DIR$/tutorials/IS_IGC_Old/save/HKY_EDN_ECP_nonclockqq_summary.txt">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="-402" />
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/tutorials/IS_IGC_Old/Run_IS_IGC_Old.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="255">
-          <caret line="17" column="27" lean-forward="true" selection-start-line="17" selection-start-column="27" selection-end-line="17" selection-end-column="27" />
-          <folding>
-            <element signature="e#0#54#0" expanded="true" />
-          </folding>
-        </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/IGCexpansion/CodonGeneconFunc.py">
@@ -541,22 +495,25 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/IGCexpansion/ac.py">
+    <entry file="file://$PROJECT_DIR$/tutorials/IS_IGC_Old/Run_IS_IGC_Old.py">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/IGCexpansion/CodonGeneconv.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="23689">
-          <caret line="1649" column="21" lean-forward="true" selection-start-line="1649" selection-start-column="21" selection-end-line="1649" selection-end-column="21" />
+        <state relative-caret-position="148">
+          <caret line="1434" column="22" lean-forward="true" selection-start-line="1434" selection-start-column="22" selection-end-line="1434" selection-end-column="22" />
           <folding>
-            <element signature="e#210#247#0" expanded="true" />
+            <element signature="e#317#371#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/IGCexpansion/CodonGeneconv.py">
+    <entry file="file://$PROJECT_DIR$/IGCexpansion/ac.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="246">
-          <caret line="1437" lean-forward="true" selection-start-line="1437" selection-end-line="1437" />
+        <state relative-caret-position="-185">
+          <caret line="1623" selection-start-line="1623" selection-end-line="1623" />
           <folding>
-            <element signature="e#317#371#0" expanded="true" />
+            <element signature="e#210#247#0" expanded="true" />
           </folding>
         </state>
       </provider>

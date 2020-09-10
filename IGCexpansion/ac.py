@@ -84,7 +84,7 @@ class AncestralState:
     def get_dict_trans(self):
         return self.geneconv.get_dict_trans()
 
-    def get_ancestral_state_response(self,iffix=True):
+    def get_ancestral_state_response(self,iffix=False):
         self.get_scene()
 
         if iffix==True:
@@ -95,8 +95,6 @@ class AncestralState:
                     self.scene['tree']["edge_rate_scaling_factors"][i]=0.4
                 else:
                     self.scene['tree']["edge_rate_scaling_factors"][i]=0.2
-
-        scene=self.scene
 
         requests = [
             {'property': "DNDNODE"}
@@ -545,7 +543,7 @@ class AncestralState:
                 while (u <= t):
                     # state may from 0 or 1
                     i = i + 1
-                    u1 = random.exponential(Q_iiii[int(curent_state)])
+                    u1 = random.exponential(1/Q_iiii[int(curent_state)])
                     u = u + u1
                     time.append(u)
                     a = np.random.choice(range(di1), 1, p=self.Q_new[int(curent_state),])[0]
@@ -648,6 +646,7 @@ class AncestralState:
                         effect_number = 0
                         big_number = 0
 
+
                         while current_state != end[ii]:
                             current_state = ini[ii]
                             i = 1
@@ -670,7 +669,7 @@ class AncestralState:
 
                             while u<=t:
                                     i=i+1
-                                    u1 = random.exponential(Q_iiii[int(current_state)])
+                                    u1 = random.exponential(1/Q_iiii[int(current_state)])
                                     u = u + u1
                                     time.append(u)
                                     a = np.random.choice(range(di1), 1, p=self.Q_new[int(current_state), ])[0]
@@ -727,7 +726,7 @@ class AncestralState:
                     time = [100]
                     state = [0]
                     while u<=t:
-                        u1 = random.exponential(Q_iiii[int(current_state)])
+                        u1 = random.exponential(1/Q_iiii[int(current_state)])
                         u = u + u1
                         i=i+1
                         if u<=t:
@@ -810,13 +809,14 @@ class AncestralState:
                     big_number=max(big_number_matrix[i,a],big_number)
                     effect_number=effect_number+effect_matrix[i,a]
             else:
-                    big_number=max(big_number_matrix[i,a],big_number)
+                    big_number=int(max(big_number_matrix[i,a],big_number))
+
                     effect_number=effect_number+effect_matrix[i,a]
 
                     time_matrix_old = time_matrix
                     state_matrix_old = state_matrix
-                    time_matrix = np.zeros(shape=(self.sites_length, big_number))
-                    state_matrix = np.zeros(shape=(self.sites_length, big_number))
+                    time_matrix = np.zeros(shape=(int(self.sites_length),int( big_number)))
+                    state_matrix = np.zeros(shape=(self.sites_length, int(big_number)))
                     time_matrix[0:self.sites_length, 0:max_number] = time_matrix_old
                     state_matrix[0:self.sites_length, 0:max_number] = state_matrix_old
                     time_matrix[i, 0:big_number] = time_list[i][a,]
@@ -1107,10 +1107,9 @@ class AncestralState:
                     t1 = self.scene['tree']["edge_rate_scaling_factors"][j]
                     print(j)
 
-                    if j == 0:
-                        print(j)
+                    if j == 2:
                         ini2 = self.geneconv.node_to_num[geneconv.edge_list[j][0]]
-                        end2 = 1
+                        end2 = self.geneconv.node_to_num[geneconv.edge_list[j][1]]
                         ini1 = self.make_ie(ini2, end2)[0]
                         end1 = self.make_ie(ini2, end2)[1]
                         re = self.GLS_s(t=t1, repeat=1, ifrecal=True,ini=ini1, end=end1)
@@ -1134,7 +1133,6 @@ class AncestralState:
                             re2 = self.whether_IGC(history_matrix=sam[0], effect_number=sam[1])
                             re1 = np.vstack((re1, re2[0]))
                             effect_number = effect_number + re2[1]
-                        effect_number11 = effect_number
 
 
 
@@ -1142,7 +1140,7 @@ class AncestralState:
                         print("Ingore the outgroup")
 
 
-                    else:
+                    elif j>2:
                         ini2 = self.geneconv.node_to_num[geneconv.edge_list[j][0]]
                         end2 = self.geneconv.node_to_num[geneconv.edge_list[j][1]]
                         ini1 = self.make_ie(ini2, end2)[0]
@@ -1174,12 +1172,6 @@ class AncestralState:
 
            save_nameP = '../test/savesample/Ind_' + geneconv.Model+ geneconv.paralog[0]+geneconv.paralog[1]+'sample.txt'
            np.savetxt(open(save_nameP, 'w+'), re1.T)
-
-        if ifignore==True:
-            re1=re1[effect_number11:,]
-            effect_number=effect_number-effect_number11
-
-
 
 
 
@@ -1256,7 +1248,7 @@ class AncestralState:
 
 
         self.igc_com=history_matrix
-        print(history_matrix)
+
 
 
         return history_matrix
@@ -1312,8 +1304,6 @@ class AncestralState:
 
              self.relationship=relationship
 
-             print(sum(relationship[:,5]))
-             print(sum(relationship[:, 6]))
 
              return relationship
 
@@ -1411,12 +1401,12 @@ class AncestralState:
             # most transfer 5 times
 
                 curent_state = ini[ll]
-                u = random.exponential(Q_iiii[int(curent_state)])
-                print(u)
+                u = random.exponential(1/Q_iiii[int(curent_state)])
                 while(u<=t):
                     a = np.random.choice(range(di1), 1, p=self.Q_new[int(curent_state),])[0]
                     curent_state = self.dic_col[int(curent_state), a] - 1
-                    u=u+random.exponential(Q_iiii[int(curent_state)])
+                    u=u+random.exponential(1/Q_iiii[int(curent_state)])
+
 
                 end[ll]=curent_state
 
@@ -1436,7 +1426,7 @@ class AncestralState:
 
 
 # used  before topo so  that can make new Q
-    def change_t_Q(self,tau=30):
+    def change_t_Q(self,tau=99):
 
         if self.Q is None:
            self.making_Qmatrix()
@@ -1453,7 +1443,6 @@ class AncestralState:
                     i_p=(self.dic_col[ii,jj]-1)//4
                     j_p=(self.dic_col[ii,jj]-1)%4
                     if i_p == j_p:
-                        print(11111111)
                         if i_b != j_b and i_b == i_p:
                             self.Q[ii, jj] = self.Q[ii, jj] - self.tau + tau
 
@@ -1517,13 +1506,14 @@ class AncestralState:
 
 
 ### calculat how different of paralog:
-    def difference(self,ini,selecr=(0,4),sizen=999):
+    def difference(self,ini,selecr=(3,4),sizen=999):
 
 
         Q=self.remake_matrix()
         for  i in range(4):
             Q[i,i]=sum(-Q[i,])
-        Q=linalg.expm(Q*0.8)
+        Q=linalg.expm(Q*1.2)
+
 
 
         if self.Model == 'MG94':
@@ -1545,10 +1535,14 @@ class AncestralState:
                     site[p0,p1]=int(site[p0,p1])+1
                     site1[p0,]=Q[p0,]+site1[p0,]
 
+            for i in range(4):
+                Q[i,] =self.geneconv.pi*Q[i,]*333
+
+            print(Q)
+
 
 
         print(site)
-        print(site1)
 
 
     ##### topology is pretty simple
@@ -1578,11 +1572,11 @@ class AncestralState:
             for ll in range(sizen):
                 # most transfer 5 time
                     curent_state = ini[ll]//4
-                    u = random.exponential(Q_iiii[int(curent_state)])
+                    u = random.exponential(1/Q_iiii[int(curent_state)])
                     while(u<=t):
                         a = np.random.choice(range(4), 1, p=Q[int(curent_state),])[0]
                         curent_state = a
-                        u=u+random.exponential(Q_iiii[int(curent_state)])
+                        u=u+random.exponential(1/Q_iiii[int(curent_state)])
 
                     end1[ll]=curent_state
 
@@ -1617,18 +1611,18 @@ class AncestralState:
 if __name__ == '__main__':
 
 
-    paralog = ['EDN', 'ECP']
-    alignment_file = '../test/EDN_ECP_Cleaned.fasta'
-    newicktree = '../test/EDN_ECP_tree.newick'
-   # paralog = ['01', '02']
-   # alignment_file = '../test/aaa.fasta'
-   # newicktree = '../test/aaa.newick'
+    #paralog = ['EDN', 'ECP']
+    #alignment_file = '../test/EDN_ECP_Cleaned.fasta'
+    #newicktree = '../test/EDN_ECP_tree.newick'
+    paralog = ['paralog0', 'paralog1']
+    alignment_file = '../test/sample1.fasta'
+    newicktree = '../test/sample1.newick'
     Force ={0:np.exp(-0.71464127), 1:np.exp(-0.55541915), 2:np.exp(-0.68806275),3: np.exp( 0.74691342),4: np.exp( 0.59045814)}
 
-   # Force= None
+    #Force= None
     model = 'HKY'
 
-    name = 'pp_fY'
+    name = 'pp_f1Y111111'
     #name='EDN_ECP_full'
 
     type='situation1'
@@ -1636,10 +1630,8 @@ if __name__ == '__main__':
     geneconv = ReCodonGeneconv(newicktree, alignment_file, paralog, Model=model, Force=Force, clock=None,
                                save_path='../test/save/', save_name=save_name)
 
-    test = AncestralState(geneconv)
-    self = test
+    self = AncestralState(geneconv)
     scene = self.get_scene()
-
     #print(self.geneconv.edge_to_blen)
     #print(np.exp(self.geneconv.x_rates))
 
@@ -1647,20 +1639,23 @@ if __name__ == '__main__':
     #print(self.make_ini())
     sizen=333
 
-    self.change_t_Q()
-    print(self.Q)
-    aaa=self.topo(sizen=sizen)
-    print(self.Q_new)
-    self.difference(ini=aaa,sizen=sizen)
-    print(self.trans_into_seq(ini=aaa,sizen=sizen))
+    #self.change_t_Q()
+    #print(self.Q)
+    #aaa=self.topo(sizen=sizen)
+    #print(self.Q_new)
+    #self.difference(ini=aaa,sizen=sizen)
+   # print(self.trans_into_seq(ini=aaa,sizen=sizen))
+
 
 
 ## method "simple" is default method， which focus on quail from post dis
 ## method "divide" is using the biggest difference among paralogs, and make category
 
     #print(self.get_igcr_pad(times=30, repeat=10,ifpermutation=True,ifwholetree=True,ifsave=True,method="divide"))
-  # print(self.get_igcr_pad(times=10, repeat=1, ifpermutation=False, ifwholetree=True, ifsave=True, method="divide"))
-  #  print(self.get_parameter(function="linear"))
+    # print(self.make_ie(0,1))
+    print(self.get_igcr_pad(times=30, repeat=1, ifpermutation=False, ifwholetree=True, ifsave=True, method="divide"))
+    print(self.get_parameter(function="linear"))
+  #  print(self.tau)
 
    # print(11111111111111)
     #print(self.get_parameter(function="squre"))
