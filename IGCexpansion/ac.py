@@ -84,7 +84,7 @@ class AncestralState:
     def get_dict_trans(self):
         return self.geneconv.get_dict_trans()
 
-    def get_ancestral_state_response(self,iffix=False):
+    def get_ancestral_state_response(self,iffix=True):
         self.get_scene()
 
         if iffix==True:
@@ -486,7 +486,7 @@ class AncestralState:
 
     def GLS( self,t,ini=None, end=None):
 
-        # Q_iiii is diagnal of Q
+        # Q_iiii is diagonal of Q
         # max is biggest change in a line
         global di
         global di1
@@ -678,9 +678,6 @@ class AncestralState:
 
                                     # if jump to absorbing state and without finishing process, we need to resample
 
-                                    while sum(self.Q_new[int(current_state), ]) == 0:
-                                        a = np.random.choice(range(di1), 1, p=self.Q_new[int(old), ])[0]
-                                        current_state = self.dic_col[int(old), a] - 1
                                     state.append(int(current_state))
                             current_state = state[i - 1]
 
@@ -737,9 +734,6 @@ class AncestralState:
 
                                 # if jump to absorbing state and without finishing process, we need to resample
 
-                            while sum(self.Q_new[int(current_state),]) == 0:
-                              a = np.random.choice(range(di1), 1, p=self.Q_new[int(old),])[0]
-                              current_state = self.dic_col[int(old), a] - 1
                             state.append(int(current_state))
                     current_state = state[i - 1]
                     if current_state != end[ii]:
@@ -776,6 +770,7 @@ class AncestralState:
         self.effect_matrix=effect_matrix
         self.big_number_matrix=big_number_matrix
         self.dis_matrix=dis_matrix
+
 
 
 
@@ -829,14 +824,15 @@ class AncestralState:
 
 
 # method can be select as statue or label
-# the mnethod statue is more useful, since it can avoid the bias in sampling regarding small sample size
+# the method state is more useful, since it can avoid the bias in sampling regarding small sample size
 
 
-    def whether_IGC(self,history_matrix,effect_number,method="statue"):
+    def whether_IGC(self,history_matrix,effect_number,method="state"):
 
         p_h=np.zeros(shape=(effect_number, 5))
 
-# 0 difference, 1 time, 2 whether igc, 3 paralog statue,4 ration time/tree length
+
+# 0 difference, 1 time, 2 whether igc, 3 paralog state,4 ratio time/tree length
 
         if self.Model == "HKY":
             for ii in range(effect_number):
@@ -854,11 +850,11 @@ class AncestralState:
                         # y_coor is corresponding coor for igc
                         y_coor = np.argwhere(self.dic_col[int(history_matrix[ii, 6]),] == (int(history_matrix[ii, 7]) + 1))[0]
                         qq=self.Q[int(history_matrix[ii, 6]), y_coor]
-                        if method=="statue":
+                        if method=="state":
                             p_h[ii, 2]=(self.tau)/qq
                         else:
                             u = random.uniform(0, 1)
-                            if u<=float((np.exp(self.tau))/qq):
+                            if u<=float(self.tau)/qq:
                                 p_h[ii, 2] =1
 
 
@@ -867,9 +863,10 @@ class AncestralState:
                         y_coor=np.argwhere(self.dic_col[int(history_matrix[ii, 6]),] == (int(history_matrix[ii, 7]) + 1))[0]
                         qq=self.Q[int(history_matrix[ii, 6]),y_coor]
                         u=random.uniform(0,1)
-                        if method=="statue":
+                        if method=="state":
                             p_h[ii, 2]=(self.tau)/qq
                         else:
+                            u = random.uniform(0, 1)
                             if u<=float((np.exp(self.tau))/qq):
                                 p_h[ii, 2] =1
 
@@ -898,7 +895,7 @@ class AncestralState:
                             tau = self.tau * self.omega
                         else:
                             tau = self.tau
-                        if method=="statue":
+                        if method=="state":
                             p_h[ii, 2]=float(tau)/qq
                         else:
                             if u<=float(tau)/qq:
@@ -921,7 +918,7 @@ class AncestralState:
                         else:
                             tau = self.tau
 
-                        if method == "statue":
+                        if method == "state":
                             p_h[ii, 2] = float(tau) / qq
                         else:
                             if u <= float(tau) / qq:
@@ -951,12 +948,15 @@ class AncestralState:
         difference=0
         time_new=0
 
+        global z
+        z=False
+
 
         for i in range(self.sites_length):
             difference = difference+di[ini[i]]
 
     # 0 last difference number ,1 next difference number, 2 last time, 3 next time
-    # 4 time difference is important, 5 location ,6 last state, 7 next state,8 ration
+    # 4 time difference is important, 5 location ,6 last state, 7 next state,8 ratio
         history_matrix = np.zeros(shape=(effect_number+1, 9))
         for jj in range(effect_number+1):
             coor = np.argmin(time)
@@ -966,6 +966,8 @@ class AncestralState:
             time_new=np.min(time)
             if(time_new>t):
                 time_new=t
+                z=True
+
             history_matrix[jj, 3] = time_new
             history_matrix[jj, 4] = time_new-time_old
             history_matrix[jj, 8]=history_matrix[jj, 4]/t
@@ -982,6 +984,9 @@ class AncestralState:
             # renew time matrix and ini stat
             time[int(x_aixs), int(y_aixs)]=100
             ini[int(x_aixs)]=history_matrix[jj, 7]
+            if(z==True):
+                effect_number=jj
+                break;
 
         #print(history_matrix)
 
@@ -1016,11 +1021,10 @@ class AncestralState:
                 ttt = len(self.scene['tree']["column_nodes"])
                 for j in range(ttt):
                     t1 = self.scene['tree']["edge_rate_scaling_factors"][j]
-
                     print(j)
-                    if j ==0:
+                    if j ==2:
                         ini2=self.geneconv.node_to_num[geneconv.edge_list[j][0]]
-                        end2 = 1
+                        end2 = self.geneconv.node_to_num[geneconv.edge_list[j][1]]
 
                         ini1 = self.make_ie(ini2, end2)[0]
                         end1 = self.make_ie(ini2, end2)[1]
@@ -1043,7 +1047,7 @@ class AncestralState:
                             re2 = self.whether_IGC(history_matrix=sam[0], effect_number=sam[1])
                             re1=np.vstack((re1,re2[0]))
                             effect_number=effect_number+re2[1]
-                        effect_number11=effect_number
+
 
 
 
@@ -1051,7 +1055,7 @@ class AncestralState:
                         print("Ingore the outgroup")
 
 
-                    else:
+                    elif  j>2:
                         ini2=self.geneconv.node_to_num[geneconv.edge_list[j][0]]
                         end2 = self.geneconv.node_to_num[geneconv.edge_list[j][1]]
                         #print(ini2)
@@ -1255,12 +1259,12 @@ class AncestralState:
 
 
 
-    def get_igcr_pad(self,times=2, repeat=1,simple_state_number=8,ifwholetree=True,ifpermutation=True,ifsave=True,
+    def get_igcr_pad(self,times=2, repeat=1,simple_state_number=10,ifwholetree=True,ifpermutation=True,ifsave=True,
                      method="divide"):
 
              self.divide_Q(times=times,repeat=repeat,simple_state_number=simple_state_number,ifwholetree=ifwholetree,
                            ifpermutation=ifpermutation,ifsave=ifsave,method=method)
-             ## self.igc_com 0 difference number, 1 time difference,2 igc_number,3 statue,4 propption
+             ## self.igc_com 0 difference number between paralog, 1 occupancy time for interval ,2 igc_number,3 statue,4 propption = occupancy time/branch length
 
              relationship=np.zeros(shape=(self.type_number-1, 9))
 
@@ -1290,9 +1294,9 @@ class AncestralState:
                 relationship[i,0]=deno
                 relationship[i, 1] =no
                 relationship[i, 2] = total_time
-                relationship[i, 3] = float(relationship[i, 1]) / (relationship[i, 0])
+                relationship[i, 3] = float(relationship[i, 1]) /( (relationship[i, 0])*2)
                 relationship[i, 4] = total_pro
-                relationship[i,5]=total_igc
+                relationship[i, 5]=total_igc
                 relationship[i, 6] = total_history
                 relationship[i, 7] = deno1
                 relationship[i, 8] = float(relationship[i, 1]) / (relationship[i, 7])
@@ -1300,7 +1304,8 @@ class AncestralState:
 
              save_nameP = '../test/savesample/Ind_re_' + geneconv.Model + geneconv.paralog[0] + geneconv.paralog[
                  1] + 'sample.txt'
-             np.savetxt(open(save_nameP, 'w+'), relationship.T)
+             with open(save_nameP, 'w+') as f:
+                 np.savetxt(f, relationship.T)
 
              self.relationship=relationship
 
@@ -1435,9 +1440,6 @@ class AncestralState:
         if self.Model == "HKY":
             for ii in range(16):
                 for jj in range(9):
-                    print(ii)
-                    print(jj)
-                    print(self.dic_col[ii,jj]-1)
                     i_b=ii//4
                     j_b=ii%4
                     i_p=(self.dic_col[ii,jj]-1)//4
@@ -1535,13 +1537,15 @@ class AncestralState:
                     site[p0,p1]=int(site[p0,p1])+1
                     site1[p0,]=Q[p0,]+site1[p0,]
 
+            #print(Q)
             for i in range(4):
-                Q[i,] =self.geneconv.pi*Q[i,]*333
+                Q[i,] =self.geneconv.pi*Q[i,]*sizen
+                print(sum(site1[i,]))
 
-            print(Q)
+            #print(Q)
 
 
-
+        print(site1)
         print(site)
 
 
@@ -1612,17 +1616,18 @@ if __name__ == '__main__':
 
 
     #paralog = ['EDN', 'ECP']
-    #alignment_file = '../test/EDN_ECP_Cleaned.fasta'
-    #newicktree = '../test/EDN_ECP_tree.newick'
-    paralog = ['paralog0', 'paralog1']
-    alignment_file = '../test/sample1.fasta'
-    newicktree = '../test/sample1.newick'
-    Force ={0:np.exp(-0.71464127), 1:np.exp(-0.55541915), 2:np.exp(-0.68806275),3: np.exp( 0.74691342),4: np.exp( 0.59045814)}
+   # alignment_file = '../test/EDN_ECP_Cleaned.fasta'
+   # newicktree = '../test/EDN_ECP_tree.newick'
 
-    #Force= None
+    paralog = ['paralog0', 'paralog1']
+    alignment_file = '../test/tau99.fasta'
+    newicktree = '../test/sample1.newick'
+    #Force ={0:np.exp(-0.71464127), 1:np.exp(-0.55541915), 2:np.exp(-0.68806275),3: np.exp( 0.74691342),4: np.exp( -0.5045814)}
+
+    Force= None
     model = 'HKY'
 
-    name = 'pp_f1Y111111'
+    name = 'tau04_9999'
     #name='EDN_ECP_full'
 
     type='situation1'
@@ -1637,23 +1642,22 @@ if __name__ == '__main__':
 
 
     #print(self.make_ini())
-    sizen=333
+    sizen=999
 
-    #self.change_t_Q()
-    #print(self.Q)
-    #aaa=self.topo(sizen=sizen)
-    #print(self.Q_new)
-    #self.difference(ini=aaa,sizen=sizen)
-   # print(self.trans_into_seq(ini=aaa,sizen=sizen))
+  #  self.change_t_Q(tau=0.6)
+ #   aaa=self.topo(sizen=sizen)
+  #  self.difference(ini=aaa,sizen=sizen)
+  #  print(self.trans_into_seq(ini=aaa,sizen=sizen))
 
 
 
 ## method "simple" is default method， which focus on quail from post dis
 ## method "divide" is using the biggest difference among paralogs, and make category
 
-    #print(self.get_igcr_pad(times=30, repeat=10,ifpermutation=True,ifwholetree=True,ifsave=True,method="divide"))
+   # print(self.get_igcr_pad(times=150, repeat=50,ifpermutation=True,ifwholetree=True,ifsave=True,method="divide"))
     # print(self.make_ie(0,1))
-    print(self.get_igcr_pad(times=30, repeat=1, ifpermutation=False, ifwholetree=True, ifsave=True, method="divide"))
+    print(self.Q)
+    print(self.get_igcr_pad(times=20, repeat=1, ifpermutation=False, ifwholetree=True, ifsave=True, method="divide"))
     print(self.get_parameter(function="linear"))
   #  print(self.tau)
 
