@@ -68,7 +68,7 @@ class AncestralState:
         self.min_diff=0
 
 # relationship is a matrix about igc rates on different paralog
-# igc_com is matrix contain paralog difference,difference time, igc statue, paralog category
+# igc_com is matrix contain paralog difference,difference time, igc state, paralog category
         self.relationship=None
         self.igc_com=None
 
@@ -84,7 +84,7 @@ class AncestralState:
     def get_dict_trans(self):
         return self.geneconv.get_dict_trans()
 
-    def get_ancestral_state_response(self,iffix=True):
+    def get_ancestral_state_response(self,iffix=False):
         self.get_scene()
 
         if iffix==True:
@@ -413,7 +413,7 @@ class AncestralState:
             self.dic_col=np.zeros(shape=(16, 9))
             for i in range(actual_number):
 
-# x_io means current index for row stuates, x_i is statues for last times
+# x_io means current index for row stuates, x_i is states for last times
 # self.dic_col indicts the coordinates for ending states
 
                 x_io = (scene['process_definitions'][1]['row_states'][i][0])*4+(scene['process_definitions'][1][
@@ -823,7 +823,7 @@ class AncestralState:
         return time_matrix, state_matrix, int(effect_number), int(big_number)
 
 
-# method can be select as statue or label
+# method can be select as state or label
 # the method state is more useful, since it can avoid the bias in sampling regarding small sample size
 
 
@@ -887,9 +887,8 @@ class AncestralState:
                         u = random.uniform(0, 1)
 
                         ca = geneconv.state_to_codon[j_b]
-                        ca=self.codon_table[ca]
                         cb = geneconv.state_to_codon[j_p]
-                        cb=self.codon_table[cb]
+
 
                         if isNonsynonymous(cb, ca, self.codon_table):
                             tau = self.tau * self.omega
@@ -909,9 +908,7 @@ class AncestralState:
                         u = random.uniform(0, 1)
 
                         ca = geneconv.state_to_codon[i_b]
-                        ca = self.codon_table[ca]
                         cb = geneconv.state_to_codon[i_p]
-                        cb = self.codon_table[cb]
 
                         if isNonsynonymous(cb, ca, self.codon_table):
                             tau = self.tau * self.omega
@@ -994,7 +991,7 @@ class AncestralState:
 
 
 
-    def monte_carol(self,t=0.1,times=1,repeat=1,ifwholetree=False,ifpermutation=True,ifsave=True,
+    def monte_carlo(self,t=0.1,times=1,repeat=1,ifwholetree=False,ifpermutation=True,ifsave=True,
                     ifignore=True):
 
         if ifpermutation==True:
@@ -1052,7 +1049,7 @@ class AncestralState:
 
 
                     elif j==1:
-                        print("Ingore the outgroup")
+                        print("Ignore the outgroup")
 
 
                     elif  j>2:
@@ -1185,7 +1182,7 @@ class AncestralState:
 
     def divide_Q(self, times, repeat,method="simple", ifwholetree=True,simple_state_number=5,ifpermutation=True,ifsave=True):
 
-        re=self.monte_carol(times=times,repeat=repeat,ifwholetree=ifwholetree,ifpermutation=ifpermutation,ifsave=ifsave)
+        re=self.monte_carlo(times=times,repeat=repeat,ifwholetree=ifwholetree,ifpermutation=ifpermutation,ifsave=ifsave)
         history_matrix=re[0]
         effect_number=re[1]
         type_number = simple_state_number
@@ -1264,7 +1261,7 @@ class AncestralState:
 
              self.divide_Q(times=times,repeat=repeat,simple_state_number=simple_state_number,ifwholetree=ifwholetree,
                            ifpermutation=ifpermutation,ifsave=ifsave,method=method)
-             ## self.igc_com 0 difference number between paralog, 1 occupancy time for interval ,2 igc_number,3 statue,4 propption = occupancy time/branch length
+             ## self.igc_com 0 difference number between paralog, 1 occupancy time for interval ,2 igc_number,3 state,4 propportion = occupancy time/branch length
 
              relationship=np.zeros(shape=(self.type_number-1, 9))
 
@@ -1333,7 +1330,7 @@ class AncestralState:
 
                 alpha = igc / pro
 
-        if function == "squre":
+        if function == "square":
                 igc = np.sum(self.igc_com[:, 2])
                 pro = 0
                 for i in range(self.last_effct):
@@ -1615,20 +1612,20 @@ class AncestralState:
 if __name__ == '__main__':
 
 
-    #paralog = ['EDN', 'ECP']
-   # alignment_file = '../test/EDN_ECP_Cleaned.fasta'
-   # newicktree = '../test/EDN_ECP_tree.newick'
+    paralog = ['EDN', 'ECP']
+    alignment_file = '../test/EDN_ECP_Cleaned.fasta'
+    newicktree = '../test/EDN_ECP_tree.newick'
 
-    paralog = ['paralog0', 'paralog1']
-    alignment_file = '../test/tau99.fasta'
-    newicktree = '../test/sample1.newick'
+    #paralog = ['paralog0', 'paralog1']
+   # alignment_file = '../test/tau99.fasta'
+   # newicktree = '../test/sample1.newick'
     #Force ={0:np.exp(-0.71464127), 1:np.exp(-0.55541915), 2:np.exp(-0.68806275),3: np.exp( 0.74691342),4: np.exp( -0.5045814)}
 
     Force= None
-    model = 'HKY'
+    model = 'MG94'
 
-    name = 'tau04_9999'
-    #name='EDN_ECP_full'
+    #name = 'tau04_9999'
+    name='EDN_ECP_full'
 
     type='situation1'
     save_name = '../test/save/' + model + name+'_'+type+'_nonclock_save1.txt'
@@ -1657,7 +1654,7 @@ if __name__ == '__main__':
    # print(self.get_igcr_pad(times=150, repeat=50,ifpermutation=True,ifwholetree=True,ifsave=True,method="divide"))
     # print(self.make_ie(0,1))
     print(self.Q)
-    print(self.get_igcr_pad(times=20, repeat=1, ifpermutation=False, ifwholetree=True, ifsave=True, method="divide"))
+    print(self.get_igcr_pad(times=1, repeat=1, ifpermutation=False, ifwholetree=True, ifsave=True, method="divide"))
     print(self.get_parameter(function="linear"))
   #  print(self.tau)
 
