@@ -51,7 +51,7 @@ pip install --user git+https://github.com/xji3/jsonctmctree.git
 2. Install IGCexpansion package:
 
 `
-pip install --user git+https://github.com/xji3/IGCexpansion.git
+pip install --user git+https://github.com/Tanchumin/Commonancestor.git
 `
 
 3. Similarly install any other python packages (they should have been installed with IGCexpansion already)
@@ -73,7 +73,7 @@ pip uninstall IGCexpansion
 ##### Getting a local copy of the package
 
 `
-git clone https://github.com/xji3/IGCexpansion.git
+git clone https://github.com/Tanchumin/Commonancestr.git
 `
 
 You can now run the tutorial file or edit it to perform analyses.

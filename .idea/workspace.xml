@@ -3,11 +3,8 @@
   <component name="ChangeListManager">
     <list default="true" id="a9952ef3-53b5-4976-ba05-bb25560d8c3b" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/IGCexpansion/ac.py" beforeDir="false" afterPath="$PROJECT_DIR$/IGCexpansion/ac.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/test/savesample/Ind_HKYEDNECPsample.txt" beforeDir="false" afterPath="$PROJECT_DIR$/test/savesample/Ind_HKYEDNECPsample.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/test/savesample/Ind_re_HKYEDNECPsample.txt" beforeDir="false" afterPath="$PROJECT_DIR$/test/savesample/Ind_re_HKYEDNECPsample.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tutorials/IS_IGC_Old/save/HKY_EDN_ECP_nonclock_save1.txt" beforeDir="false" afterPath="$PROJECT_DIR$/tutorials/IS_IGC_Old/save/HKY_EDN_ECP_nonclock_save1.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tutorials/IS_IGC_Old/save/HKY_EDN_ECP_nonclockqq_summary.txt" beforeDir="false" afterPath="$PROJECT_DIR$/tutorials/IS_IGC_Old/save/HKY_EDN_ECP_nonclockqq_summary.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/IGCexpansion/CodonGeneconv.py" beforeDir="false" afterPath="$PROJECT_DIR$/IGCexpansion/CodonGeneconv.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -19,7 +16,21 @@
     <favorites_list name="Commonancestor" />
   </component>
   <component name="FileEditorManager">
-    <leaf SIDE_TABS_SIZE_LIMIT_KEY="300" />
+    <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
+      <file pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/IGCexpansion/CodonGeneconv.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="21435">
+              <caret line="1444" column="31" lean-forward="true" selection-start-line="1444" selection-start-column="31" selection-end-line="1444" selection-end-column="31" />
+              <folding>
+                <element signature="e#317#371#0" expanded="true" />
+                <element signature="e#56024#56785#0" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+    </leaf>
   </component>
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
@@ -57,9 +68,10 @@
         <option value="$PROJECT_DIR$/IGCexpansion/s_basic.py" />
         <option value="$PROJECT_DIR$/IGCexpansion/AncestralState.py" />
         <option value="$PROJECT_DIR$/tutorials/IS_IGC_Old/Run_IS_IGC_Old.py" />
-        <option value="$PROJECT_DIR$/IGCexpansion/CodonGeneconv.py" />
         <option value="$PROJECT_DIR$/IGCexpansion/CodonGeneconFunc.py" />
         <option value="$PROJECT_DIR$/IGCexpansion/ac.py" />
+        <option value="$PROJECT_DIR$/README.md" />
+        <option value="$PROJECT_DIR$/IGCexpansion/CodonGeneconv.py" />
       </list>
     </option>
   </component>
@@ -73,7 +85,6 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
-      <pane id="Scope" />
       <pane id="ProjectPane">
         <subPane>
           <expand>
@@ -88,24 +99,6 @@
             </path>
             <path>
               <item name="Commonancestor" type="b2602c69:ProjectViewProjectNode" />
-              <item name="Commonancestor" type="462c0819:PsiDirectoryNode" />
-              <item name="tutorials" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="Commonancestor" type="b2602c69:ProjectViewProjectNode" />
-              <item name="Commonancestor" type="462c0819:PsiDirectoryNode" />
-              <item name="tutorials" type="462c0819:PsiDirectoryNode" />
-              <item name="IS_IGC_Old" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="Commonancestor" type="b2602c69:ProjectViewProjectNode" />
-              <item name="Commonancestor" type="462c0819:PsiDirectoryNode" />
-              <item name="tutorials" type="462c0819:PsiDirectoryNode" />
-              <item name="IS_IGC_Old" type="462c0819:PsiDirectoryNode" />
-              <item name="save" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="Commonancestor" type="b2602c69:ProjectViewProjectNode" />
               <item name="External Libraries" type="cb654da1:ExternalLibrariesNode" />
             </path>
             <path>
@@ -116,6 +109,7 @@
           <select />
         </subPane>
       </pane>
+      <pane id="Scope" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -307,6 +301,7 @@
   </component>
   <component name="ToolWindowManager">
     <frame x="0" y="23" width="1440" height="821" extended-state="0" />
+    <editor active="true" />
     <layout>
       <window_info active="true" content_ui="combo" id="Project" order="0" sideWeight="0.49785408" visible="true" weight="0.17829457" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
@@ -354,15 +349,15 @@
           <line>11</line>
           <option name="timeStamp" value="1" />
         </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/IGCexpansion/CodonGeneconv.py</url>
+          <line>1257</line>
+          <option name="timeStamp" value="2" />
+        </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/summary/Force_MG94_EDN_ECP_nonclock_summary.txt" />
-    <entry file="file://$PROJECT_DIR$/IGCexpansion/YYYYYY_situation1" />
-    <entry file="file://$PROJECT_DIR$/summary/Force_MG94_EDN_ECP_nonclock_sitewise_summary.txt" />
-    <entry file="file://$PROJECT_DIR$/summary/Force_MG94_YYYYYY_situation1_EDN_ECP_nonclock_summary.txt" />
-    <entry file="file://$PROJECT_DIR$/summary/Force_MG94_YYYYYY_situation1_EDN_ECP_nonclock_sitewise_summary.txt" />
     <entry file="file://$PROJECT_DIR$/summary/MG94_YYYYYY_situation1_EDN_ECP_nonclock_sitewise_lnL_summary.txt" />
     <entry file="file://$PROJECT_DIR$/test/save/MG94YYYYYY_situation122_nonclock_save.txt" />
     <entry file="file://$PROJECT_DIR$/summary/Force_MG94_YYYYYY_situation122_EDN_ECP_nonclock_sitewise_summary.txt" />
@@ -460,15 +455,6 @@
     <entry file="file://$PROJECT_DIR$/IGCexpansion/Simulator.py">
       <provider selected="true" editor-type-id="text-editor" />
     </entry>
-    <entry file="file://$PROJECT_DIR$/IGCexpansion/CodonSimulator.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-5122">
-          <folding>
-            <element signature="e#102#141#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/test/savesample/sample1.txt.npz">
       <provider selected="true" editor-type-id="text-editor" />
     </entry>
@@ -483,13 +469,6 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/tutorials/IS_IGC_Old/save/HKY_EDN_ECP_nonclockqq_summary.txt">
       <provider selected="true" editor-type-id="text-editor" />
-    </entry>
-    <entry file="file://$PROJECT_DIR$/tutorials/IS_IGC_Old/Run_IS_IGC_Old.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="405">
-          <caret line="29" selection-start-line="29" selection-end-line="29" />
-        </state>
-      </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/IGCexpansion/ac.py">
       <provider selected="true" editor-type-id="text-editor">
@@ -509,13 +488,41 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/IGCexpansion/CodonGeneconv.py">
+    <entry file="file://$PROJECT_DIR$/tutorials/IS_IGC_Old/EDN_ECP_tree.newick">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/tutorials/IS_IGC_Old/Run_IS_IGC_Old.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="223">
-          <caret line="391" column="30" lean-forward="true" selection-start-line="391" selection-start-column="30" selection-end-line="391" selection-end-column="30" />
+        <state relative-caret-position="375">
+          <caret line="27" lean-forward="true" selection-start-line="27" selection-end-line="27" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/README.md">
+      <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
+        <state split_layout="SPLIT">
+          <first_editor relative-caret-position="1050">
+            <caret line="70" column="1" lean-forward="true" selection-start-line="70" selection-start-column="1" selection-end-line="70" selection-end-column="1" />
+          </first_editor>
+          <second_editor />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/IGCexpansion/IGCTractModel.py">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/IGCexpansion/paralog_divergency.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="149">
+          <caret line="10" column="9" lean-forward="true" selection-start-line="10" selection-start-column="9" selection-end-line="10" selection-end-column="9" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/IGCexpansion/CodonSimulator.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-7079">
           <folding>
-            <element signature="e#317#371#0" expanded="true" />
-            <element signature="e#50813#55939#0" />
+            <element signature="e#102#141#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -524,6 +531,20 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="193">
           <caret line="75" column="41" selection-start-line="75" selection-start-column="41" selection-end-line="75" selection-end-column="41" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/tutorials/IS_IGC_Old/EDN_ECP_Cleaned.fasta">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/IGCexpansion/CodonGeneconv.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="21435">
+          <caret line="1444" column="31" lean-forward="true" selection-start-line="1444" selection-start-column="31" selection-end-line="1444" selection-end-column="31" />
+          <folding>
+            <element signature="e#317#371#0" expanded="true" />
+            <element signature="e#56024#56785#0" />
+          </folding>
         </state>
       </provider>
     </entry>
