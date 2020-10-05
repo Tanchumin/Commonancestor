@@ -1438,7 +1438,7 @@ class ReCodonGeneconv:
 
 
         with open(summary_file, 'w+') as f:
-            np.savetxt(f, summary.T, delimiter=' ',footer=footer)
+            np.savetxt(f, summary.T, delimiter=' ', footer=footer)
 
     def get_save_file_name(self):
         if self.save_name is None:

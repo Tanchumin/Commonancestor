@@ -1,7 +1,7 @@
 # IGCexpansion
-[![Build Status](https://travis-ci.com/xji3/IGCexpansion.svg?branch=master)](https://travis-ci.com/xji3/IGCexpansion)
+[![Build Status](https://travis-ci.com/Tanchumin/Commonancestor.svg?branch=master)](https://travis-ci.com/xji3/IGCexpansion)
 
-IGC expansion development folder
+IGC paralog divergence development folder
 
 ##### Dependent software:
 
@@ -48,7 +48,7 @@ Python 3.6 or higher
 pip install --user git+https://github.com/xji3/jsonctmctree.git
 `
 
-2. Install IGCexpansion package:
+2. Install paralog_divergence package:
 
 `
 pip install --user git+https://github.com/Tanchumin/Commonancestor.git
@@ -73,7 +73,7 @@ pip uninstall IGCexpansion
 ##### Getting a local copy of the package
 
 `
-git clone https://github.com/Tanchumin/Commonancestr.git
+git clone https://github.com/Tanchumin/Commonancestor.git
 `
 
 You can now run the tutorial file or edit it to perform analyses.
