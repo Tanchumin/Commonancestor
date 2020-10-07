@@ -3,25 +3,14 @@
   <component name="ChangeListManager">
     <list default="true" id="a9952ef3-53b5-4976-ba05-bb25560d8c3b" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/IGCexpansion/CodonGeneconv.py" beforeDir="false" afterPath="$PROJECT_DIR$/IGCexpansion/CodonGeneconv.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/IGCexpansion/ac.py" beforeDir="false" afterPath="$PROJECT_DIR$/IGCexpansion/ac.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/test/save/HKYEDN_ECP_full_situation1_nonclock_save1.txt" beforeDir="false" afterPath="$PROJECT_DIR$/test/save/HKYEDN_ECP_full_situation1_nonclock_save1.txt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/test/save/HKYtau04_9999_situation1_nonclock_save1.txt" beforeDir="false" afterPath="$PROJECT_DIR$/test/save/HKYtau04_9999_situation1_nonclock_save1.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/test/save/HKYtau06_999_situation1_nonclock_save1.txt" beforeDir="false" afterPath="$PROJECT_DIR$/test/save/HKYtau06_999_situation1_nonclock_save1.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/test/save/MG94EDN_ECP_full_situation1_nonclock_save1.txt" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/test/savesample/Ind_HKYEDNECPsample.txt" beforeDir="false" afterPath="$PROJECT_DIR$/test/savesample/Ind_HKYEDNECPsample.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/savesample/Ind_HKYEDNECPsimulation.txt" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/test/savesample/Ind_HKYparalog0paralog1sample.txt" beforeDir="false" afterPath="$PROJECT_DIR$/test/savesample/Ind_HKYparalog0paralog1sample.txt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/test/savesample/Ind_re_HKYEDNECPsample.txt" beforeDir="false" afterPath="$PROJECT_DIR$/test/savesample/Ind_re_HKYEDNECPsample.txt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/test/savesample/Ind_re_HKYparalog0paralog1sample.txt" beforeDir="false" afterPath="$PROJECT_DIR$/test/savesample/Ind_re_HKYparalog0paralog1sample.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tutorials/IS_IGC_Old/save/HKY_EDN_ECP_nonclock_save1.txt" beforeDir="false" afterPath="$PROJECT_DIR$/tutorials/IS_IGC_Old/save/HKY_EDN_ECP_nonclock_save1.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tutorials/IS_IGC_Old/save/HKY_EDN_ECP_nonclockqq_summary.txt" beforeDir="false" afterPath="$PROJECT_DIR$/tutorials/IS_IGC_Old/save/HKY_EDN_ECP_nonclockqq_summary.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ven/lib/python3.7/site-packages/pip-10.0.1-py3.7.egg/pip/_internal/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/ven/lib/python3.7/site-packages/pip-10.0.1-py3.7.egg/pip/_internal/__init__.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ven/lib/python3.7/site-packages/pip-10.0.1-py3.7.egg/pip/_vendor/appdirs.py" beforeDir="false" afterPath="$PROJECT_DIR$/ven/lib/python3.7/site-packages/pip-10.0.1-py3.7.egg/pip/_vendor/appdirs.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ven/lib/python3.7/site-packages/pip-10.0.1-py3.7.egg/pip/_vendor/certifi/core.py" beforeDir="false" afterPath="$PROJECT_DIR$/ven/lib/python3.7/site-packages/pip-10.0.1-py3.7.egg/pip/_vendor/certifi/core.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ven/lib/python3.7/site-packages/pip-10.0.1-py3.7.egg/pip/_vendor/chardet/cli/chardetect.py" beforeDir="false" afterPath="$PROJECT_DIR$/ven/lib/python3.7/site-packages/pip-10.0.1-py3.7.egg/pip/_vendor/chardet/cli/chardetect.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ven/lib/python3.7/site-packages/pip-10.0.1-py3.7.egg/pip/_vendor/requests/certs.py" beforeDir="false" afterPath="$PROJECT_DIR$/ven/lib/python3.7/site-packages/pip-10.0.1-py3.7.egg/pip/_vendor/requests/certs.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ven/lib/python3.7/site-packages/setuptools-39.1.0-py3.7.egg" beforeDir="false" afterPath="$PROJECT_DIR$/ven/lib/python3.7/site-packages/setuptools-39.1.0-py3.7.egg" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -34,45 +23,47 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file pinned="false" current-in-tab="false">
+      <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/IGCexpansion/ac.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="254">
-              <caret line="915" column="57" selection-start-line="915" selection-start-column="57" selection-end-line="915" selection-end-column="57" />
+            <state relative-caret-position="327">
+              <caret line="1808" column="48" selection-start-line="1808" selection-start-column="48" selection-end-line="1808" selection-end-column="48" />
               <folding>
                 <element signature="e#210#247#0" expanded="true" />
+                <element signature="e#558#779#0" />
+                <element signature="e#2411#3798#0" />
+                <element signature="e#3845#4502#0" />
+                <element signature="e#4561#5281#0" />
+                <element signature="e#6840#8170#0" />
+                <element signature="e#8241#9149#0" />
+                <element signature="e#9182#9391#0" />
+                <element signature="e#9434#9853#0" />
+                <element signature="e#9894#10011#0" />
+                <element signature="e#10066#12165#0" />
+                <element signature="e#12209#12478#0" />
                 <element signature="e#12576#13057#0" />
+                <element signature="e#13113#13700#0" />
                 <element signature="e#13742#16391#0" />
-                <element signature="e#16480#17203#0" />
+                <element signature="e#16554#17277#0" />
                 <element signature="e#17257#20276#0" />
-                <element signature="e#21328#27765#0" />
-                <element signature="e#25222#27765#0" />
+                <element signature="e#21425#25185#0" />
                 <element signature="e#28193#30131#0" />
-                <element signature="e#36881#48041#0" />
-                <element signature="e#36918#40788#0" />
-                <element signature="e#45017#45179#0" />
-                <element signature="e#47642#50523#0" />
-                <element signature="e#48388#50634#0" />
-                <element signature="e#50761#51542#0" />
-                <element signature="e#51707#52390#0" />
-                <element signature="e#52448#53786#0" />
-                <element signature="e#53439#53610#0" />
-                <element signature="e#53700#54542#0" />
-                <element signature="e#54643#55756#0" />
-                <element signature="e#55862#56838#0" />
+                <element signature="e#30360#34712#0" />
+                <element signature="e#34803#36516#0" />
+                <element signature="e#36689#40559#0" />
+                <element signature="e#40630#41446#0" />
+                <element signature="e#45237#47128#0" />
+                <element signature="e#47302#50283#0" />
+                <element signature="e#50456#52702#0" />
+                <element signature="e#52829#53610#0" />
+                <element signature="e#53775#54458#0" />
+                <element signature="e#54516#55831#0" />
+                <element signature="e#55871#56042#0" />
+                <element signature="e#56132#56974#0" />
+                <element signature="e#57075#58188#0" />
+                <element signature="e#58294#59270#0" />
+                <element signature="e#59365#60673#0" />
               </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/README.md">
-          <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
-            <state split_layout="SPLIT">
-              <first_editor relative-caret-position="15">
-                <caret line="1" column="63" selection-start-line="1" selection-start-column="63" selection-end-line="1" selection-end-column="63" />
-              </first_editor>
-              <second_editor />
             </state>
           </provider>
         </entry>
@@ -118,14 +109,16 @@
         <option value="$PROJECT_DIR$/tutorials/IS_IGC_Old/Run_IS_IGC_Old.py" />
         <option value="$PROJECT_DIR$/IGCexpansion/CodonGeneconFunc.py" />
         <option value="$PROJECT_DIR$/IGCexpansion/CodonGeneconv.py" />
-        <option value="$PROJECT_DIR$/IGCexpansion/ac.py" />
         <option value="$PROJECT_DIR$/README.md" />
+        <option value="$PROJECT_DIR$/IGCexpansion/ac.py" />
       </list>
     </option>
   </component>
-  <component name="ProjectFrameBounds" fullScreen="true">
-    <option name="width" value="714" />
-    <option name="height" value="900" />
+  <component name="ProjectFrameBounds" extendedState="6" fullScreen="true">
+    <option name="x" value="499" />
+    <option name="y" value="23" />
+    <option name="width" value="1440" />
+    <option name="height" value="821" />
   </component>
   <component name="ProjectView">
     <navigator proportions="" version="1">
@@ -356,15 +349,15 @@
     </todo-panel>
   </component>
   <component name="ToolWindowManager">
-    <frame x="0" y="0" width="1440" height="900" extended-state="0" />
+    <frame x="0" y="0" width="1440" height="900" extended-state="6" />
     <editor active="true" />
     <layout>
-      <window_info active="true" content_ui="combo" id="Project" order="0" sideWeight="0.49785408" visible="true" weight="0.17829457" />
+      <window_info content_ui="combo" id="Project" order="0" sideWeight="0.49785408" visible="true" weight="0.17829457" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info id="Favorites" order="2" sideWeight="0.50214595" side_tool="true" weight="0.24945612" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Find" order="1" />
-      <window_info anchor="bottom" id="Run" order="2" visible="true" weight="0.41807228" />
+      <window_info active="true" anchor="bottom" id="Run" order="2" visible="true" weight="0.41566265" />
       <window_info anchor="bottom" id="Debug" order="3" weight="0.3626506" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
@@ -584,42 +577,56 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/IGCexpansion/ac.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="254">
-          <caret line="915" column="57" selection-start-line="915" selection-start-column="57" selection-end-line="915" selection-end-column="57" />
-          <folding>
-            <element signature="e#210#247#0" expanded="true" />
-            <element signature="e#12576#13057#0" />
-            <element signature="e#13742#16391#0" />
-            <element signature="e#16480#17203#0" />
-            <element signature="e#17257#20276#0" />
-            <element signature="e#21328#27765#0" />
-            <element signature="e#25222#27765#0" />
-            <element signature="e#28193#30131#0" />
-            <element signature="e#36881#48041#0" />
-            <element signature="e#36918#40788#0" />
-            <element signature="e#45017#45179#0" />
-            <element signature="e#47642#50523#0" />
-            <element signature="e#48388#50634#0" />
-            <element signature="e#50761#51542#0" />
-            <element signature="e#51707#52390#0" />
-            <element signature="e#52448#53786#0" />
-            <element signature="e#53439#53610#0" />
-            <element signature="e#53700#54542#0" />
-            <element signature="e#54643#55756#0" />
-            <element signature="e#55862#56838#0" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/README.md">
       <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
         <state split_layout="SPLIT">
-          <first_editor relative-caret-position="15">
-            <caret line="1" column="63" selection-start-line="1" selection-start-column="63" selection-end-line="1" selection-end-column="63" />
+          <first_editor relative-caret-position="45">
+            <caret line="3" column="22" selection-start-line="3" selection-start-column="22" selection-end-line="3" selection-end-column="22" />
           </first_editor>
           <second_editor />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/IGCexpansion/ac.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="327">
+          <caret line="1808" column="48" selection-start-line="1808" selection-start-column="48" selection-end-line="1808" selection-end-column="48" />
+          <folding>
+            <element signature="e#210#247#0" expanded="true" />
+            <element signature="e#558#779#0" />
+            <element signature="e#2411#3798#0" />
+            <element signature="e#3845#4502#0" />
+            <element signature="e#4561#5281#0" />
+            <element signature="e#6840#8170#0" />
+            <element signature="e#8241#9149#0" />
+            <element signature="e#9182#9391#0" />
+            <element signature="e#9434#9853#0" />
+            <element signature="e#9894#10011#0" />
+            <element signature="e#10066#12165#0" />
+            <element signature="e#12209#12478#0" />
+            <element signature="e#12576#13057#0" />
+            <element signature="e#13113#13700#0" />
+            <element signature="e#13742#16391#0" />
+            <element signature="e#16554#17277#0" />
+            <element signature="e#17257#20276#0" />
+            <element signature="e#21425#25185#0" />
+            <element signature="e#28193#30131#0" />
+            <element signature="e#30360#34712#0" />
+            <element signature="e#34803#36516#0" />
+            <element signature="e#36689#40559#0" />
+            <element signature="e#40630#41446#0" />
+            <element signature="e#45237#47128#0" />
+            <element signature="e#47302#50283#0" />
+            <element signature="e#50456#52702#0" />
+            <element signature="e#52829#53610#0" />
+            <element signature="e#53775#54458#0" />
+            <element signature="e#54516#55831#0" />
+            <element signature="e#55871#56042#0" />
+            <element signature="e#56132#56974#0" />
+            <element signature="e#57075#58188#0" />
+            <element signature="e#58294#59270#0" />
+            <element signature="e#59365#60673#0" />
+          </folding>
         </state>
       </provider>
     </entry>
