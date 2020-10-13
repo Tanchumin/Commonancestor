@@ -170,7 +170,9 @@ class AncestralState:
             for site in range(self.sites_length):
                 for node in range(self.node_length):
                     if self.Model=="HKY":
+                        # print(np.array(self.ancestral_state_response[site])[:, node])
                          sites[node][site] =np.random.choice(range(16), 1, p=np.array(self.ancestral_state_response[site])[:, node])[0]
+                        # print(sites[node][site])
             self.sites=sites
 
         else:
@@ -327,14 +329,24 @@ class AncestralState:
 
     def get_interior_node(self):
 
-        if self.node_length is None:
-             self.node_length = len(self.get_num_to_node())
+        if self.node_length ==0:
+             self.node_length = len(self.scene['tree']["column_nodes"])
 
         node = np.arange(self.node_length)
         interior_node = set(node) - set(self.scene["observed_data"]["nodes"])
+        print(self.scene["observed_data"]["iid_observations"])
         c = [i for i in interior_node]
 
         return (c)
+
+
+    def newcommon_ancstral_inference(selfs):
+
+###### "iid_observations" means sequence information," variables" indicate paralog statue,"node" indicate node state
+
+
+
+
 
 
 # help build dictionary for how difference of a paralog
@@ -1135,7 +1147,7 @@ class AncestralState:
                              t1 = self.scene['tree']["edge_rate_scaling_factors"][j]
                              #print(j)
 
-                             if j == 0:
+                             if j == 2:
                                   ini2 = self.geneconv.node_to_num[geneconv.edge_list[j][0]]
                                   end2 = self.geneconv.node_to_num[geneconv.edge_list[j][1]]
                                   ini1 = self.make_ie(ini2, end2)[0]
@@ -1151,7 +1163,7 @@ class AncestralState:
                                  print("Ingore the outgroup")
 
 
-                             elif j>=2:
+                             elif j>2:
                                ini2 = self.geneconv.node_to_num[geneconv.edge_list[j][0]]
                                end2 = self.geneconv.node_to_num[geneconv.edge_list[j][1]]
                                ini1 = self.make_ie(ini2, end2)[0]
@@ -1175,7 +1187,7 @@ class AncestralState:
                             t1 = self.scene['tree']["edge_rate_scaling_factors"][j]
                             #print(j)
 
-                            if j == 0:
+                            if j == 2:
                                 ini2 = self.geneconv.node_to_num[geneconv.edge_list[j][0]]
                                 end2 = self.geneconv.node_to_num[geneconv.edge_list[j][1]]
                                 ini1 = self.make_ie(ini2, end2)[0]
@@ -1195,7 +1207,7 @@ class AncestralState:
                                 print("Ingore the outgroup")
 
 
-                            elif j >= 2:
+                            elif j > 2:
                                 ini2 = self.geneconv.node_to_num[geneconv.edge_list[j][0]]
                                 end2 = self.geneconv.node_to_num[geneconv.edge_list[j][1]]
                                 ini1 = self.make_ie(ini2, end2)[0]
@@ -1759,20 +1771,20 @@ class AncestralState:
 if __name__ == '__main__':
 
 
-    #paralog = ['EDN', 'ECP']
-   # alignment_file = '../test/EDN_ECP_Cleaned.fasta'
-   # newicktree = '../test/EDN_ECP_tree.newick'
+    paralog = ['EDN', 'ECP']
+    alignment_file = '../test/EDN_ECP_Cleaned.fasta'
+    newicktree = '../test/EDN_ECP_tree.newick'
 
-    paralog = ['paralog0', 'paralog1']
-    alignment_file = '../test/tau99.fasta'
-    newicktree = '../test/sample1.newick'
+   # paralog = ['paralog0', 'paralog1']
+   # alignment_file = '../test/tau99.fasta'
+   # newicktree = '../test/sample1.newick'
   #  Force ={0:np.exp(-0.71464127), 1:np.exp(-0.55541915), 2:np.exp(-0.68806275),3: np.exp( 0.74691342),4: np.exp( -0.5045814)}
 
     Force= None
     model = 'HKY'
 
-    name = 'tau04_9999'
-   # name='EDN_ECP_full'
+   # name = 'tau04_9999'
+    name='EDN_ECP_full'
 
     type='situation1'
     save_name = '../test/save/' + model + name+'_'+type+'_nonclock_save1.txt'
@@ -1790,6 +1802,7 @@ if __name__ == '__main__':
     self.remake_matrix()
     print(self.making_Qmatrix()[0])
     print(self.tau)
+    print(self.get_interior_node())
 
   #  self.change_t_Q(tau=0.6)
  #   aaa=self.topo(sizen=sizen)
@@ -1804,9 +1817,9 @@ if __name__ == '__main__':
    # print(self.get_igcr_pad(times=150, repeat=50,ifpermutation=True,ifwholetree=True,ifsave=True,method="divide"))
     # print(self.make_ie(0,1))
 
-    print(self.get_igcr_pad(times=20, repeat=1, ifpermutation=False, ifwholetree=True, ifsave=True, method="divide"))
+    #print(self.get_igcr_pad(times=10, repeat=1, ifpermutation=False, ifwholetree=True, ifsave=True, method="divide"))
     #print(self.Q)
-    print(self.get_parameter(function="linear"))
+   # print(self.get_parameter(function="linear"))
   #  print(self.tau)
 
    # print(11111111111111)

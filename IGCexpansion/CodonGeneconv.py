@@ -18,7 +18,8 @@ import ast
 #import matplotlib.pyplot as plt
 
 class ReCodonGeneconv:
-    def __init__(self, tree_newick, alignment, paralog, Model = 'MG94', nnsites = None, clock = False, Force = None, save_path = './save/', save_name = None, post_dup = 'N1'):
+    def __init__(self, tree_newick, alignment, paralog, Model = 'MG94', nnsites = None, clock = False, Force = None, save_path = './save/', save_name = None, post_dup = 'N1',
+                 tau=1,omega=0.9,kappa=0.1,inibl=0.1):
         self.newicktree  = tree_newick  # newick tree file loc
         self.seqloc      = alignment    # multiple sequence alignment, now need to remove gap before-hand
         self.paralog     = paralog      # parlaog list
@@ -72,9 +73,10 @@ class ReCodonGeneconv:
         self.x_Lr           = None      # values of clock blen parameters
         self.x_clock        = None      # x_process + Lr
         self.pi             = None      # real values
-        self.kappa          = 2.1      # real values
-        self.omega          = 0.9       # real values
-        self.tau            = 0.6      # real values
+        self.kappa          = kappa     # real values
+        self.omega          = omega      # real values
+        self.tau            = tau     # real values
+        self.inibl          = inibl
 
         self.processes      = None      # list of basic and geneconv rate matrices. Each matrix is a dictionary used for json parsing
 
@@ -110,7 +112,7 @@ class ReCodonGeneconv:
     def get_tree(self):
         self.tree, self.edge_list, self.node_to_num = read_newick(self.newicktree, self.post_dup)
         self.num_to_node = {self.node_to_num[i]:i for i in self.node_to_num}
-        self.edge_to_blen = {edge:1.0 for edge in self.edge_list}
+        self.edge_to_blen = {edge:self.inibl for edge in self.edge_list}
 
 
     def nts_to_codons(self):

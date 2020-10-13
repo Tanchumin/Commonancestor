@@ -17,12 +17,13 @@ if __name__ == '__main__':
     model = 'HKY'  # choose from 'HKY' and 'MG94'
     save_folder = './save/'
     check_folder(save_folder)
-    save_name = save_folder + model + '_EDN_ECP_nonclock_save1.txt'
+    save_name = save_folder + model + '_EDN_ECP_nonclock_save_change.txt'
 
     summary_folder = './summary/'
     check_folder(summary_folder)
 
-    test = ReCodonGeneconv( newicktree, alignment_file, paralog, Model = model, Force = Force, clock = None, save_path = './save/', save_name = save_name)
+    test = ReCodonGeneconv( newicktree, alignment_file, paralog, Model = model, Force = Force, clock = None, save_path = './save/', save_name = save_name,
+                            tau=1, omega=0.9, kappa=0.1, inibl=0.2 )
     test.get_mle()
     test.get_ExpectedNumGeneconv()
 
