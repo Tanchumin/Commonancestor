@@ -73,6 +73,8 @@ class AncestralState:
         self.relationship=None
         self.igc_com=None
 
+        self.judge=None
+
     def get_mle(self):
         self.geneconv.get_mle()
 
@@ -335,14 +337,77 @@ class AncestralState:
         node = np.arange(self.node_length)
         interior_node = set(node) - set(self.scene["observed_data"]["nodes"])
         print(self.scene["observed_data"]["iid_observations"])
+        print(self.scene["observed_data"]["variables"])
         c = [i for i in interior_node]
 
         return (c)
 
+    def judge_state_children(self):
+        internal_node=self.get_interior_node()
+        judge=np.ones(int((len(self.scene['tree']["column_nodes"])+1)/2))
+
+        for i in range(int((len(self.scene['tree']["column_nodes"])+1)/2)):
+
+            end1=self.geneconv.node_to_num[geneconv.edge_list[i*2][1]]
+            end2 = self.geneconv.node_to_num[geneconv.edge_list[(i * 2)+1][1]]
+
+            if(end1 in set(internal_node) or end2 in set(internal_node)):
+                judge[i] =2
+            elif(end1 in set(internal_node) and end2 in set(internal_node)):
+                judge[i] = 1
+            else:
+                judge[i] = 0
+
+        self.judge=judge
+
+        self.get_scene()
+        scene=self.scene
+        print(scene['process_definitions'])
+
+
+    def orginal_Q(selfs):
+        if self.Q is None:
+            self.making_Qmatrix()
+
+
+        if self.Model == 'HKY':
+            self.Q_orginal = np.zeros(shape=(16, 16))
+            for i in range(16):
+                for j in range(len(self.Q[0])):
+                    index=int(self.dic_col[i,j]-1)
+                    self.Q_orginal[i,index]=self.Q[i,j]
+
+            for k in  range(16):
+                self.Q_orginal[k, k]=-sum(self.Q_orginal[k,])
+
+
+        else:
+            self.Q_orginal = np.zeros(shape=(61, 61))
+            for i in range(61):
+                for j in range(len(self.Q[0])):
+                    index=int(self.dic_col[i,j]-1)
+                    self.Q_orginal[i,index]=self.Q[i,j]
+
+
+        for i in range(16):
+            print(sum(linalg.expm(self.Q_orginal*0.2)[i,]))
+
+
+
+
 
     def newcommon_ancstral_inference(selfs):
+        if self.judge is None:
+            self.judge_state_children()
 
-###### "iid_observations" means sequence information," variables" indicate paralog statue,"node" indicate node state
+        if self.orginal_Q is None:
+            self.orginal_Q()
+
+
+        # making Q list for matrix
+
+        print(1)
+# "iid_observations" means sequence information," variables" indicate paralog statue,"node" indicate node state
 
 
 
@@ -414,6 +479,7 @@ class AncestralState:
         scene=self.scene
 
         actual_number=(len(scene['process_definitions'][1]['transition_rates']))
+        self.actual_number=actual_number
 
         global x_i
         x_i = 0
@@ -428,7 +494,7 @@ class AncestralState:
             self.dic_col=np.zeros(shape=(16, 9))
             for i in range(actual_number):
 
-# x_io means current index for row stuates, x_i is states for last times
+# x_io means current index for row states, x_i is states for last times
 # self.dic_col indicts the coordinates for ending states
 
                 x_io = (scene['process_definitions'][1]['row_states'][i][0])*4+(scene['process_definitions'][1][
@@ -1800,9 +1866,11 @@ if __name__ == '__main__':
     #print(self.make_ini())
     sizen=999
     self.remake_matrix()
-    print(self.making_Qmatrix()[0])
-    print(self.tau)
+   # print(self.making_Qmatrix()[0])
+  #  print(self.tau)
     print(self.get_interior_node())
+    self.judge_state_children()
+    self.orginal_Q()
 
   #  self.change_t_Q(tau=0.6)
  #   aaa=self.topo(sizen=sizen)
