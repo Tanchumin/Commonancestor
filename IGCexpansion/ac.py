@@ -74,6 +74,8 @@ class AncestralState:
         self.igc_com=None
 
         self.judge=None
+        self.P_list= None
+        self.Q_orginal=None
 
     def get_mle(self):
         self.geneconv.get_mle()
@@ -336,8 +338,9 @@ class AncestralState:
 
         node = np.arange(self.node_length)
         interior_node = set(node) - set(self.scene["observed_data"]["nodes"])
-        print(self.scene["observed_data"]["iid_observations"])
-        print(self.scene["observed_data"]["variables"])
+     #   print(self.scene["observed_data"]["iid_observations"])
+     #   print(self.scene["observed_data"]["variables"])
+     #   print(self.scene["observed_data"]["nodes"])
         c = [i for i in interior_node]
 
         return (c)
@@ -351,8 +354,11 @@ class AncestralState:
             end1=self.geneconv.node_to_num[geneconv.edge_list[i*2][1]]
             end2 = self.geneconv.node_to_num[geneconv.edge_list[(i * 2)+1][1]]
 
-            if(end1 in set(internal_node) or end2 in set(internal_node)):
-                judge[i] =2
+            if(end1 in set(internal_node) ):
+                judge[i] =3
+            elif (end2 in set(internal_node) ):
+                judge[i] = 2
+
             elif(end1 in set(internal_node) and end2 in set(internal_node)):
                 judge[i] = 1
             else:
@@ -362,7 +368,7 @@ class AncestralState:
 
         self.get_scene()
         scene=self.scene
-        print(scene['process_definitions'])
+      #  print(scene['process_definitions'])
 
 
     def orginal_Q(selfs):
@@ -381,6 +387,7 @@ class AncestralState:
                 self.Q_orginal[k, k]=-sum(self.Q_orginal[k,])
 
 
+
         else:
             self.Q_orginal = np.zeros(shape=(61, 61))
             for i in range(61):
@@ -388,25 +395,150 @@ class AncestralState:
                     index=int(self.dic_col[i,j]-1)
                     self.Q_orginal[i,index]=self.Q[i,j]
 
+    # making matrices to store possibility for internal node
+    def making_possibility_internal(self):
 
-        for i in range(16):
-            print(sum(linalg.expm(self.Q_orginal*0.2)[i,]))
-
-
-
-
-
-    def newcommon_ancstral_inference(selfs):
         if self.judge is None:
             self.judge_state_children()
 
-        if self.orginal_Q is None:
+        # self.Q original is 16*16
+        if self.Q_orginal is None:
             self.orginal_Q()
 
+        if self.sites is None:
+            self.get_maxpro_index(False)
 
-        # making Q list for matrix
+        internal_node = self.get_interior_node()
+        # making p list for each branch
+        P_list = []
+        tree_len=len(self.scene['tree']["column_nodes"])
+        for i in range(tree_len):
+            time=self.scene['tree']["edge_rate_scaling_factors"][i]
+            Q=linalg.expm(self.Q_orginal * time)
+            P_list.append(Q)
 
-        print(1)
+       # print(P_list)
+
+        p_n=[]
+        for i in range(len(self.judge)):
+            p_n.append(0)
+
+        tree_to=np.zeros(shape=(3, len(self.judge)))
+
+
+        for i in range(len(self.judge)-1):
+            inode= internal_node[len(self.judge)-1-i]
+            state=int(self.judge[len(self.judge)-1-i])
+            id=1
+          #  print(state)
+         #   print(self.judge)
+            for j in range(tree_len-1):
+                if(self.geneconv.node_to_num[geneconv.edge_list[j][0]]==inode and id==1):
+                    id=id+1
+                    left = self.geneconv.node_to_num[geneconv.edge_list[j][1]]
+                    right= self.geneconv.node_to_num[geneconv.edge_list[j+1][1]]
+                    tree_to[1,len(self.judge)-i-1]=left
+                    tree_to[2,len(self.judge)-i-1]=right
+                    p_node = np.zeros(shape=(self.sites_length, 16))
+
+                    if(state==0):
+                        for kk in range(self.sites_length):
+                            leftpoint=int(self.sites[left,kk])
+                            rightpoint=int(self.sites[right,kk])
+                            for kkk in range(16):
+                                 p_node[kk,kkk]=P_list[j+1][kkk,rightpoint]*P_list[j][kkk,leftpoint]
+
+                        p_n[len(self.judge)-i-1]=p_node
+
+                    elif(state==2):
+                        right = int(internal_node.index(right))
+                        rightm = p_n[right]
+                        # rightm is p we caucate before which is a matrix site.length*16
+                        for kk in range(self.sites_length):
+                            leftpoint = int(self.sites[left, kk])
+                            rightpoint=rightm[kk,]
+                            for kkk in range(16):
+                                p1=0
+                                for kkkk in range(16):
+                                    p1=P_list[j+1][kkk,kkkk]*rightpoint[kkkk]+p1
+                                p_node[kk, kkk] = p1* P_list[j][kkk,leftpoint]
+                        p_n[len(self.judge) - i-1] = p_node
+
+
+                    elif(state==3):
+                      #  print(left)
+                        left = int(internal_node.index(left))
+                        leftm = p_n[left]
+                        # leftm is p we caucate before which is a matrix site.length*16
+                        for kk in range(self.sites_length):
+                            rightpoint = int(self.sites[right, kk])
+                            leftpoint=leftm[kk,]
+                            for kkk in range(16):
+                                p1=0
+                                for kkkk in range(16):
+                                    p1=P_list[j][kkk,kkkk]*leftpoint[kkkk]+p1
+                                p_node[kk, kkk] = p1* P_list[j+1][kkk,rightpoint]
+                        p_n[len(self.judge) - i-1] = p_node
+
+                    else:
+                        left = int(internal_node.index(left))
+                        leftm = p_n[left]
+                        right = int(internal_node.index(right))
+                        rightm = p_n[right]
+                        # leftm is p we caucate before which is a matrix site.length*16
+                        for kk in range(self.sites_length):
+                            leftpoint=leftm[kk,]
+                            rightpoint = rightm[kk,]
+                            for kkk in range(16):
+                                p1=0
+                                p2=0
+                                for kkkk in range(16):
+                                    p1=P_list[j][kkk,kkkk]*leftpoint[kkkk]+p1
+                                    p2 = P_list[j+1][kkk, kkkk] * rightpoint[kkkk] + p2
+                                p_node[kk, kkk] = p1* p2
+                        p_n[len(self.judge) - i-1] = p_node
+
+
+        self.p_n=p_n
+        self.P_list=P_list
+        self.tree_to=tree_to
+
+
+
+    def jointly_common_ancstral_inference(selfs):
+        if self.P_list is None:
+            self.making_possibility_internal()
+
+        tree_len = len(self.scene['tree']["column_nodes"])
+        internal_node = self.get_interior_node()
+        index=1
+        j=0
+
+        while index < len(internal_node):
+            if (self.geneconv.node_to_num[geneconv.edge_list[j][1]]==internal_node[index]):
+                self.tree_to[0,index]=self.geneconv.node_to_num[geneconv.edge_list[j][0]]
+                index=index+1
+            j=j+1
+
+        for i in  range(tree_len):
+            if(i>0 and i in set(internal_node)):
+                index=internal_node.index(i)
+                for j in range(self.sites_length):
+                    selectp=np.ones(16)
+                    parent = int(self.tree_to[0, index])
+                    parent=int(self.sites[parent,j])
+                    for k in range(16):
+                        selectp[k]=self.P_list[index][k,parent]*self.p_n[index][j,k]
+
+                 #   print(selectp)
+                 #   print(j)
+                #    print(self.p_n[1][32,])
+                 #   print(self.P_list[1][:,parent])
+
+                    selectp=selectp/sum(selectp)
+                    self.sites[index,j]=np.random.choice(range(16), 1, p=selectp)[0]
+
+
 # "iid_observations" means sequence information," variables" indicate paralog statue,"node" indicate node state
 
 
@@ -566,7 +698,8 @@ class AncestralState:
 
         else:
             if self.sites is None:
-                self.get_maxpro_index(False)
+                self.jointly_common_ancstral_inference()
+
 
             ini = self.sites[node_i,]
             end = self.sites[node_e,]
@@ -1205,7 +1338,7 @@ class AncestralState:
 
             else:
                 for kk in range(times):
-                    self.get_maxpro_index(True)
+                    self.jointly_common_ancstral_inference()
                     print(kk)
                     ttt=len(self.scene['tree']["column_nodes"])
                     if kk==0:
@@ -1837,20 +1970,20 @@ class AncestralState:
 if __name__ == '__main__':
 
 
-    paralog = ['EDN', 'ECP']
-    alignment_file = '../test/EDN_ECP_Cleaned.fasta'
-    newicktree = '../test/EDN_ECP_tree.newick'
+   # paralog = ['EDN', 'ECP']
+  #  alignment_file = '../test/EDN_ECP_Cleaned.fasta'
+  #  newicktree = '../test/EDN_ECP_tree.newick'
 
-   # paralog = ['paralog0', 'paralog1']
-   # alignment_file = '../test/tau99.fasta'
-   # newicktree = '../test/sample1.newick'
+    paralog = ['paralog0', 'paralog1']
+    alignment_file = '../test/tau99.fasta'
+    newicktree = '../test/sample1.newick'
   #  Force ={0:np.exp(-0.71464127), 1:np.exp(-0.55541915), 2:np.exp(-0.68806275),3: np.exp( 0.74691342),4: np.exp( -0.5045814)}
 
     Force= None
     model = 'HKY'
 
-   # name = 'tau04_9999'
-    name='EDN_ECP_full'
+    name = 'tau04_9999'
+   # name='EDN_ECP_full'
 
     type='situation1'
     save_name = '../test/save/' + model + name+'_'+type+'_nonclock_save1.txt'
@@ -1868,9 +2001,12 @@ if __name__ == '__main__':
     self.remake_matrix()
    # print(self.making_Qmatrix()[0])
   #  print(self.tau)
-    print(self.get_interior_node())
-    self.judge_state_children()
-    self.orginal_Q()
+   # print(self.get_interior_node())
+  #  self.judge_state_children()
+   # self.orginal_Q()
+#    print(self.making_possibility_internal())
+   # print(self.jointly_common_ancstral_inference())
+
 
   #  self.change_t_Q(tau=0.6)
  #   aaa=self.topo(sizen=sizen)
@@ -1882,7 +2018,7 @@ if __name__ == '__main__':
 ## method "simple" is default method， which focus on quail from post dis
 ## method "divide" is using the biggest difference among paralogs, and make category
 
-   # print(self.get_igcr_pad(times=150, repeat=50,ifpermutation=True,ifwholetree=True,ifsave=True,method="divide"))
+    print(self.get_igcr_pad(times=20, repeat=1,ifpermutation=False,ifwholetree=True,ifsave=True,method="divide"))
     # print(self.make_ie(0,1))
 
     #print(self.get_igcr_pad(times=10, repeat=1, ifpermutation=False, ifwholetree=True, ifsave=True, method="divide"))
