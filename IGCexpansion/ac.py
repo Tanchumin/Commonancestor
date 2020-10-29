@@ -17,6 +17,8 @@ from scipy import linalg
 
 from IGCexpansion.CodonGeneconFunc import isNonsynonymous
 import pickle
+import json
+import numpy.core.multiarray
 
 
 def get_maxpro(list, nodecom):
@@ -366,10 +368,9 @@ class AncestralState:
 
         self.judge=judge
 
-        self.get_scene()
-        scene=self.scene
+       # self.get_scene()
+      #  scene=self.scene
       #  print(scene['process_definitions'])
-
 
     def orginal_Q(selfs):
         if self.Q is None:
@@ -1223,7 +1224,7 @@ class AncestralState:
 
 
 
-    def monte_carol(self,t=0.1,times=1,repeat=1,ifwholetree=False,ifpermutation=True,ifsave=True,
+    def monte_carol(self,t=0.1,times=1,repeat=1,ifwholetree=False,ifpermutation=True,ifsave=False,
                    ):
         global re1
 
@@ -1893,13 +1894,13 @@ class AncestralState:
             #print(Q)
             for i in range(4):
                 Q[i,] =self.geneconv.pi*Q[i,]*sizen
-                print(sum(site1[i,]))
+               # print(sum(site1[i,]))
 
             #print(Q)
 
 
-        print(site1)
-        print(site)
+      #  print(site1)
+      #  print(site)
 
 
     ##### topology is pretty simple
@@ -1937,7 +1938,11 @@ class AncestralState:
 
                     end1[ll]=curent_state
 
-
+        # append ini
+            list1=[]
+            list1.append(ini)
+            mm=np.ones(shape=(4, sizen))
+            mm[0,:]=ini
 
         for i in range(leafnode):
 
@@ -1946,13 +1951,29 @@ class AncestralState:
                 list.append(leaf)
 
             else:
+                # ini is internal node
                 ini = self.GLS_si(ini=ini, sizen=sizen)[1]
                 leaf = self.GLS_si(ini=ini, sizen=sizen)[1]
                 list.append(leaf)
+                list1.append(ini)
+                mm[i+1, :] = ini
 
-
+        # append outgroup
         list.append(end1)
 
+        save_nameP = '../test/savesample/RRR_Internal_' +  geneconv.paralog[0] + geneconv.paralog[
+            1] + 'sample.txt'
+
+        print(111111111111111111111111111)
+        mm=np.array(mm,order="F")
+        print(mm)
+        print(np.isfortran(mm))
+        mm.tofile("../test/savesample/sssss.txt")
+
+        np.save(save_nameP,mm)
+
+      #  with open(save_nameP, 'wb') as f:
+        #    pickle.dump(mm, f)
 
 
         return list
@@ -1970,20 +1991,20 @@ class AncestralState:
 if __name__ == '__main__':
 
 
-   # paralog = ['EDN', 'ECP']
-  #  alignment_file = '../test/EDN_ECP_Cleaned.fasta'
-  #  newicktree = '../test/EDN_ECP_tree.newick'
+    paralog = ['EDN', 'ECP']
+    alignment_file = '../test/EDN_ECP_Cleaned.fasta'
+    newicktree = '../test/EDN_ECP_tree.newick'
 
-    paralog = ['paralog0', 'paralog1']
-    alignment_file = '../test/tau99.fasta'
-    newicktree = '../test/sample1.newick'
+ #   paralog = ['paralog0', 'paralog1']
+ #   alignment_file = '../test/tau99.fasta'
+   # newicktree = '../test/sample1.newick'
   #  Force ={0:np.exp(-0.71464127), 1:np.exp(-0.55541915), 2:np.exp(-0.68806275),3: np.exp( 0.74691342),4: np.exp( -0.5045814)}
 
     Force= None
     model = 'HKY'
 
-    name = 'tau04_9999'
-   # name='EDN_ECP_full'
+   # name = 'tau04_9999'
+    name='EDN_ECP_full'
 
     type='situation1'
     save_name = '../test/save/' + model + name+'_'+type+'_nonclock_save1.txt'
@@ -1997,7 +2018,7 @@ if __name__ == '__main__':
 
 
     #print(self.make_ini())
-    sizen=999
+    sizen=666
     self.remake_matrix()
    # print(self.making_Qmatrix()[0])
   #  print(self.tau)
@@ -2008,17 +2029,17 @@ if __name__ == '__main__':
    # print(self.jointly_common_ancstral_inference())
 
 
-  #  self.change_t_Q(tau=0.6)
- #   aaa=self.topo(sizen=sizen)
-  #  self.difference(ini=aaa,sizen=sizen)
-  #  print(self.trans_into_seq(ini=aaa,sizen=sizen))
+    self.change_t_Q(tau=0.0000001)
+    aaa=self.topo(sizen=sizen)
+    self.difference(ini=aaa,sizen=sizen)
+    print(self.trans_into_seq(ini=aaa,sizen=sizen))
 
 
 
 ## method "simple" is default method， which focus on quail from post dis
 ## method "divide" is using the biggest difference among paralogs, and make category
 
-    print(self.get_igcr_pad(times=20, repeat=1,ifpermutation=False,ifwholetree=True,ifsave=True,method="divide"))
+   # print(self.get_igcr_pad(times=20, repeat=1,ifpermutation=False,ifwholetree=True,ifsave=True,method="divide"))
     # print(self.make_ie(0,1))
 
     #print(self.get_igcr_pad(times=10, repeat=1, ifpermutation=False, ifwholetree=True, ifsave=True, method="divide"))
