@@ -2,12 +2,15 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="a9952ef3-53b5-4976-ba05-bb25560d8c3b" name="Default Changelist" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/encodings.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/encodings.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/IGCexpansion/ac.py" beforeDir="false" afterPath="$PROJECT_DIR$/IGCexpansion/ac.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/test/save/HKYEDN_ECP_full_situation1_nonclock_save1.txt" beforeDir="false" afterPath="$PROJECT_DIR$/test/save/HKYEDN_ECP_full_situation1_nonclock_save1.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/test/savesample/Ind_HKYparalog0paralog1sample.txt" beforeDir="false" afterPath="$PROJECT_DIR$/test/savesample/Ind_HKYparalog0paralog1sample.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/test/savesample/Ind_re_HKYEDNECPsample.txt" beforeDir="false" afterPath="$PROJECT_DIR$/test/savesample/Ind_re_HKYEDNECPsample.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/save/HKYtau04_9999_situation1_nonclock_save1.txt" beforeDir="false" afterPath="$PROJECT_DIR$/test/save/HKYtau04_9999_situation1_nonclock_save1.txt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/test/savesample/Ind_re_HKYparalog0paralog1sample.txt" beforeDir="false" afterPath="$PROJECT_DIR$/test/savesample/Ind_re_HKYparalog0paralog1sample.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/savesample/RRR_Internal_EDNECPsample.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/savesample/sample1.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/savesample/sssss.txt" beforeDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -23,11 +26,45 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/IGCexpansion/ac.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="257">
-              <caret line="1970" column="30" lean-forward="true" selection-start-line="1970" selection-start-column="30" selection-end-line="1970" selection-end-column="30" />
+            <state relative-caret-position="366">
+              <caret line="2107" column="26" lean-forward="true" selection-start-line="2107" selection-start-column="26" selection-end-line="2107" selection-end-column="26" />
               <folding>
                 <element signature="e#210#247#0" expanded="true" />
+                <element signature="e#2580#3967#0" />
+                <element signature="e#4014#4671#0" />
+                <element signature="e#4730#5450#0" />
+                <element signature="e#5504#6833#0" />
+                <element signature="e#6906#8236#0" />
+                <element signature="e#8307#9215#0" />
+                <element signature="e#9248#9457#0" />
+                <element signature="e#9500#9919#0" />
+                <element signature="e#9960#10077#0" />
+                <element signature="e#10132#12231#0" />
+                <element signature="e#12275#12726#0" />
+                <element signature="e#12772#13443#0" />
+                <element signature="e#13577#14354#0" />
+                <element signature="e#14469#19151#0" />
+                <element signature="e#19212#21732#0" />
+                <element signature="e#21834#22315#0" />
+                <element signature="e#23000#25689#0" />
+                <element signature="e#25796#26791#0" />
+                <element signature="e#26845#29864#0" />
+                <element signature="e#29932#37811#0" />
+                <element signature="e#37935#39873#0" />
+                <element signature="e#40102#44454#0" />
+                <element signature="e#44545#46258#0" />
+                <element signature="e#46391#56152#0" />
+                <element signature="e#58395#61376#0" />
               </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file:///usr/local/lib/python3.7/site-packages/numpy/__init__.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="3150">
+              <caret line="214" selection-start-line="214" selection-end-line="214" />
             </state>
           </provider>
         </entry>
@@ -78,7 +115,7 @@
       </list>
     </option>
   </component>
-  <component name="ProjectFrameBounds" extendedState="1">
+  <component name="ProjectFrameBounds">
     <option name="y" value="23" />
     <option name="width" value="1440" />
     <option name="height" value="821" />
@@ -323,7 +360,7 @@
     </todo-panel>
   </component>
   <component name="ToolWindowManager">
-    <frame x="0" y="23" width="1440" height="821" extended-state="1" />
+    <frame x="0" y="23" width="1440" height="821" extended-state="0" />
     <editor active="true" />
     <layout>
       <window_info content_ui="combo" id="Project" order="0" sideWeight="0.49785408" visible="true" weight="0.17829457" />
@@ -331,7 +368,7 @@
       <window_info id="Favorites" order="2" sideWeight="0.50214595" side_tool="true" weight="0.24945612" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Find" order="1" />
-      <window_info active="true" anchor="bottom" id="Run" order="2" visible="true" weight="0.39369" />
+      <window_info active="true" anchor="bottom" id="Run" order="2" visible="true" weight="0.34293553" />
       <window_info anchor="bottom" id="Debug" order="3" weight="0.3626506" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
@@ -374,16 +411,13 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/IGCexpansion/ac.py</url>
-          <line>2041</line>
-          <option name="timeStamp" value="5" />
+          <line>1784</line>
+          <option name="timeStamp" value="3" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/summary/MG94_YYYYYY_situation182_EDN_ECP_nonclock_sitewise_lnL_summary.txt" />
-    <entry file="file://$PROJECT_DIR$/summary/Force_MG94_YYYYYY_situation182_EDN_ECP_nonclock_summary.txt" />
-    <entry file="file://$PROJECT_DIR$/summary/Force_MG94_YYYYYY_situation82_EDN_ECP_nonclock_summary.txt" />
     <entry file="file://$PROJECT_DIR$/test/save/MG94_YYYYYY_situation82_nonclock_save.txt" />
     <entry file="file://$PROJECT_DIR$/test/save/MG94YYYYYY_situation182_nonclock_save.txt" />
     <entry file="file://$PROJECT_DIR$/summary/Force_MG94_YYYYYY_situation182_EDN_ECP_nonclock_sitewise_summary.txt" />
@@ -564,13 +598,49 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/test/savesample/RRR_Internal_EDNECPsample.txt.npy">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/test/savesample/sssss.txt" />
     <entry file="file://$PROJECT_DIR$/IGCexpansion/ac.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="257">
-          <caret line="1970" column="30" lean-forward="true" selection-start-line="1970" selection-start-column="30" selection-end-line="1970" selection-end-column="30" />
+        <state relative-caret-position="366">
+          <caret line="2107" column="26" lean-forward="true" selection-start-line="2107" selection-start-column="26" selection-end-line="2107" selection-end-column="26" />
           <folding>
             <element signature="e#210#247#0" expanded="true" />
+            <element signature="e#2580#3967#0" />
+            <element signature="e#4014#4671#0" />
+            <element signature="e#4730#5450#0" />
+            <element signature="e#5504#6833#0" />
+            <element signature="e#6906#8236#0" />
+            <element signature="e#8307#9215#0" />
+            <element signature="e#9248#9457#0" />
+            <element signature="e#9500#9919#0" />
+            <element signature="e#9960#10077#0" />
+            <element signature="e#10132#12231#0" />
+            <element signature="e#12275#12726#0" />
+            <element signature="e#12772#13443#0" />
+            <element signature="e#13577#14354#0" />
+            <element signature="e#14469#19151#0" />
+            <element signature="e#19212#21732#0" />
+            <element signature="e#21834#22315#0" />
+            <element signature="e#23000#25689#0" />
+            <element signature="e#25796#26791#0" />
+            <element signature="e#26845#29864#0" />
+            <element signature="e#29932#37811#0" />
+            <element signature="e#37935#39873#0" />
+            <element signature="e#40102#44454#0" />
+            <element signature="e#44545#46258#0" />
+            <element signature="e#46391#56152#0" />
+            <element signature="e#58395#61376#0" />
           </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file:///usr/local/lib/python3.7/site-packages/numpy/__init__.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="3150">
+          <caret line="214" selection-start-line="214" selection-end-line="214" />
         </state>
       </provider>
     </entry>

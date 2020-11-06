@@ -79,6 +79,8 @@ class AncestralState:
         self.P_list= None
         self.Q_orginal=None
 
+        self.ifmax=True
+
     def get_mle(self):
         self.geneconv.get_mle()
 
@@ -91,7 +93,7 @@ class AncestralState:
     def get_dict_trans(self):
         return self.geneconv.get_dict_trans()
 
-    def get_ancestral_state_response(self,iffix=False):
+    def get_ancestral_state_response(self,iffix=True):
         self.get_scene()
 
         if iffix==True:
@@ -165,12 +167,12 @@ class AncestralState:
             node_state_prob_dict[self.num_to_node[node_num]] =state_prob_dict
         return node_state_prob_dict
 
-    def get_maxpro_index(self, ifmarginal=False, paralog=1):
+    def get_maxpro_index(self, paralog=1):
 
         if self.ancestral_state_response is None:
             self.ancestral_state_response = self.get_ancestral_state_response()
 
-        if ifmarginal == False:
+        if self.ifmax == False:
             self.node_length=len(self.get_num_to_node())
             sites = np.zeros(shape=(self.node_length,self.sites_length ))
             for site in range(self.sites_length):
@@ -182,23 +184,17 @@ class AncestralState:
             self.sites=sites
 
         else:
-            if paralog==1:
-                self.node_length = len(self.get_num_to_node())
-                sites = np.zeros(shape=(self.node_length, self.sites_length))
+            self.node_length=len(self.get_num_to_node())
+            sites = np.zeros(shape=(self.node_length,self.sites_length ))
+            for site in range(self.sites_length):
                 for node in range(self.node_length):
-                    mat=self.get_marginal(node)
-                    for site in range(self.sites_length):
-                        sites[node][site] = np.argmax(np.array(mat)[site,:])
-                self.sites1 = sites
+                    if self.Model=="HKY":
+                        # print(np.array(self.ancestral_state_response[site])[:, node])
+                         sites[node][site] =np.argmax(np.array(self.ancestral_state_response[site])[:, node])
+                        # print(sites[node][site])
+            self.sites=sites
 
-            else:
-                self.node_length = len(self.get_num_to_node())
-                sites = np.zeros(shape=(self.node_length, self.sites_length))
-                for node in range(self.node_length):
-                    mat=self.get_marginal(node,paralog)
-                    for site in range(self.sites_length):
-                        sites[node][site] = np.argmax(np.array(mat)[site,:])
-                self.sites2 = sites
+
 
         return (sites)
 
@@ -396,6 +392,9 @@ class AncestralState:
                     index=int(self.dic_col[i,j]-1)
                     self.Q_orginal[i,index]=self.Q[i,j]
 
+            for k in  range(61):
+                self.Q_orginal[k, k]=-sum(self.Q_orginal[k,])
+
     # making matrices to store possibility for internal node
     def making_possibility_internal(self):
 
@@ -420,6 +419,11 @@ class AncestralState:
 
        # print(P_list)
 
+        if self.Model=="HKY":
+            statenumber=16
+        else:
+            statenumber=61
+
         p_n=[]
         for i in range(len(self.judge)):
             p_n.append(0)
@@ -440,13 +444,13 @@ class AncestralState:
                     right= self.geneconv.node_to_num[geneconv.edge_list[j+1][1]]
                     tree_to[1,len(self.judge)-i-1]=left
                     tree_to[2,len(self.judge)-i-1]=right
-                    p_node = np.zeros(shape=(self.sites_length, 16))
+                    p_node = np.zeros(shape=(self.sites_length, statenumber))
 
                     if(state==0):
                         for kk in range(self.sites_length):
                             leftpoint=int(self.sites[left,kk])
                             rightpoint=int(self.sites[right,kk])
-                            for kkk in range(16):
+                            for kkk in range(statenumber):
                                  p_node[kk,kkk]=P_list[j+1][kkk,rightpoint]*P_list[j][kkk,leftpoint]
 
                         p_n[len(self.judge)-i-1]=p_node
@@ -458,9 +462,9 @@ class AncestralState:
                         for kk in range(self.sites_length):
                             leftpoint = int(self.sites[left, kk])
                             rightpoint=rightm[kk,]
-                            for kkk in range(16):
+                            for kkk in range(statenumber):
                                 p1=0
-                                for kkkk in range(16):
+                                for kkkk in range(statenumber):
                                     p1=P_list[j+1][kkk,kkkk]*rightpoint[kkkk]+p1
                                 p_node[kk, kkk] = p1* P_list[j][kkk,leftpoint]
                         p_n[len(self.judge) - i-1] = p_node
@@ -474,9 +478,9 @@ class AncestralState:
                         for kk in range(self.sites_length):
                             rightpoint = int(self.sites[right, kk])
                             leftpoint=leftm[kk,]
-                            for kkk in range(16):
+                            for kkk in range(statenumber):
                                 p1=0
-                                for kkkk in range(16):
+                                for kkkk in range(statenumber):
                                     p1=P_list[j][kkk,kkkk]*leftpoint[kkkk]+p1
                                 p_node[kk, kkk] = p1* P_list[j+1][kkk,rightpoint]
                         p_n[len(self.judge) - i-1] = p_node
@@ -490,10 +494,10 @@ class AncestralState:
                         for kk in range(self.sites_length):
                             leftpoint=leftm[kk,]
                             rightpoint = rightm[kk,]
-                            for kkk in range(16):
+                            for kkk in range(statenumber):
                                 p1=0
                                 p2=0
-                                for kkkk in range(16):
+                                for kkkk in range(statenumber):
                                     p1=P_list[j][kkk,kkkk]*leftpoint[kkkk]+p1
                                     p2 = P_list[j+1][kkk, kkkk] * rightpoint[kkkk] + p2
                                 p_node[kk, kkk] = p1* p2
@@ -506,7 +510,7 @@ class AncestralState:
 
 
 
-    def jointly_common_ancstral_inference(selfs):
+    def jointly_common_ancstral_inference(self):
         if self.P_list is None:
             self.making_possibility_internal()
 
@@ -514,6 +518,10 @@ class AncestralState:
         internal_node = self.get_interior_node()
         index=1
         j=0
+
+        mm = np.ones(shape=(4, self.sites_length))
+
+
 
         while index < len(internal_node):
             if (self.geneconv.node_to_num[geneconv.edge_list[j][1]]==internal_node[index]):
@@ -540,7 +548,94 @@ class AncestralState:
                     self.sites[index,j]=np.random.choice(range(16), 1, p=selectp)[0]
 
 
-# "iid_observations" means sequence information," variables" indicate paralog statue,"node" indicate node state
+        if self.ifmax==True:
+            for i in range(tree_len):
+                if (i > 0 and i in set(internal_node)):
+                    index = internal_node.index(i)
+                    for j in range(self.sites_length):
+                        selectp = np.ones(16)
+                        parent = int(self.tree_to[0, index])
+                        parent = int(self.sites[parent, j])
+                        for k in range(16):
+                            selectp[k] = self.P_list[index][k, parent] * self.p_n[index][j, k]
+
+                        #   print(selectp)
+                        #   print(j)
+                        #    print(self.p_n[1][32,])
+                        #   print(self.P_list[1][:,parent])
+
+                        selectp = selectp / sum(selectp)
+                        self.sites[index, j] = np.argmax(selectp)
+
+        for ii in range(4):
+            mm[ii, :] =self.sites[int(internal_node[ii]),:]
+
+        save_nameP = '../test/savesample/SSSS_Internal_' +  geneconv.paralog[0] + geneconv.paralog[
+            1] + 'sample.txt'
+
+        np.savetxt(save_nameP,mm)
+        # "iid_observations" means sequence information," variables" indicate paralog statue,"node" indicate node state
+
+    def test_pro(self,node=1,sites=1,to=[1,2,3],leaf=[4,6,7,8]):
+
+        if self.P_list is None:
+            self.making_possibility_internal()
+
+        tree_len = len(self.scene['tree']["column_nodes"])
+        internal_node = self.get_interior_node()
+        index=1
+        j=0
+
+
+        while index < len(internal_node):
+            if (self.geneconv.node_to_num[geneconv.edge_list[j][1]]==internal_node[index]):
+                self.tree_to[0,index]=self.geneconv.node_to_num[geneconv.edge_list[j][0]]
+                index=index+1
+            j=j+1
+
+        for i in  range(tree_len):
+            if(i== node):
+                index=internal_node.index(i)
+                j=sites
+                selectp=np.ones(16)
+                for k in range(16):
+                    selectp[k]=self.p_n[index][j,k]
+                selectp = selectp / sum(selectp)
+
+        list=[]
+        for j in range(len(to)):
+            time=0.2
+            Q=linalg.expm(self.Q_orginal * time*to[j])
+
+            list.append(Q)
+
+        nodesite=np.ones(16)
+        for j in range(len(leaf)):
+            leafsite=self.sites[leaf[j],sites]
+            if(j <=1):
+                for k in range(16):
+                     nodesite[k]=list[j][k,int(leafsite)]*nodesite[k]
+
+
+            else:
+                for k in range(16):
+                     nodesite[k]=list[2][k,int(leafsite)]*nodesite[k]
+
+        nodesite = nodesite/sum(nodesite)
+
+
+        print(nodesite-selectp)
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1964,13 +2059,9 @@ class AncestralState:
         save_nameP = '../test/savesample/RRR_Internal_' +  geneconv.paralog[0] + geneconv.paralog[
             1] + 'sample.txt'
 
-        print(111111111111111111111111111)
-        mm=np.array(mm,order="F")
-        print(mm)
-        print(np.isfortran(mm))
-        mm.tofile("../test/savesample/sssss.txt")
 
-        np.save(save_nameP,mm)
+        mm=np.array(mm,order="F")
+        np.savetxt(save_nameP,mm)
 
       #  with open(save_nameP, 'wb') as f:
         #    pickle.dump(mm, f)
@@ -1991,20 +2082,20 @@ class AncestralState:
 if __name__ == '__main__':
 
 
-    paralog = ['EDN', 'ECP']
-    alignment_file = '../test/EDN_ECP_Cleaned.fasta'
-    newicktree = '../test/EDN_ECP_tree.newick'
+  #  paralog = ['EDN', 'ECP']
+  #  alignment_file = '../test/EDN_ECP_Cleaned.fasta'
+  #  newicktree = '../test/EDN_ECP_tree.newick'
 
- #   paralog = ['paralog0', 'paralog1']
- #   alignment_file = '../test/tau99.fasta'
-   # newicktree = '../test/sample1.newick'
+    paralog = ['paralog0', 'paralog1']
+    alignment_file = '../test/tau99.fasta'
+    newicktree = '../test/sample1.newick'
   #  Force ={0:np.exp(-0.71464127), 1:np.exp(-0.55541915), 2:np.exp(-0.68806275),3: np.exp( 0.74691342),4: np.exp( -0.5045814)}
 
     Force= None
     model = 'HKY'
 
-   # name = 'tau04_9999'
-    name='EDN_ECP_full'
+    name = 'tau04_9999'
+   # name='EDN_ECP_full'
 
     type='situation1'
     save_name = '../test/save/' + model + name+'_'+type+'_nonclock_save1.txt'
@@ -2013,13 +2104,15 @@ if __name__ == '__main__':
 
     self = AncestralState(geneconv)
     scene = self.get_scene()
+
+    self.test_pro(sites=11)
     #print(self.geneconv.edge_to_blen)
     #print(np.exp(self.geneconv.x_rates))
 
 
     #print(self.make_ini())
-    sizen=666
-    self.remake_matrix()
+  #  sizen=6666
+ #   self.remake_matrix()
    # print(self.making_Qmatrix()[0])
   #  print(self.tau)
    # print(self.get_interior_node())
@@ -2029,11 +2122,11 @@ if __name__ == '__main__':
    # print(self.jointly_common_ancstral_inference())
 
 
-    self.change_t_Q(tau=0.0000001)
-    aaa=self.topo(sizen=sizen)
-    self.difference(ini=aaa,sizen=sizen)
-    print(self.trans_into_seq(ini=aaa,sizen=sizen))
-
+   # self.change_t_Q(tau=0.0000001)
+   # aaa=self.topo(sizen=sizen)
+   # self.difference(ini=aaa,sizen=sizen)
+   # print(self.trans_into_seq(ini=aaa,sizen=sizen))
+    #self.jointly_common_ancstral_inference()
 
 
 ## method "simple" is default method， which focus on quail from post dis
@@ -2042,7 +2135,7 @@ if __name__ == '__main__':
    # print(self.get_igcr_pad(times=20, repeat=1,ifpermutation=False,ifwholetree=True,ifsave=True,method="divide"))
     # print(self.make_ie(0,1))
 
-    #print(self.get_igcr_pad(times=10, repeat=1, ifpermutation=False, ifwholetree=True, ifsave=True, method="divide"))
+  #  print(self.get_igcr_pad(times=10, repeat=1, ifpermutation=False, ifwholetree=True, ifsave=False, method="divide"))
     #print(self.Q)
    # print(self.get_parameter(function="linear"))
   #  print(self.tau)
