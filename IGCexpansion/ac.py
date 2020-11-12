@@ -413,9 +413,15 @@ class AncestralState:
         P_list = []
         tree_len=len(self.scene['tree']["column_nodes"])
         for i in range(tree_len):
-            time=self.scene['tree']["edge_rate_scaling_factors"][i]
-            Q=linalg.expm(self.Q_orginal * time)
-            P_list.append(Q)
+            if i==1:
+                time = self.scene['tree']["edge_rate_scaling_factors"][i]
+                Q1 = geneconv.get_HKYBasic()
+                Q=linalg.expm(Q1 * time)
+                P_list.append(Q)
+            else:
+                time=self.scene['tree']["edge_rate_scaling_factors"][i]
+                Q=linalg.expm(self.Q_orginal * time)
+                P_list.append(Q)
 
        # print(P_list)
 
@@ -427,6 +433,8 @@ class AncestralState:
         p_n=[]
         for i in range(len(self.judge)):
             p_n.append(0)
+
+
 
         tree_to=np.zeros(shape=(3, len(self.judge)))
 
@@ -518,18 +526,23 @@ class AncestralState:
         internal_node = self.get_interior_node()
         index=1
         j=0
+        print(internal_node)
 
         mm = np.ones(shape=(4, self.sites_length))
 
 
-
+# try to find parent of internal node
         while index < len(internal_node):
             if (self.geneconv.node_to_num[geneconv.edge_list[j][1]]==internal_node[index]):
                 self.tree_to[0,index]=self.geneconv.node_to_num[geneconv.edge_list[j][0]]
                 index=index+1
             j=j+1
 
-        for i in  range(tree_len):
+
+       # print(self.tree_to)
+
+
+        for i in range(tree_len):
             if(i>0 and i in set(internal_node)):
                 index=internal_node.index(i)
                 for j in range(self.sites_length):
@@ -537,7 +550,7 @@ class AncestralState:
                     parent = int(self.tree_to[0, index])
                     parent=int(self.sites[parent,j])
                     for k in range(16):
-                        selectp[k]=self.P_list[index][k,parent]*self.p_n[index][j,k]
+                        selectp[k]=self.P_list[i-1][k,parent]*self.p_n[index][j,k]
 
                  #   print(selectp)
                  #   print(j)
@@ -557,7 +570,7 @@ class AncestralState:
                         parent = int(self.tree_to[0, index])
                         parent = int(self.sites[parent, j])
                         for k in range(16):
-                            selectp[k] = self.P_list[index][k, parent] * self.p_n[index][j, k]
+                            selectp[k] = self.P_list[i-1][k, parent] * self.p_n[index][j, k]
 
                         #   print(selectp)
                         #   print(j)
@@ -585,6 +598,8 @@ class AncestralState:
         internal_node = self.get_interior_node()
         index=1
         j=0
+
+        print(internal_node)
 
 
         while index < len(internal_node):
@@ -626,19 +641,79 @@ class AncestralState:
 
         print(nodesite-selectp)
 
+### p(internal,oberserve)|likelihood
+
+    def test_pro1(self,node_s=[0,1,1,1],site_s=1):
+
+        if self.P_list is None:
+            self.making_possibility_internal()
 
 
+        self.jointly_common_ancstral_inference()
+
+        tree_len = len(self.scene['tree']["column_nodes"])
+        internal_node = self.get_interior_node()
+
+        sites_new=self.sites
+
+        for i in  range(4):
+            sites_new[internal_node[i]][site_s]=node_s[i]
+
+        p=1
+
+        for j in range(tree_len):
+
+            if   j==1:
+                ini2 = self.geneconv.node_to_num[geneconv.edge_list[j][0]]
+                end2 = self.geneconv.node_to_num[geneconv.edge_list[j][1]]
+
+                ini1=int(sites_new[ini2][site_s]//4)
+                end1 = int(sites_new[end2][site_s]//4)
+
+                p=p*self.P_list[j][ini1,end1]
+
+            else:
+                ini2 = self.geneconv.node_to_num[geneconv.edge_list[j][0]]
+                end2 = self.geneconv.node_to_num[geneconv.edge_list[j][1]]
+
+                ini1 = int(sites_new[ini2][site_s])
+                end1 = int(sites_new[end2][site_s])
+
+                p = p * self.P_list[j][ini1, end1]
+
+        print("p basing on given internal :")
+        print(p)
 
 
+        index=1
+        j=0
+        p1=1
 
 
+        while index < len(internal_node):
+            if (self.geneconv.node_to_num[geneconv.edge_list[j][1]]==internal_node[index]):
+                self.tree_to[0,index]=self.geneconv.node_to_num[geneconv.edge_list[j][0]]
+                index=index+1
+            j=j+1
 
+        for i in  range(tree_len):
+            if(i>0 and i in set(internal_node)):
+                index=internal_node.index(i)
+                selectp=np.ones(16)
+                parent = int(self.tree_to[0, index])
+                parent=int(self.sites[parent,site_s])
+                for k in range(16):
+                    selectp[k]=self.P_list[i-1][k,parent]*self.p_n[index][site_s,k]
 
+                selectp=selectp/sum(selectp)
+                p1=selectp[int(sites_new[i,site_s])] *p1
 
+# specific for root
+        print(p1)
+        p1=p1*np.array(self.ancestral_state_response[site_s])[:, 0][node_s[0]]
 
-
-
-
+        print("p basing on inference :")
+        print(p1)
 
 
 
@@ -2105,7 +2180,8 @@ if __name__ == '__main__':
     self = AncestralState(geneconv)
     scene = self.get_scene()
 
-    self.test_pro(sites=11)
+   # self.test_pro(sites=3)
+    self.test_pro1(node_s=[15, 15, 15, 15], site_s=1)
     #print(self.geneconv.edge_to_blen)
     #print(np.exp(self.geneconv.x_rates))
 
