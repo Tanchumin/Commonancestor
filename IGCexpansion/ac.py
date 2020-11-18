@@ -79,7 +79,7 @@ class AncestralState:
         self.P_list= None
         self.Q_orginal=None
 
-        self.ifmax=True
+        self.ifmax=False
 
     def get_mle(self):
         self.geneconv.get_mle()
@@ -511,7 +511,7 @@ class AncestralState:
                                 p_node[kk, kkk] = p1* p2
                         p_n[len(self.judge) - i-1] = p_node
 
-
+#P_list
         self.p_n=p_n
         self.P_list=P_list
         self.tree_to=tree_to
@@ -547,7 +547,7 @@ class AncestralState:
                 index=internal_node.index(i)
                 for j in range(self.sites_length):
                     selectp=np.ones(16)
-                    parent = int(self.tree_to[0, index])
+                    parent = int(self.tree_to[0, (index-1)])
                     parent=int(self.sites[parent,j])
                     for k in range(16):
                         selectp[k]=self.P_list[i-1][k,parent]*self.p_n[index][j,k]
@@ -567,15 +567,11 @@ class AncestralState:
                     index = internal_node.index(i)
                     for j in range(self.sites_length):
                         selectp = np.ones(16)
-                        parent = int(self.tree_to[0, index])
+                        parent = int(self.tree_to[0, index-1])
                         parent = int(self.sites[parent, j])
                         for k in range(16):
                             selectp[k] = self.P_list[i-1][k, parent] * self.p_n[index][j, k]
 
-                        #   print(selectp)
-                        #   print(j)
-                        #    print(self.p_n[1][32,])
-                        #   print(self.P_list[1][:,parent])
 
                         selectp = selectp / sum(selectp)
                         self.sites[index, j] = np.argmax(selectp)
@@ -588,6 +584,7 @@ class AncestralState:
 
         np.savetxt(save_nameP,mm)
         # "iid_observations" means sequence information," variables" indicate paralog statue,"node" indicate node state
+        ## variable [0,1,0,1,0,1,1]
 
     def test_pro(self,node=1,sites=1,to=[1,2,3],leaf=[4,6,7,8]):
 
@@ -2181,7 +2178,7 @@ if __name__ == '__main__':
     scene = self.get_scene()
 
    # self.test_pro(sites=3)
-    self.test_pro1(node_s=[15, 15, 15, 15], site_s=1)
+   # self.test_pro1(node_s=[15, 15, 15, 15], site_s=1)
     #print(self.geneconv.edge_to_blen)
     #print(np.exp(self.geneconv.x_rates))
 
@@ -2202,7 +2199,7 @@ if __name__ == '__main__':
    # aaa=self.topo(sizen=sizen)
    # self.difference(ini=aaa,sizen=sizen)
    # print(self.trans_into_seq(ini=aaa,sizen=sizen))
-    #self.jointly_common_ancstral_inference()
+    self.jointly_common_ancstral_inference()
 
 
 ## method "simple" is default method， which focus on quail from post dis
@@ -2211,7 +2208,7 @@ if __name__ == '__main__':
    # print(self.get_igcr_pad(times=20, repeat=1,ifpermutation=False,ifwholetree=True,ifsave=True,method="divide"))
     # print(self.make_ie(0,1))
 
-  #  print(self.get_igcr_pad(times=10, repeat=1, ifpermutation=False, ifwholetree=True, ifsave=False, method="divide"))
+    #print(self.get_igcr_pad(times=10, repeat=1, ifpermutation=False, ifwholetree=True, ifsave=False, method="divide"))
     #print(self.Q)
    # print(self.get_parameter(function="linear"))
   #  print(self.tau)
