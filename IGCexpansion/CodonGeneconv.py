@@ -19,7 +19,7 @@ import ast
 
 class ReCodonGeneconv:
     def __init__(self, tree_newick, alignment, paralog, Model = 'MG94', nnsites = None, clock = False, Force = None, save_path = './save/', save_name = None, post_dup = 'N1',
-                 tau=1,omega=0.9,kappa=0.1,inibl=0.1):
+                 tau=0.00000001,omega=0.9,kappa=1,inibl=0.1):
         self.newicktree  = tree_newick  # newick tree file loc
         self.seqloc      = alignment    # multiple sequence alignment, now need to remove gap before-hand
         self.paralog     = paralog      # parlaog list
@@ -179,7 +179,7 @@ class ReCodonGeneconv:
         elif self.Model == 'HKY':
             # x_process[] = %AG, %A, %C, kappa, tau
             self.omega = 1.0
-            self.x_process = np.log(np.array([count[0] + count[2], count[0] / (count[0] + count[2]), count[1] / (count[1] + count[3]),
+            self.x_process = np.log(np.array([0.5, 0.5, 0.5,
                                   self.kappa, self.tau]))
 
         self.x_rates = np.log(np.array([ 0.1 * self.edge_to_blen[edge] for edge in self.edge_to_blen.keys()]))
