@@ -134,17 +134,8 @@ class AncestralState:
                 raise RuntimeError('Failed at obtaining ancestral state distributions.')
         return result
 
-    def get_ancestral_state_response_x(self,iffix=False):
+    def get_ancestral_state_response_x(self):
         self.get_scene()
-
-        if iffix==True:
-
-
-            for i in range(len(self.scene['tree']["column_nodes"])):
-                if i ==1:
-                    self.scene['tree']["edge_rate_scaling_factors"][i]=0.4
-                else:
-                    self.scene['tree']["edge_rate_scaling_factors"][i]=0.2
 
         requests = [
             {'property': "ddnance"}
@@ -168,13 +159,13 @@ class AncestralState:
                 'scene': scene,
                 'requests': requests
             }
-            j_out = jsonctmctree.interface.process_json_in(j_in, debug = True, seed = 27606)
+            j_out = jsonctmctree.interface.process_json_in(j_in, debug = True)
             if j_out['status'] is 'feasible':
                 result = j_out['responses'][0]
             else:
                 raise RuntimeError('Failed at obtaining ancestral state distributions.')
 
-        print(result[1])
+
         return result
 
     def print_test(self):
@@ -810,16 +801,14 @@ class AncestralState:
         for i in  range(4):
             sites_new[internal_node[i]][site_s]=node_s[i]
 
-        p=1
-
-        j=site_s
         p1=0
-        sites_mc=np.array(self.sites[:,j])
-        sites_test=np.array(self.sites[:,j])
+
+        sites_test=np.array(self.get_ancestral_state_response_x()[site_s])
         for i in range(len(internal_node)):
             sites_test[internal_node[i]]=node_s[i]
         print(sites_test)
 
+        self.scene['observed_data']["iid_observations"]=[self.scene['observed_data']["iid_observations"][site_s]]
 
     #    print(np.array(self.ancestral_state_response[1])[:, 6])
 
@@ -827,7 +816,7 @@ class AncestralState:
         for mctimes in range(mc):
 
 
-            sites_mc=get_ancestral_state_response_x()[site_s]
+            sites_mc=self.get_ancestral_state_response_x()[0]
            #  print(mctimes)
             print(sites_mc)
             if((sites_mc==sites_test).all()):
@@ -2470,8 +2459,7 @@ if __name__ == '__main__':
    # print(self.sites)
 
 ########test common ancter wt
-    self.test_pro(sites=3)
-    self.test_pro1(node_s=[15, 15, 3, 3], site_s=1,mc=5000)
+    self.test_pro11(node_s=[0, 0, 0, 12], site_s=0,mc=5000)
     #print(self.geneconv.edge_to_blen)
     #print(np.exp(self.geneconv.x_rates))
 
