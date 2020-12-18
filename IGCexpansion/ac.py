@@ -134,6 +134,49 @@ class AncestralState:
                 raise RuntimeError('Failed at obtaining ancestral state distributions.')
         return result
 
+    def get_ancestral_state_response_x(self,iffix=False):
+        self.get_scene()
+
+        if iffix==True:
+
+
+            for i in range(len(self.scene['tree']["column_nodes"])):
+                if i ==1:
+                    self.scene['tree']["edge_rate_scaling_factors"][i]=0.4
+                else:
+                    self.scene['tree']["edge_rate_scaling_factors"][i]=0.2
+
+        requests = [
+            {'property': "ddnance"}
+        ]
+        # ref:https://jsonctmctree.readthedocs.io/en/latest/examples/yang2014/section_4_4_2_1_marginal/main.html
+        if isinstance(scene, list):  # ref: _loglikelihood() function in JSGeneconv.py
+            raise RuntimeError('Not yet tested.')
+            separate_j_out = []
+            for separate_scene in scene:
+                j_in = {
+                    'scene': separate_scene,
+                    "requests": requests
+
+                }
+                j_out = jsonctmctree.interface.process_json_in(j_in)
+                separate_j_out.append(j_out)
+            result = separate_j_out
+
+        else:
+            j_in = {
+                'scene': scene,
+                'requests': requests
+            }
+            j_out = jsonctmctree.interface.process_json_in(j_in, debug = True, seed = 27606)
+            if j_out['status'] is 'feasible':
+                result = j_out['responses'][0]
+            else:
+                raise RuntimeError('Failed at obtaining ancestral state distributions.')
+
+        print(result[1])
+        return result
+
     def print_test(self):
         if self.ancestral_state_response is None:
             self.ancestral_state_response = self.get_ancestral_state_response()
@@ -749,6 +792,50 @@ class AncestralState:
         j_out = jsonctmctree.interface.process_json_in(j_in)
 
         print(j_out)
+
+
+    def test_pro11(self,node_s=[0,1,1,1],site_s=1,mc=10):
+
+        if self.P_list is None:
+            self.making_possibility_internal()
+
+
+        self.jointly_common_ancstral_inference()
+
+        tree_len = len(self.scene['tree']["column_nodes"])
+        internal_node = self.get_interior_node()
+
+        sites_new=self.sites
+
+        for i in  range(4):
+            sites_new[internal_node[i]][site_s]=node_s[i]
+
+        p=1
+
+        j=site_s
+        p1=0
+        sites_mc=np.array(self.sites[:,j])
+        sites_test=np.array(self.sites[:,j])
+        for i in range(len(internal_node)):
+            sites_test[internal_node[i]]=node_s[i]
+        print(sites_test)
+
+
+    #    print(np.array(self.ancestral_state_response[1])[:, 6])
+
+
+        for mctimes in range(mc):
+
+
+            sites_mc=get_ancestral_state_response_x()[site_s]
+           #  print(mctimes)
+            print(sites_mc)
+            if((sites_mc==sites_test).all()):
+                 p1=p1+1
+
+        print(p1/mc)
+
+
 
 
 # help build dictionary for how difference of a paralog
@@ -1721,10 +1808,10 @@ class AncestralState:
 
 
     def monte_carol_s1(self,ifsave=True,times=1,
-                    iftestsimulation=True,sizen=9999):
+                    iftestsimulation=True,sizen=19998):
 
-        self.change_t_Q(tau=0.4)
-        self.tau=0.4
+        self.change_t_Q(tau=0.6)
+        self.tau=0.6
         self.sites_length=sizen
         aaa = self.topo1(sizen=sizen)
 
@@ -1823,7 +1910,7 @@ class AncestralState:
 
 
     def divide_Q(self, times, repeat,method="simple", ifwholetree=True,simple_state_number=5,ifpermutation=True,ifsave=True,
-                 ifsimulation=True):
+                 ifsimulation=False):
 
         if ifsimulation==True:
             re=self.monte_carol_s1(ifsave=ifsave,times=times)
@@ -2019,7 +2106,7 @@ class AncestralState:
 
             return (ini)
 
-    def GLS_si(self,t=0.2,ini =None,sizen=150):
+    def GLS_si(self,t=0.1,ini =None,sizen=150):
         if self.Q_new is None:
            self.making_Qg()
 
@@ -2212,7 +2299,7 @@ class AncestralState:
 
     ##### topology is pretty simple
 
-    def topo(self,leafnode=4,sizen=999,t=0.4):
+    def topo(self,leafnode=4,sizen=999,t=0.2):
         ini=self.make_ini(sizen=sizen)
         ini1=ini
 
@@ -2359,7 +2446,7 @@ if __name__ == '__main__':
   #  newicktree = '../test/EDN_ECP_tree.newick'
 
     paralog = ['paralog0', 'paralog1']
-    alignment_file = '../test/tau99.fasta'
+    alignment_file = '../test/tau99_04.fasta'
     newicktree = '../test/sample1.newick'
   #  Force ={0:np.exp(-0.71464127), 1:np.exp(-0.55541915), 2:np.exp(-0.68806275),3: np.exp( 0.74691342),4: np.exp( -0.5045814)}
     # %AG, % A, % C, kappa, tau
@@ -2368,7 +2455,7 @@ if __name__ == '__main__':
     model = 'HKY'
 
     name = 'tau04_9999'
- #   name='EDN_ECP_full'
+   # name='EDN_ECP_full'
 
     type='situation1'
     save_name = '../test/save/' + model + name+'_'+type+'_nonclock_save1.txt'
@@ -2378,11 +2465,16 @@ if __name__ == '__main__':
     self = AncestralState(geneconv)
     scene = self.get_scene()
 
+####### xiang
+  #  self.get_maxpro_index()
+   # print(self.sites)
+
 ########test common ancter wt
-   # self.test_pro(sites=3)
- #   self.test_pro1(node_s=[15, 15, 3, 3], site_s=1,mc=5000)
+    self.test_pro(sites=3)
+    self.test_pro1(node_s=[15, 15, 3, 3], site_s=1,mc=5000)
     #print(self.geneconv.edge_to_blen)
     #print(np.exp(self.geneconv.x_rates))
+
 
 
     #print(self.make_ini())
@@ -2396,11 +2488,11 @@ if __name__ == '__main__':
 
 ######generit simulation data
   ########
-
-   # self.change_t_Q(tau=0.0000001)
+  #  sizen=19998
+  #  self.change_t_Q(tau=0.4)
    # aaa=self.topo(sizen=sizen)
    # self.difference(ini=aaa,sizen=sizen)
-   # print(self.trans_into_seq(ini=aaa,sizen=sizen))
+  #  print(self.trans_into_seq(ini=aaa,sizen=sizen))
 
 ########test common ancter whether work
   ######
@@ -2410,12 +2502,10 @@ if __name__ == '__main__':
 ## method "simple" is default method， which focus on quail from post dis
 ## method "divide" is using the biggest difference among paralogs, and make category
 
-   # print(self.get_igcr_pad(times=20, repeat=1,ifpermutation=False,ifwholetree=True,ifsave=True,method="divide"))
-    # print(self.make_ie(0,1))
 ############################
 ################TEST
 ######################################
-    print(self.get_igcr_pad(times=10, repeat=1, ifpermutation=False, ifwholetree=True, ifsave=False, method="divide"))
+ #   print(self.get_igcr_pad(times=5, repeat=1, ifpermutation=False, ifwholetree=True, ifsave=False, method="divide"))
     #print(self.Q)
    # print(self.get_parameter(function="linear"))
   #  print(self.tau)
