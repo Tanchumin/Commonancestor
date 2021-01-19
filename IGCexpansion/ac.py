@@ -14,6 +14,8 @@ import numpy as np
 import pandas as pd
 from numpy import random
 from scipy import linalg
+import copy
+from scipy.stats import poisson
 
 from IGCexpansion.CodonGeneconFunc import isNonsynonymous
 import pickle
@@ -1108,9 +1110,7 @@ class AncestralState:
 
         Q_iiii = np.ones(di)
         for ii in range(di):
-            qii = sum(self.Q[ii, ])
-            if qii !=0:
-               Q_iiii[ii] = qii
+            Q_iiii[ii] = sum(self.Q[ii, ])
 
         max_number = 10
 
@@ -1154,7 +1154,7 @@ class AncestralState:
 
 
                         while current_state != end[ii]:
-                            current_state = ini[ii]
+                            current_state=ini[ii]
                             i = 1
                             time = [100]
                             state = [0]
@@ -1163,28 +1163,25 @@ class AncestralState:
                                        (Q_iiii[int(current_state)])
                             time.append(u)
                             a = np.random.choice(range(di1), 1, p=self.Q_new[int(current_state), ])[0]
-                            old = current_state
                             current_state = self.dic_col[int(current_state), a] - 1
 
                                     # if jump to absorbing state and without finishing process, we need to resample
 
-                            while sum(self.Q_new[int(current_state), ]) == 0:
-                                    a = np.random.choice(range(di1), 1, p=self.Q_new[int(old), ])[0]
-                                    current_state = self.dic_col[int(old), a] - 1
+                        #    while sum(self.Q_new[int(current_state), ]) == 0:
+                           #         a = np.random.choice(range(di1), 1, p=self.Q_new[int(old), ])[0]
+                           #         current_state = self.dic_col[int(old), a] - 1
                             state.append(int(current_state))
+
 
                             while u<=t:
                                     i=i+1
-                                    u1 = random.exponential(1/Q_iiii[int(current_state)])
-                                    u = u + u1
+                                    u = u +  random.exponential(1/Q_iiii[int(current_state)])
                                     time.append(u)
                                     a = np.random.choice(range(di1), 1, p=self.Q_new[int(current_state), ])[0]
-                                    old = current_state
                                     current_state = self.dic_col[int(current_state), a] - 1
-
                                     # if jump to absorbing state and without finishing process, we need to resample
-
                                     state.append(int(current_state))
+
                             current_state = state[i - 1]
 
 
@@ -1234,8 +1231,8 @@ class AncestralState:
                     while u<=t:
                         u1 = random.exponential(1/Q_iiii[int(current_state)])
                         u = u + u1
-                        i=i+1
                         if u<=t:
+                            i=i+1
                             time.append(u)
                             a = np.random.choice(range(di1), 1, p=self.Q_new[int(current_state),])[0]
                             current_state = self.dic_col[int(current_state), a] - 1
@@ -1794,8 +1791,7 @@ class AncestralState:
 
         return re1 , effect_number
 
-
-
+    #### this  is using to test the estimation of tau given real internal node
     def monte_carol_s1(self,ifsave=True,times=1,
                     iftestsimulation=True,sizen=19998):
 
@@ -1899,7 +1895,7 @@ class AncestralState:
 
 
     def divide_Q(self, times, repeat,method="simple", ifwholetree=True,simple_state_number=5,ifpermutation=True,ifsave=True,
-                 ifsimulation=False):
+                 ifsimulation=True):
 
         if ifsimulation==True:
             re=self.monte_carol_s1(ifsave=ifsave,times=times)
@@ -2420,6 +2416,188 @@ class AncestralState:
 
         return list
 
+    def gls_true(self,t=0.1):
+        p = [poisson.pmf(0, t), poisson.pmf(1, t), poisson.pmf(2, t), 1 - poisson.cdf(2, t)]
+        if self.Q_orginal is None:
+            self.orginal_Q()
+
+        print(self.Q_orginal)
+        P = linalg.expm(self.Q_orginal * t)
+        em=np.zeros(shape=(2, 4))
+
+        pnew=[(p[0]*p[0]),(p[1]*p[0]*2),(p[1]*p[1]+p[2]*p[0]*2)]
+
+
+        ### compute  the k=0
+        q1 = np.zeros(shape=(16, 16))
+        em[0,0]=q1[0,0]=pnew[0]/P[0, 0]
+
+        em[1,1]=pnew[1]/(1-P[1,1])
+
+        em[1,2]=(14/15)*pnew[2]/(1-P[1,1])
+        em[0, 2] = (1/15)/P[0, 0]
+
+        print(em)
+
+    def make_ini_testgls(self, sizen, half):
+        ini = np.ones(sizen)
+        z = np.ones(16)/16
+
+        sample = np.arange(0, 16, 1)
+
+        for i in range(sizen):
+            ini[i] = int(np.random.choice(sample, 1, p=(z))[0])
+
+        end = deepcopy(ini)
+        for i in range(half):
+            end[i] =copy.copy( int(np.random.choice(sample, 1, p=(z))[0]))
+
+            while int(end[i]) == int(ini[i]):
+                end[i] = int(np.random.choice(sample, 1, p=(z))[0])
+
+        return ini,end
+
+    def test_gls(self,sizen=10000,half=1000):
+       rr=self.make_ini_testgls(sizen=sizen,half=half)
+       ini=rr[0]
+       end=rr[1]
+
+       em=self.gls_true()
+
+       print(self.GLS_m_test(ini=ini,end=end,sizen=sizen))
+
+    def GLS_m_test(self, t=0.1, ini=None, end=None, sizen=40):
+        global di
+        global di1
+
+        di = 16
+        di1 = 9
+
+        #### making ini
+
+        if self.Q_new is None:
+            self.making_Qg()
+
+        Q_iiii = np.ones(di)
+        for ii in range(di):
+            Q_iiii[ii] = sum(self.Q[ii,])
+
+        em = np.zeros(shape=(2, 4))
+
+
+        time_list = []
+        state_list = []
+        dis_matrix = np.ones(sizen)
+
+        for i in range(sizen):
+            if ini[i] != end[i]:
+                time_list.append(0)
+                state_list.append(0)
+                dis_matrix[i] = 0
+            else:
+                time_list.append(1)
+                state_list.append(1)
+
+        # start simulation
+
+        for ii in range(sizen):
+
+            # time_list[ii] ==0 means there is a mutation, initial state not equal to  end state
+            # Q_iiii means a diagonal entries of rate matrix
+
+            if time_list[ii] == 0:
+                for jj in range(1):
+                    # most transfer 10 times
+                    current_state = ini[ii]
+                    i = 0
+
+                    while current_state != end[ii]:
+                        current_state = ini[ii]
+                        i = 1
+                        time = [100]
+                        state = [0]
+                        u1 = np.random.uniform(0, 1)
+                        u = -np.log((1 - (1 - np.exp(-Q_iiii[int(current_state)] * t)) * u1)) / \
+                            (Q_iiii[int(current_state)])
+                        time.append(u)
+                        a = np.random.choice(range(di1), 1, p=self.Q_new[int(current_state),])[0]
+                        old = current_state
+                        current_state = self.dic_col[int(current_state), a] - 1
+
+                        # if jump to absorbing state and without finishing process, we need to resample
+
+                        #    while sum(self.Q_new[int(current_state), ]) == 0:
+                        #         a = np.random.choice(range(di1), 1, p=self.Q_new[int(old), ])[0]
+                        #         current_state = self.dic_col[int(old), a] - 1
+                        state.append(int(current_state))
+
+                        while u <= t:
+                            i = i + 1
+                            u = u + random.exponential(1 / Q_iiii[int(current_state)])
+                            time.append(u)
+                            a = np.random.choice(range(di1), 1, p=self.Q_new[int(current_state),])[0]
+                            old = current_state
+                            current_state = self.dic_col[int(current_state), a] - 1
+
+                            # if jump to absorbing state and without finishing process, we need to resample
+
+                            state.append(int(current_state))
+                        current_state = state[i - 1]
+
+                    i=i-1
+
+                    if (i == 1):
+                        em[1, 1] = em[1, 1] + 1
+                    elif (i == 2):
+                        em[1, 2] = em[1, 2] + 1
+                    else:
+                        em[1, 3] = em[1, 3] + 1
+
+
+
+
+
+
+            else:
+
+
+
+                for jj in range(1):
+                    # most transfer 10 times
+                    current_state = ini[ii]
+
+
+                    u = 0
+                    time = [100]
+                    state = [0]
+                    while u <= t:
+                        u1 = random.exponential(1 / Q_iiii[int(current_state)])
+                        u = u + u1
+                        if u <= t:
+                            i = i + 1
+                            time.append(u)
+                            a = np.random.choice(range(di1), 1, p=self.Q_new[int(current_state),])[0]
+                            current_state = self.dic_col[int(current_state), a] - 1
+                            # if jump to absorbing state and without finishing process, we need to resample
+                            state.append(int(current_state))
+
+
+                    if current_state != end[ii]:
+                        i = 0
+
+                    print(i)
+
+                    if (i == 0):
+                        em[0, 0] = em[0, 0] + 1
+                    elif (i == 3):
+                        em[0, 2] = em[0, 2] + 1
+                    else:
+                        em[0, 3] = em[0, 3] + 1
+
+        return em
+
+
+
 
 
 
@@ -2430,36 +2608,38 @@ class AncestralState:
 if __name__ == '__main__':
 
 
-   # paralog = ['EDN', 'ECP']
-   # alignment_file = '../test/EDN_ECP_Cleaned.fasta'
-  #  newicktree = '../test/EDN_ECP_tree.newick'
+    paralog = ['EDN', 'ECP']
+    alignment_file = '../test/EDN_ECP_Cleaned.fasta'
+    newicktree = '../test/EDN_ECP_tree.newick'
 
-    paralog = ['paralog0', 'paralog1']
-    alignment_file = '../test/tau99_04.fasta'
-    newicktree = '../test/sample1.newick'
+   # paralog = ['paralog0', 'paralog1']
+   # alignment_file = '../test/tau99_04.fasta'
+  #  newicktree = '../test/sample1.newick'
   #  Force ={0:np.exp(-0.71464127), 1:np.exp(-0.55541915), 2:np.exp(-0.68806275),3: np.exp( 0.74691342),4: np.exp( -0.5045814)}
     # %AG, % A, % C, kappa, tau
    # Force= {0:0.5,1:0.5,2:0.5,3:1,4:0}
     Force=None
-    model = 'HKY'
+    model = 'MG94'
 
-    name = 'tau04_9999'
-   # name='EDN_ECP_full'
+   # name = 'tau04_9999'
+    name='EDN_ECP_full'
 
     type='situation1'
-    save_name = '../test/save/' + model + name+'_'+type+'_nonclock_save1.txt'
-    geneconv = ReCodonGeneconv(newicktree, alignment_file, paralog, Model=model, Force=Force, clock=None,
+    save_name = '../test/save/' + model + name+'_'+type+'_nonclock_save.txt'
+    geneconv = ReCodonGeneconv(newicktree, alignment_file, paralog, Model=model, Force=Force, clock=True,
                                save_path='../test/save/', save_name=save_name)
 
     self = AncestralState(geneconv)
     scene = self.get_scene()
+  #  self.test_gls()
+
 
 ####### xiang
   #  self.get_maxpro_index()
    # print(self.sites)
 
 ########test common ancter wt
-    self.test_pro11(node_s=[0, 0, 0, 12], site_s=0,mc=5000)
+  #  self.test_pro11(node_s=[0, 0, 0, 12], site_s=0,mc=5000)
     #print(self.geneconv.edge_to_blen)
     #print(np.exp(self.geneconv.x_rates))
 
@@ -2493,7 +2673,7 @@ if __name__ == '__main__':
 ############################
 ################TEST
 ######################################
- #   print(self.get_igcr_pad(times=5, repeat=1, ifpermutation=False, ifwholetree=True, ifsave=False, method="divide"))
+  #  print(self.get_igcr_pad(times=5, repeat=1, ifpermutation=False, ifwholetree=True, ifsave=False, method="divide"))
     #print(self.Q)
    # print(self.get_parameter(function="linear"))
   #  print(self.tau)

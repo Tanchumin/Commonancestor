@@ -195,7 +195,8 @@ class ReCodonGeneconv:
         self.x = np.concatenate((self.x_process, self.x_rates))
 
         if self.clock:   # set-up x_clock if it's a clock model
-            l = len(self.edge_to_blen) / 2 + 1               # number of leaves
+            l = int(len(self.edge_to_blen) / 2 + 1)
+            # number of leaves
             self.x_Lr = np.log(np.ones((l)) * 0.6)
 
             if transformation == 'log':
@@ -210,7 +211,7 @@ class ReCodonGeneconv:
         self.update_by_x(transformation = transformation)
         
     def update_by_x_clock(self, x_clock = None, transformation = 'log'):
-        if not x_clock == None:
+        if not x_clock is None:
             self.x_clock = x_clock
         self.unpack_x_clock(transformation = transformation)
         self.update_by_x(transformation = transformation)
@@ -218,7 +219,7 @@ class ReCodonGeneconv:
     def unpack_x_clock(self, transformation):
         assert(self.clock)
         nEdge = len(self.edge_to_blen)  # number of edges
-        l = nEdge / 2 + 1               # number of leaves
+        l = int(nEdge / 2 + 1)               # number of leaves
         k = l - 1   # number of internal nodes. The notation here is inconsistent with Alex's for trying to match my notes.
         if transformation == 'log':
             self.x_process, self.x_Lr = self.x_clock[:-l], np.exp(self.x_clock[-l:])
@@ -892,8 +893,8 @@ class ReCodonGeneconv:
             else:
                 f = partial(self.objective_wo_derivative, display)
             guess_x = self.x_clock
-            bnds.extend([(None, None)] * (len(self.x_clock) - 2 - (len(self.edge_to_blen) / 2 + 1)))
-            bnds.extend([(-10, 0.0)] * (len(self.edge_to_blen) / 2))
+            bnds.extend([(None, None)] * int(len(self.x_clock) - 2 - (len(self.edge_to_blen) / 2 + 1)))
+            bnds.extend([(-10, 0.0)] * int(len(self.edge_to_blen) / 2))
         if method == 'BFGS':
             if derivative:
                 result = scipy.optimize.minimize(f, guess_x, jac = True, method = 'L-BFGS-B', bounds = bnds)
