@@ -1092,7 +1092,7 @@ class AncestralState:
 
         return time_matrix, state_matrix, int(effect_number), int(big_number)
 
-    def GLS_m(self,t=0.1, ini=None, end=None, repeat=2):
+    def GLS_m(self,t=0.1, ini=None, end=None, repeat=1):
 
         global di
         global di1
@@ -1199,8 +1199,6 @@ class AncestralState:
                             big_number = max(big_number, i)
                             if i > 0:
                                 effect_number = (i - 1) + effect_number
-                             #   print(time[0:i])
-                            #    print(state[0:i])
                             time_matrix[jj, 0:i] = time[0:i]
                             state_matrix[jj, 0:i] = state[0:i]
                             state_matrix[jj, 0] = ini[ii]
@@ -1221,25 +1219,21 @@ class AncestralState:
                     # most transfer 10 times
                     current_state = ini[ii]
                     i = 0
-
                     effect_number = 0
                     big_number = 0
-
                     u = 0
                     time = [100]
                     state = [0]
                     while u<=t:
-                        u1 = random.exponential(1/Q_iiii[int(current_state)])
-                        u = u + u1
+                        u = u +  random.exponential(1/Q_iiii[int(current_state)])
                         if u<=t:
                             i=i+1
                             time.append(u)
                             a = np.random.choice(range(di1), 1, p=self.Q_new[int(current_state),])[0]
                             current_state = self.dic_col[int(current_state), a] - 1
                                 # if jump to absorbing state and without finishing process, we need to resample
-
                             state.append(int(current_state))
-                    current_state = state[i - 1]
+
                     if current_state != end[ii]:
                         state = [0]
                         effect_number = 0
@@ -1260,7 +1254,7 @@ class AncestralState:
                     else:
                         big_number = max(big_number, i)
                         if i > 0:
-                            effect_number = (i - 1) + effect_number
+                            effect_number = i  + effect_number
                         time_matrix[jj, 0:i] = time[0:i]
                         state_matrix[jj, 0:i] = state[0:i]
                         state_matrix[jj, 0] = ini[ii]
@@ -2417,7 +2411,6 @@ class AncestralState:
         return list
 
     def gls_true(self,t=0.1):
-        p = [poisson.pmf(0, t), poisson.pmf(1, t), poisson.pmf(2, t), 1 - poisson.cdf(2, t)]
         if self.Q_orginal is None:
             self.orginal_Q()
 
@@ -2425,7 +2418,7 @@ class AncestralState:
         P = linalg.expm(self.Q_orginal * t)
         em=np.zeros(shape=(2, 4))
 
-        pnew=[(p[0]*p[0]),(p[1]*p[0]*2),(p[1]*p[1]+p[2]*p[0]*2)]
+        pnew=[poisson.pmf(0, 2*t), poisson.pmf(1, 2*t), poisson.pmf(2, 2*t), 1 - poisson.cdf(2, 2*t)]
 
 
         ### compute  the k=0
@@ -2457,16 +2450,20 @@ class AncestralState:
 
         return ini,end
 
-    def test_gls(self,sizen=10000,half=1000):
+    def test_gls(self,sizen=100000,half=10):
        rr=self.make_ini_testgls(sizen=sizen,half=half)
        ini=rr[0]
        end=rr[1]
 
-       em=self.gls_true()
+       ini=np.ones(sizen)*0
+       end=np.ones(sizen)*0
 
-       print(self.GLS_m_test(ini=ini,end=end,sizen=sizen))
+       self.gls_true()
 
-    def GLS_m_test(self, t=0.1, ini=None, end=None, sizen=40):
+
+       print(self.GLS_m_test(t=0.2,ini=ini,end=end,sizen=sizen))
+
+    def GLS_m_test(self, t=1, ini=None, end=None, sizen=40):
         global di
         global di1
 
@@ -2482,7 +2479,7 @@ class AncestralState:
         for ii in range(di):
             Q_iiii[ii] = sum(self.Q[ii,])
 
-        em = np.zeros(shape=(2, 4))
+        em = np.zeros(shape=(2, 5))
 
 
         time_list = []
@@ -2514,14 +2511,11 @@ class AncestralState:
                     while current_state != end[ii]:
                         current_state = ini[ii]
                         i = 1
-                        time = [100]
                         state = [0]
                         u1 = np.random.uniform(0, 1)
                         u = -np.log((1 - (1 - np.exp(-Q_iiii[int(current_state)] * t)) * u1)) / \
                             (Q_iiii[int(current_state)])
-                        time.append(u)
                         a = np.random.choice(range(di1), 1, p=self.Q_new[int(current_state),])[0]
-                        old = current_state
                         current_state = self.dic_col[int(current_state), a] - 1
 
                         # if jump to absorbing state and without finishing process, we need to resample
@@ -2534,9 +2528,7 @@ class AncestralState:
                         while u <= t:
                             i = i + 1
                             u = u + random.exponential(1 / Q_iiii[int(current_state)])
-                            time.append(u)
                             a = np.random.choice(range(di1), 1, p=self.Q_new[int(current_state),])[0]
-                            old = current_state
                             current_state = self.dic_col[int(current_state), a] - 1
 
                             # if jump to absorbing state and without finishing process, we need to resample
@@ -2550,52 +2542,54 @@ class AncestralState:
                         em[1, 1] = em[1, 1] + 1
                     elif (i == 2):
                         em[1, 2] = em[1, 2] + 1
-                    else:
+                    elif (i == 3):
                         em[1, 3] = em[1, 3] + 1
+                    else:
+                        em[1, 4] = em[1, 4] + 1
 
-
-
-
-
-
+#### end==ini
             else:
-
-
-
                 for jj in range(1):
                     # most transfer 10 times
-                    current_state = ini[ii]
+                    current_state = 11111
+                    i=0
 
 
-                    u = 0
-                    time = [100]
-                    state = [0]
-                    while u <= t:
-                        u1 = random.exponential(1 / Q_iiii[int(current_state)])
-                        u = u + u1
-                        if u <= t:
-                            i = i + 1
-                            time.append(u)
-                            a = np.random.choice(range(di1), 1, p=self.Q_new[int(current_state),])[0]
-                            current_state = self.dic_col[int(current_state), a] - 1
-                            # if jump to absorbing state and without finishing process, we need to resample
-                            state.append(int(current_state))
+                    while current_state != end[ii]:
+                        current_state = ini[ii]
+                        i=0
+                        u=0
+                        state = [0]
+                        while u <= t:
+                            u = u + random.exponential(1 / Q_iiii[int(current_state)])
+                            if u <= t:
+                                i = i + 1
+                                a = np.random.choice(range(di1), 1, p=self.Q_new[int(current_state),])[0]
+                                current_state = self.dic_col[int(current_state), a] - 1
+                                # if jump to absorbing state and without finishing process, we need to resample
+                                state.append(int(current_state))
+                    k1=0
+                    if i>=1:
+                        state[0]=ini[ii]
+                        for k in range(i):
+                            if((state[k]%4)!=(state[k+1]%4)):
+                                k1=k1+1
 
 
-                    if current_state != end[ii]:
-                        i = 0
 
-                    print(i)
-
-                    if (i == 0):
+                    if (k1 == 0):
                         em[0, 0] = em[0, 0] + 1
-                    elif (i == 3):
+                    elif (k1 == 1):
+                        em[0, 1] = em[0, 1] + 1
+                    elif (k1 == 2):
                         em[0, 2] = em[0, 2] + 1
-                    else:
+                    elif (k1 == 3):
                         em[0, 3] = em[0, 3] + 1
+                    else:
+                        em[0, 4] = em[0, 4] + 1
+
 
         return em
-
 
 
 
@@ -2617,21 +2611,21 @@ if __name__ == '__main__':
   #  newicktree = '../test/sample1.newick'
   #  Force ={0:np.exp(-0.71464127), 1:np.exp(-0.55541915), 2:np.exp(-0.68806275),3: np.exp( 0.74691342),4: np.exp( -0.5045814)}
     # %AG, % A, % C, kappa, tau
-   # Force= {0:0.5,1:0.5,2:0.5,3:1,4:0}
-    Force=None
-    model = 'MG94'
+    Force= {0:0.5,1:0.5,2:0.5,3:1,4:0}
+ #   Force=None
+    model = 'HKY'
 
    # name = 'tau04_9999'
     name='EDN_ECP_full'
 
     type='situation1'
     save_name = '../test/save/' + model + name+'_'+type+'_nonclock_save.txt'
-    geneconv = ReCodonGeneconv(newicktree, alignment_file, paralog, Model=model, Force=Force, clock=True,
+    geneconv = ReCodonGeneconv(newicktree, alignment_file, paralog, Model=model, Force=Force, clock=None,
                                save_path='../test/save/', save_name=save_name)
 
     self = AncestralState(geneconv)
     scene = self.get_scene()
-  #  self.test_gls()
+    self.test_gls()
 
 
 ####### xiang
