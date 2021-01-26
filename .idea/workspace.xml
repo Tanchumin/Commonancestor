@@ -2,13 +2,10 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="a9952ef3-53b5-4976-ba05-bb25560d8c3b" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/IGCexpansion/ac.py" beforeDir="false" afterPath="$PROJECT_DIR$/IGCexpansion/ac.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/test/save/HKYEDN_ECP_full_situation1_nonclock_save.txt" beforeDir="false" afterPath="$PROJECT_DIR$/test/save/HKYEDN_ECP_full_situation1_nonclock_save.txt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/test/savesample/Ind_QQQsample.txt" beforeDir="false" afterPath="$PROJECT_DIR$/test/savesample/Ind_QQQsample.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/test/savesample/Ind_re_HKYEDNECPsample.txt" beforeDir="false" afterPath="$PROJECT_DIR$/test/savesample/Ind_re_HKYEDNECPsample.txt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/test/savesample/Ind_re_HKYparalog0paralog1sample.txt" beforeDir="false" afterPath="$PROJECT_DIR$/test/savesample/Ind_re_HKYparalog0paralog1sample.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/test/savesample/SSSS_Internal_EDNECPsample.txt" beforeDir="false" afterPath="$PROJECT_DIR$/test/savesample/SSSS_Internal_EDNECPsample.txt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/test/savesample/SSSS_Internal_paralog0paralog1sample.txt" beforeDir="false" afterPath="$PROJECT_DIR$/test/savesample/SSSS_Internal_paralog0paralog1sample.txt" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -25,8 +22,8 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/IGCexpansion/ac.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-138">
-              <caret line="121" column="17" lean-forward="true" selection-start-line="121" selection-start-column="17" selection-end-line="121" selection-end-column="17" />
+            <state relative-caret-position="244">
+              <caret line="1903" lean-forward="true" selection-start-line="1903" selection-end-line="1903" />
               <folding>
                 <element signature="e#210#247#0" expanded="true" />
                 <element signature="e#4068#5177#0" />
@@ -69,8 +66,10 @@
                 <element signature="e#79882#80995#0" />
                 <element signature="e#81101#82035#0" />
                 <element signature="e#82175#84025#0" />
+                <element signature="e#84465#86205#0" />
                 <element signature="e#85905#86414#0" />
                 <element signature="e#86469#86923#0" />
+                <element signature="e#86977#87206#0" />
                 <element signature="e#87277#91836#0" />
               </folding>
             </state>
@@ -176,9 +175,10 @@
       </list>
     </option>
   </component>
-  <component name="ProjectFrameBounds" extendedState="6" fullScreen="true">
-    <option name="width" value="714" />
-    <option name="height" value="900" />
+  <component name="ProjectFrameBounds">
+    <option name="y" value="23" />
+    <option name="width" value="1440" />
+    <option name="height" value="822" />
   </component>
   <component name="ProjectView">
     <navigator proportions="" version="1">
@@ -420,7 +420,7 @@
     </todo-panel>
   </component>
   <component name="ToolWindowManager">
-    <frame x="0" y="0" width="1440" height="900" extended-state="6" />
+    <frame x="0" y="23" width="1440" height="822" extended-state="0" />
     <editor active="true" />
     <layout>
       <window_info content_ui="combo" id="Project" order="0" sideWeight="0.49785408" visible="true" weight="0.21000704" />
@@ -428,7 +428,7 @@
       <window_info id="Favorites" order="2" sideWeight="0.50214595" side_tool="true" weight="0.24945612" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Find" order="1" />
-      <window_info active="true" anchor="bottom" id="Run" order="2" visible="true" weight="0.37108433" />
+      <window_info active="true" anchor="bottom" id="Run" order="2" visible="true" weight="0.4219178" />
       <window_info anchor="bottom" id="Debug" order="3" weight="0.3626506" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
@@ -699,8 +699,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/IGCexpansion/ac.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-138">
-          <caret line="121" column="17" lean-forward="true" selection-start-line="121" selection-start-column="17" selection-end-line="121" selection-end-column="17" />
+        <state relative-caret-position="244">
+          <caret line="1903" lean-forward="true" selection-start-line="1903" selection-end-line="1903" />
           <folding>
             <element signature="e#210#247#0" expanded="true" />
             <element signature="e#4068#5177#0" />
@@ -743,8 +743,10 @@
             <element signature="e#79882#80995#0" />
             <element signature="e#81101#82035#0" />
             <element signature="e#82175#84025#0" />
+            <element signature="e#84465#86205#0" />
             <element signature="e#85905#86414#0" />
             <element signature="e#86469#86923#0" />
+            <element signature="e#86977#87206#0" />
             <element signature="e#87277#91836#0" />
           </folding>
         </state>

@@ -1723,7 +1723,7 @@ class AncestralState:
 
 #### this  is using to test the estimation of tau given real history
     def monte_carol_s(self,ifsave=True,
-                    iftestsimulation=True,sizen=9999,times=1):
+                    iftestsimulation=True,sizen=99990,times=1):
 
         self.change_t_Q(tau=0.4)
         self.tau=0.4
@@ -1907,7 +1907,7 @@ class AncestralState:
                  ifsimulation=True):
 
         if ifsimulation==True:
-            re=self.monte_carol_s1(ifsave=ifsave,times=times)
+            re=self.monte_carol_s(ifsave=ifsave,times=times)
 
         else:
             re=self.monte_carol(times=times,repeat=repeat,ifwholetree=ifwholetree,ifpermutation=ifpermutation,ifsave=ifsave)
@@ -2685,7 +2685,7 @@ if __name__ == '__main__':
 ############################
 ################TEST
 ######################################
-    print(self.get_igcr_pad(times=10, repeat=1, ifpermutation=False, ifwholetree=True, ifsave=False, method="divide"))
+    print(self.get_igcr_pad(times=1, repeat=1, ifpermutation=False, ifwholetree=True, ifsave=False, method="divide"))
     #print(self.Q)
    # print(self.get_parameter(function="linear"))
   #  print(self.tau)
