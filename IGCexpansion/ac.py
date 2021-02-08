@@ -608,13 +608,8 @@ class AncestralState:
 
 
 
-                 #   print(selectp)
-                 #   print(j)
-                #    print(self.p_n[1][32,])
-                 #   print(self.P_list[1][:,parent])
-
                     selectp=selectp/sum(selectp)
-                    self.sites[index,j]=np.random.choice(range(16), 1, p=selectp)[0]
+                    self.sites[i,j]=np.random.choice(range(16), 1, p=selectp)[0]
 
 
         #print(self.sites[:,1])
@@ -956,28 +951,14 @@ class AncestralState:
 
 # making initial state and end state
 
-    def make_ie(self, node_i, node_e,ifmarginal=False):
+    def make_ie(self, node_i, node_e,ifxiang=False):
 
 
-        if ifmarginal==True:
+        if ifxiang==True:
+            if self.sites is None:
+                self.jointly_common_ancstral_inference()
 
-            if self.sites1 is None:
-                self.get_maxpro_index(True, 1)
-            if self.sites2 is None:
-                self.get_maxpro_index(True, 2)
 
-            ini = np.ones(self.sites_length)
-            end = np.ones(self.sites_length)
-
-            if self.Model == "HKY":
-                for site in range(self.sites_length):
-                   ini[site] = self.sites2[node_i, site]+self.sites1[node_i, site]*4
-                   end[site] = self.sites2[node_e, site]+self.sites1[node_e, site]*4
-
-            else:
-                for site in range(self.sites_length):
-                   ini[site] = self.sites2[node_i, site]+self.sites1[node_i, site]*61
-                   end[site] = self.sites2[node_e, site]+self.sites1[node_e, site]*61
 
         else:
             if self.sites is None:
@@ -1336,15 +1317,16 @@ class AncestralState:
 # the method state is more useful, since it can avoid the bias in sampling regarding small sample size
 
 
-    def whether_IGC(self,history_matrix,effect_number,method="state"):
+    def whether_IGC(self,history_matrix,effect_number,method="state",branch=2):
 
-        p_h=np.zeros(shape=(effect_number, 5))
+        p_h=np.zeros(shape=(effect_number, 6))
 
 
 # 0 difference, 1 time, 2 whether igc, 3 paralog state,4 ratio time/tree length
 
         if self.Model == "HKY":
             for ii in range(effect_number):
+                p_h[ii, 5]=branch
                 p_h[ii,0]=history_matrix[ii,0]
                 p_h[ii, 1] = history_matrix[ii, 4]
                 p_h[ii, 4] = history_matrix[ii, 8]
@@ -1386,6 +1368,7 @@ class AncestralState:
 
         else:
             for ii in range(effect_number):
+                p_h[ii, 5]=branch
                 p_h[ii, 0] = history_matrix[ii, 0]
                 p_h[ii, 1] = history_matrix[ii, 4]
 
@@ -1436,7 +1419,7 @@ class AncestralState:
 
         for ii in range(effect_number-1):
             if p_h[ii,1]==0:
-                p_h=p_h[0:ii-1,0:5]
+                p_h=p_h[0:ii-1,0:6]
                 effect_number=ii-1
                 break
 
@@ -1636,9 +1619,16 @@ class AncestralState:
 
                                   re = self.GLS_s(t=t1, repeat=1, ifrecal=True,ini=ini1, end=end1)
                                   sam = self.rank_ts(time=re[0],t=t1, state=re[1], ini=ini1, effect_number=re[2])
-                                  re10 = self.whether_IGC(history_matrix=sam[0], effect_number=sam[1])
+                                  re10 = self.whether_IGC(history_matrix=sam[0], effect_number=sam[1],branch=j)
                                   effect_number = re10[1]
                                   re1 = re10[0]
+
+                             #     di = 0
+                             #     for jj in range(self.sites_length):
+                             #         di = self.dic_di[ini1[jj]] + di
+                             #     print(di)
+
+
 
                              elif j == 1:
                                  print("Ingore the outgroup")
@@ -1655,7 +1645,7 @@ class AncestralState:
 
                                sam = self.rank_ts(time=re[0],t=t1, state=re[1], ini=ini1, effect_number=re[2])
                                # print(sam[0])
-                               re2 = self.whether_IGC(history_matrix=sam[0], effect_number=sam[1])
+                               re2 = self.whether_IGC(history_matrix=sam[0], effect_number=sam[1],branch=j)
                                effect_number1 = re2[1]
                                re2 = re2[0]
 
@@ -1675,7 +1665,7 @@ class AncestralState:
                                 end1 = self.make_ie(ini2, end2)[1]
                                 re = self.GLS_s(t=t1, repeat=1, ifrecal=True, ini=ini1, end=end1)
                                 sam = self.rank_ts(time=re[0], t=t1, state=re[1], ini=ini1, effect_number=re[2])
-                                re10 = self.whether_IGC(history_matrix=sam[0], effect_number=sam[1])
+                                re10 = self.whether_IGC(history_matrix=sam[0], effect_number=sam[1],branch=j)
                                 max_diff = 0
                                 di = self.dic_di
                                 for i in range(self.sites_length):
@@ -1698,7 +1688,7 @@ class AncestralState:
 
                                 sam = self.rank_ts(time=re[0], t=t1, state=re[1], ini=ini1, effect_number=re[2])
                                 # print(sam[0])
-                                re2 = self.whether_IGC(history_matrix=sam[0], effect_number=sam[1])
+                                re2 = self.whether_IGC(history_matrix=sam[0], effect_number=sam[1],branch=j)
                                 effect_number1n = re2[1]
                                 re2n = re2[0]
 
@@ -1723,17 +1713,12 @@ class AncestralState:
 
 #### this  is using to test the estimation of tau given real history
     def monte_carol_s(self,ifsave=True,
-                    iftestsimulation=True,sizen=99990,times=1):
+                    iftestsimulation=True,sizen=9999,times=1):
 
         self.change_t_Q(tau=0.4)
         self.tau=0.4
         self.sites_length=sizen
-
-
-
         list=[]
-
-
 
         if iftestsimulation==True:
 
@@ -1755,10 +1740,6 @@ class AncestralState:
                     re1=None
                     effect_number=0
 
-
-
-
-
                 elif j == 1:
                     print("Ingore the outgroup")
 
@@ -1766,16 +1747,12 @@ class AncestralState:
                 elif j >= 2:
 
                     ini2 = self.geneconv.node_to_num[geneconv.edge_list[j][0]]
-
-
                     re=self.GLS_si(t=t1,ini=list[int(ini2//2)],sizen=sizen)
                     if j%2==0:
                         list.append(re[1])
 
-
                     sam = self.rank_ts(time=re[2], t=t1, state=re[3], ini=re[0], effect_number=re[4])
-                 #  print(sam[0])
-                    re2 = self.whether_IGC(history_matrix=sam[0], effect_number=sam[1])
+                    re2 = self.whether_IGC(history_matrix=sam[0], effect_number=sam[1],branch=j)
                     effect_number1 = re2[1]
                     re2 = re2[0]
 
@@ -1827,9 +1804,15 @@ class AncestralState:
 
                             re = self.GLS_s(t=t1, repeat=1, ifrecal=True, ini=ini1, end=end1)
                             sam = self.rank_ts(time=re[0], t=t1, state=re[1], ini=ini1, effect_number=re[2])
-                            re10 = self.whether_IGC(history_matrix=sam[0], effect_number=sam[1])
+                            re10 = self.whether_IGC(history_matrix=sam[0], effect_number=sam[1],branch=j)
                             effect_number = re10[1]
                             re1 = re10[0]
+
+                            di = 0
+                            for jj in range(sizen):
+                                di = self.dic_di[end1[jj]] + di
+
+                            print(di)
 
                         elif j == 1:
                             print("Ingore the outgroup")
@@ -1845,7 +1828,7 @@ class AncestralState:
 
                             sam = self.rank_ts(time=re[0], t=t1, state=re[1], ini=ini1, effect_number=re[2])
                             # print(sam[0])
-                            re2 = self.whether_IGC(history_matrix=sam[0], effect_number=sam[1])
+                            re2 = self.whether_IGC(history_matrix=sam[0], effect_number=sam[1],branch=j)
                             effect_number1 = re2[1]
                             re2 = re2[0]
 
@@ -1866,7 +1849,7 @@ class AncestralState:
 
                             re = self.GLS_s(t=t1, repeat=1, ifrecal=True, ini=ini1, end=end1)
                             sam = self.rank_ts(time=re[0], t=t1, state=re[1], ini=ini1, effect_number=re[2])
-                            re10 = self.whether_IGC(history_matrix=sam[0], effect_number=sam[1])
+                            re10 = self.whether_IGC(history_matrix=sam[0], effect_number=sam[1],branch=j)
                             max_diff = 0
                             di = self.dic_di
                             for i in range(self.sites_length):
@@ -1889,7 +1872,7 @@ class AncestralState:
 
                             sam = self.rank_ts(time=re[0], t=t1, state=re[1], ini=ini1, effect_number=re[2])
                             # print(sam[0])
-                            re2 = self.whether_IGC(history_matrix=sam[0], effect_number=sam[1])
+                            re2 = self.whether_IGC(history_matrix=sam[0], effect_number=sam[1],branch=j)
                             effect_number1n = re2[1]
                             re2n = re2[0]
 
@@ -1904,10 +1887,10 @@ class AncestralState:
 
 
     def divide_Q(self, times, repeat,method="simple", ifwholetree=True,simple_state_number=5,ifpermutation=True,ifsave=True,
-                 ifsimulation=True):
+                 ifsimulation=False):
 
         if ifsimulation==True:
-            re=self.monte_carol_s(ifsave=ifsave,times=times)
+            re=self.monte_carol_s1(ifsave=ifsave,times=times)
 
         else:
             re=self.monte_carol(times=times,repeat=repeat,ifwholetree=ifwholetree,ifpermutation=ifpermutation,ifsave=ifsave)
@@ -1942,7 +1925,7 @@ class AncestralState:
 
 
 
-        if (method=="divide"):
+        elif (method=="divide"):
             zzz = np.argmax(history_matrix[:, 0])
          #   big_quan = history_matrix[zzz, 0] / self.sites_length
             max_quan = history_matrix[zzz, 0]
@@ -1974,14 +1957,24 @@ class AncestralState:
                             history_matrix[ii, 3] = iii + 1
                             break
 
+##########################
+#########branch number-2
+        elif(method=="bybranch"):
+            print(1)
+            type_number = len(self.scene['tree']["column_nodes"])-2
+            self.type_number = int(type_number)
+            self.last_effct = int(effect_number)
+            for ii in range(effect_number):
+                    history_matrix[ii, 3] = history_matrix[ii, 5]-2
+
+
 
 
         self.igc_com=history_matrix
       #  print(history_matrix)
 
-
-
         return history_matrix
+
 
 
 
@@ -2620,9 +2613,9 @@ class AncestralState:
 if __name__ == '__main__':
 
 
-   # paralog = ['EDN', 'ECP']
-   # alignment_file = '../test/EDN_ECP_Cleaned.fasta'
-   # newicktree = '../test/EDN_ECP_tree.newick'
+  #  paralog = ['EDN', 'ECP']
+  #  alignment_file = '../test/EDN_ECP_Cleaned.fasta'
+  # newicktree = '../test/EDN_ECP_tree.newick'
 
     paralog = ['paralog0', 'paralog1']
     alignment_file = '../test/tau99_04.fasta'
@@ -2685,7 +2678,8 @@ if __name__ == '__main__':
 ############################
 ################TEST
 ######################################
-    print(self.get_igcr_pad(times=1, repeat=1, ifpermutation=False, ifwholetree=True, ifsave=False, method="divide"))
+#    print(self.get_igcr_pad(times=1, repeat=1, ifpermutation=False, ifwholetree=True, ifsave=False, method="divide"))
+    print(self.get_igcr_pad(times=10, repeat=1, ifpermutation=False, ifwholetree=True, ifsave=False, method="divide"))
     #print(self.Q)
    # print(self.get_parameter(function="linear"))
   #  print(self.tau)
