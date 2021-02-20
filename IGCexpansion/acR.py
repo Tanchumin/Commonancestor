@@ -5,7 +5,6 @@
 # xji4@tulane.edu
 # Tanchumin Xu
 # txu7@ncsu.edu
-
 from __future__ import print_function
 import jsonctmctree.ll, jsonctmctree.interface
 from CodonGeneconv import *
@@ -23,7 +22,7 @@ import pickle
 import json
 import numpy.core.multiarray
 
-
+# explain in comment what code below does
 def get_maxpro(list, nodecom):
     sites = np.zeros(shape=(len(nodecom), len(list)))
     for site in range(len(list)):
@@ -33,7 +32,7 @@ def get_maxpro(list, nodecom):
             i=i+1
     return (sites)
 
-
+# code below should have MANY more comments for explanation 
 class AncestralState:
 
     def __init__(self,
@@ -73,16 +72,17 @@ class AncestralState:
 
         self.min_diff=0
 
-# relationship is a matrix about igc rates on different paralog
-# igc_com is matrix contain paralog difference,difference time, igc state, paralog category
+# relationship is a matrix about igc rates on different paralogs
+# be specific about what relationship matrix entries mean
+# igc_com is a matrix that contains paralog difference,difference time, igc state, paralog category
         self.relationship=None
         self.igc_com=None
 
         self.judge=None
         self.P_list= None
         self.Q_original=None
+
         self.ifmax=False
-        self.ifXiang=False
 
     def get_mle(self):
         self.geneconv.get_mle()
@@ -212,7 +212,7 @@ class AncestralState:
         return node_state_prob_dict
 
 
-#get original common ancestral matrix
+
     def get_maxpro_index(self):
 
         if self.ancestral_state_response is None:
@@ -244,19 +244,38 @@ class AncestralState:
 
         return (sites)
 
-    def get_maxpro_matrix(self):
+    def get_maxpro_matrix(self, ifmarginal=False, paralog=1):
 
         if self.ancestral_state_response is None:
             self.ancestral_state_response = self.get_ancestral_state_response()
 
-        self.node_length=len(self.get_num_to_node())
-        sites = np.zeros(shape=(self.node_length, self.sites_length))
-        for site in range(self.sites_length):
-            for node in range(self.node_length):
-                sites[node][site] = np.max(np.array(self.ancestral_state_response[site])[:, node])
+        if ifmarginal == False:
+            self.node_length=len(self.get_num_to_node())
+            sites = np.zeros(shape=(self.node_length, self.sites_length))
+            for site in range(self.sites_length):
+                for node in range(self.node_length):
+                    sites[node][site] = np.max(np.array(self.ancestral_state_response[site])[:, node])
+
+        else:
+            if paralog == 1:
+                self.node_length = len(self.get_num_to_node())
+                sites = np.zeros(shape=(self.node_length, self.sites_length))
+                for node in range(self.node_length):
+                    mat=self.get_marginal(node)
+                    for site in range(self.sites_length):
+                        sites[node][site] = np.max(np.array(mat)[site,:])
+
+            else:
+                self.node_length = len(self.get_num_to_node())
+                sites = np.zeros(shape=(self.node_length, self.sites_length))
+                for node in range(self.node_length):
+                    mat=self.get_marginal(node,2)
+                    for site in range(self.sites_length):
+                        sites[node][site] = np.max(np.array(mat)[site,:])
+
+
 
         return (sites)
-
 
     def translate_into_seq(self,ifmarginal=False,paralog=1):
         promax=self.get_maxpro_index(ifmarginal,paralog)
@@ -356,8 +375,6 @@ class AncestralState:
 
         return marginal_sites
 
-
-#get the index for  internal node
     def get_interior_node(self):
 
         if self.node_length ==0:
@@ -372,8 +389,6 @@ class AncestralState:
 
         return (c)
 
-
-#classfy states by how many different leaves it  has
     def judge_state_children(self):
         internal_node=self.get_interior_node()
         judge=np.ones(int((len(self.scene['tree']["column_nodes"])+1)/2))
@@ -399,10 +414,10 @@ class AncestralState:
       #  scene=self.scene
       #  print(scene['process_definitions'])
 
-# compute Q matrix  with 0
     def original_Q(selfs):
         if self.Q is None:
             self.making_Qmatrix()
+
 
         if self.Model == 'HKY':
             self.Q_original = np.zeros(shape=(16, 16))
@@ -427,16 +442,15 @@ class AncestralState:
             for k in  range(61):
                 self.Q_original[k, k]=-sum(self.Q_original[k,])
 
-# making matrices to store possibility for internal node
+    # making matrices to store possibility for internal node
     def making_possibility_internal(self):
 
         if self.judge is None:
             self.judge_state_children()
 
-        # self.Q original is 16*16 Q matrix
+        # self.Q original is 16*16
         if self.Q_original is None:
             self.original_Q()
-
 
         if self.sites is None:
             self.get_maxpro_index()
@@ -445,8 +459,6 @@ class AncestralState:
         # making p list for each branch
         P_list = []
         tree_len=len(self.scene['tree']["column_nodes"])
-
-# P_list store the P matrix
         for i in range(tree_len):
             if i==1:
                 time = self.scene['tree']["edge_rate_scaling_factors"][i]
@@ -470,13 +482,12 @@ class AncestralState:
         else:
             statenumber=61
 
-
-        #p_n is list store the  probabolity matrices for  internal nodel
         p_n=[]
         for i in range(len(self.judge)):
             p_n.append(0)
 
-        # tree_to store the topology of each internal  node
+
+
         tree_to=np.zeros(shape=(3, len(self.judge)))
 
 
@@ -560,96 +571,82 @@ class AncestralState:
 
 
 
-    def jointly_common_ancstral_inference(self):
+    def joint_common_ancestral_inference(self):
+        if self.P_list is None:
+            self.making_possibility_internal()
 
-        if self.ifXiang==False:
-            if self.P_list is None:
-                self.making_possibility_internal()
+        tree_len = len(self.scene['tree']["column_nodes"])
+        internal_node = self.get_interior_node()
+        index=1
+        j=0
+       # print(internal_node)
 
-            tree_len = len(self.scene['tree']["column_nodes"])
-            internal_node = self.get_interior_node()
-            index=1
-            j=0
-           # print(internal_node)
+        mm = np.ones(shape=(4, self.sites_length))
 
-            mm = np.ones(shape=(4, self.sites_length))
-
-
-    # try to find parent of internal node
-            while index < len(internal_node):
-                if (self.geneconv.node_to_num[geneconv.edge_list[j][1]]==internal_node[index]):
-                    self.tree_to[0,index]=self.geneconv.node_to_num[geneconv.edge_list[j][0]]
-                    index=index+1
-                j=j+1
+# somewhere (maybe in this routine or maybe elsewhere) should be a detailed
+# explanation of what the data structures represent
+# try to find parent of internal node
+        while index < len(internal_node):
+            if (self.geneconv.node_to_num[geneconv.edge_list[j][1]]==internal_node[index]):
+                self.tree_to[0,index]=self.geneconv.node_to_num[geneconv.edge_list[j][0]]
+                index=index+1
+            j=j+1
 
 
-           # print(self.tree_to)
-            for j in range(self.sites_length):
-                   self.sites[0,j]=np.random.choice(range(16), 1, p=np.array(self.ancestral_state_response[j])[:, 0])[0]
+       # print(self.tree_to)
+        for j in range(self.sites_length):
+               self.sites[0,j]=np.random.choice(range(16), 1, p=np.array(self.ancestral_state_response[j])[:, 0])[0]
 
+        for i in range(tree_len):
+            if(i>0 and i in set(internal_node)):
+                index=internal_node.index(i)
+                for j in range(self.sites_length):
+                    selectp=np.ones(16)
+                    parent = int(self.tree_to[0, (index)])
+                   # print(parent)
+                    parent = int(self.sites[parent,j])
+                    for k in range(16):
+                        selectp[k]=self.P_list[i-1][parent,k]*self.p_n[index][j,k]
+
+
+
+                 #   print(selectp)
+                 #   print(j)
+                #    print(self.p_n[1][32,])
+                 #   print(self.P_list[1][:,parent])
+
+                    selectp=selectp/sum(selectp)
+                    self.sites[index,j]=np.random.choice(range(16), 1, p=selectp)[0]
+
+
+        #print(self.sites[:,1])
+
+
+        if self.ifmax==True:
             for i in range(tree_len):
-                if(i>0 and i in set(internal_node)):
-                    index=internal_node.index(i)
+                if (i > 0 and i in set(internal_node)):
+                    index = internal_node.index(i)
                     for j in range(self.sites_length):
-                        selectp=np.ones(16)
-                        parent = int(self.tree_to[0, (index)])
-                       # print(parent)
-                        parent = int(self.sites[parent,j])
+                        selectp = np.ones(16)
+                        parent = int(self.tree_to[0, index-1])
+                        parent = int(self.sites[parent, j])
                         for k in range(16):
-                            selectp[k]=self.P_list[i-1][parent,k]*self.p_n[index][j,k]
-                        selectp=selectp/sum(selectp)
-                        self.sites[i,j]=np.random.choice(range(16), 1, p=selectp)[0]
+                            selectp[k] = self.P_list[i-1][parent,k] * self.p_n[index][j, k]
 
 
-            #print(self.sites[:,1])
+                        selectp = selectp / sum(selectp)
+                        self.sites[index, j] = np.argmax(selectp)
 
+        for ii in range(4):
+            mm[ii, :] =self.sites[int(internal_node[ii]),:]
 
-            if self.ifmax==True:
-                for i in range(tree_len):
-                    if (i > 0 and i in set(internal_node)):
-                        index = internal_node.index(i)
-                        for j in range(self.sites_length):
-                            selectp = np.ones(16)
-                            parent = int(self.tree_to[0, index-1])
-                            parent = int(self.sites[parent, j])
-                            for k in range(16):
-                                selectp[k] = self.P_list[i-1][parent,k] * self.p_n[index][j, k]
+        save_nameP = '../test/savesample/SSSS_Internal_' +  geneconv.paralog[0] + geneconv.paralog[
+            1] + 'sample.txt'
 
-
-                            selectp = selectp / sum(selectp)
-                            self.sites[i, j] = np.argmax(selectp)
-
-
-
-        if  self.ifXiang==True:
-            if self.ancestral_state_response is None:
-                self.ancestral_state_response = self.get_ancestral_state_response_x()
-                #print(self.ancestral_state_response)
-
-            self.node_length = len(self.get_num_to_node())
-            sites = np.zeros(shape=(self.node_length, self.sites_length))
-            for site in range(self.sites_length):
-                for node in range(self.node_length):
-                    if self.Model == "HKY":
-                        sites[node][site] = int(np.array(self.ancestral_state_response[site])[node])
-
-         #   print(sites[4][0:15])
-
-            self.sites = sites
-
-      #  for ii in range(4):
-      #      mm[ii, :] =self.sites[int(internal_node[ii]),:]
-
-      #  save_nameP = '../test/savesample/SSSS_Internal_' +  geneconv.paralog[0] + geneconv.paralog[
-      #      1] + 'sample.txt'
-
-     #   np.savetxt(save_nameP,mm)
+        np.savetxt(save_nameP,mm)
         # "iid_observations" means sequence information," variables" indicate paralog statue,"node" indicate node state
         ## variable [0,1,0,1,0,1,1]
 
-
-
-# test common ancster inferece
     def test_pro(self,node=1,sites=1,to=[1,2,3],leaf=[4,6,7,8]):
 
         if self.P_list is None:
@@ -702,13 +699,103 @@ class AncestralState:
 
         print(nodesite-selectp)
 
+### p(internal,oberserve)|likelihood
+
+    def test_pro1(self,node_s=[0,1,1,1],site_s=1,mc=10):
+
+        if self.P_list is None:
+            self.making_possibility_internal()
+
+
+        self.joint_common_ancestral_inference()
+
+        tree_len = len(self.scene['tree']["column_nodes"])
+        internal_node = self.get_interior_node()
+
+        sites_new=self.sites
+
+        for i in  range(4):
+            sites_new[internal_node[i]][site_s]=node_s[i]
+
+        p=1
+
+        for j in range(tree_len):
+
+            if   j==1:
+                ini2 = self.geneconv.node_to_num[geneconv.edge_list[j][0]]
+                end2 = self.geneconv.node_to_num[geneconv.edge_list[j][1]]
+
+                ini1=int(sites_new[ini2][site_s]%4)
+                end1 = int(sites_new[end2][site_s]%4)
+                print(self.P_list[j][ini1,end1])
+                p=p*self.P_list[j][ini1,end1]
+
+            else:
+                ini2 = self.geneconv.node_to_num[geneconv.edge_list[j][0]]
+                end2 = self.geneconv.node_to_num[geneconv.edge_list[j][1]]
+
+
+                ini1 = int(sites_new[ini2][site_s])
+                end1 = int(sites_new[end2][site_s])
+
+                print(self.P_list[j][ini1,end1])
+                p = p * self.P_list[j][ini1, end1]
+
+        print("p basing on given internal :")
+        print(p*(self.geneconv.pi[int(node_s[0]%4)]))
+
+        j=site_s
+        p1=0
+        sites_mc=np.array(self.sites[:,j])
+        sites_test=np.array(self.sites[:,j])
+        for i in range(len(internal_node)):
+            sites_test[internal_node[i]]=node_s[i]
+        print(sites_test)
+
+
+    #    print(np.array(self.ancestral_state_response[1])[:, 6])
+
+
+        for mctimes in range(mc):
+             for i in range(tree_len):
+                 if(i==0):
+                     sites_mc[i]=np.random.choice(range(16), 1, p=np.array(self.ancestral_state_response[site_s])[:, 0])[0]
+                 elif(i in set(internal_node)):
+                    index=internal_node.index(i)
+                    selectp=np.ones(16)
+                    parent = int(sites_mc[int(self.tree_to[0, (index)])])
+                    for k in range(16):
+                       selectp[k]=self.P_list[i-1][parent,k]*self.p_n[index][j,k]
+
+                    selectp = selectp/sum(selectp)
+                    sites_mc[i]=np.random.choice(range(16), 1, p=selectp)[0]
+           #  print(mctimes)
+             print(sites_mc)
+             if((sites_mc==sites_test).all()):
+                 p1=p1+1
+
+        print("p basing on inference :")
+        print(p1/mc)
+
+        self.scene['observed_data']["iid_observations"] = [self.scene['observed_data']["iid_observations"][site_s]]
+        log_likelihood_request = {'property':'snnlogl'}
+        requests = [log_likelihood_request]
+        j_in = {
+            'scene' : self.scene,
+            'requests' : requests
+            }
+        j_out = jsonctmctree.interface.process_json_in(j_in)
+
+        print(j_out)
+
+
     def test_pro11(self,node_s=[0,1,1,1],site_s=1,mc=10):
 
         if self.P_list is None:
             self.making_possibility_internal()
 
 
-        self.jointly_common_ancstral_inference()
+        self.joint_common_ancestral_inference()
 
         tree_len = len(self.scene['tree']["column_nodes"])
         internal_node = self.get_interior_node()
@@ -742,6 +829,8 @@ class AncestralState:
         print(p1/mc)
 
 
+
+
 # help build dictionary for how difference of a paralog
 
     def making_dic_di(self):
@@ -767,6 +856,8 @@ class AncestralState:
         self.dic_di = dicts
 
 # making Q matrix
+
+
     def making_Qg(self):
 
         if self.Q is None:
@@ -867,21 +958,43 @@ class AncestralState:
 
 # making initial state and end state
 
-    def make_ie(self, node_i, node_e):
+    def make_ie(self, node_i, node_e,ifmarginal=False):
 
 
-        if self.sites is None:
-            self.jointly_common_ancstral_inference()
+        if ifmarginal==True:
+
+            if self.sites1 is None:
+                self.get_maxpro_index(True, 1)
+            if self.sites2 is None:
+                self.get_maxpro_index(True, 2)
+
+            ini = np.ones(self.sites_length)
+            end = np.ones(self.sites_length)
+
+            if self.Model == "HKY":
+                for site in range(self.sites_length):
+                   ini[site] = self.sites2[node_i, site]+self.sites1[node_i, site]*4
+                   end[site] = self.sites2[node_e, site]+self.sites1[node_e, site]*4
+
+            else:
+                for site in range(self.sites_length):
+                   ini[site] = self.sites2[node_i, site]+self.sites1[node_i, site]*61
+                   end[site] = self.sites2[node_e, site]+self.sites1[node_e, site]*61
+
+        else:
+            if self.sites is None:
+                self.joint_common_ancestral_inference()
 
 
-        ini = self.sites[node_i,]
-        end = self.sites[node_e,]
+            ini = self.sites[node_i,]
+            end = self.sites[node_e,]
 
 
         return ini, end
 
 
-# this one  is simple GLS,  which  is not included
+# as with elsewhere, detailed commments are needed to explain what code
+# is doing
     def GLS( self,t,ini=None, end=None):
 
         # Q_iiii is diagonal of Q
@@ -982,8 +1095,6 @@ class AncestralState:
 
         return time_matrix, state_matrix, int(effect_number), int(big_number)
 
-# end point condition to generate history
-# 100 is the largest time interval
     def GLS_m(self,t=0.1, ini=None, end=None, repeat=1):
 
         global di
@@ -1000,20 +1111,16 @@ class AncestralState:
         if self.Q_new is None:
            self.making_Qg()
 
-# Q_iiii is dialog
         Q_iiii = np.ones(di)
         for ii in range(di):
             Q_iiii[ii] = sum(self.Q[ii, ])
 
-# max change number is 10
         max_number = 10
 
-# dis_matrix can be igored
         time_list = []
         state_list = []
         dis_matrix = np.ones(self.sites_length)
 
-# effect_matrix is used to store how many paths on each sites
         for i in range(self.sites_length):
             if ini[i] != end[i]:
                 time_list.append(0)
@@ -1033,9 +1140,13 @@ class AncestralState:
             # time_list[ii] ==0 means there is a mutation, initial state not equal to  end state
             # Q_iiii means a diagonal entries of rate matrix
 
-
             if time_list[ii] == 0:
 
+# I guess that "100" is something like maximum number of events on history
+# of a site on a branch.  Is that correct?
+# If it is correct, the value 100 should be assigned somewhere to some
+# parameter rather than having 100 be hard-coded and therefore more difficult
+# to change
                 time_matrix = 100*np.ones(shape=(repeat, max_number))
                 state_matrix = 100*np.ones(shape=(repeat, max_number))
 
@@ -1045,17 +1156,17 @@ class AncestralState:
                         i = 0
                         time = [100]
                         state = [0]
+
                         effect_number = 0
                         big_number = 0
 
-
+# many more comments needed in following section
                         while current_state != end[ii]:
                             current_state=ini[ii]
                             i = 1
                             time = [100]
                             state = [0]
                             u1 = np.random.uniform(0,1)
-                            # Nelson approach
                             u= -np.log((1-(1-np.exp(-Q_iiii[int(current_state)]*t))*u1))/\
                                        (Q_iiii[int(current_state)])
                             time.append(u)
@@ -1092,7 +1203,6 @@ class AncestralState:
                             state_matrix[0:self.sites_length, 0:max_number] = state_matrix_old
                             time_matrix[jj, 0:i] = time[0:i]
                             state_matrix[jj, 0:i] = state[0:i]
-                        # store each path to matrix
                         else:
                             big_number = max(big_number, i)
                             if i > 0:
@@ -1177,8 +1287,8 @@ class AncestralState:
 
         return self.time_list,self.state_list,self.effect_matrix, self.big_number_matrix, self.dis_matrix
 
-# ifrecall=True indicate we need do GLS_m again
-# organize MC results from GLS_m method
+## ifrecall indicate we need do GLS_m again
+
     def GLS_s(self, t, repeat=1, ini=None, end=None, ifrecal=True):
 
         if ifrecal==True:
@@ -1208,7 +1318,9 @@ class AncestralState:
                     effect_number=effect_number+effect_matrix[i,a]
             else:
                     big_number=int(max(big_number_matrix[i,a],big_number))
+
                     effect_number=effect_number+effect_matrix[i,a]
+
                     time_matrix_old = time_matrix
                     state_matrix_old = state_matrix
                     time_matrix = np.zeros(shape=(int(self.sites_length),int( big_number)))
@@ -1230,16 +1342,17 @@ class AncestralState:
 
 # method can be select as state or label
 # the method state is more useful, since it can avoid the bias in sampling regarding small sample size
-    def whether_IGC(self,history_matrix,effect_number,method="state",branch=2):
 
-        p_h=np.zeros(shape=(effect_number, 6))
+
+    def whether_IGC(self,history_matrix,effect_number,method="state"):
+
+        p_h=np.zeros(shape=(effect_number, 5))
 
 
 # 0 difference, 1 time, 2 whether igc, 3 paralog state,4 ratio time/tree length
 
         if self.Model == "HKY":
             for ii in range(effect_number):
-                p_h[ii, 5]=branch
                 p_h[ii,0]=history_matrix[ii,0]
                 p_h[ii, 1] = history_matrix[ii, 4]
                 p_h[ii, 4] = history_matrix[ii, 8]
@@ -1281,7 +1394,6 @@ class AncestralState:
 
         else:
             for ii in range(effect_number):
-                p_h[ii, 5]=branch
                 p_h[ii, 0] = history_matrix[ii, 0]
                 p_h[ii, 1] = history_matrix[ii, 4]
 
@@ -1332,7 +1444,7 @@ class AncestralState:
 
         for ii in range(effect_number-1):
             if p_h[ii,1]==0:
-                p_h=p_h[0:ii-1,0:6]
+                p_h=p_h[0:ii-1,0:5]
                 effect_number=ii-1
                 break
 
@@ -1343,7 +1455,6 @@ class AncestralState:
 
 
 # here time is a matrix
-# rank the information from paths
     def rank_ts(self,t,time,state,ini,effect_number):
 
 
@@ -1401,7 +1512,7 @@ class AncestralState:
         return history_matrix,effect_number
 
 
-# organize information for all branches
+
     def monte_carlo(self,t=0.1,times=1,repeat=1,ifwholetree=False,ifpermutation=True,ifsave=False,
                    ):
         global re1
@@ -1462,7 +1573,7 @@ class AncestralState:
 
 
                     elif j==1:
-                        print("ignore the outgroup")
+                        print("Ignore the outgroup")
 
 
                     elif  j>2:
@@ -1517,8 +1628,7 @@ class AncestralState:
 
             else:
                 for kk in range(times):
-              #      self.ancestral_state_response=None
-                    self.jointly_common_ancstral_inference()
+                    self.joint_common_ancestral_inference()
                     print(kk)
                     ttt=len(self.scene['tree']["column_nodes"])
                     if kk==0:
@@ -1534,26 +1644,17 @@ class AncestralState:
 
                                   re = self.GLS_s(t=t1, repeat=1, ifrecal=True,ini=ini1, end=end1)
                                   sam = self.rank_ts(time=re[0],t=t1, state=re[1], ini=ini1, effect_number=re[2])
-                                  re10 = self.whether_IGC(history_matrix=sam[0], effect_number=sam[1],branch=j)
+                                  re10 = self.whether_IGC(history_matrix=sam[0], effect_number=sam[1])
                                   effect_number = re10[1]
                                   re1 = re10[0]
 
-                             #     di = 0
-                             #     for jj in range(self.sites_length):
-                             #         di = self.dic_di[ini1[jj]] + di
-                             #     print(di)
-
-
-
                              elif j == 1:
-                                 print("ignore the outgroup")
+                                 print("Ignore the outgroup")
 
 
                              elif j>2:
                                ini2 = self.geneconv.node_to_num[geneconv.edge_list[j][0]]
                                end2 = self.geneconv.node_to_num[geneconv.edge_list[j][1]]
-                           #    print(ini2)
-                            #   print(end2)
                                ini1 = self.make_ie(ini2, end2)[0]
                                end1 = self.make_ie(ini2, end2)[1]
 
@@ -1562,7 +1663,7 @@ class AncestralState:
 
                                sam = self.rank_ts(time=re[0],t=t1, state=re[1], ini=ini1, effect_number=re[2])
                                # print(sam[0])
-                               re2 = self.whether_IGC(history_matrix=sam[0], effect_number=sam[1],branch=j)
+                               re2 = self.whether_IGC(history_matrix=sam[0], effect_number=sam[1])
                                effect_number1 = re2[1]
                                re2 = re2[0]
 
@@ -1582,7 +1683,7 @@ class AncestralState:
                                 end1 = self.make_ie(ini2, end2)[1]
                                 re = self.GLS_s(t=t1, repeat=1, ifrecal=True, ini=ini1, end=end1)
                                 sam = self.rank_ts(time=re[0], t=t1, state=re[1], ini=ini1, effect_number=re[2])
-                                re10 = self.whether_IGC(history_matrix=sam[0], effect_number=sam[1],branch=j)
+                                re10 = self.whether_IGC(history_matrix=sam[0], effect_number=sam[1])
                                 max_diff = 0
                                 di = self.dic_di
                                 for i in range(self.sites_length):
@@ -1592,7 +1693,7 @@ class AncestralState:
                                 re1n = re10[0]
 
                             elif j == 1:
-                                print("ignore the outgroup")
+                                print("Ignore the outgroup")
 
 
                             elif j > 2:
@@ -1605,7 +1706,7 @@ class AncestralState:
 
                                 sam = self.rank_ts(time=re[0], t=t1, state=re[1], ini=ini1, effect_number=re[2])
                                 # print(sam[0])
-                                re2 = self.whether_IGC(history_matrix=sam[0], effect_number=sam[1],branch=j)
+                                re2 = self.whether_IGC(history_matrix=sam[0], effect_number=sam[1])
                                 effect_number1n = re2[1]
                                 re2n = re2[0]
 
@@ -1628,15 +1729,19 @@ class AncestralState:
         return re1 , effect_number
 
 
-# this is using to test the estimation of tau given real history
-
+#### this  is using to test the estimation of tau given real history
     def monte_carlo_s(self,ifsave=True,
-                    iftestsimulation=True,sizen=9999,times=1):
+                    iftestsimulation=True,sizen=99990,times=1):
 
         self.change_t_Q(tau=0.4)
         self.tau=0.4
         self.sites_length=sizen
+
+
+
         list=[]
+
+
 
         if iftestsimulation==True:
 
@@ -1658,19 +1763,27 @@ class AncestralState:
                     re1=None
                     effect_number=0
 
+
+
+
+
                 elif j == 1:
-                    print("ignore the outgroup")
+                    print("Ignore the outgroup")
 
 
                 elif j >= 2:
 
                     ini2 = self.geneconv.node_to_num[geneconv.edge_list[j][0]]
+
+
                     re=self.GLS_si(t=t1,ini=list[int(ini2//2)],sizen=sizen)
                     if j%2==0:
                         list.append(re[1])
 
+
                     sam = self.rank_ts(time=re[2], t=t1, state=re[3], ini=re[0], effect_number=re[4])
-                    re2 = self.whether_IGC(history_matrix=sam[0], effect_number=sam[1],branch=j)
+                 #  print(sam[0])
+                    re2 = self.whether_IGC(history_matrix=sam[0], effect_number=sam[1])
                     effect_number1 = re2[1]
                     re2 = re2[0]
 
@@ -1695,7 +1808,7 @@ class AncestralState:
 
         return re1 , effect_number
 
-# this  is using to test the estimation of tau given real internal node
+    #### this  is using to test the estimation of tau given real internal node
     def monte_carlo_s1(self,ifsave=True,times=1,
                     iftestsimulation=True,sizen=9999):
 
@@ -1722,18 +1835,12 @@ class AncestralState:
 
                             re = self.GLS_s(t=t1, repeat=1, ifrecal=True, ini=ini1, end=end1)
                             sam = self.rank_ts(time=re[0], t=t1, state=re[1], ini=ini1, effect_number=re[2])
-                            re10 = self.whether_IGC(history_matrix=sam[0], effect_number=sam[1],branch=j)
+                            re10 = self.whether_IGC(history_matrix=sam[0], effect_number=sam[1])
                             effect_number = re10[1]
                             re1 = re10[0]
 
-                            di = 0
-                            for jj in range(sizen):
-                                di = self.dic_di[end1[jj]] + di
-
-                            print(di)
-
                         elif j == 1:
-                            print("ignore the outgroup")
+                            print("Ignore the outgroup")
 
 
                         elif j > 2:
@@ -1746,7 +1853,7 @@ class AncestralState:
 
                             sam = self.rank_ts(time=re[0], t=t1, state=re[1], ini=ini1, effect_number=re[2])
                             # print(sam[0])
-                            re2 = self.whether_IGC(history_matrix=sam[0], effect_number=sam[1],branch=j)
+                            re2 = self.whether_IGC(history_matrix=sam[0], effect_number=sam[1])
                             effect_number1 = re2[1]
                             re2 = re2[0]
 
@@ -1767,7 +1874,7 @@ class AncestralState:
 
                             re = self.GLS_s(t=t1, repeat=1, ifrecal=True, ini=ini1, end=end1)
                             sam = self.rank_ts(time=re[0], t=t1, state=re[1], ini=ini1, effect_number=re[2])
-                            re10 = self.whether_IGC(history_matrix=sam[0], effect_number=sam[1],branch=j)
+                            re10 = self.whether_IGC(history_matrix=sam[0], effect_number=sam[1])
                             max_diff = 0
                             di = self.dic_di
                             for i in range(self.sites_length):
@@ -1777,7 +1884,7 @@ class AncestralState:
                             re1n = re10[0]
 
                         elif j == 1:
-                            print("ignore the outgroup")
+                            print("Ignore the outgroup")
 
 
                         elif j > 2:
@@ -1790,7 +1897,7 @@ class AncestralState:
 
                             sam = self.rank_ts(time=re[0], t=t1, state=re[1], ini=ini1, effect_number=re[2])
                             # print(sam[0])
-                            re2 = self.whether_IGC(history_matrix=sam[0], effect_number=sam[1],branch=j)
+                            re2 = self.whether_IGC(history_matrix=sam[0], effect_number=sam[1])
                             effect_number1n = re2[1]
                             re2n = re2[0]
 
@@ -1803,12 +1910,12 @@ class AncestralState:
 
         return re1 , effect_number
 
-### divide the paralog diverge number
+
     def divide_Q(self, times, repeat,method="simple", ifwholetree=True,simple_state_number=5,ifpermutation=True,ifsave=True,
-                 ifsimulation=False):
+                 ifsimulation=True):
 
         if ifsimulation==True:
-            re=self.monte_carlo_s1(ifsave=ifsave,times=times)
+            re=self.monte_carlo_s(ifsave=ifsave,times=times)
 
         else:
             re=self.monte_carlo(times=times,repeat=repeat,ifwholetree=ifwholetree,ifpermutation=ifpermutation,ifsave=ifsave)
@@ -1843,7 +1950,7 @@ class AncestralState:
 
 
 
-        elif (method=="divide"):
+        if (method=="divide"):
             zzz = np.argmax(history_matrix[:, 0])
          #   big_quan = history_matrix[zzz, 0] / self.sites_length
             max_quan = history_matrix[zzz, 0]
@@ -1875,33 +1982,29 @@ class AncestralState:
                             history_matrix[ii, 3] = iii + 1
                             break
 
-##########################
-#########branch number-1
-        elif(method=="bybranch"):
-            type_number = len(self.scene['tree']["column_nodes"])-1
-            self.type_number = int(type_number)
-            self.last_effct = int(effect_number)
-            for ii in range(effect_number):
-                    history_matrix[ii, 3] = history_matrix[ii, 5]-2
+
+
         self.igc_com=history_matrix
       #  print(history_matrix)
+
+
 
         return history_matrix
 
 
-### get estimation
+
     def get_igcr_pad(self,times=2, repeat=1,simple_state_number=10,ifwholetree=True,ifpermutation=True,ifsave=True,
                      method="divide"):
 
              self.divide_Q(times=times,repeat=repeat,simple_state_number=simple_state_number,ifwholetree=ifwholetree,
                            ifpermutation=ifpermutation,ifsave=ifsave,method=method)
-             ## self.igc_com 0 difference number between paralog, 1 occupancy time for interval ,2 igc_number,3 state,4 propption = occupancy time/branch length
+             ## self.igc_com 0 difference number between paralog, 1 occupancy time for interval ,2 igc_number,3 state,4 proportion = occupancy time/branch length
 
              relationship=np.zeros(shape=(self.type_number-1, 8))
 
 
              ## relation ship 0 denominator of igc : time * difference,
-             ## 1 sum of igc events, 2 total time (may be usless),3 ratio: igc rates
+             ## 1 sum of igc events, 2 total time (may be usless),3 ratio: igc rates,4 total igc event, 5 total history
              for i in range(self.type_number-1):
                 deno=0
                 no=0
@@ -1927,19 +2030,9 @@ class AncestralState:
                 relationship[i, 2] = total_time
                 relationship[i, 3] = float(relationship[i, 1]) /( (relationship[i, 0])*2)
                 relationship[i, 4] = total_pro
-                #### 5 total potentiol igc; 6 total path
                 relationship[i, 5]=total_igc
                 relationship[i, 6] = total_history
-                relationship[i, 7] = total_history-no
-
-                print("for branch :" , geneconv.edge_list[i+2])
-                print("total events :" , total_history)
-                print("total igc :" , no)
-                # point mutation = events- igc
-                print("total point mutations :"  ,relationship[i, 7])
-                print("estimated tau :" , relationship[i, 3])
-                print("estimated branch length :",self.scene['tree']["edge_rate_scaling_factors"][i+2])
-                print("#######################")
+                relationship[i, 7] = deno1
 
 
              save_nameP = '../test/savesample/Ind_re_' + geneconv.Model + geneconv.paralog[0] + geneconv.paralog[
@@ -1952,7 +2045,8 @@ class AncestralState:
 
              return relationship
 
-# we can select different kernel method , the default one is "exp"
+# we can select different kernal method , the default one is "exp"
+
 
     def get_parameter(self,function="linear"):
 
@@ -2014,7 +2108,7 @@ class AncestralState:
 
             return (ini)
 
-    def GLS_si(self,t=0.04,ini =None,sizen=150):
+    def GLS_si(self,t=0.1,ini =None,sizen=150):
         if self.Q_new is None:
            self.making_Qg()
 
@@ -2207,7 +2301,7 @@ class AncestralState:
 
     ##### topology is pretty simple
 
-    def topo(self,leafnode=4,sizen=999,t=0.1):
+    def topo(self,leafnode=4,sizen=999,t=0.2):
         ini=self.make_ini(sizen=sizen)
         ini1=ini
 
@@ -2534,12 +2628,12 @@ class AncestralState:
 if __name__ == '__main__':
 
 
-  #  paralog = ['EDN', 'ECP']
-  #  alignment_file = '../test/EDN_ECP_Cleaned.fasta'
-  # newicktree = '../test/EDN_ECP_tree.newick'
+   # paralog = ['EDN', 'ECP']
+   # alignment_file = '../test/EDN_ECP_Cleaned.fasta'
+   # newicktree = '../test/EDN_ECP_tree.newick'
 
     paralog = ['paralog0', 'paralog1']
-    alignment_file = '../test/tau99_10sb.fasta'
+    alignment_file = '../test/tau99_04.fasta'
     newicktree = '../test/sample1.newick'
   #  Force ={0:np.exp(-0.71464127), 1:np.exp(-0.55541915), 2:np.exp(-0.68806275),3: np.exp( 0.74691342),4: np.exp( -0.5045814)}
     # %AG, % A, % C, kappa, tau
@@ -2547,8 +2641,8 @@ if __name__ == '__main__':
     Force=None
     model = 'HKY'
 
-    name = 'tau10sb_9999'
-  #  name='EDN_ECP_full'
+  #  name = 'tau04_9999'
+    name='EDN_ECP_full'
 
     type='situation1'
     save_name = '../test/save/' + model + name+'_'+type+'_nonclock_save.txt'
@@ -2557,11 +2651,7 @@ if __name__ == '__main__':
 
     self = AncestralState(geneconv)
     scene = self.get_scene()
-
-    self.jointly_common_ancstral_inference()
-    print(self.geneconv.node_to_num)
-    print(geneconv.edge_list)
-
+   # self.test_gls()
 
 
 ####### xiang
@@ -2582,19 +2672,19 @@ if __name__ == '__main__':
   #  self.judge_state_children()
    # self.original_Q()
 #    print(self.making_possibility_internal())
-   # print(self.jointly_common_ancstral_inference())
+   # print(self.joint_common_ancestral_inference())
 
 ######generit simulation data
   ########
-  #  sizen=10000
-  #  self.change_t_Q(tau=1)
-  #  aaa=self.topo(sizen=sizen)
-  #  self.difference(ini=aaa,sizen=sizen)
+  #  sizen=19998
+  #  self.change_t_Q(tau=0.4)
+   # aaa=self.topo(sizen=sizen)
+   # self.difference(ini=aaa,sizen=sizen)
   #  print(self.trans_into_seq(ini=aaa,sizen=sizen))
 
-########test common ancter whether work
+########test common ancestor whether work
   ######
-    # self.jointly_common_ancstral_inference()
+    # self.joint_common_ancestral_inference()
 
 
 ## method "simple" is default method， which focus on quail from post dis
@@ -2603,8 +2693,7 @@ if __name__ == '__main__':
 ############################
 ################TEST
 ######################################
- #   print(self.get_igcr_pad(times=3, repeat=1, ifpermutation=False, ifwholetree=True, ifsave=False, method="divide"))
-    self.get_igcr_pad(times=1, repeat=1, ifpermutation=False, ifwholetree=True, ifsave=False, method="bybranch")
+    print(self.get_igcr_pad(times=1, repeat=1, ifpermutation=False, ifwholetree=True, ifsave=False, method="divide"))
     #print(self.Q)
    # print(self.get_parameter(function="linear"))
   #  print(self.tau)
@@ -2725,7 +2814,7 @@ if __name__ == '__main__':
 ##    list_node=get_interior_node(re)
 ##    dict=self.get_dict_trans()
 ##    len_node=len(list_node)
-    ##    len_se=len(list_commonan)
-    ##    get_maxpro=get_maxpro(list_commonan,list_node)
-    ##    # print(get_maxpro[2][2]%61)
-        ##    translate=translate_into_seq(promax=get_maxpro,len_node=len_node,dict=dict,model=model,len_se=len_se)
+##    len_se=len(list_commonan)
+##    get_maxpro=get_maxpro(list_commonan,list_node)
+##    # print(get_maxpro[2][2]%61)
+    ##    translate=translate_into_seq(promax=get_maxpro,len_node=len_node,dict=dict,model=model,len_se=len_se)
