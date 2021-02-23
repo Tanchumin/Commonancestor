@@ -870,12 +870,17 @@ class AncestralState:
     def make_ie(self, node_i, node_e):
 
 
-        if self.sites is None:
-            self.jointly_common_ancstral_inference()
+    #    if self.sites is None:
+     #       print(1111111)
+     #       self.jointly_common_ancstral_inference()
+
+        print("makeie",node_i)
 
 
         ini = self.sites[node_i,]
         end = self.sites[node_e,]
+
+      #  self.measure_difference(ini,end,0)
 
 
         return ini, end
@@ -1347,8 +1352,10 @@ class AncestralState:
     def rank_ts(self,t,time,state,ini,effect_number):
 
 
+
         if self.dic_di is None:
             self.making_dic_di()
+
 
         di=self.dic_di
 
@@ -1359,13 +1366,21 @@ class AncestralState:
         z=False
 
 
+
+
         for i in range(self.sites_length):
             difference = difference+di[ini[i]]
+
+
 
     # 0 last difference number ,1 next difference number, 2 last time, 3 next time
     # 4 time difference is important, 5 location ,6 last state, 7 next state,8 ratio
         history_matrix = np.zeros(shape=(effect_number+1, 9))
+
+
         for jj in range(effect_number+1):
+
+
             coor = np.argmin(time)
             history_matrix[jj,0]=difference
             time_old=time_new
@@ -1375,6 +1390,7 @@ class AncestralState:
             if(time_new>t):
                 time_new=t
                 z=True
+
 
             history_matrix[jj, 3] = time_new
             history_matrix[jj, 4] = time_new-time_old
@@ -1398,6 +1414,7 @@ class AncestralState:
                 break;
 
 
+
         return history_matrix,effect_number
 
 
@@ -1405,6 +1422,7 @@ class AncestralState:
     def monte_carlo(self,t=0.1,times=1,repeat=1,ifwholetree=False,ifpermutation=True,ifsave=False,
                    ):
         global re1
+        global sitesd
 
 
         if ifpermutation==True:
@@ -1470,7 +1488,6 @@ class AncestralState:
                         end2 = self.geneconv.node_to_num[geneconv.edge_list[j][1]]
                         #print(ini2)
                         #print(end2)
-
                         ini1 = self.make_ie(ini2, end2)[0]
                         end1 = self.make_ie(ini2, end2)[1]
 
@@ -1519,6 +1536,7 @@ class AncestralState:
                 for kk in range(times):
               #      self.ancestral_state_response=None
                     self.jointly_common_ancstral_inference()
+                    sitesd=deepcopy(self.sites)
                     print(kk)
                     ttt=len(self.scene['tree']["column_nodes"])
                     if kk==0:
@@ -1529,12 +1547,24 @@ class AncestralState:
                              if j == 2:
                                   ini2 = self.geneconv.node_to_num[geneconv.edge_list[j][0]]
                                   end2 = self.geneconv.node_to_num[geneconv.edge_list[j][1]]
-                                  ini1 = self.make_ie(ini2, end2)[0]
-                                  end1 = self.make_ie(ini2, end2)[1]
+                                  print("xxxxxxxxx")
+                                  print(ini2)
+                                  print(end2)
+                                  ini1=deepcopy(self.sites[ini2,])
+                                  end1=deepcopy(self.sites[end2,])
+                                  self.measure_difference(ini1,end1,j)
+
 
                                   re = self.GLS_s(t=t1, repeat=1, ifrecal=True,ini=ini1, end=end1)
                                   sam = self.rank_ts(time=re[0],t=t1, state=re[1], ini=ini1, effect_number=re[2])
+
+                                  ini1 = self.sites[1,]
+                                  end1 = self.sites[3,]
+                                  self.measure_difference(ini1, end1, 1)
+
                                   re10 = self.whether_IGC(history_matrix=sam[0], effect_number=sam[1],branch=j)
+
+
                                   effect_number = re10[1]
                                   re1 = re10[0]
 
@@ -1543,19 +1573,19 @@ class AncestralState:
                              #         di = self.dic_di[ini1[jj]] + di
                              #     print(di)
 
-
-
                              elif j == 1:
                                  print("ignore the outgroup")
-
 
                              elif j>2:
                                ini2 = self.geneconv.node_to_num[geneconv.edge_list[j][0]]
                                end2 = self.geneconv.node_to_num[geneconv.edge_list[j][1]]
-                           #    print(ini2)
-                            #   print(end2)
-                               ini1 = self.make_ie(ini2, end2)[0]
-                               end1 = self.make_ie(ini2, end2)[1]
+                               print("xxxxxxxxx")
+                               print(ini2)
+                               print(end2)
+
+                               ini1 = deepcopy(self.sites[ini2,])
+                               end1 = deepcopy(self.sites[end2,])
+                               self.measure_difference(ini1, end1, j)
 
 
                                re = self.GLS_s(t=t1, ifrecal=True,repeat=1, ini=ini1, end=end1)
@@ -1578,8 +1608,10 @@ class AncestralState:
                             if j == 2:
                                 ini2 = self.geneconv.node_to_num[geneconv.edge_list[j][0]]
                                 end2 = self.geneconv.node_to_num[geneconv.edge_list[j][1]]
-                                ini1 = self.make_ie(ini2, end2)[0]
-                                end1 = self.make_ie(ini2, end2)[1]
+                                ini1 = deepcopy(self.sites[ini2,])
+                                end1 = deepcopy(self.sites[end2,])
+
+
                                 re = self.GLS_s(t=t1, repeat=1, ifrecal=True, ini=ini1, end=end1)
                                 sam = self.rank_ts(time=re[0], t=t1, state=re[1], ini=ini1, effect_number=re[2])
                                 re10 = self.whether_IGC(history_matrix=sam[0], effect_number=sam[1],branch=j)
@@ -1598,8 +1630,8 @@ class AncestralState:
                             elif j > 2:
                                 ini2 = self.geneconv.node_to_num[geneconv.edge_list[j][0]]
                                 end2 = self.geneconv.node_to_num[geneconv.edge_list[j][1]]
-                                ini1 = self.make_ie(ini2, end2)[0]
-                                end1 = self.make_ie(ini2, end2)[1]
+                                ini1 = deepcopy(self.sites[ini2,])
+                                end1 = deepcopy(self.sites[end2,])
 
                                 re = self.GLS_s(t=t1, ifrecal=True, repeat=1, ini=ini1, end=end1)
 
@@ -1932,14 +1964,14 @@ class AncestralState:
                 relationship[i, 6] = total_history
                 relationship[i, 7] = total_history-no
 
-                print("for branch :" , geneconv.edge_list[i+2])
-                print("total events :" , total_history)
-                print("total igc :" , no)
+          #      print("for branch :" , geneconv.edge_list[i+2])
+          #      print("total events :" , total_history)
+          #      print("total igc :" , no)
                 # point mutation = events- igc
-                print("total point mutations :"  ,relationship[i, 7])
-                print("estimated tau :" , relationship[i, 3])
-                print("estimated branch length :",self.scene['tree']["edge_rate_scaling_factors"][i+2])
-                print("#######################")
+          #      print("total point mutations :"  ,relationship[i, 7])
+           #     print("estimated tau :" , relationship[i, 3])
+           #     print("estimated branch length :",self.scene['tree']["edge_rate_scaling_factors"][i+2])
+           #     print("#######################")
 
 
              save_nameP = '../test/savesample/Ind_re_' + geneconv.Model + geneconv.paralog[0] + geneconv.paralog[
@@ -2014,7 +2046,7 @@ class AncestralState:
 
             return (ini)
 
-    def GLS_si(self,t=0.04,ini =None,sizen=150):
+    def GLS_si(self,t=0.01,ini =None,sizen=150):
         if self.Q_new is None:
            self.making_Qg()
 
@@ -2200,9 +2232,6 @@ class AncestralState:
 
             #print(Q)
 
-
-      #  print(site1)
-      #  print(site)
 
 
     ##### topology is pretty simple
@@ -2520,8 +2549,35 @@ class AncestralState:
                     else:
                         em[0, 4] = em[0, 4] + 1
 
-
         return em
+
+
+    def measure_difference(self,ini,end,branch):
+
+
+        mutation_rate=0
+        ini_paralog_div=0
+        end_paralog_div = 0
+        str = {0, 5, 10, 15}
+
+        for i  in range(self.sites_length):
+            if(ini[i]!=end[i]):
+                mutation_rate=mutation_rate+1
+            if(ini[i] in str):
+                ini_paralog_div=ini_paralog_div+1
+            if(end[i]in str):
+                end_paralog_div=end_paralog_div+1
+
+        print("for branch :", geneconv.edge_list[branch])
+        print("estimated branch length :", self.scene['tree']["edge_rate_scaling_factors"][branch])
+        print("%  identity between  paralogs at branch beginning:", ini_paralog_div/self.sites_length)
+        print("%  identity between  paralogs at branch ending:", end_paralog_div / self.sites_length)
+        print("%  sites differ between beginning and ending in at least one", mutation_rate/self.sites_length)
+        print("**********************")
+
+
+
+
 
 
 
@@ -2539,7 +2595,7 @@ if __name__ == '__main__':
   # newicktree = '../test/EDN_ECP_tree.newick'
 
     paralog = ['paralog0', 'paralog1']
-    alignment_file = '../test/tau99_10sb.fasta'
+    alignment_file = '../test/tau99_04.fasta'
     newicktree = '../test/sample1.newick'
   #  Force ={0:np.exp(-0.71464127), 1:np.exp(-0.55541915), 2:np.exp(-0.68806275),3: np.exp( 0.74691342),4: np.exp( -0.5045814)}
     # %AG, % A, % C, kappa, tau
@@ -2547,7 +2603,7 @@ if __name__ == '__main__':
     Force=None
     model = 'HKY'
 
-    name = 'tau10sb_9999'
+    name = 'tau04_9999'
   #  name='EDN_ECP_full'
 
     type='situation1'
@@ -2558,9 +2614,9 @@ if __name__ == '__main__':
     self = AncestralState(geneconv)
     scene = self.get_scene()
 
-    self.jointly_common_ancstral_inference()
-    print(self.geneconv.node_to_num)
-    print(geneconv.edge_list)
+ #   self.jointly_common_ancstral_inference()
+  #  print(self.geneconv.node_to_num)
+  #  print(geneconv.edge_list)
 
 
 
@@ -2587,10 +2643,10 @@ if __name__ == '__main__':
 ######generit simulation data
   ########
   #  sizen=10000
-  #  self.change_t_Q(tau=1)
+  #  self.change_t_Q(tau=0.0000001)
   #  aaa=self.topo(sizen=sizen)
-  #  self.difference(ini=aaa,sizen=sizen)
-  #  print(self.trans_into_seq(ini=aaa,sizen=sizen))
+   # self.difference(ini=aaa,sizen=sizen)
+   # print(self.trans_into_seq(ini=aaa,sizen=sizen))
 
 ########test common ancter whether work
   ######
@@ -2603,8 +2659,8 @@ if __name__ == '__main__':
 ############################
 ################TEST
 ######################################
- #   print(self.get_igcr_pad(times=3, repeat=1, ifpermutation=False, ifwholetree=True, ifsave=False, method="divide"))
-    self.get_igcr_pad(times=1, repeat=1, ifpermutation=False, ifwholetree=True, ifsave=False, method="bybranch")
+    print(self.get_igcr_pad(times=10, repeat=1, ifpermutation=False, ifwholetree=True, ifsave=False, method="divide"))
+#    self.get_igcr_pad(times=1, repeat=1, ifpermutation=False, ifwholetree=True, ifsave=False, method="bybranch")
     #print(self.Q)
    # print(self.get_parameter(function="linear"))
   #  print(self.tau)

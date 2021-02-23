@@ -5,13 +5,10 @@
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/IGCexpansion/ac.py" beforeDir="false" afterPath="$PROJECT_DIR$/IGCexpansion/ac.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/test/save/HKYtau04_9999_situation1_nonclock_save.txt" beforeDir="false" afterPath="$PROJECT_DIR$/test/save/HKYtau04_9999_situation1_nonclock_save.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/save/HKYtau10sb_9999_situation1_nonclock_save.txt" beforeDir="false" afterPath="$PROJECT_DIR$/test/save/HKYtau10sb_9999_situation1_nonclock_save.txt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/test/savesample/Ind_QQQsample.txt" beforeDir="false" afterPath="$PROJECT_DIR$/test/savesample/Ind_QQQsample.txt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/test/savesample/Ind_re_HKYparalog0paralog1sample.txt" beforeDir="false" afterPath="$PROJECT_DIR$/test/savesample/Ind_re_HKYparalog0paralog1sample.txt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/test/savesample/RRR_Internal_paralog0paralog1sample.txt" beforeDir="false" afterPath="$PROJECT_DIR$/test/savesample/RRR_Internal_paralog0paralog1sample.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/test/savesample/SSSS_Internal_paralog0paralog1sample.txt" beforeDir="false" afterPath="$PROJECT_DIR$/test/savesample/SSSS_Internal_paralog0paralog1sample.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/test/savesample/sample1.txt.npz" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/test/savesample/sample2.fasta" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/test/savesample/sample3.txt" beforeDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -27,10 +24,9 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/IGCexpansion/ac.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="1124">
-              <caret line="1467" column="30" lean-forward="true" selection-start-line="1467" selection-start-column="30" selection-end-line="1467" selection-end-column="30" />
+            <state relative-caret-position="465">
+              <caret line="2678" lean-forward="true" selection-start-line="2678" selection-end-line="2678" />
               <folding>
-                <element signature="e#1002#2295#0" />
                 <element signature="e#2328#2351#0" />
                 <element signature="e#2386#2512#0" />
                 <element signature="e#2552#2589#0" />
@@ -50,34 +46,35 @@
                 <element signature="e#13457#14128#0" />
                 <element signature="e#14290#15098#0" />
                 <element signature="e#15209#20619#0" />
-                <element signature="e#20681#23668#0" />
-                <element signature="e#24193#25607#0" />
-                <element signature="e#25676#26665#0" />
-                <element signature="e#26763#27244#0" />
-                <element signature="e#27298#27885#0" />
-                <element signature="e#27927#30618#0" />
-                <element signature="e#30708#30879#0" />
-                <element signature="e#30983#34002#0" />
-                <element signature="e#34138#41643#0" />
-                <element signature="e#34213#34236#0" />
-                <element signature="e#42077#44076#0" />
-                <element signature="e#44312#48732#0" />
-                <element signature="e#48857#50570#0" />
-                <element signature="e#68035#71368#0" />
-                <element signature="e#71523#74058#0" />
-                <element signature="e#73878#74659#0" />
-                <element signature="e#74554#75247#0" />
-                <element signature="e#75306#76631#0" />
-                <element signature="e#76941#77112#0" />
-                <element signature="e#77202#78044#0" />
-                <element signature="e#78145#79258#0" />
-                <element signature="e#79364#80298#0" />
-                <element signature="e#80438#82288#0" />
-                <element signature="e#82117#83860#0" />
-                <element signature="e#83900#84413#0" />
-                <element signature="e#84468#84922#0" />
-                <element signature="e#84971#85198#0" />
-                <element signature="e#85269#89899#0" />
+                <element signature="e#20681#23665#0" />
+                <element signature="e#24190#25604#0" />
+                <element signature="e#25673#26662#0" />
+                <element signature="e#26760#27241#0" />
+                <element signature="e#27295#27882#0" />
+                <element signature="e#27924#30615#0" />
+                <element signature="e#30980#33999#0" />
+                <element signature="e#34144#41881#0" />
+                <element signature="e#42048#44045#0" />
+                <element signature="e#44281#48701#0" />
+                <element signature="e#50769#54638#0" />
+                <element signature="e#50810#51612#0" />
+                <element signature="e#54709#55525#0" />
+                <element signature="e#61064#63058#0" />
+                <element signature="e#63245#67787#0" />
+                <element signature="e#67999#71332#0" />
+                <element signature="e#74337#75118#0" />
+                <element signature="e#75283#75976#0" />
+                <element signature="e#76035#77360#0" />
+                <element signature="e#77400#77571#0" />
+                <element signature="e#77661#78503#0" />
+                <element signature="e#78604#79717#0" />
+                <element signature="e#79823#80757#0" />
+                <element signature="e#80897#82747#0" />
+                <element signature="e#82846#84589#0" />
+                <element signature="e#84629#85142#0" />
+                <element signature="e#85197#85651#0" />
+                <element signature="e#85700#85927#0" />
+                <element signature="e#85998#90628#0" />
               </folding>
             </state>
           </provider>
@@ -117,6 +114,8 @@
       <find>name_to_seq</find>
       <find>paralog</find>
       <find>self.clock</find>
+      <find>self.sites</find>
+      <find>sitesd</find>
     </findStrings>
   </component>
   <component name="Git.Settings">
@@ -140,10 +139,10 @@
       </list>
     </option>
   </component>
-  <component name="ProjectFrameBounds" extendedState="1">
-    <option name="y" value="26" />
+  <component name="ProjectFrameBounds">
+    <option name="y" value="23" />
     <option name="width" value="1440" />
-    <option name="height" value="822" />
+    <option name="height" value="821" />
   </component>
   <component name="ProjectView">
     <navigator proportions="" version="1">
@@ -374,21 +373,22 @@
     </todo-panel>
   </component>
   <component name="ToolWindowManager">
-    <frame x="0" y="26" width="1440" height="822" extended-state="1" />
+    <frame x="0" y="23" width="1440" height="821" extended-state="0" />
+    <editor active="true" />
     <layout>
       <window_info content_ui="combo" id="Project" order="0" sideWeight="0.49785408" visible="true" weight="0.21000704" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info id="Favorites" order="2" sideWeight="0.50214595" side_tool="true" weight="0.24945612" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Find" order="1" />
-      <window_info active="true" anchor="bottom" id="Run" order="2" visible="true" weight="0.9589041" />
+      <window_info active="true" anchor="bottom" id="Run" order="2" sideWeight="0.4989429" visible="true" weight="0.18655692" />
       <window_info anchor="bottom" id="Debug" order="3" weight="0.3626506" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
       <window_info anchor="bottom" id="TODO" order="6" sideWeight="0.49964765" weight="0.32891566" />
       <window_info anchor="bottom" id="Version Control" order="7" sideWeight="0.49964765" weight="0.32891566" />
       <window_info anchor="bottom" id="Terminal" order="8" sideWeight="0.49964765" weight="0.32891566" />
-      <window_info anchor="bottom" id="Event Log" order="9" sideWeight="0.5003524" side_tool="true" weight="0.32891566" />
+      <window_info anchor="bottom" id="Event Log" order="9" sideWeight="0.5010571" side_tool="true" weight="0.38957477" />
       <window_info anchor="bottom" id="Python Console" order="10" sideWeight="0.49964765" weight="0.32891566" />
       <window_info anchor="right" id="Commander" internal_type="SLIDING" order="0" type="SLIDING" weight="0.4" />
       <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
@@ -421,6 +421,11 @@
           <url>file://$PROJECT_DIR$/IGCexpansion/test</url>
           <line>38</line>
           <option name="timeStamp" value="6" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/IGCexpansion/ac.py</url>
+          <line>869</line>
+          <option name="timeStamp" value="10" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>
@@ -650,10 +655,9 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/IGCexpansion/ac.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1124">
-          <caret line="1467" column="30" lean-forward="true" selection-start-line="1467" selection-start-column="30" selection-end-line="1467" selection-end-column="30" />
+        <state relative-caret-position="465">
+          <caret line="2678" lean-forward="true" selection-start-line="2678" selection-end-line="2678" />
           <folding>
-            <element signature="e#1002#2295#0" />
             <element signature="e#2328#2351#0" />
             <element signature="e#2386#2512#0" />
             <element signature="e#2552#2589#0" />
@@ -673,34 +677,35 @@
             <element signature="e#13457#14128#0" />
             <element signature="e#14290#15098#0" />
             <element signature="e#15209#20619#0" />
-            <element signature="e#20681#23668#0" />
-            <element signature="e#24193#25607#0" />
-            <element signature="e#25676#26665#0" />
-            <element signature="e#26763#27244#0" />
-            <element signature="e#27298#27885#0" />
-            <element signature="e#27927#30618#0" />
-            <element signature="e#30708#30879#0" />
-            <element signature="e#30983#34002#0" />
-            <element signature="e#34138#41643#0" />
-            <element signature="e#34213#34236#0" />
-            <element signature="e#42077#44076#0" />
-            <element signature="e#44312#48732#0" />
-            <element signature="e#48857#50570#0" />
-            <element signature="e#68035#71368#0" />
-            <element signature="e#71523#74058#0" />
-            <element signature="e#73878#74659#0" />
-            <element signature="e#74554#75247#0" />
-            <element signature="e#75306#76631#0" />
-            <element signature="e#76941#77112#0" />
-            <element signature="e#77202#78044#0" />
-            <element signature="e#78145#79258#0" />
-            <element signature="e#79364#80298#0" />
-            <element signature="e#80438#82288#0" />
-            <element signature="e#82117#83860#0" />
-            <element signature="e#83900#84413#0" />
-            <element signature="e#84468#84922#0" />
-            <element signature="e#84971#85198#0" />
-            <element signature="e#85269#89899#0" />
+            <element signature="e#20681#23665#0" />
+            <element signature="e#24190#25604#0" />
+            <element signature="e#25673#26662#0" />
+            <element signature="e#26760#27241#0" />
+            <element signature="e#27295#27882#0" />
+            <element signature="e#27924#30615#0" />
+            <element signature="e#30980#33999#0" />
+            <element signature="e#34144#41881#0" />
+            <element signature="e#42048#44045#0" />
+            <element signature="e#44281#48701#0" />
+            <element signature="e#50769#54638#0" />
+            <element signature="e#50810#51612#0" />
+            <element signature="e#54709#55525#0" />
+            <element signature="e#61064#63058#0" />
+            <element signature="e#63245#67787#0" />
+            <element signature="e#67999#71332#0" />
+            <element signature="e#74337#75118#0" />
+            <element signature="e#75283#75976#0" />
+            <element signature="e#76035#77360#0" />
+            <element signature="e#77400#77571#0" />
+            <element signature="e#77661#78503#0" />
+            <element signature="e#78604#79717#0" />
+            <element signature="e#79823#80757#0" />
+            <element signature="e#80897#82747#0" />
+            <element signature="e#82846#84589#0" />
+            <element signature="e#84629#85142#0" />
+            <element signature="e#85197#85651#0" />
+            <element signature="e#85700#85927#0" />
+            <element signature="e#85998#90628#0" />
           </folding>
         </state>
       </provider>
