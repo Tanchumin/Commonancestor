@@ -2,13 +2,19 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="a9952ef3-53b5-4976-ba05-bb25560d8c3b" name="Default Changelist" comment="">
+      <change afterPath="$PROJECT_DIR$/tutorials/es_dif_tau/run_est_tau.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/IGCexpansion/ac.py" beforeDir="false" afterPath="$PROJECT_DIR$/IGCexpansion/ac.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/save/HKYEDN_ECP_full_situation1_nonclock_save.txt" beforeDir="false" afterPath="$PROJECT_DIR$/test/save/HKYEDN_ECP_full_situation1_nonclock_save.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/save/HKYtau01_9999_situation1_nonclock_save.txt" beforeDir="false" afterPath="$PROJECT_DIR$/test/save/HKYtau01_9999_situation1_nonclock_save.txt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/test/save/HKYtau04_9999_situation1_nonclock_save.txt" beforeDir="false" afterPath="$PROJECT_DIR$/test/save/HKYtau04_9999_situation1_nonclock_save.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/test/save/HKYtau10sb_9999_situation1_nonclock_save.txt" beforeDir="false" afterPath="$PROJECT_DIR$/test/save/HKYtau10sb_9999_situation1_nonclock_save.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/save/HKYtau10_9999_situation1_nonclock_save.txt" beforeDir="false" afterPath="$PROJECT_DIR$/test/save/HKYtau10_9999_situation1_nonclock_save.txt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/test/savesample/Ind_QQQsample.txt" beforeDir="false" afterPath="$PROJECT_DIR$/test/savesample/Ind_QQQsample.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/savesample/Ind_re_HKYEDNECPsample.txt" beforeDir="false" afterPath="$PROJECT_DIR$/test/savesample/Ind_re_HKYEDNECPsample.txt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/test/savesample/Ind_re_HKYparalog0paralog1sample.txt" beforeDir="false" afterPath="$PROJECT_DIR$/test/savesample/Ind_re_HKYparalog0paralog1sample.txt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/test/savesample/RRR_Internal_paralog0paralog1sample.txt" beforeDir="false" afterPath="$PROJECT_DIR$/test/savesample/RRR_Internal_paralog0paralog1sample.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/savesample/sample1.fasta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/tutorials/IS_IGC_Old/Run_IS_IGC_Old.py" beforeDir="false" afterPath="$PROJECT_DIR$/tutorials/IS_IGC_Old/Run_IS_IGC_Old.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -24,57 +30,60 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/IGCexpansion/ac.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="465">
-              <caret line="2678" lean-forward="true" selection-start-line="2678" selection-end-line="2678" />
+            <state relative-caret-position="1391">
+              <caret line="2711" column="14" selection-start-line="2711" selection-start-column="14" selection-end-line="2711" selection-end-column="14" />
               <folding>
-                <element signature="e#2328#2351#0" />
-                <element signature="e#2386#2512#0" />
-                <element signature="e#2552#2589#0" />
-                <element signature="e#2655#4042#0" />
-                <element signature="e#4098#5207#0" />
-                <element signature="e#5243#5430#0" />
-                <element signature="e#5477#6134#0" />
-                <element signature="e#6193#6913#0" />
-                <element signature="e#6995#8324#0" />
-                <element signature="e#8368#8831#0" />
-                <element signature="e#8903#9811#0" />
-                <element signature="e#9844#10053#0" />
-                <element signature="e#10096#10515#0" />
-                <element signature="e#10556#10673#0" />
-                <element signature="e#10728#12827#0" />
-                <element signature="e#12906#13357#0" />
-                <element signature="e#13457#14128#0" />
-                <element signature="e#14290#15098#0" />
-                <element signature="e#15209#20619#0" />
-                <element signature="e#20681#23665#0" />
-                <element signature="e#24190#25604#0" />
-                <element signature="e#25673#26662#0" />
-                <element signature="e#26760#27241#0" />
-                <element signature="e#27295#27882#0" />
-                <element signature="e#27924#30615#0" />
-                <element signature="e#30980#33999#0" />
-                <element signature="e#34144#41881#0" />
-                <element signature="e#42048#44045#0" />
-                <element signature="e#44281#48701#0" />
-                <element signature="e#50769#54638#0" />
-                <element signature="e#50810#51612#0" />
-                <element signature="e#54709#55525#0" />
-                <element signature="e#61064#63058#0" />
-                <element signature="e#63245#67787#0" />
-                <element signature="e#67999#71332#0" />
-                <element signature="e#74337#75118#0" />
-                <element signature="e#75283#75976#0" />
-                <element signature="e#76035#77360#0" />
-                <element signature="e#77400#77571#0" />
-                <element signature="e#77661#78503#0" />
-                <element signature="e#78604#79717#0" />
-                <element signature="e#79823#80757#0" />
-                <element signature="e#80897#82747#0" />
-                <element signature="e#82846#84589#0" />
-                <element signature="e#84629#85142#0" />
-                <element signature="e#85197#85651#0" />
-                <element signature="e#85700#85927#0" />
-                <element signature="e#85998#90628#0" />
+                <element signature="e#213#250#0" expanded="true" />
+                <element signature="e#1002#2294#0" />
+                <element signature="e#2654#4041#0" />
+                <element signature="e#4097#5206#0" />
+                <element signature="e#5242#5429#0" />
+                <element signature="e#5476#6133#0" />
+                <element signature="e#6192#6912#0" />
+                <element signature="e#6994#8343#0" />
+                <element signature="e#8387#8850#0" />
+                <element signature="e#8922#9830#0" />
+                <element signature="e#9863#10072#0" />
+                <element signature="e#10115#10534#0" />
+                <element signature="e#10575#10692#0" />
+                <element signature="e#10747#12846#0" />
+                <element signature="e#12925#13376#0" />
+                <element signature="e#13476#14147#0" />
+                <element signature="e#14309#15117#0" />
+                <element signature="e#15228#20602#0" />
+                <element signature="e#24084#25498#0" />
+                <element signature="e#25567#26556#0" />
+                <element signature="e#26654#27135#0" />
+                <element signature="e#27189#27776#0" />
+                <element signature="e#27818#30509#0" />
+                <element signature="e#33778#41515#0" />
+                <element signature="e#41682#43679#0" />
+                <element signature="e#43923#48395#0" />
+                <element signature="e#48521#50245#0" />
+                <element signature="e#50417#60520#0" />
+                <element signature="e#50497#54366#0" />
+                <element signature="e#54437#55253#0" />
+                <element signature="e#60701#62695#0" />
+                <element signature="e#62882#67424#0" />
+                <element signature="e#67636#70967#0" />
+                <element signature="e#68010#70030#0" />
+                <element signature="e#70195#75797#0" />
+                <element signature="e#71158#75292#0" />
+                <element signature="e#75418#76199#0" />
+                <element signature="e#76364#77057#0" />
+                <element signature="e#77116#78441#0" />
+                <element signature="e#78481#78652#0" />
+                <element signature="e#78742#79606#0" />
+                <element signature="e#79707#80820#0" />
+                <element signature="e#80926#81860#0" />
+                <element signature="e#81956#84240#0" />
+                <element signature="e#84355#86098#0" />
+                <element signature="e#86138#86651#0" />
+                <element signature="e#86706#87160#0" />
+                <element signature="e#87232#87459#0" />
+                <element signature="e#87530#92159#0" />
+                <element signature="e#92254#93151#0" />
+                <element signature="e#91571#92587#0" />
               </folding>
             </state>
           </provider>
@@ -132,9 +141,10 @@
         <option value="$PROJECT_DIR$/IGCexpansion/AncestralState.py" />
         <option value="$PROJECT_DIR$/IGCexpansion/CodonGeneconFunc.py" />
         <option value="$PROJECT_DIR$/README.md" />
-        <option value="$PROJECT_DIR$/tutorials/IS_IGC_Old/Run_IS_IGC_Old.py" />
         <option value="$PROJECT_DIR$/IGCexpansion/test" />
         <option value="$PROJECT_DIR$/IGCexpansion/CodonGeneconv.py" />
+        <option value="$PROJECT_DIR$/tutorials/es_dif_tau/run_est_tau.py" />
+        <option value="$PROJECT_DIR$/tutorials/IS_IGC_Old/Run_IS_IGC_Old.py" />
         <option value="$PROJECT_DIR$/IGCexpansion/ac.py" />
       </list>
     </option>
@@ -148,33 +158,7 @@
     <navigator proportions="" version="1">
       <foldersAlwaysOnTop value="true" />
     </navigator>
-    <panes>
-      <pane id="ProjectPane">
-        <subPane>
-          <expand>
-            <path>
-              <item name="Commonancestor" type="b2602c69:ProjectViewProjectNode" />
-              <item name="Commonancestor" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="Commonancestor" type="b2602c69:ProjectViewProjectNode" />
-              <item name="Commonancestor" type="462c0819:PsiDirectoryNode" />
-              <item name="IGCexpansion" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="Commonancestor" type="b2602c69:ProjectViewProjectNode" />
-              <item name="External Libraries" type="cb654da1:ExternalLibrariesNode" />
-            </path>
-            <path>
-              <item name="Commonancestor" type="b2602c69:ProjectViewProjectNode" />
-              <item name="Scratches and Consoles" type="1a2a3e82:ScratchProjectViewPane$MyProjectNode" />
-            </path>
-          </expand>
-          <select />
-        </subPane>
-      </pane>
-      <pane id="Scope" />
-    </panes>
+    <panes />
   </component>
   <component name="PropertiesComponent">
     <property name="last_opened_file_path" value="$PROJECT_DIR$" />
@@ -277,6 +261,27 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
+    <configuration name="run_est_tau" type="PythonConfigurationType" factoryName="Python" temporary="true">
+      <module name="Commonancestor" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/tutorials/es_dif_tau" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/tutorials/es_dif_tau/run_est_tau.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
     <configuration name="s_basic" type="PythonConfigurationType" factoryName="Python">
       <module name="Commonancestor" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -319,34 +324,13 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
-    <configuration name="test" type="PythonConfigurationType" factoryName="Python" temporary="true">
-      <module name="Commonancestor" />
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/IGCexpansion" />
-      <option name="IS_MODULE_SDK" value="true" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/IGCexpansion/test.py" />
-      <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
-      <option name="EMULATE_TERMINAL" value="false" />
-      <option name="MODULE_MODE" value="false" />
-      <option name="REDIRECT_INPUT" value="false" />
-      <option name="INPUT_FILE" value="" />
-      <method v="2" />
-    </configuration>
     <recent_temporary>
       <list>
+        <item itemvalue="Python.run_est_tau" />
         <item itemvalue="Python.CodonGeneconv" />
         <item itemvalue="Python.test (1)" />
         <item itemvalue="Python.Run_IS_IGC_Old" />
         <item itemvalue="Python.AncestralState" />
-        <item itemvalue="Python.test" />
       </list>
     </recent_temporary>
   </component>
@@ -376,20 +360,20 @@
     <frame x="0" y="23" width="1440" height="821" extended-state="0" />
     <editor active="true" />
     <layout>
-      <window_info content_ui="combo" id="Project" order="0" sideWeight="0.49785408" visible="true" weight="0.21000704" />
+      <window_info content_ui="combo" id="Project" order="0" sideWeight="0.49785408" weight="0.21000704" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info id="Favorites" order="2" sideWeight="0.50214595" side_tool="true" weight="0.24945612" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Find" order="1" />
-      <window_info active="true" anchor="bottom" id="Run" order="2" sideWeight="0.4989429" visible="true" weight="0.18655692" />
+      <window_info anchor="bottom" id="Run" order="2" sideWeight="0.4989429" weight="0.41563785" />
       <window_info anchor="bottom" id="Debug" order="3" weight="0.3626506" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
-      <window_info anchor="bottom" id="TODO" order="6" sideWeight="0.49964765" weight="0.32891566" />
-      <window_info anchor="bottom" id="Version Control" order="7" sideWeight="0.49964765" weight="0.32891566" />
-      <window_info anchor="bottom" id="Terminal" order="8" sideWeight="0.49964765" weight="0.32891566" />
+      <window_info anchor="bottom" id="TODO" order="6" sideWeight="0.49964765" weight="0.32784638" />
+      <window_info anchor="bottom" id="Version Control" order="7" sideWeight="0.49964765" weight="0.32784638" />
+      <window_info anchor="bottom" id="Terminal" order="8" sideWeight="0.49964765" weight="0.32784638" />
       <window_info anchor="bottom" id="Event Log" order="9" sideWeight="0.5010571" side_tool="true" weight="0.38957477" />
-      <window_info anchor="bottom" id="Python Console" order="10" sideWeight="0.49964765" weight="0.32891566" />
+      <window_info anchor="bottom" id="Python Console" order="10" sideWeight="0.49964765" weight="0.32784638" />
       <window_info anchor="right" id="Commander" internal_type="SLIDING" order="0" type="SLIDING" weight="0.4" />
       <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
       <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
@@ -424,16 +408,13 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/IGCexpansion/ac.py</url>
-          <line>869</line>
-          <option name="timeStamp" value="10" />
+          <line>2697</line>
+          <option name="timeStamp" value="8" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/IGCexpansion/AncestralState.py" />
-    <entry file="file://$PROJECT_DIR$/IGCexpansion/test.py" />
-    <entry file="file://$PROJECT_DIR$/IGCexpansion/as.py" />
     <entry file="file://$PROJECT_DIR$/test/save/EDN_ECP_HKY_nonclock_save.txt">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="105">
@@ -579,13 +560,6 @@
     <entry file="file://$PROJECT_DIR$/setup.py">
       <provider selected="true" editor-type-id="text-editor" />
     </entry>
-    <entry file="file://$PROJECT_DIR$/tutorials/IS_IGC_Old/Run_IS_IGC_Old.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="285">
-          <caret line="21" column="33" selection-start-line="21" selection-start-column="33" selection-end-line="21" selection-end-column="33" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/test/savesample/RRR_Internal_EDNECPsample.txt.npy">
       <provider selected="true" editor-type-id="text-editor" />
     </entry>
@@ -643,9 +617,39 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/tutorials/IS_IGC_New/terminal_node_list.txt">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/tutorials/IS_IGC_New/Run_IS_IGC_New.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-249">
+          <caret line="2" column="13" selection-end-line="3" selection-end-column="18" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/tutorials/IS_IGC_Old/Run_IS_IGC_Old.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="226">
+          <caret line="26" column="68" lean-forward="true" selection-start-line="26" selection-start-column="68" selection-end-line="26" selection-end-column="68" />
+          <folding>
+            <element signature="e#0#54#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/tutorials/es_dif_tau/run_est_tau.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="316">
+          <caret line="47" column="4" selection-start-line="47" selection-start-column="4" selection-end-line="47" selection-end-column="4" />
+          <folding>
+            <element signature="e#213#250#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/IGCexpansion/CodonGeneconv.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-7549">
+        <state relative-caret-position="15">
           <caret line="213" column="25" selection-start-line="213" selection-start-column="25" selection-end-line="213" selection-end-column="25" />
           <folding>
             <element signature="e#317#371#0" expanded="true" />
@@ -655,57 +659,60 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/IGCexpansion/ac.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="465">
-          <caret line="2678" lean-forward="true" selection-start-line="2678" selection-end-line="2678" />
+        <state relative-caret-position="1391">
+          <caret line="2711" column="14" selection-start-line="2711" selection-start-column="14" selection-end-line="2711" selection-end-column="14" />
           <folding>
-            <element signature="e#2328#2351#0" />
-            <element signature="e#2386#2512#0" />
-            <element signature="e#2552#2589#0" />
-            <element signature="e#2655#4042#0" />
-            <element signature="e#4098#5207#0" />
-            <element signature="e#5243#5430#0" />
-            <element signature="e#5477#6134#0" />
-            <element signature="e#6193#6913#0" />
-            <element signature="e#6995#8324#0" />
-            <element signature="e#8368#8831#0" />
-            <element signature="e#8903#9811#0" />
-            <element signature="e#9844#10053#0" />
-            <element signature="e#10096#10515#0" />
-            <element signature="e#10556#10673#0" />
-            <element signature="e#10728#12827#0" />
-            <element signature="e#12906#13357#0" />
-            <element signature="e#13457#14128#0" />
-            <element signature="e#14290#15098#0" />
-            <element signature="e#15209#20619#0" />
-            <element signature="e#20681#23665#0" />
-            <element signature="e#24190#25604#0" />
-            <element signature="e#25673#26662#0" />
-            <element signature="e#26760#27241#0" />
-            <element signature="e#27295#27882#0" />
-            <element signature="e#27924#30615#0" />
-            <element signature="e#30980#33999#0" />
-            <element signature="e#34144#41881#0" />
-            <element signature="e#42048#44045#0" />
-            <element signature="e#44281#48701#0" />
-            <element signature="e#50769#54638#0" />
-            <element signature="e#50810#51612#0" />
-            <element signature="e#54709#55525#0" />
-            <element signature="e#61064#63058#0" />
-            <element signature="e#63245#67787#0" />
-            <element signature="e#67999#71332#0" />
-            <element signature="e#74337#75118#0" />
-            <element signature="e#75283#75976#0" />
-            <element signature="e#76035#77360#0" />
-            <element signature="e#77400#77571#0" />
-            <element signature="e#77661#78503#0" />
-            <element signature="e#78604#79717#0" />
-            <element signature="e#79823#80757#0" />
-            <element signature="e#80897#82747#0" />
-            <element signature="e#82846#84589#0" />
-            <element signature="e#84629#85142#0" />
-            <element signature="e#85197#85651#0" />
-            <element signature="e#85700#85927#0" />
-            <element signature="e#85998#90628#0" />
+            <element signature="e#213#250#0" expanded="true" />
+            <element signature="e#1002#2294#0" />
+            <element signature="e#2654#4041#0" />
+            <element signature="e#4097#5206#0" />
+            <element signature="e#5242#5429#0" />
+            <element signature="e#5476#6133#0" />
+            <element signature="e#6192#6912#0" />
+            <element signature="e#6994#8343#0" />
+            <element signature="e#8387#8850#0" />
+            <element signature="e#8922#9830#0" />
+            <element signature="e#9863#10072#0" />
+            <element signature="e#10115#10534#0" />
+            <element signature="e#10575#10692#0" />
+            <element signature="e#10747#12846#0" />
+            <element signature="e#12925#13376#0" />
+            <element signature="e#13476#14147#0" />
+            <element signature="e#14309#15117#0" />
+            <element signature="e#15228#20602#0" />
+            <element signature="e#24084#25498#0" />
+            <element signature="e#25567#26556#0" />
+            <element signature="e#26654#27135#0" />
+            <element signature="e#27189#27776#0" />
+            <element signature="e#27818#30509#0" />
+            <element signature="e#33778#41515#0" />
+            <element signature="e#41682#43679#0" />
+            <element signature="e#43923#48395#0" />
+            <element signature="e#48521#50245#0" />
+            <element signature="e#50417#60520#0" />
+            <element signature="e#50497#54366#0" />
+            <element signature="e#54437#55253#0" />
+            <element signature="e#60701#62695#0" />
+            <element signature="e#62882#67424#0" />
+            <element signature="e#67636#70967#0" />
+            <element signature="e#68010#70030#0" />
+            <element signature="e#70195#75797#0" />
+            <element signature="e#71158#75292#0" />
+            <element signature="e#75418#76199#0" />
+            <element signature="e#76364#77057#0" />
+            <element signature="e#77116#78441#0" />
+            <element signature="e#78481#78652#0" />
+            <element signature="e#78742#79606#0" />
+            <element signature="e#79707#80820#0" />
+            <element signature="e#80926#81860#0" />
+            <element signature="e#81956#84240#0" />
+            <element signature="e#84355#86098#0" />
+            <element signature="e#86138#86651#0" />
+            <element signature="e#86706#87160#0" />
+            <element signature="e#87232#87459#0" />
+            <element signature="e#87530#92159#0" />
+            <element signature="e#92254#93151#0" />
+            <element signature="e#91571#92587#0" />
           </folding>
         </state>
       </provider>
