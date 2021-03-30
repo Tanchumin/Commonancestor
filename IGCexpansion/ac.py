@@ -83,7 +83,7 @@ class AncestralState:
         self.P_list= None
         self.Q_original=None
         self.ifmax=False
-        self.ifXiang=True
+        self.ifXiang=False
 
     def get_mle(self):
         self.geneconv.get_mle()
@@ -97,7 +97,7 @@ class AncestralState:
     def get_dict_trans(self):
         return self.geneconv.get_dict_trans()
 
-    def get_ancestral_state_response(self,iffix=False):
+    def get_ancestral_state_response(self,iffix=True):
         self.get_scene()
 
         if iffix==True:
@@ -105,9 +105,9 @@ class AncestralState:
 
             for i in range(len(self.scene['tree']["column_nodes"])):
                 if i ==1:
-                    self.scene['tree']["edge_rate_scaling_factors"][i]=0.4
+                    self.scene['tree']["edge_rate_scaling_factors"][i]=0.1
                 else:
-                    self.scene['tree']["edge_rate_scaling_factors"][i]=0.2
+                    self.scene['tree']["edge_rate_scaling_factors"][i]=0.02
 
         requests = [
             {'property': "DNDNODE"}
@@ -120,7 +120,6 @@ class AncestralState:
                 j_in = {
                     'scene': separate_scene,
                     "requests": requests
-
                 }
                 j_out = jsonctmctree.interface.process_json_in(j_in)
                 separate_j_out.append(j_out)
@@ -152,7 +151,6 @@ class AncestralState:
                 j_in = {
                     'scene': separate_scene,
                     "requests": requests
-
                 }
                 j_out = jsonctmctree.interface.process_json_in(j_in)
                 separate_j_out.append(j_out)
@@ -169,15 +167,8 @@ class AncestralState:
             else:
                 raise RuntimeError('Failed at obtaining ancestral state distributions.')
 
-
         return result
 
-    def print_test(self):
-        if self.ancestral_state_response is None:
-            self.ancestral_state_response = self.get_ancestral_state_response()
-
-
-        print(np.array(self.ancestral_state_response[1])[:, 6])
 
     def get_joint_matrix(self,node):
         if self.ancestral_state_response is None:
@@ -217,7 +208,6 @@ class AncestralState:
     def get_maxpro_index(self):
 
         self.ancestral_state_response = deepcopy(self.get_ancestral_state_response())
-      #  print("111111111111111111111111111111111111111111111")
 
         if self.ifmax == False:
             self.node_length=len(self.get_num_to_node())
@@ -416,8 +406,6 @@ class AncestralState:
             for k in  range(16):
                 self.Q_original[k,k]=-sum(self.Q_original[k,])
 
-
-
         else:
             self.Q_original = np.zeros(shape=(61, 61))
             for i in range(61):
@@ -441,7 +429,6 @@ class AncestralState:
         self.get_maxpro_index()
 
         internal_node = self.get_interior_node()
-        # making p list for each branch
         P_list = []
         tree_len=len(self.scene['tree']["column_nodes"])
 
@@ -450,6 +437,7 @@ class AncestralState:
             if i==1:
                 time = self.scene['tree']["edge_rate_scaling_factors"][i]
                 Q1 = geneconv.get_HKYBasic()
+             #   print(Q1)
                 for k in range(4):
                       Q1[k, k] = -sum(Q1[k,])
                 Q=linalg.expm(Q1 * time)
@@ -461,8 +449,6 @@ class AncestralState:
 
         save_nameP = '../test/savesample/Ind_' + "QQQ" + 'sample.txt'
         np.savetxt(save_nameP, self.Q_original.T)
-
-       # print(P_list)
 
         if self.Model=="HKY":
             statenumber=16
@@ -483,8 +469,6 @@ class AncestralState:
             inode= internal_node[len(self.judge)-1-i]
             state=int(self.judge[len(self.judge)-1-i])
             id=1
-          #  print(state)
-         #   print(self.judge)
             for j in range(tree_len-1):
                 if(self.geneconv.node_to_num[geneconv.edge_list[j][0]]==inode and id==1):
                     id=id+1
@@ -519,7 +503,6 @@ class AncestralState:
 
 
                     elif(state==3):
-                      #  print(left)
                         left = int(internal_node.index(left))
                         leftm = p_n[left]
                         # leftm is p we caulcate before which is a matrix site.length*16
@@ -538,6 +521,7 @@ class AncestralState:
                         leftm = p_n[left]
                         right = int(internal_node.index(right))
                         rightm = p_n[right]
+
                         # leftm is p we calculate before which is a matrix site.length*16
                         for kk in range(self.sites_length):
                             leftpoint=leftm[kk,]
@@ -551,18 +535,21 @@ class AncestralState:
                                 p_node[kk, kkk] = p1* p2
                         p_n[len(self.judge) - i-1] = p_node
 
-#P_list
-      #  print(p_n[1][1,:])
         self.p_n=p_n
         self.P_list=P_list
         self.tree_to=tree_to
 
+       # print((self.sites[2,1]%4))
 
 
-    def jointly_common_ancstral_inference(self):
+
+    def jointly_common_ancstral_inference(self,ifcircle=False,taulist=None):
 
         if self.ifXiang==False:
-            self.making_possibility_internal()
+            if ifcircle==False:
+                self.making_possibility_internal()
+            else:
+                self.making_possibility_internal_EM(taulist=taulist)
 
             tree_len = len(self.scene['tree']["column_nodes"])
             internal_node = self.get_interior_node()
@@ -581,8 +568,9 @@ class AncestralState:
 
 
            # print(self.tree_to)
+      #      if ifcircle==False:
             for j in range(self.sites_length):
-                   self.sites[0,j]=np.random.choice(range(16), 1, p=np.array(self.ancestral_state_response[j])[:, 0])[0]
+                self.sites[0,j]=np.random.choice(range(16), 1, p=np.array(self.ancestral_state_response[j])[:, 0])[0]
 
             for i in range(tree_len):
                 if(i>0 and i in set(internal_node)):
@@ -633,15 +621,151 @@ class AncestralState:
 
             self.sites = sites
 
-      #  for ii in range(4):
-      #      mm[ii, :] =self.sites[int(internal_node[ii]),:]
+    def making_possibility_internal_EM(self,taulist=None):
 
-      #  save_nameP = '../test/savesample/SSSS_Internal_' +  geneconv.paralog[0] + geneconv.paralog[
-      #      1] + 'sample.txt'
+            if self.judge is None:
+                self.judge_state_children()
 
-     #   np.savetxt(save_nameP,mm)
-        # "iid_observations" means sequence information," variables" indicate paralog statue,"node" indicate node state
-        ## variable [0,1,0,1,0,1,1]
+            ifsimulate=True
+
+
+            self.get_maxpro_index()
+
+            internal_node = self.get_interior_node()
+            P_list = []
+            tree_len = len(self.scene['tree']["column_nodes"])
+
+            # P_list store the P matrix
+            for i in range(tree_len):
+                if i == 1:
+                    time = self.scene['tree']["edge_rate_scaling_factors"][i]
+                    Q1 = geneconv.get_HKYBasic()
+                    for k in range(4):
+                        Q1[k, k] = -sum(Q1[k,])
+                    Q = linalg.expm(Q1 * time)
+                    P_list.append(Q)
+                else:
+                    time = self.scene['tree']["edge_rate_scaling_factors"][i]
+                    if(i==0):
+                        if ifsimulate == True:
+                            self.change_t_Q(tau=1)
+                            self.original_Q()
+                    if(i>=2):
+                        self.change_t_Q(tau=taulist[i-2])
+                        self.original_Q()
+                    Q = linalg.expm(self.Q_original * time)
+                    P_list.append(Q)
+
+            save_nameP = '../test/savesample/Ind_' + "QQQ" + 'sample.txt'
+            np.savetxt(save_nameP, self.Q_original.T)
+
+            if self.Model == "HKY":
+                statenumber = 16
+            else:
+                statenumber = 61
+
+            # p_n is list store the  probabolity matrices for  internal nodel
+            p_n = []
+            for i in range(len(self.judge)):
+                p_n.append(0)
+
+            # tree_to store the topology of each internal  node
+            tree_to = np.zeros(shape=(3, len(self.judge)))
+
+            for i in range(len(self.judge) - 1):
+                inode = internal_node[len(self.judge) - 1 - i]
+                state = int(self.judge[len(self.judge) - 1 - i])
+                id = 1
+                for j in range(tree_len - 1):
+                    if (self.geneconv.node_to_num[geneconv.edge_list[j][0]] == inode and id == 1):
+                        id = id + 1
+                        left = self.geneconv.node_to_num[geneconv.edge_list[j][1]]
+                        right = self.geneconv.node_to_num[geneconv.edge_list[j + 1][1]]
+                        tree_to[1, len(self.judge) - i - 1] = left
+                        tree_to[2, len(self.judge) - i - 1] = right
+                        p_node = np.zeros(shape=(self.sites_length, statenumber))
+
+                        if (state == 0):
+                            for sites in range(self.sites_length):
+                                leftpoint = int(self.sites[left, sites])
+                                rightpoint = int(self.sites[right, sites])
+                                for current in range(statenumber):
+                                    p_node[sites, current] = P_list[j + 1][current, rightpoint] * P_list[j][
+                                        current, leftpoint]
+
+                            p_n[len(self.judge) - i - 1] = p_node
+
+                        elif (state == 2):
+                            right = int(internal_node.index(right))
+                            rightm = p_n[right]
+                            # rightm is p we caulcate before which is a matrix site.length*16
+                            for kk in range(self.sites_length):
+                                leftpoint = int(self.sites[left, kk])
+                                rightpoint = rightm[kk,]
+                                for current in range(statenumber):
+                                    p1 = 0
+                                    for kkkk in range(statenumber):
+                                        p1 = P_list[j + 1][current, kkkk] * rightpoint[kkkk] + p1
+                                    p_node[kk, current] = p1 * P_list[j][current, leftpoint]
+                            p_n[len(self.judge) - i - 1] = p_node
+
+
+                        elif (state == 3):
+                            left = int(internal_node.index(left))
+                            leftm = p_n[left]
+                            # leftm is p we caulcate before which is a matrix site.length*16
+                            for sites in range(self.sites_length):
+                                rightpoint = int(self.sites[right, sites])
+                                leftpoint = leftm[sites,]
+                                for current in range(statenumber):
+                                    p1 = 0
+                                    for kkkk in range(statenumber):
+                                        p1 = P_list[j][current, kkkk] * leftpoint[kkkk] + p1
+                                    p_node[sites, current] = p1 * P_list[j + 1][current, rightpoint]
+                            p_n[len(self.judge) - i - 1] = p_node
+
+                        else:
+                            left = int(internal_node.index(left))
+                            leftm = p_n[left]
+                            right = int(internal_node.index(right))
+                            rightm = p_n[right]
+                            # leftm is p we calculate before which is a matrix site.length*16
+                            for kk in range(self.sites_length):
+                                leftpoint = leftm[kk,]
+                                rightpoint = rightm[kk,]
+                                for kkk in range(statenumber):
+                                    p1 = 0
+                                    p2 = 0
+                                    for kkkk in range(statenumber):
+                                        p1 = P_list[j][kkk, kkkk] * leftpoint[kkkk] + p1
+                                        p2 = P_list[j + 1][kkk, kkkk] * rightpoint[kkkk] + p2
+                                    p_node[kk, kkk] = p1 * p2
+                            p_n[len(self.judge) - i - 1] = p_node
+
+            self.p_n = p_n
+            self.P_list = P_list
+            self.tree_to = tree_to
+
+           # # P_list
+           #  state16 = np.array([0, 5, 10, 15])
+           #  pro = np.array([0, 5, 10, 15], dtype=float)
+           #
+           #  for i in range(self.sites_length):
+           #      for j in range(4):
+           #          pp = 0
+           #          for kk in range(16):
+           #              pp=pp+(p_n[1][i,kk]*P_list[0][state16[j],kk])
+           #
+           #          pp1=int(self.sites[2, i] % 4)
+           #          pro[j] = self.geneconv.pi[j] *pp * P_list[1][j,pp1]
+           #      selectp = pro / (np.sum(pro))
+           #
+           #      self.sites[0, i] = int(np.random.choice(range(4), 1, p=selectp)[0])
+           #      state4=self.sites[0,i]
+           #      self.sites[0, i] = state4 * 4 + state4
+           #    #  print(self.sites[0, i])
+
+
 
 
 
@@ -781,13 +905,10 @@ class AncestralState:
             di1=27
             self.Q_new = np.zeros(shape=(3721, 27))
 
+
         Q_iiii = np.ones((di))
         for ii in range(di):
-            qii = sum(self.Q[ii,])
-            if qii != 0:
-                Q_iiii[ii] = sum(self.Q[ii,])
-
-
+            Q_iiii[ii] = sum(self.Q[ii,])
 
         for d in range(di):
             self.Q_new[d,] = self.Q[d,] / Q_iiii[d]
@@ -864,7 +985,7 @@ class AncestralState:
 
 # end point condition to generate history
 # 100 is the largest time interval
-    def GLS_m(self,t=0.1, ini=None, end=None, repeat=1):
+    def  GLS_m(self,t=0.1, ini=None, end=None, repeat=1,if_circle=False):
 
         global di
         global di1
@@ -876,6 +997,9 @@ class AncestralState:
         else:
             di=3721
             di1=27
+
+        if if_circle == True:
+            self.making_Qg()
 
         if self.Q_new is None:
            self.making_Qg()
@@ -1019,10 +1143,6 @@ class AncestralState:
 
 
 
-
-
-
-
                     if i > max_number:
                         big_number = i
                         time_matrix_old = time_matrix
@@ -1059,10 +1179,10 @@ class AncestralState:
 
 # ifrecall=True indicate we need do GLS_m again
 # organize MC results from GLS_m method
-    def GLS_s(self, t, repeat=1, ini=None, end=None, ifrecal=True):
+    def GLS_s(self, t, repeat=1, ini=None, end=None, ifrecal=True,if_circle=False):
 
         if ifrecal==True:
-            self.GLS_m(t=t, ini=ini, end=end, repeat = repeat)
+            self.GLS_m(t=t, ini=ini, end=end, repeat = repeat,if_circle=if_circle)
 
 
 
@@ -1123,12 +1243,12 @@ class AncestralState:
                 p_h[ii, 8] = history_matrix[ii, 7]
                 p_h[ii, 5]=branch
                 p_h[ii, 6] = times
-                p_h[ii,0]=history_matrix[ii,0]
+                p_h[ii, 0]=history_matrix[ii,0]
                 p_h[ii, 1] = history_matrix[ii, 4]
                 p_h[ii, 4] = history_matrix[ii, 8]
 
 
-                i_b=int(history_matrix[ii, 6])//4
+                i_b=  int(history_matrix[ii, 6])//4
                 j_b = int(history_matrix[ii, 6]) % 4
                 i_p = int(history_matrix[ii, 7]) // 4
                 j_p = int(history_matrix[ii, 7]) % 4
@@ -1526,8 +1646,8 @@ class AncestralState:
     def monte_carlo_s(self,ifsave=True,
                     iftestsimulation=True,sizen=9999,times=1):
 
-        self.change_t_Q(tau=0.4)
-        self.tau=0.4
+        self.change_t_Q(tau=1)
+        self.tau=0.8
         self.sites_length=sizen
         list=[]
 
@@ -1698,10 +1818,10 @@ class AncestralState:
 
 ### divide the paralog diverge number
     def divide_Q(self, times, repeat,method="simple", ifwholetree=True,simple_state_number=5,ifpermutation=True,ifsave=True,
-                 ifsimulation=False):
+                 ifsimulation=True):
 
         if ifsimulation==True:
-            re=self.monte_carlo_s1(ifsave=ifsave,times=times)
+            re=self.monte_carlo_s_EM(ifsave=ifsave,times=times)
 
         else:
             re=self.monte_carlo(times=times,repeat=repeat,ifwholetree=ifwholetree,ifpermutation=ifpermutation,ifsave=ifsave)
@@ -1711,6 +1831,7 @@ class AncestralState:
         type_number = simple_state_number
         self.type_number=int(type_number)
         self.last_effct=int(effect_number)
+
 
         if (method == "simple"):
             quan = 1 / float(simple_state_number)
@@ -1770,17 +1891,19 @@ class AncestralState:
 #########branch number-1
         elif(method=="bybranch"):
             type_number = len(self.scene['tree']["column_nodes"])-1
+
             self.type_number = int(type_number)
-            self.last_effct = int(effect_number)
             for ii in range(effect_number):
                     history_matrix[ii, 3] = history_matrix[ii, 5]-2
+
+
         self.igc_com=deepcopy(history_matrix)
       #  print(history_matrix)
 
         return history_matrix
 
 # tolenrene
-    def EM_change_tau(self,max_time=30,tolenrence=0.1,times=2,method="divide",
+    def EM_change_tau(self,max_time=50,tolenrence=0.0001,times=2,method="divide",
                       repeat=1,simple_state_number=10,ifwholetree=True,ifpermutation=True,ifsave=True,
                       ifcircle=False):
 
@@ -1788,10 +1911,13 @@ class AncestralState:
              self.divide_Q(times=times, repeat=repeat, simple_state_number=simple_state_number, ifwholetree=ifwholetree,
                       ifpermutation=ifpermutation, ifsave=ifsave, method=method)
 
+        ifcorrect=False
+
 
 
         list_all=[]
         for i in range(self.type_number - 1):
+          #  print(i)
             list_all.append(0)
 
         effect_vector=np.zeros(shape=int(self.type_number - 1))
@@ -1819,8 +1945,12 @@ class AncestralState:
         for i in range(self.type_number - 1):
             ii=0
             eps=1000
+          #  print(i)
             while(ii<=max_time and eps>=tolenrence):
                 tau = np.zeros(shape=(times))
+                deno1 = np.zeros(shape=(times))
+                total_history=0
+                total_IGC=0
                 for k in range(times):
                     deno = 0
                     no = 0
@@ -1828,33 +1958,51 @@ class AncestralState:
                         if (int(list_all[i][j,6]) == k):
                                 deno = deno + (list_all[i][j,1] * list_all[i][j,0])
                                 no = no + list_all[i][j,2]
-
+                                total_IGC=total_IGC+list_all[i][j,2]
+                                total_history = total_history +1
                     tau[k] = ((no)/(deno * 2))
+                    deno1[k]=deno
 
 
-                tau_list[i]= deepcopy(np.mean(tau))
-             #   print(np.mean(tau))
-             #   print(ii)
+                if ifcorrect==False:
+                    tau_list[i]= deepcopy(np.mean(tau))
+                else:
+                    ps_bybranch=self.sites_length*2*(self.scene['tree']["edge_rate_scaling_factors"][i+2])
+                    if((total_history/times)>ps_bybranch):
+                        tau_list[i]=0.9*np.mean(tau)+0.1*(((total_history/times)-ps_bybranch)/np.mean(deno1))*0.5
+                    else:
+                        tau_list[i] = deepcopy(np.mean(tau))
+
+                eps=np.abs(tau_list[i]-deepcopy(self.tau))
                 self.change_t_Q(tau=tau_list[i])
                 list_all[i]=deepcopy(self.whether_IGC_EM(history_matrix=list_all[i], effect_number=int(effect_vector[i])))
                 ii=ii+1
 
 
+            print("estimated  events:",(total_history/times))
+            print("estimated  IGC", (total_IGC / times))
+            print("estimated  ps", ((total_history/times)-(total_IGC / times)))
+            print("estimaed branch len",(self.scene['tree']["edge_rate_scaling_factors"][i+2]))
+            print("IGC",tau_list[i])
 
         return list_all, tau_list
 
     def MC_EM(self,max_time=30,tolenrence=0.1,times=2,method="divide",
                       repeat=1,simple_state_number=10,ifwholetree=True,ifpermutation=True,ifsave=True,
-                  EM_circle=3):
+                  EM_circle=3,ifcircle=True):
 
         fr=self.EM_change_tau(times=times, repeat=repeat, ifpermutation=ifpermutation, ifwholetree=ifwholetree,method="bybranch")
 
         print(fr[1])
 
+      #  fr1=np.array([1,1,1,1,0.1,0.1],dtype=float)
+
         for circle in range(EM_circle):
             for kk in range(times):
                 self.change_t_Q(tau=self.tauoriginal)
-                self.jointly_common_ancstral_inference()
+                if ifcircle==True:
+                     self.jointly_common_ancstral_inference(ifcircle=ifcircle,taulist=fr[1])
+                #      self.jointly_common_ancstral_inference(ifcircle=ifcircle, taulist=fr1)
                 print(kk)
                 ttt = len(self.scene['tree']["column_nodes"])
                 if kk == 0:
@@ -1867,11 +2015,13 @@ class AncestralState:
                             end2 = self.geneconv.node_to_num[geneconv.edge_list[j][1]]
                             ini1 = deepcopy(self.sites[ini2,])
                             end1 = deepcopy(self.sites[end2,])
+                        #    self.measure_difference(ini=ini1,end=end1,branch=j)
                             #  self.measure_difference(ini1,end1,j)
                             self.change_t_Q(tau=fr[1][j-2])
-                            re = self.GLS_s(t=t1, repeat=1, ifrecal=True, ini=ini1, end=end1)
-                            sam = self.rank_ts(time=re[0], t=t1, state=re[1], ini=ini1, effect_number=re[2])
+                          #  self.change_t_Q(tau=fr1[j - 2])
 
+                            re = self.GLS_s(t=t1, repeat=1, ifrecal=True, ini=ini1, end=end1,if_circle=True)
+                            sam = self.rank_ts(time=re[0], t=t1, state=re[1], ini=ini1, effect_number=re[2])
                             re10 = self.whether_IGC(history_matrix=sam[0], effect_number=sam[1], branch=j, times=kk)
 
                             effect_number = re10[1]
@@ -1887,12 +2037,12 @@ class AncestralState:
 
                             ini1 = deepcopy(self.sites[ini2,])
                             end1 = deepcopy(self.sites[end2,])
-                            #     self.measure_difference(ini1, end1, j)
-                            self.change_t_Q(tau=fr[1][j - 2])
-                            re = self.GLS_s(t=t1, ifrecal=True, repeat=1, ini=ini1, end=end1)
+                       #     self.measure_difference(ini=ini1, end=end1, branch=j)
 
+                            self.change_t_Q(tau=fr[1][j - 2])
+                          #  self.change_t_Q(tau=fr1[j - 2])
+                            re = self.GLS_s(t=t1, ifrecal=True, repeat=1, ini=ini1, end=end1,if_circle=True)
                             sam = self.rank_ts(time=re[0], t=t1, state=re[1], ini=ini1, effect_number=re[2])
-                            # print(sam[0])
                             re2 = self.whether_IGC(history_matrix=sam[0], effect_number=sam[1], branch=j, times=kk)
                             effect_number1 = re2[1]
                             re2 = re2[0]
@@ -1913,7 +2063,8 @@ class AncestralState:
                             end1 = deepcopy(self.sites[end2,])
 
                             self.change_t_Q(tau=fr[1][j - 2])
-                            re = self.GLS_s(t=t1, repeat=1, ifrecal=True, ini=ini1, end=end1)
+                         #   self.change_t_Q(tau=fr1[j - 2])
+                            re = self.GLS_s(t=t1, repeat=1, ifrecal=True, ini=ini1, end=end1,if_circle=True)
                             sam = self.rank_ts(time=re[0], t=t1, state=re[1], ini=ini1, effect_number=re[2])
                             re10 = self.whether_IGC(history_matrix=sam[0], effect_number=sam[1], branch=j, times=kk)
                             max_diff = 0
@@ -1935,8 +2086,9 @@ class AncestralState:
                             end1 = deepcopy(self.sites[end2,])
 
                             self.change_t_Q(tau=fr[1][j - 2])
+                          #  self.change_t_Q(tau=fr1[j - 2])
 
-                            re = self.GLS_s(t=t1, ifrecal=True, repeat=1, ini=ini1, end=end1)
+                            re = self.GLS_s(t=t1, ifrecal=True, repeat=1, ini=ini1, end=end1,if_circle=True)
                             sam = self.rank_ts(time=re[0], t=t1, state=re[1], ini=ini1, effect_number=re[2])
                             re2 = self.whether_IGC(history_matrix=sam[0], effect_number=sam[1], branch=j, times=kk)
                             effect_number1n = re2[1]
@@ -1957,9 +2109,6 @@ class AncestralState:
             fr = self.EM_change_tau(times=times, repeat=repeat, ifpermutation=ifpermutation, ifwholetree=ifwholetree,
                                     method="bybranch",ifcircle=True)
             print(fr[1])
-
-
-
 
 
 
@@ -2120,9 +2269,10 @@ class AncestralState:
 
             return (ini)
 
-    def GLS_si(self,t=0.02,ini =None,sizen=150):
-        if self.Q_new is None:
-           self.making_Qg()
+    def GLS_si(self,t=0.02,ini =None,sizen=150,tau=0.1,ifdet=False):
+
+      #  if self.Q_new is None:
+        self.making_Qg()
 
         global di
         global di1
@@ -2137,13 +2287,7 @@ class AncestralState:
 
         Q_iiii = np.ones((di))
         for ii in range(di):
-            qii = sum(self.Q[ii,])
-            if qii != 0:
-                Q_iiii[ii] = qii
-            else:
-                print(qii)
-
-
+            Q_iiii[ii] = sum(self.Q[ii,])
 
         end = np.ones(sizen)
 
@@ -2152,29 +2296,50 @@ class AncestralState:
         effect_number=0
 
 
+        if ifdet==False:
+
+            for ll in range(sizen):
+                # most transfer 5 times
+                    curent_state = ini[ll]
+                    u = random.exponential(1/Q_iiii[int(curent_state)])
+                    i=0
+
+                    while(u<=t):
+                        i=i+1
+                        a = np.random.choice(range(di1), 1, p=self.Q_new[int(curent_state),])[0]
+                        curent_state = self.dic_col[int(curent_state), a] - 1
+                        time_matrix[ll,i]=u
+                        state_matrix[ll,i]=int(curent_state)
+                        u=u+random.exponential(1/Q_iiii[int(curent_state)])
 
 
-        for ll in range(sizen):
-            # most transfer 5 times
+                    effect_number=i+effect_number
+                    end[ll]=int(curent_state)
 
-                curent_state = ini[ll]
-                u = random.exponential(1/Q_iiii[int(curent_state)])
-                i=0
+        if ifdet==True:
 
-                while(u<=t):
-                    i=i+1
-                    a = np.random.choice(range(di1), 1, p=self.Q_new[int(curent_state),])[0]
-                    curent_state = self.dic_col[int(curent_state), a] - 1
-                    time_matrix[ll,i]=u
-                    state_matrix[ll,i]=int(curent_state)
-                    u=u+random.exponential(1/Q_iiii[int(curent_state)])
+            for ll in range(sizen):
+                  curent_state = ini[ll]
+                  u = random.exponential(1 / Q_iiii[int(curent_state)])
+                  i = 0
+
+                  while (u <= t):
+                         i = i + 1
+                         a = np.random.choice(range(di1), 1, p=self.Q_new[int(curent_state),])[0]
+                         curent_state = self.dic_col[int(curent_state), a] - 1
+
+                         time_matrix[ll, i] = u
+                         state_matrix[ll, i] = int(curent_state)
+                         u = u + random.exponential(1 / Q_iiii[int(curent_state)])
+
+                  effect_number = i + effect_number
+                  end[ll] = int(curent_state)
 
 
-                effect_number=i+effect_number
+            sam = self.rank_ts(time=time_matrix, t=t, state=state_matrix, ini=ini, effect_number=effect_number)
+            self.change_t_Q(tau)
+            re2 = self.whether_IGC(history_matrix=sam[0], effect_number=sam[1], branch=j, times=0)
 
-
-
-                end[ll]=int(curent_state)
 
 
         return ini,end,time_matrix,state_matrix,effect_number,10
@@ -2189,7 +2354,6 @@ class AncestralState:
             Q=geneconv.get_MG94Basic()
 
         return Q
-
 
 
 # used  before topo so  that can make new Q
@@ -2314,7 +2478,7 @@ class AncestralState:
 
     ##### topology is pretty simple
 
-    def topo(self,leafnode=4,sizen=999,t=0.2):
+    def topo(self,leafnode=4,sizen=999,t=0.1):
         ini=self.make_ini(sizen=sizen)
 
 ###### calculate the out group
@@ -2360,6 +2524,8 @@ class AncestralState:
                 leaf = self.GLS_si(ini=ini, sizen=sizen)[1]
                 list.append(leaf)
 
+
+
             elif(i== leafnode-2):
                 # ini is internal node, leaf is observed;
                 # list store observed
@@ -2378,6 +2544,9 @@ class AncestralState:
                 list.append(leaf)
                 list1.append(ini)
                 mm[i+1, :] = ini
+            self.measure_difference(ini,leaf,1)
+
+
 
         # append outgroup
         list.append(end1)
@@ -2692,6 +2861,105 @@ class AncestralState:
         return history_matrix
 
 
+    def monte_carlo_s_EM(self,ifsave=True,
+                    iftestsimulation=True,sizen=50000,times=1):
+
+        self.change_t_Q(tau=0.1)
+        self.sites_length=sizen
+        list=[]
+
+        if iftestsimulation==True:
+
+            ttt = len(self.scene['tree']["column_nodes"])
+            for j in range(ttt):
+                t1 = 0.02
+                print(j)
+
+                if j == 0:
+                    ini1 = self.make_ini(sizen=sizen)
+                    re=self.GLS_si(t=t1,ini=ini1,sizen=sizen)
+                    list.append(re[1])
+
+             #       sam = self.rank_ts(time=re[2], t=t1, state=re[3], ini=ini1, effect_number=re[4])
+             #       re1 = self.whether_IGC(history_matrix=sam[0], effect_number=sam[1])
+             #       effect_number = re1[1]
+              #      re1 = re1[0]
+                    re1=None
+                    effect_number=0
+
+                elif j == 1:
+                    print("ignore the outgroup")
+
+
+                elif j >= 2 and j <=5:
+
+                    ift=1
+
+                    ini2 = self.geneconv.node_to_num[geneconv.edge_list[j][0]]
+                    self.change_t_Q(tau=0.1)
+                    ini1=deepcopy(list[int(ini2//2)])
+                    re=self.GLS_si(t=t1,ini=ini1,sizen=sizen)
+                    if j%2==0:
+                        list.append(re[1])
+                #        self.measure_difference(ini=list[int(ini2//2)],end=re[1],branch=1)
+
+                    sam = self.rank_ts(time=re[2], t=t1, state=re[3], ini=re[0], effect_number=re[4])
+                    self.change_t_Q(tau=0.1)
+                    re2 = self.whether_IGC(history_matrix=sam[0], effect_number=sam[1],branch=j,times=0)
+                    effect_number1 = deepcopy(re2[1])
+                    re2 = deepcopy(re2[0])
+
+
+                    di=0
+                    for jj in range(sizen):
+                            di=self.dic_di[re[1][jj]]+di
+                    print(di)
+
+                    if re1 is  None:
+                        re1=deepcopy(re2)
+                        ift=0
+                        effect_number=deepcopy(effect_number1)
+
+                    if ift !=0:
+                       re1 = deepcopy(np.vstack((re1, re2)))
+                       effect_number = effect_number1 + effect_number
+
+                elif j >5:
+
+                    ini2 = self.geneconv.node_to_num[geneconv.edge_list[6][0]]
+                    self.change_t_Q(tau=0.1)
+                    ini1=deepcopy(list[int(ini2//2)])
+                    re=self.GLS_si(t=t1,ini=ini1,sizen=sizen)
+
+
+                    sam = self.rank_ts(time=re[2], t=t1, state=re[3], ini=re[0], effect_number=re[4])
+                    self.change_t_Q(0.1)
+                    re2 = self.whether_IGC(history_matrix=sam[0], effect_number=sam[1],branch=j,times=0)
+                    effect_number1 = deepcopy(re2[1])
+                    re2 = deepcopy(re2[0])
+                    print(effect_number1)
+
+
+                    di=0
+                    for jj in range(sizen):
+                            di=self.dic_di[re[1][jj]]+di
+                    print(di)
+
+
+                    re1 = deepcopy(np.vstack((re1, re2)))
+                    effect_number = effect_number1 + effect_number
+
+
+
+
+        if ifsave==True:
+
+           save_nameP = '../test/savesample/Ind_' + geneconv.Model+ geneconv.paralog[0]+geneconv.paralog[1]+'simulation.txt'
+           np.savetxt(open(save_nameP, 'w+'), re1.T)
+
+        return re1 , effect_number
+
+
 
 
 
@@ -2703,9 +2971,9 @@ if __name__ == '__main__':
     # name = 'EDN_ECP_full'
 
     paralog = ['paralog0', 'paralog1']
-    alignment_file = '../test/tau99_01.fasta'
+    alignment_file = '../test/tau99_01vss.fasta'
     newicktree = '../test/sample1.newick'
-    name = 'tau01_1v_999911'
+    name = 'tau99_01vss'
   #  Force ={0:np.exp(-0.71464127), 1:np.exp(-0.55541915), 2:np.exp(-0.68806275),3: np.exp( 0.74691342),4: np.exp( -0.5045814)}
     # %AG, % A, % C, kappa, tau
     #Force= {0:0.5,1:0.5,2:0.5,3:1,4:0}
@@ -2719,6 +2987,8 @@ if __name__ == '__main__':
 
     self = AncestralState(geneconv)
     scene = self.get_scene()
+
+
 
  #   self.jointly_common_ancstral_inference()
   #  print(self.geneconv.node_to_num)
@@ -2746,13 +3016,15 @@ if __name__ == '__main__':
 #    print(self.making_possibility_internal())
    # print(self.jointly_common_ancstral_inference())
 
+#####################################################
 ######generit simulation data
-  ########
-    # sizen=10000
-    # self.change_t_Q(tau=1)
-    # aaa=self.topo(sizen=sizen)
-    # self.difference(ini=aaa,sizen=sizen)
-    # print(self.trans_into_seq(ini=aaa,sizen=sizen))
+#####################################################
+    #
+    sizen=10000
+    self.change_t_Q(tau=1)
+    aaa=self.topo(sizen=sizen)
+    self.difference(ini=aaa,sizen=sizen)
+    print(self.trans_into_seq(ini=aaa,sizen=sizen))
 
 ########test common ancter whether work
   ######
@@ -2766,7 +3038,7 @@ if __name__ == '__main__':
 ################TEST
 ######################################
   # self.get_igcr_pad(times=10, repeat=1, ifpermutation=False, ifwholetree=True, ifsave=False, method="divide")
-    self.MC_EM(times=6, repeat=1, ifpermutation=False, ifwholetree=True, ifsave=False, method="bybranch",EM_circle=5)
+    self.MC_EM(times=1, repeat=1, ifpermutation=False, ifwholetree=True, ifsave=False, method="bybranch",EM_circle=10)
   #  self.get_igcr_pad(times=10, repeat=1, ifpermutation=False, ifwholetree=True, ifsave=False, method="bybranch")
     #print(self.Q)
    # print(self.get_parameter(function="linear"))
