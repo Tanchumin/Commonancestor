@@ -4,47 +4,16 @@
     <list default="true" id="a9952ef3-53b5-4976-ba05-bb25560d8c3b" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/IGCexpansion/ac.py" beforeDir="false" afterPath="$PROJECT_DIR$/IGCexpansion/ac.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/test/save/EDN_ECP_HKY_rv_IGC_HMMJSGeneconv_save.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/test/save/EDN_ECP_HKY_rv_nonclock_save.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/test/save/EDN_ECP_MG94_IGC_HMMJSGeneconv_save.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/test/save/Force_HKY_YDR418W_YEL054C_nonclock_One_rate_save.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/test/save/Force_HKY_YDR418W_YEL054C_nonclock_rv_One_rate__save.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/test/save/Force_JS_HKY_EDN_ECP_nonclock_save.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/test/save/Force_JS_HKY_rv_EDN_ECP_nonclock_save.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/test/save/HKY_EDN_ECP_nonclock_save.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/test/save/HKY_EDN_ECP_nonclock_summary.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/test/save/HKYpp_f1119_situation1_nonclock_save1.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/test/save/HKYpp_f111_situation1_nonclock_save1.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/test/save/HKYpp_f19_situation1_nonclock_save1.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/test/save/HKYpp_f1Y1111_situation1_nonclock_save1.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/test/save/HKYpp_f1Y11_situation1_nonclock_save1.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/test/save/HKYtau01_1v_999911_situation1_nonclock_save.txt" beforeDir="false" afterPath="$PROJECT_DIR$/test/save/HKYtau01_1v_999911_situation1_nonclock_save.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/test/save/HKYtau02_s9999_situation1_nonclock_save1.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/test/save/HKYtau02_s999_situation1_nonclock_save1.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/test/save/HKYtau04_s9999_situation1_nonclock_save1.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/test/save/HKYtau06_999_1_situation1_nonclock_save1.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/test/save/HKYtau06_999_f_situation1_nonclock_save1.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/test/save/HMMJS_EDN_ECP_Ind_MG94_nonclock_IGC_save.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/save/HKYEDN_ECP_full_situation1_nonclock_save.txt" beforeDir="false" afterPath="$PROJECT_DIR$/test/save/HKYEDN_ECP_full_situation1_nonclock_save.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/save/HKYtau99_01vss_situation1_nonclock_save.txt" beforeDir="false" afterPath="$PROJECT_DIR$/test/save/HKYtau99_01vss_situation1_nonclock_save.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/savesample/Ind_HKYEDNECPsample.txt" beforeDir="false" afterPath="$PROJECT_DIR$/test/savesample/Ind_HKYEDNECPsample.txt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/test/savesample/Ind_HKYparalog0paralog1sample.txt" beforeDir="false" afterPath="$PROJECT_DIR$/test/savesample/Ind_HKYparalog0paralog1sample.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/test/savesample/Ind_HKYparalog0paralog1simulation.txt" beforeDir="false" afterPath="$PROJECT_DIR$/test/savesample/Ind_HKYparalog0paralog1simulation.txt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/test/savesample/Ind_QQQsample.txt" beforeDir="false" afterPath="$PROJECT_DIR$/test/savesample/Ind_QQQsample.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/savesample/Ind_re_HKYparalog0paralog1sample.txt" beforeDir="false" afterPath="$PROJECT_DIR$/test/savesample/Ind_re_HKYparalog0paralog1sample.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/savesample/RRR_Internal_EDNECPsample.txt" beforeDir="false" afterPath="$PROJECT_DIR$/test/savesample/RRR_Internal_EDNECPsample.txt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/test/savesample/RRR_Internal_paralog0paralog1sample.txt" beforeDir="false" afterPath="$PROJECT_DIR$/test/savesample/RRR_Internal_paralog0paralog1sample.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/test/savesample/tau04.fasta" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/test/savesample/tau06.fasta" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/test/savesample/tau4.fasta" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/test/savesample/tau99.fasta" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/test/savesample/tau99_02.fasta" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/test/savesample/tau99_041.fasta" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/test/savesample/tau99_06.fasta" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/test/tau001.fasta" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/test/tau02.fasta" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/test/tau04.fasta" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/test/tau06.fasta" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/test/tau99_01_1vs.fasta" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/test/tau99_02.fasta" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/test/tau99_041.fasta" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/test/tau99_06.fasta" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/test/tau99_0sb.fasta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/savesample/sample1.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/tau99_01vss.fasta" beforeDir="false" afterPath="$PROJECT_DIR$/test/tau99_01vss.fasta" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -73,58 +42,39 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/IGCexpansion/ac.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="352">
-              <caret line="2340" column="98" lean-forward="true" selection-start-line="2340" selection-start-column="98" selection-end-line="2340" selection-end-column="98" />
+            <state relative-caret-position="231">
+              <caret line="2214" lean-forward="true" selection-start-line="2214" selection-end-line="2214" />
               <folding>
                 <element signature="e#213#250#0" expanded="true" />
                 <element signature="e#646#867#0" />
-                <element signature="e#2682#4069#0" />
-                <element signature="e#4125#5232#0" />
-                <element signature="e#5280#5937#0" />
-                <element signature="e#5996#6716#0" />
-                <element signature="e#6798#8083#0" />
-                <element signature="e#8127#8590#0" />
-                <element signature="e#8662#9570#0" />
-                <element signature="e#9603#9812#0" />
-                <element signature="e#9855#10274#0" />
-                <element signature="e#10315#10432#0" />
-                <element signature="e#10487#12586#0" />
-                <element signature="e#12665#13116#0" />
-                <element signature="e#13216#13887#0" />
-                <element signature="e#14049#14855#0" />
-                <element signature="e#14966#20174#0" />
-                <element signature="e#20301#23349#0" />
-                <element signature="e#23423#29402#0" />
-                <element signature="e#30313#31727#0" />
-                <element signature="e#31796#32785#0" />
-                <element signature="e#32883#33364#0" />
-                <element signature="e#33418#33940#0" />
-                <element signature="e#33982#36673#0" />
-                <element signature="e#36837#44630#0" />
-                <element signature="e#44813#46830#0" />
-                <element signature="e#47074#51378#0" />
-                <element signature="e#51504#53228#0" />
-                <element signature="e#53400#63550#0" />
-                <element signature="e#63731#65723#0" />
-                <element signature="e#65910#70452#0" />
-                <element signature="e#70663#73961#0" />
-                <element signature="e#74208#77282#0" />
-                <element signature="e#77513#83708#0" />
-                <element signature="e#83904#88080#0" />
-                <element signature="e#88206#88987#0" />
-                <element signature="e#89152#89845#0" />
-                <element signature="e#91168#91339#0" />
-                <element signature="e#91428#92345#0" />
-                <element signature="e#92446#93559#0" />
-                <element signature="e#93665#94599#0" />
-                <element signature="e#95737#96625#0" />
-                <element signature="e#97145#98888#0" />
-                <element signature="e#98928#99441#0" />
-                <element signature="e#99496#99950#0" />
-                <element signature="e#100022#100249#0" />
-                <element signature="e#100320#104949#0" />
-                <element signature="e#105044#105941#0" />
-                <element signature="e#106028#107043#0" />
+                <element signature="e#2413#2539#0" />
+                <element signature="e#21025#24130#0" />
+                <element signature="e#24204#31074#0" />
+                <element signature="e#31985#33399#0" />
+                <element signature="e#33468#34457#0" />
+                <element signature="e#34555#35036#0" />
+                <element signature="e#35110#35632#0" />
+                <element signature="e#35695#38386#0" />
+                <element signature="e#38550#46343#0" />
+                <element signature="e#46526#48543#0" />
+                <element signature="e#73720#75120#0" />
+                <element signature="e#75776#78825#0" />
+                <element signature="e#91070#91851#0" />
+                <element signature="e#92016#92709#0" />
+                <element signature="e#92787#95583#0" />
+                <element signature="e#95623#95794#0" />
+                <element signature="e#95883#96774#0" />
+                <element signature="e#96875#97988#0" />
+                <element signature="e#98094#99028#0" />
+                <element signature="e#99124#101612#0" />
+                <element signature="e#101727#103470#0" />
+                <element signature="e#103510#104023#0" />
+                <element signature="e#104078#104532#0" />
+                <element signature="e#104604#104831#0" />
+                <element signature="e#104902#109531#0" />
+                <element signature="e#109626#110523#0" />
+                <element signature="e#110610#111625#0" />
+                <element signature="e#111744#115099#0" />
               </folding>
             </state>
           </provider>
@@ -218,11 +168,9 @@
       </list>
     </option>
   </component>
-  <component name="ProjectFrameBounds" extendedState="6" fullScreen="true">
-    <option name="x" value="66" />
-    <option name="y" value="23" />
-    <option name="width" value="1440" />
-    <option name="height" value="821" />
+  <component name="ProjectFrameBounds" fullScreen="true">
+    <option name="width" value="714" />
+    <option name="height" value="900" />
   </component>
   <component name="ProjectView">
     <navigator proportions="" version="1">
@@ -427,7 +375,7 @@
     </todo-panel>
   </component>
   <component name="ToolWindowManager">
-    <frame x="0" y="0" width="714" height="900" extended-state="6" />
+    <frame x="0" y="0" width="1440" height="900" extended-state="0" />
     <editor active="true" />
     <layout>
       <window_info content_ui="combo" id="Project" order="0" sideWeight="0.49785408" weight="0.21000704" />
@@ -435,7 +383,7 @@
       <window_info id="Favorites" order="2" sideWeight="0.50214595" side_tool="true" weight="0.24945612" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Find" order="1" />
-      <window_info active="true" anchor="bottom" id="Run" order="2" sideWeight="0.4982382" visible="true" weight="0.36506024" />
+      <window_info anchor="bottom" id="Run" order="2" sideWeight="0.4982382" weight="0.46144578" />
       <window_info anchor="bottom" id="Debug" order="3" weight="0.3621399" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
@@ -518,8 +466,8 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/IGCexpansion/ac.py</url>
-          <line>2965</line>
-          <option name="timeStamp" value="8" />
+          <line>649</line>
+          <option name="timeStamp" value="11" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>
@@ -791,58 +739,39 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/IGCexpansion/ac.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="352">
-          <caret line="2340" column="98" lean-forward="true" selection-start-line="2340" selection-start-column="98" selection-end-line="2340" selection-end-column="98" />
+        <state relative-caret-position="231">
+          <caret line="2214" lean-forward="true" selection-start-line="2214" selection-end-line="2214" />
           <folding>
             <element signature="e#213#250#0" expanded="true" />
             <element signature="e#646#867#0" />
-            <element signature="e#2682#4069#0" />
-            <element signature="e#4125#5232#0" />
-            <element signature="e#5280#5937#0" />
-            <element signature="e#5996#6716#0" />
-            <element signature="e#6798#8083#0" />
-            <element signature="e#8127#8590#0" />
-            <element signature="e#8662#9570#0" />
-            <element signature="e#9603#9812#0" />
-            <element signature="e#9855#10274#0" />
-            <element signature="e#10315#10432#0" />
-            <element signature="e#10487#12586#0" />
-            <element signature="e#12665#13116#0" />
-            <element signature="e#13216#13887#0" />
-            <element signature="e#14049#14855#0" />
-            <element signature="e#14966#20174#0" />
-            <element signature="e#20301#23349#0" />
-            <element signature="e#23423#29402#0" />
-            <element signature="e#30313#31727#0" />
-            <element signature="e#31796#32785#0" />
-            <element signature="e#32883#33364#0" />
-            <element signature="e#33418#33940#0" />
-            <element signature="e#33982#36673#0" />
-            <element signature="e#36837#44630#0" />
-            <element signature="e#44813#46830#0" />
-            <element signature="e#47074#51378#0" />
-            <element signature="e#51504#53228#0" />
-            <element signature="e#53400#63550#0" />
-            <element signature="e#63731#65723#0" />
-            <element signature="e#65910#70452#0" />
-            <element signature="e#70663#73961#0" />
-            <element signature="e#74208#77282#0" />
-            <element signature="e#77513#83708#0" />
-            <element signature="e#83904#88080#0" />
-            <element signature="e#88206#88987#0" />
-            <element signature="e#89152#89845#0" />
-            <element signature="e#91168#91339#0" />
-            <element signature="e#91428#92345#0" />
-            <element signature="e#92446#93559#0" />
-            <element signature="e#93665#94599#0" />
-            <element signature="e#95737#96625#0" />
-            <element signature="e#97145#98888#0" />
-            <element signature="e#98928#99441#0" />
-            <element signature="e#99496#99950#0" />
-            <element signature="e#100022#100249#0" />
-            <element signature="e#100320#104949#0" />
-            <element signature="e#105044#105941#0" />
-            <element signature="e#106028#107043#0" />
+            <element signature="e#2413#2539#0" />
+            <element signature="e#21025#24130#0" />
+            <element signature="e#24204#31074#0" />
+            <element signature="e#31985#33399#0" />
+            <element signature="e#33468#34457#0" />
+            <element signature="e#34555#35036#0" />
+            <element signature="e#35110#35632#0" />
+            <element signature="e#35695#38386#0" />
+            <element signature="e#38550#46343#0" />
+            <element signature="e#46526#48543#0" />
+            <element signature="e#73720#75120#0" />
+            <element signature="e#75776#78825#0" />
+            <element signature="e#91070#91851#0" />
+            <element signature="e#92016#92709#0" />
+            <element signature="e#92787#95583#0" />
+            <element signature="e#95623#95794#0" />
+            <element signature="e#95883#96774#0" />
+            <element signature="e#96875#97988#0" />
+            <element signature="e#98094#99028#0" />
+            <element signature="e#99124#101612#0" />
+            <element signature="e#101727#103470#0" />
+            <element signature="e#103510#104023#0" />
+            <element signature="e#104078#104532#0" />
+            <element signature="e#104604#104831#0" />
+            <element signature="e#104902#109531#0" />
+            <element signature="e#109626#110523#0" />
+            <element signature="e#110610#111625#0" />
+            <element signature="e#111744#115099#0" />
           </folding>
         </state>
       </provider>
