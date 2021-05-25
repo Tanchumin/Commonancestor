@@ -251,11 +251,26 @@ def GLS_m_test(self, t=0.1, ini=None, end=None,sizen=40):
 
 
 
-
-
-
-
     return em
+
+
+x=0
+while(x<5):
+    print("dddddddd")
+    x=x+1
+    for y in range(6):
+        if(y>=0):
+          print (y)
+          if x*y > 3:
+             break
+
+
+        else:
+            continue
+
+
+            # only executed if the inner loop did NOT break
+ #   break  # only executed if the inner loop DID break
 
 
 
