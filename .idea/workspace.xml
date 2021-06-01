@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
+<<<<<<< Updated upstream
     <list default="true" id="a9952ef3-53b5-4976-ba05-bb25560d8c3b" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/IGCexpansion/ac.py" beforeDir="false" afterPath="$PROJECT_DIR$/IGCexpansion/ac.py" afterDir="false" />
@@ -11,6 +12,9 @@
       <change beforePath="$PROJECT_DIR$/test/savesample/Ind_re_HKYEDNECPsample.txt" beforeDir="false" afterPath="$PROJECT_DIR$/test/savesample/Ind_re_HKYEDNECPsample.txt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/test/savesample/RRR_Internal_EDNECPsample.txt" beforeDir="false" afterPath="$PROJECT_DIR$/test/savesample/RRR_Internal_EDNECPsample.txt" afterDir="false" />
     </list>
+=======
+    <list default="true" id="a9952ef3-53b5-4976-ba05-bb25560d8c3b" name="Default Changelist" comment="" />
+>>>>>>> Stashed changes
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -25,6 +29,7 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/IGCexpansion/ac.py">
           <provider selected="true" editor-type-id="text-editor">
+<<<<<<< Updated upstream
             <state relative-caret-position="319">
               <caret line="3091" column="20" lean-forward="true" selection-start-line="3091" selection-start-column="20" selection-end-line="3091" selection-end-column="20" />
               <folding>
@@ -73,12 +78,69 @@
                 <element signature="e#113614#114511#0" />
                 <element signature="e#114598#115613#0" />
                 <element signature="e#115732#119087#0" />
+=======
+            <state relative-caret-position="-322">
+              <caret line="572" column="48" selection-start-line="572" selection-start-column="48" selection-end-line="572" selection-end-column="48" />
+              <folding>
+                <element signature="e#210#247#0" expanded="true" />
+                <element signature="e#2625#4012#0" />
+                <element signature="e#4068#5177#0" />
+                <element signature="e#5213#5400#0" />
+                <element signature="e#5447#6104#0" />
+                <element signature="e#6163#6883#0" />
+                <element signature="e#6928#8257#0" />
+                <element signature="e#8330#9660#0" />
+                <element signature="e#9731#10639#0" />
+                <element signature="e#10672#10881#0" />
+                <element signature="e#10924#11343#0" />
+                <element signature="e#11556#13655#0" />
+                <element signature="e#13699#14150#0" />
+                <element signature="e#14196#14867#0" />
+                <element signature="e#15001#15802#0" />
+                <element signature="e#15917#21150#0" />
+                <element signature="e#21211#23903#0" />
+                <element signature="e#23979#25392#0" />
+                <element signature="e#25498#28333#0" />
+                <element signature="e#28403#29392#0" />
+                <element signature="e#29492#29973#0" />
+                <element signature="e#30029#30616#0" />
+                <element signature="e#30658#33347#0" />
+                <element signature="e#33454#34449#0" />
+                <element signature="e#34503#37522#0" />
+                <element signature="e#37590#45095#0" />
+                <element signature="e#45219#47218#0" />
+                <element signature="e#47447#51799#0" />
+                <element signature="e#51890#53603#0" />
+                <element signature="e#53736#63497#0" />
+                <element signature="e#63682#65713#0" />
+>>>>>>> Stashed changes
               </folding>
             </state>
           </provider>
         </entry>
       </file>
       <file pinned="false" current-in-tab="false">
+<<<<<<< Updated upstream
+=======
+        <entry file="file:///usr/local/lib/python3.7/site-packages/numpy/core/shape_base.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="4095">
+              <caret line="282" selection-start-line="282" selection-end-line="282" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file:///usr/local/lib/python3.7/site-packages/numpy/core/numeric.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="2430">
+              <caret line="191" selection-start-line="191" selection-end-line="191" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+>>>>>>> Stashed changes
         <entry file="file://$PROJECT_DIR$/IGCexpansion/CodonGeneconv.py">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="202">
@@ -662,13 +724,19 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/IGCexpansion/CodonGeneconv.py">
       <provider selected="true" editor-type-id="text-editor">
+<<<<<<< Updated upstream
         <state relative-caret-position="202">
           <caret line="359" column="19" lean-forward="true" selection-start-line="359" selection-start-column="19" selection-end-line="359" selection-end-column="19" />
+=======
+        <state relative-caret-position="4095">
+          <caret line="282" selection-start-line="282" selection-end-line="282" />
+>>>>>>> Stashed changes
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/IGCexpansion/ac.py">
       <provider selected="true" editor-type-id="text-editor">
+<<<<<<< Updated upstream
         <state relative-caret-position="319">
           <caret line="3091" column="20" lean-forward="true" selection-start-line="3091" selection-start-column="20" selection-end-line="3091" selection-end-column="20" />
           <folding>
@@ -717,6 +785,42 @@
             <element signature="e#113614#114511#0" />
             <element signature="e#114598#115613#0" />
             <element signature="e#115732#119087#0" />
+=======
+        <state relative-caret-position="-322">
+          <caret line="572" column="48" selection-start-line="572" selection-start-column="48" selection-end-line="572" selection-end-column="48" />
+          <folding>
+            <element signature="e#210#247#0" expanded="true" />
+            <element signature="e#2625#4012#0" />
+            <element signature="e#4068#5177#0" />
+            <element signature="e#5213#5400#0" />
+            <element signature="e#5447#6104#0" />
+            <element signature="e#6163#6883#0" />
+            <element signature="e#6928#8257#0" />
+            <element signature="e#8330#9660#0" />
+            <element signature="e#9731#10639#0" />
+            <element signature="e#10672#10881#0" />
+            <element signature="e#10924#11343#0" />
+            <element signature="e#11556#13655#0" />
+            <element signature="e#13699#14150#0" />
+            <element signature="e#14196#14867#0" />
+            <element signature="e#15001#15802#0" />
+            <element signature="e#15917#21150#0" />
+            <element signature="e#21211#23903#0" />
+            <element signature="e#23979#25392#0" />
+            <element signature="e#25498#28333#0" />
+            <element signature="e#28403#29392#0" />
+            <element signature="e#29492#29973#0" />
+            <element signature="e#30029#30616#0" />
+            <element signature="e#30658#33347#0" />
+            <element signature="e#33454#34449#0" />
+            <element signature="e#34503#37522#0" />
+            <element signature="e#37590#45095#0" />
+            <element signature="e#45219#47218#0" />
+            <element signature="e#47447#51799#0" />
+            <element signature="e#51890#53603#0" />
+            <element signature="e#53736#63497#0" />
+            <element signature="e#63682#65713#0" />
+>>>>>>> Stashed changes
           </folding>
         </state>
       </provider>

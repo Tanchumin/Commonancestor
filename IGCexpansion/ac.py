@@ -1581,12 +1581,13 @@ class AncestralState:
                                   re = self.GLS_s(t=t1, repeat=1, ifrecal=True,ini=ini1, end=end1)
 
                                   if re[2]==0:
-                                      kk=kk-1
                                       break
+
+
 
                                   sam = self.rank_ts(time=re[0],t=t1, state=re[1], ini=ini1, effect_number=re[2])
                                   re10 = self.whether_IGC(history_matrix=sam[0], effect_number=sam[1],branch=j,times=kk)
-                                  print(re10[1])
+                         #         print(re10[1])
                                   if(name==False):
                                       re111=re10[0]
                                       name=True
@@ -1859,8 +1860,6 @@ class AncestralState:
 
             self.type_number = int(type_number)
             for ii in range(effect_number):
-                    print(effect_number)
-           #         print(history_matrix)
                     history_matrix[ii, 3] = history_matrix[ii, 5]-2
 
 
@@ -1884,7 +1883,6 @@ class AncestralState:
 
         list_all=[]
         for i in range(self.type_number - 1):
-          #  print(i)
             list_all.append(0)
 
         effect_vector=np.zeros(shape=int(self.type_number - 1))
@@ -1950,8 +1948,8 @@ class AncestralState:
                     else:
                         tau_list[i] = deepcopy(np.mean(tau))
 
-                if tau_list[i]==0:
-                     tau_list[i]=deepcopy(self.tauoriginal)
+            #    if tau_list[i]==0:
+            #      tau_list[i]=deepcopy(self.tauoriginal)
 
 
                 eps=np.abs(tau_list[i]-deepcopy(self.tau))
@@ -1960,9 +1958,9 @@ class AncestralState:
                 ii=ii+1
 
 
-            print("estimated  events:",(total_history/times))
-            print("estimated  IGC", (total_IGC / times))
-            print("estimated  ps", ((total_history/times)-(total_IGC / times)))
+            print("estimated  events:",(total_history/times1))
+            print("estimated  IGC", (total_IGC / times1))
+            print("estimated  ps", ((total_history/times1)-(total_IGC / times1)))
             print("estimaed branch len",(self.scene['tree']["edge_rate_scaling_factors"][i+2]))
             print("IGC",tau_list[i])
 
@@ -1990,7 +1988,6 @@ class AncestralState:
                      self.jointly_common_ancstral_inference(ifcircle=ifcircle,taulist=fr[1])
                 #      self.jointly_common_ancstral_inference(ifcircle=ifcircle, taulist=fr1)
                 print(kk)
-                ttt = len(self.scene['tree']["column_nodes"])
                 for j in range(ttt):
                         t1 = self.scene['tree']["edge_rate_scaling_factors"][j]
                         # print(j)
@@ -2005,7 +2002,6 @@ class AncestralState:
 
                             re = self.GLS_s(t=t1, repeat=1, ifrecal=True, ini=ini1, end=end1,if_circle=True)
                             if re[2] == 0:
-                                kk = kk - 1
                                 break
 
                             sam = self.rank_ts(time=re[0], t=t1, state=re[1], ini=ini1, effect_number=re[2])
@@ -2081,15 +2077,15 @@ class AncestralState:
              for i in range(self.type_number-1):
                 tau=np.zeros(shape=(times))
                 times1=times
+                total_igc = 0
+                total_history = 0
 
                 for k in range(times):
                     deno = 0
                     no = 0
                     total_time = 0
-                    total_igc = 0
-                    total_history = 0
                     total_pro = 0
-                    deno1 = 0
+
                     for j in range(self.last_effct):
                         if(self.igc_com[j,6]==k):
                            if(self.igc_com[j,3]==i):
@@ -2100,7 +2096,6 @@ class AncestralState:
                                total_pro=total_pro+self.igc_com[j, 4]
                                if(self.igc_com[j,2]>0):
                                   total_igc=total_igc+1
-                                  deno1=deno1 + (self.igc_com[j, 1] * self.igc_com[j, 0])
 
                     if (deno==0):
                         tau[k]=0
@@ -2108,12 +2103,8 @@ class AncestralState:
                     else:
                         tau[k]=((no)/(deno*2))
 
-                    if times1==0:
-                        times1=1
-
-                    if(tau[k]<0.00000001):
-                        tau[k]=self.tauoriginal
-
+                if times1==0:
+                     times1=1
 
 
                 relationship[i,0]=deno
@@ -2126,17 +2117,17 @@ class AncestralState:
                     tauratio[k]=(relationship[i,3])/(2*tauratio[k])
                     tausquare[k]=(tausquare[k]**2)
                 relationship[i, 4] = np.mean(tausquare) + np.mean(tauratio)-(relationship[i, 3]**2)
-                relationship[i, 5]=total_igc/times
-                relationship[i, 6] = total_history
-                relationship[i, 7] = (total_history-no)/times
+                relationship[i, 5]=total_igc/times1
+                relationship[i, 6] = total_history/times1
+                relationship[i, 7] = (total_history-no)/times1
 
 
                 if(method=="bybranch"):
                      print("estimated branch length:", self.scene['tree']["edge_rate_scaling_factors"][i + 2])
                      print("estimated branch name:", self.geneconv.edge_list[i + 2])
                      print("for branch :" , geneconv.edge_list[i+2])
-                     print("total events :" , (total_history/times))
-                     print("total igc :" , (no/times))
+                     print("total events :" , (total_history/times1))
+                     print("total igc :" , (no/times1))
                 # point mutation = events- igc
                      print("total point mutations :", relationship[i, 7])
                      print("estimated tau :", relationship[i, 3])
@@ -2145,8 +2136,8 @@ class AncestralState:
                      print("#######################")
 
                 else:
-                     print("total events :" , (total_history/times))
-                     print("total igc :" , (no/times))
+                     print("total events :" , relationship[i,6])
+                     print("total potential igc :" , relationship[i,5])
                 # point mutation = events- igc
                      print("total point mutations :"  ,relationship[i, 7])
                      print("estimated tau :" , relationship[i, 3])
@@ -3034,9 +3025,9 @@ if __name__ == '__main__':
     # name = 'fixtau_ednecp_real1'
 
     paralog = ['__Paralog1', '__Paralog2']
-    alignment_file = '../test/intron/group_542_intron2_c.fasta'
+    alignment_file = '../test/intron/group_972_intron2_c.fasta'
     newicktree = '../test/intron/intronc.newick'
-    name ="intron_542_2_c"
+    name ="intron_972_2_c"
 
  #   name = 'tau99_01vss'
   #  Force ={0:np.exp(-0.71464127), 1:np.exp(-0.55541915), 2:np.exp(-0.68806275),3: np.exp( 0.74691342),4: np.exp( -0.5045814)}
