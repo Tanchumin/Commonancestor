@@ -7,7 +7,7 @@ import os
 import pickle
 
 class Clean:
-    def __init__(self,  tree_newick, alignment,paralog,model,post_dup = 'N1',inibl=0.1,deletec=True):
+    def __init__(self,  tree_newick, alignment,paralog,model,post_dup = 'N1',inibl=0.1,deletec=True,name="sample"):
 
         self.seqloc      = alignment
         self.Model       = model
@@ -26,6 +26,8 @@ class Clean:
         self.name_to_seq  =None
 
         self.inibl = inibl
+
+        self.name=name
 
         bases = 'tcag'.upper()
         codons = [a+b+c for a in bases for b in bases for c in bases]
@@ -61,7 +63,7 @@ class Clean:
         self.get_tree()
 
         seq_dict = SeqIO.to_dict(SeqIO.parse(self.seqloc, "fasta"))
-        print(seq_dict.keys())
+     #   print(seq_dict.keys())
 
         self.name_to_seq = {name: str(seq_dict[name].seq) for name in seq_dict.keys()}
 
@@ -74,9 +76,7 @@ class Clean:
         else:
             obs_to_state = deepcopy(self.nt_to_state)
             obs_to_state['-'] = -1
-
-#        print(self.nt_to_state)
-#        print(obs_to_state)
+            obs_to_state['?'] = -1
 
 
 
@@ -86,7 +86,7 @@ class Clean:
             for name in self.name_to_seq:
                 self.name_to_seq[name] = self.name_to_seq[name][: self.nsites]
 
-        print(list(self.name_to_seq.keys())[0])
+     #   print(list(self.name_to_seq.keys())[0])
         print ('number of sites to be analyzed: ', self.nsites)
 
         self.observable_names = [n for n in self.name_to_seq.keys() if
@@ -114,8 +114,9 @@ class Clean:
                 for name in self.observable_names:
                     observation = obs_to_state[self.name_to_seq[name][site]]
                     observations.append(observation)
-                    if ((self.name_to_seq[name][site]) == "-"):
+                    if ((self.name_to_seq[name][site]) == "-" or (self.name_to_seq[name][site]) == "?"):
                         dlsite.append(site)
+                        print("delete")
                 iid_observations.append(observations)
 
         else:
@@ -130,14 +131,14 @@ class Clean:
                     else:
                        observation = obs_to_state[self.name_to_seq[name][site]]
                        observations.append(observation)
-                       if ((self.name_to_seq[name][site]) == "-"):
+                       if ((self.name_to_seq[name][site]) == "-" or (self.name_to_seq[name][site]) == "?"):
                           dlsite.append(site)
                 iid_observations.append(observations)
 
         #      print(iid_observations)
-        dlsite=list(set(dlsite))
+        dlsite=list(sorted(set(dlsite)))
 
-  #      print(dlsite[0])
+    #    print(dlsite)
    #     print(len(dlsite))
 
 
@@ -153,18 +154,19 @@ class Clean:
     def change_into_seq(self):
         iid=self.get_data()
 
-        print(self.state_to_nt)
+   #     print(self.state_to_nt)
 
         if not os.path.isdir('./prepared_input_clean/'):
             os.mkdir('./prepared_input_clean')
 
         seq_clean=[]
-        print(iid[0])
+    #    print(iid[0])
 
         i=-1
-        save_nameP = '../test/intron/' + 'sample1.txt'
+        save_nameP = '../test/intron/' + self.name+'.fasta'
         with open(save_nameP, 'w+') as f:
       #      pickle.dump(seq_clean, f)
+         if self.deletec==True:
             for  name in  self.observable_names:
 
 
@@ -177,7 +179,7 @@ class Clean:
                     i=i+1
 
 
-                    for site in range(self.nsites - iid[1]-1):
+                    for site in range(self.nsites - iid[1]):
                      #   print(iid[0][site])
                         observations = observations+self.state_to_nt[iid[0][site][i]]
                       #  print(observations)
@@ -186,13 +188,20 @@ class Clean:
 
                     f.write(observations)
 
+         else:
+             for name in self.observable_names:
 
+                     observations = ">" + name + "\n"
+                     i = i + 1
 
+                     for site in range(self.nsites - iid[1] ):
+                         #   print(iid[0][site])
+                         observations = observations + self.state_to_nt[iid[0][site][i]]
+                     #  print(observations)
 
+                     observations = observations + "\n"
 
-
-
-
+                     f.write(observations)
 
 
 
@@ -224,5 +233,8 @@ if __name__ == '__main__':
 
 
     model="HKY"
-    geneconv = Clean(newicktree, alignment_file, paralog, model=model)
+    name="testin1"
+# Yixuan change deletec = False,  and do not change model="HKY"
+
+    geneconv = Clean(newicktree, alignment_file, paralog, model=model,name=name,deletec=True)
     geneconv.change_into_seq()
