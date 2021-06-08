@@ -1368,7 +1368,7 @@ class ReCodonGeneconv:
             self.update_by_x_clock()
         return Clock_drv
 
-    def get_summary(self, output_label = False):
+    def get_summary(self, output_label = False, branchtau=False):
         out = [self.nsites, self.ll]
         out.extend(self.pi)
         if self.Model == 'HKY': # HKY model doesn't have omega parameter
@@ -1391,7 +1391,13 @@ class ReCodonGeneconv:
             self.get_ExpectedHetDwellTime()
 
         label.extend([ (a, b, 'tau') for (a, b) in self.edge_list])
-        out.extend([self.ExpectedGeneconv[i] / (self.edge_to_blen[i] * self.ExpectedDwellTime[i]) if self.ExpectedDwellTime[i] != 0 else 0 for i in self.edge_list])
+        out.extend([self.ExpectedGeneconv[i] / (self.edge_to_blen[i] * self.ExpectedDwellTime[i]) if
+                    self.ExpectedDwellTime[i] != 0 else 0 for i in self.edge_list])
+
+        if branchtau == True:
+            taulist=[self.ExpectedGeneconv[i] / (self.edge_to_blen[i] * self.ExpectedDwellTime[i]) if self.ExpectedDwellTime[i] != 0 else 0 for i in self.edge_list]
+
+
 
 
         # Now add directional # of geneconv events
@@ -1413,6 +1419,8 @@ class ReCodonGeneconv:
 
         if output_label:
             return out, label
+        elif branchtau:
+            return taulist
         else:
             return out        
 

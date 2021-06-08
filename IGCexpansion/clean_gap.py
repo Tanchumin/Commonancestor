@@ -77,6 +77,7 @@ class Clean:
             obs_to_state = deepcopy(self.nt_to_state)
             obs_to_state['-'] = -1
             obs_to_state['?'] = -1
+            obs_to_state['N'] = -1
 
 
 
@@ -114,7 +115,8 @@ class Clean:
                 for name in self.observable_names:
                     observation = obs_to_state[self.name_to_seq[name][site]]
                     observations.append(observation)
-                    if ((self.name_to_seq[name][site]) == "-" or (self.name_to_seq[name][site]) == "?"):
+                    if ((self.name_to_seq[name][site]) == "-" or (self.name_to_seq[name][site]) == "?" or
+                    (self.name_to_seq[name][site]) == "N"):
                         dlsite.append(site)
                         print("delete")
                 iid_observations.append(observations)
@@ -131,7 +133,8 @@ class Clean:
                     else:
                        observation = obs_to_state[self.name_to_seq[name][site]]
                        observations.append(observation)
-                       if ((self.name_to_seq[name][site]) == "-" or (self.name_to_seq[name][site]) == "?"):
+                       if ((self.name_to_seq[name][site]) == "-" or (self.name_to_seq[name][site]) == "?" or
+                       (self.name_to_seq[name][site]) == "N"):
                           dlsite.append(site)
                 iid_observations.append(observations)
 
@@ -228,12 +231,12 @@ if __name__ == '__main__':
 
 
     paralog = ['__Paralog1', '__Paralog2']
-    alignment_file = '../test/intron/testin.fasta'
+    alignment_file = '../test/intron/prepared_input0/group_972_intron5.fasta'
     newicktree = '../test/intron/intron.newick'
 
 
     model="HKY"
-    name="testin1"
+    name="group_972_intron5_c"
 # Yixuan change deletec = False,  and do not change model="HKY"
 
     geneconv = Clean(newicktree, alignment_file, paralog, model=model,name=name,deletec=True)

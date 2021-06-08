@@ -1571,7 +1571,7 @@ class AncestralState:
                     print(kk)
                     for j in range(ttt):
                              t1 = self.scene['tree']["edge_rate_scaling_factors"][j]
-                             if not j == 1:
+                             if j >= 2:
                                   ini2 = self.geneconv.node_to_num[geneconv.edge_list[j][0]]
                                   end2 = self.geneconv.node_to_num[geneconv.edge_list[j][1]]
                                   ini1=deepcopy(self.sites[ini2,])
@@ -1992,7 +1992,7 @@ class AncestralState:
                         t1 = self.scene['tree']["edge_rate_scaling_factors"][j]
                         # print(j)
 
-                        if not j == 1:
+                        if  j >= 2:
                             ini2 = self.geneconv.node_to_num[geneconv.edge_list[j][0]]
                             end2 = self.geneconv.node_to_num[geneconv.edge_list[j][1]]
                             ini1 = deepcopy(self.sites[ini2,])
