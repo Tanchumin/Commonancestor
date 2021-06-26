@@ -1402,6 +1402,7 @@ class ReCodonGeneconv:
 
         # Now add directional # of geneconv events
         ExpectedDirectionalNumGeneconv = self._ExpectedDirectionalNumGeneconv()
+        print(ExpectedDirectionalNumGeneconv )
         label.extend([ (a, b, '1->2') for (a, b) in self.edge_list])
         out.extend([ExpectedDirectionalNumGeneconv[i][0] for i in self.edge_list])
         label.extend([ (a, b, '2->1') for (a, b) in self.edge_list])
@@ -1420,7 +1421,7 @@ class ReCodonGeneconv:
         if output_label:
             return out, label
         elif branchtau:
-            return taulist
+            return taulist,self.ExpectedGeneconv,self.edge_to_blen,self.ExpectedDwellTime
         else:
             return out        
 
