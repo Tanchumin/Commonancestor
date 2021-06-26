@@ -671,8 +671,8 @@ class AncestralState1:
         list.append(self.geneconv.kappa)
 
 
-        geneconv.get_ExpectedNumGeneconv()
-        tau=geneconv.get_summary(branchtau=True)
+        self.geneconv.get_ExpectedNumGeneconv()
+        tau=self.geneconv.get_summary(branchtau=True)
         ttt = len(self.scene['tree']["column_nodes"])
 
         for mc in range(repeat):
@@ -702,13 +702,13 @@ class AncestralState1:
       #  print(tau[1])
         #exoect igc
 
-        for j in geneconv.edge_list:
+        for j in self.geneconv.edge_list:
                 list.append(tau[1][j])
 #     branch length
-        for j in geneconv.edge_list:
+        for j in self.geneconv.edge_list:
                 list.append(tau[2][j])
 # opportunity
-        for j in geneconv.edge_list:
+        for j in self.geneconv.edge_list:
                 list.append(tau[3][j])
 
 
