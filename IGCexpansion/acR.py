@@ -718,7 +718,7 @@ class AncestralState1:
         print(list)
 
 
-        save_nameP = "./save/"+name +'.txt'
+        save_nameP = "./save/"+self.name +'.txt'
         with open(save_nameP, 'w+') as f:
             np.savetxt(f, list, delimiter=' ', )
 
