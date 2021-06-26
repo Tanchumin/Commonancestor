@@ -667,8 +667,8 @@ class AncestralState1:
         list=[]
         divergelist=[]
         list.append(self.sites_length)
-        list.append(geneconv.tau)
-        list.append(geneconv.kappa)
+        list.append(self.geneconv.tau)
+        list.append(self.geneconv.kappa)
 
 
         geneconv.get_ExpectedNumGeneconv()
