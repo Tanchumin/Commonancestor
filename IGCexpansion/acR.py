@@ -96,7 +96,7 @@ class AncestralState1:
         return self.geneconv.get_dict_trans()
 
     def get_ancestral_state_response(self,iffix=False):
-        self.get_scene()
+        scene=self.get_scene()
 
         if iffix==True:
 
@@ -136,7 +136,7 @@ class AncestralState1:
         return result
 
     def get_ancestral_state_response_x(self):
-        self.get_scene()
+        scene=self.get_scene()
 
         requests = [
             {'property': "ddnance"}
