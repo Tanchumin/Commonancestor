@@ -29,8 +29,8 @@ if __name__ == '__main__':
     name = "YBL087C_YER117W_input"
 
     paralog = ['YBL087C', 'YER117W']
-    alignment_file = '.../test/yeast/' + name + '.fasta'
-    newicktree = '.../test/yeast/YeastTree.newick'
+    alignment_file = './' + name + '.fasta'
+    newicktree = './YeastTree.newick'
 
     #   name = 'tau99_01vss'
     #  Force ={0:np.exp(-0.71464127), 1:np.exp(-0.55541915), 2:np.exp(-0.68806275),3: np.exp( 0.74691342),4: np.exp( -0.5045814)}
@@ -42,7 +42,7 @@ if __name__ == '__main__':
     type = 'situation1'
     save_name = model+name
     geneconv = ReCodonGeneconv(newicktree, alignment_file, paralog, Model=model, Force=Force, clock=None,
-                               save_path='.../test/save/', save_name=save_name)
+                               save_path='./', save_name=save_name)
 
     self = AncestralState1(geneconv)
     scene = self.get_scene()

@@ -81,7 +81,7 @@ class AncestralState1:
         self.ifmax=False
         self.ifXiang=True
 
-        self.name=name
+        self.name=self.geneconv.save_name
 
     def get_mle(self):
         self.geneconv.get_mle()
@@ -718,7 +718,7 @@ class AncestralState1:
         print(list)
 
 
-        save_nameP = "../test/intron/IGC_output/"+name +'.txt'
+        save_nameP = "./save/"+name +'.txt'
         with open(save_nameP, 'w+') as f:
             np.savetxt(f, list, delimiter=' ', )
 
