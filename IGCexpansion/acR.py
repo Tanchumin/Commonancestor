@@ -680,8 +680,8 @@ class AncestralState1:
             self.jointly_common_ancstral_inference()
             for j in range(ttt):
                     if not j == 1:
-                            ini2 = self.geneconv.node_to_num[geneconv.edge_list[j][0]]
-                            end2 = self.geneconv.node_to_num[geneconv.edge_list[j][1]]
+                            ini2 = self.geneconv.node_to_num[self.geneconv.edge_list[j][0]]
+                            end2 = self.geneconv.node_to_num[self.geneconv.edge_list[j][1]]
                             ini1 = deepcopy(self.sites[ini2,])
                             end1 = deepcopy(self.sites[end2,])
                             diverge=self.sites_length-(self.difference(ini1)+self.difference(end1))*0.5
