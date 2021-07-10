@@ -665,6 +665,7 @@ class AncestralState1:
     def get_paralog_diverge(self,repeat=10):
 
         list=[]
+        list1=[]
         divergelist=[]
         list.append(self.sites_length)
         list.append(self.geneconv.tau)
@@ -704,18 +705,25 @@ class AncestralState1:
 
         for j in self.geneconv.edge_list:
                 list.append(tau[1][j])
+
 #     branch length
         for j in self.geneconv.edge_list:
-                list.append(tau[2][j])
+                 list.append(tau[2][j])
+
 # opportunity
         for j in self.geneconv.edge_list:
                 list.append(tau[3][j])
+     #           list1.extend(j)
+
+        list1.extend([("brahch",a, b) for (a, b) in self.geneconv.edge_list])
 
 
 
 
 
-        print(list)
+
+
+      #  print(list)
 
 
         save_nameP = "./save/"+self.name +'.txt'
@@ -724,6 +732,10 @@ class AncestralState1:
 
 
 
+      #  print(list1)
+
+        save_nameP1 = "./save/"+self.name +'.name.txt'
+        np.savetxt(save_nameP1, list1,fmt="%s")
 
 
 
