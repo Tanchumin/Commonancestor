@@ -274,6 +274,10 @@ class AncestralState1:
 
         return (list)
 
+    def isNonsynonymous(self, ca, cb, codon_table):
+        return (codon_table[ca] != codon_table[cb])
+
+
     def get_num(self):
         if self.num_to_state is None:
             if self.Model == 'HKY':
@@ -354,7 +358,7 @@ class AncestralState1:
 
         node = np.arange(self.node_length)
         interior_node = set(node) - set(self.scene["observed_data"]["nodes"])
-     #   print(self.scene["observed_data"]["iid_observations"])
+     #   print(self.scene["observed_data"]["idiverge_observations"])
      #   print(self.scene["observed_data"]["variables"])
      #   print(self.scene["observed_data"]["nodes"])
         c = [i for i in interior_node]
@@ -482,10 +486,10 @@ class AncestralState1:
         for i in range(len(self.judge)-1):
             inode= internal_node[len(self.judge)-1-i]
             state=int(self.judge[len(self.judge)-1-i])
-            id=1
+            diverge=1
             for j in range(tree_len-1):
-                if(self.geneconv.node_to_num[geneconv.edge_list[j][0]]==inode and id==1):
-                    id=id+1
+                if(self.geneconv.node_to_num[geneconv.edge_list[j][0]]==inode and diverge==1):
+                    diverge=diverge+1
                     left = self.geneconv.node_to_num[geneconv.edge_list[j][1]]
                     right= self.geneconv.node_to_num[geneconv.edge_list[j+1][1]]
                     tree_to[1,len(self.judge)-i-1]=left
@@ -635,41 +639,58 @@ class AncestralState1:
 
     def difference(self,ini):
         index = 0
+        ratio_nonsynonymous = 0
+        ratio_synonymous = 0
 
 
         if self.Model=="HKY":
             str = {0, 5, 10, 15}
 
-
             for i in range(self.sites_length):
-                if ini[i] in str:
+                if not ini[i] in str:
                     index=index+1
         else:
             for i in range(self.sites_length):
-                if (ini[i])//61 == (ini[i])%61:
+                ca=(ini[i])//61
+                cb=(ini[i])%61
+                if ca != cb:
                     index=index+1
+                    cb1=self.geneconv.state_to_codon[cb]
+                    ca1 = self.geneconv.state_to_codon[ca]
+                    if self.isNonsynonymous(cb1, ca1, self.geneconv.codon_table):
+                        ratio_nonsynonymous=ratio_nonsynonymous+1
+
+        if not index==0:
+            ratio_nonsynonymous = ratio_nonsynonymous/index
+            ratio_synonymous = 1 - ratio_synonymous
 
 
 
-
-        return index
-
-
-
+        print(index)
+        print(ratio_nonsynonymous)
+        print("xxxxxxxxxxxx")
 
 
+        return index,ratio_nonsynonymous,ratio_synonymous
 
-            #print(Q)
 
 
-    def get_paralog_diverge(self,repeat=10):
+    def get_paralog_diverge(self,repeat=2):
+    #    print(self.geneconv.codon_nonstop)
+      #  self.geneconv.get_MG94Geneconv_and_MG94()
+
 
         list=[]
         list1=[]
-        divergelist=[]
         list.append(self.sites_length)
         list.append(self.geneconv.tau)
         list.append(self.geneconv.kappa)
+        if self.Model == "MG94":
+            list.append(self.geneconv.omega)
+
+        diverge_list=[]
+        diverge_listnonsynonymous=[]
+        diverge_listsynonymous=[]
 
 
         self.geneconv.get_ExpectedNumGeneconv()
@@ -680,25 +701,57 @@ class AncestralState1:
 
             self.jointly_common_ancstral_inference()
             for j in range(ttt):
-                    if not j == 1:
-                            ini2 = self.geneconv.node_to_num[self.geneconv.edge_list[j][0]]
-                            end2 = self.geneconv.node_to_num[self.geneconv.edge_list[j][1]]
-                            ini1 = deepcopy(self.sites[ini2,])
-                            end1 = deepcopy(self.sites[end2,])
-                            diverge=self.sites_length-(self.difference(ini1)+self.difference(end1))*0.5
-                    if mc!=0:
-                            divergelist[j]=divergelist[j]+diverge
-                    else:
-                            divergelist.append(diverge)
+
+                            if self.Model=="HKY":
+                                if not j == 1:
+                                     ini2 = self.geneconv.node_to_num[self.geneconv.edge_list[j][0]]
+                                     end2 = self.geneconv.node_to_num[self.geneconv.edge_list[j][1]]
+                                     ini1 = deepcopy(self.sites[ini2,])
+                                     end1 = deepcopy(self.sites[end2,])
+
+                                     diverge=(self.difference(ini1)[0]+self.difference(end1)[0])*0.5
+                                if mc != 0:
+                                     diverge_list[j] = diverge_list[j] + diverge
+                                else:
+                                     diverge_list.append(diverge)
+                            if self.Model=="MG94":
+                                if not j == 1:
+                                     ini2 = self.geneconv.node_to_num[self.geneconv.edge_list[j][0]]
+                                     end2 = self.geneconv.node_to_num[self.geneconv.edge_list[j][1]]
+                                     ini1 = deepcopy(self.sites[ini2,])
+                                     end1 = deepcopy(self.sites[end2,])
+
+                                     ini_D=self.difference(ini1)[0]
+                                     end_D = self.difference(end1)[0]
+                                     ini_ratio_nonsynonymous=self.difference(ini1)[1]
+                                     end_ratio_nonsynonymous = self.difference(end1)[1]
+                                     ini_ratio_synonymous = self.difference(ini1)[2]
+                                     end_ratio_synonymous = self.difference(end1)[2]
+                                     diverge_nonsynonymous = (ini_D*ini_ratio_nonsynonymous+end_D*end_ratio_nonsynonymous)*0.5
+                                     diverge_synonymous = (ini_D * ini_ratio_synonymous + end_D * end_ratio_synonymous) * 0.5
+
+                                if mc != 0:
+                                    diverge_listnonsynonymous[j] = diverge_listnonsynonymous[j] + diverge_nonsynonymous
+                                    diverge_listsynonymous[j] = diverge_listsynonymous[j] + diverge_synonymous
+                                else:
+                                    diverge_listnonsynonymous.append(diverge_nonsynonymous)
+                                    diverge_listsynonymous.append(diverge_synonymous)
+
+
 
 
         for j in range(ttt):
                     list.append(tau[0][j])
 
-        print(divergelist)
-
-        for j in range(ttt):
-                    list.append(divergelist[j]/repeat)
+#        print(divergelist)
+        if self.Model == "HKY":
+              for j in range(ttt):
+                    list.append(diverge_list[j]/repeat)
+        elif self.Model == "MG94":
+              for j in range(ttt):
+                    list.append(diverge_listnonsynonymous[j]/repeat)
+              for j in range(ttt):
+                    list.append(diverge_listsynonymous[j]/repeat)
 
       #  print(tau[1])
         #exoect igc
@@ -710,16 +763,13 @@ class AncestralState1:
         for j in self.geneconv.edge_list:
                  list.append(tau[2][j])
 
-# opportunity
+# opportunity time
         for j in self.geneconv.edge_list:
-                list.append(tau[3][j])
-     #           list1.extend(j)
+                list.append(tau[3][0][j])
+        for j in self.geneconv.edge_list:
+                list.append(tau[3][1][j])
 
         list1.extend([("brahch",a, b) for (a, b) in self.geneconv.edge_list])
-
-
-
-
 
 
 
@@ -731,11 +781,12 @@ class AncestralState1:
             np.savetxt(f, list, delimiter=' ', )
 
 
-
-      #  print(list1)
-
         save_nameP1 = "./save/"+self.name +'.name.txt'
         np.savetxt(save_nameP1, list1,fmt="%s")
+
+
+    def print(self):
+        self.geneconv.get_ExpectedNumGeneconv()
 
 
 
