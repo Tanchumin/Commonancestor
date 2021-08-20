@@ -675,7 +675,7 @@ class AncestralState1:
 
 
 
-    def get_paralog_diverge(self,repeat=2):
+    def get_paralog_diverge(self,repeat=10):
     #    print(self.geneconv.codon_nonstop)
       #  self.geneconv.get_MG94Geneconv_and_MG94()
 
