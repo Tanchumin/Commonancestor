@@ -730,12 +730,17 @@ class AncestralState1:
                                      diverge_nonsynonymous = (ini_D*ini_ratio_nonsynonymous+end_D*end_ratio_nonsynonymous)*0.5
                                      diverge_synonymous = (ini_D * ini_ratio_synonymous + end_D * end_ratio_synonymous) * 0.5
 
+                                     diverge = float(ini_D + end_D) * 0.5
+
                                 if mc != 0:
                                     diverge_listnonsynonymous[j] = diverge_listnonsynonymous[j] + diverge_nonsynonymous
                                     diverge_listsynonymous[j] = diverge_listsynonymous[j] + diverge_synonymous
+                                    diverge_list[j] = diverge_list[j] + diverge
                                 else:
                                     diverge_listnonsynonymous.append(diverge_nonsynonymous)
                                     diverge_listsynonymous.append(diverge_synonymous)
+                                    diverge_list.append(diverge)
+
 
 
 
@@ -752,6 +757,9 @@ class AncestralState1:
                     list.append(diverge_listnonsynonymous[j]/repeat)
               for j in range(ttt):
                     list.append(diverge_listsynonymous[j]/repeat)
+              for j in range(ttt):
+                    d=float(diverge_list[j])/repeat
+                    list.append(d)
 
       #  print(tau[1])
         #exoect igc
