@@ -16,8 +16,8 @@ import ast
 # import matplotlib.pyplot as plt
 
 class ReCodonGeneconv:
-    def __init__(self, tree_newick, alignment, paralog, Model='MG94', nnsites=None, clock=False, Force=None,
-                 save_path='./save/', save_name=None, post_dup='N1'):
+    def __init__(self, tree_newick, alignment, paralog, Model='MG94', IGC_Omega=None, nnsites=None, clock=False,
+                 Force=None, save_path='./save/', save_name=None, post_dup='N1'):
         self.newicktree = tree_newick  # newick tree file loc
         self.seqloc = alignment  # multiple sequence alignment, now need to remove gap before-hand
         self.paralog = paralog  # parlaog list
@@ -31,6 +31,7 @@ class ReCodonGeneconv:
         self.save_path = save_path  # location for auto-save files
         self.save_name = save_name  # save file name
         self.auto_save = 0  # auto save control
+        self.IGC_Omega = IGC_Omega  # separate omega parameter for IGC-related nonsynonymous changes
 
         self.logzero = -15.0  # used to avoid log(0), replace log(0) with -15
         self.infinity = 1e6  # used to avoid -inf in gradiance calculation of the clock case
@@ -155,7 +156,6 @@ class ReCodonGeneconv:
             iid_observations.append(observations)
         self.iid_observations = iid_observations
 
-
     def separate_species_paralog_names(self, seq_name):
         assert (seq_name in self.name_to_seq)  # check if it is a valid sequence name
         matched_paralog = [paralog for paralog in self.paralog if paralog in seq_name]
@@ -172,9 +172,14 @@ class ReCodonGeneconv:
 
         if self.Model == 'MG94':
             # x_process[] = %AG, %A, %C, kappa, omega, tau
-            self.x_process = np.log(
-                np.array([count[0] + count[2], count[0] / (count[0] + count[2]), count[1] / (count[1] + count[3]),
-                          self.kappa, self.omega, self.tau]))
+            if self.IGC_Omega is None:
+                self.x_process = np.log(
+                    np.array([count[0] + count[2], count[0] / (count[0] + count[2]), count[1] / (count[1] + count[3]),
+                              self.kappa, self.omega, self.tau]))
+            else:
+                self.x_process = np.log(
+                    np.array([count[0] + count[2], count[0] / (count[0] + count[2]), count[1] / (count[1] + count[3]),
+                              self.kappa, self.omega, self.IGC_Omega, self.tau]))
         elif self.Model == 'HKY':
             # x_process[] = %AG, %A, %C, kappa, tau
             self.omega = 1.0
@@ -296,7 +301,7 @@ class ReCodonGeneconv:
         elif transformation == 'None':
             x_process = self.x_process
         elif transformation == 'Exp_Neg':
-            x_process = x_process = np.concatenate((self.x_process[:3], -np.log(self.x_process[3:])))
+            x_process = np.concatenate((self.x_process[:3], -np.log(self.x_process[3:])))
 
         if Force_process != None:
             for i in Force_process.keys():
@@ -304,7 +309,8 @@ class ReCodonGeneconv:
 
         if self.Model == 'MG94':
             # x_process[] = %AG, %A, %C, kappa, tau, omega
-            assert (len(self.x_process) == 6)
+            check_length = 6 + (not self.IGC_Omega is None)
+            assert (len(self.x_process) == check_length)
 
             pi_a = x_process[0] * x_process[1]
             pi_c = (1 - x_process[0]) * x_process[2]
@@ -313,7 +319,11 @@ class ReCodonGeneconv:
             self.pi = [pi_a, pi_c, pi_g, pi_t]
             self.kappa = x_process[3]
             self.omega = x_process[4]
-            self.tau = x_process[5]
+            if self.IGC_Omega is None:
+                self.tau = x_process[5]
+            else:
+                self.IGC_Omega = x_process[5]
+                self.tau = x_process[6]
         elif self.Model == 'HKY':
             # x_process[] = %AG, %A, %C, kappa, tau
             assert (len(self.x_process) == 5)
@@ -386,9 +396,8 @@ class ReCodonGeneconv:
                 row.append((sa, sb))
                 col.append((sa, sa))
                 Qb = Qbasic[sb, sa]
-           #     print(ca)
                 if isNonsynonymous(cb, ca, self.codon_table):
-                    Tgeneconv = self.tau * self.omega
+                    Tgeneconv = self.tau * self.get_IGC_omega()
                 else:
                     Tgeneconv = self.tau
                 rate_geneconv.append(Qb + Tgeneconv)
@@ -981,7 +990,7 @@ class ReCodonGeneconv:
                 column_states.append((sa, sa))
                 Qb = Qbasic[sb, sa]
                 if isNonsynonymous(cb, ca, self.codon_table):
-                    Tgeneconv = self.tau * self.omega
+                    Tgeneconv = self.tau * self.get_IGC_omega()
                 else:
                     Tgeneconv = self.tau
                 proportions.append(Tgeneconv / (Qb + Tgeneconv) if (Qb + Tgeneconv) > 0 else 0.0)
@@ -1156,7 +1165,7 @@ class ReCodonGeneconv:
                 column12_states.append((sa, sa))
                 Qb = Qbasic[sb, sa]
                 if isNonsynonymous(cb, ca, self.codon_table):
-                    Tgeneconv = self.tau * self.omega
+                    Tgeneconv = self.tau * self.get_IGC_omega()
                 else:
                     Tgeneconv = self.tau
                 proportions12.append(Tgeneconv / (Qb + Tgeneconv) if (Qb + Tgeneconv) > 0 else 0.0)
@@ -1190,6 +1199,13 @@ class ReCodonGeneconv:
 
         return [{'row_states': row12_states, 'column_states': column12_states, 'weights': proportions12},
                 {'row_states': row21_states, 'column_states': column21_states, 'weights': proportions21}]
+
+    def get_IGC_omega(self):
+        if self.IGC_Omega is None:
+            omega = self.omega
+        else:
+            omega = self.IGC_Omega
+        return omega
 
     def get_pointMutationRed(self):
         row_states = []
@@ -1226,7 +1242,7 @@ class ReCodonGeneconv:
                     col_states.append((sa, sa))
                     Qb = Qbasic[sb, sa]
                     if isNonsynonymous(cb, ca, self.codon_table):
-                        Tgeneconv = self.tau * self.omega
+                        Tgeneconv = self.tau * self.get_IGC_omega()
                     else:
                         Tgeneconv = self.tau
                     proportions.append(1.0 - Tgeneconv / (Qb + Tgeneconv) if (Qb + Tgeneconv) > 0 else 0.0)
@@ -1417,8 +1433,12 @@ class ReCodonGeneconv:
             out.extend([self.kappa, self.tau])
             label = ['length', 'll', 'pi_a', 'pi_c', 'pi_g', 'pi_t', 'kappa', 'tau']
         elif self.Model == 'MG94':
-            out.extend([self.kappa, self.omega, self.tau])
-            label = ['length', 'll', 'pi_a', 'pi_c', 'pi_g', 'pi_t', 'kappa', 'omega', 'tau']
+            if self.IGC_Omega is None:
+                out.extend([self.kappa, self.omega, self.tau])
+                label = ['length', 'll', 'pi_a', 'pi_c', 'pi_g', 'pi_t', 'kappa', 'omega', 'tau']
+            else:
+                out.extend([self.kappa, self.omega, self.IGC_Omega, self.tau])
+                label = ['length', 'll', 'pi_a', 'pi_c', 'pi_g', 'pi_t', 'kappa', 'omega', 'IGC_omega', 'tau']
 
         k = len(label)  # record the length of non-blen parameters
 
@@ -1488,6 +1508,9 @@ class ReCodonGeneconv:
             else:
                 prefix_summary = summary_path + 'Force_' + self.Model + '_'
 
+            if not self.IGC_Omega is None:
+                prefix_summary = prefix_summary + 'twoOmega_'
+
             if self.clock:
                 suffix_summary = '_clock_summary.txt'
             else:
@@ -1506,6 +1529,8 @@ class ReCodonGeneconv:
     def get_save_file_name(self):
         if self.save_name is None:
             prefix_save = self.save_path + self.Model
+            if not self.IGC_Omega is None:
+                prefix_save = prefix_save + '_twoOmega'
             if self.Force:
                 prefix_save = prefix_save + '_Force'
 
@@ -1558,10 +1583,25 @@ if __name__ == '__main__':
     MG94_tau = ReCodonGeneconv(newicktree, alignment_file, paralog, Model='MG94', Force=Force, clock=False,
                                save_path='../test/save/')
     # MG94_tau.get_mle(True, True, 0, 'BFGS')
-    MG94_tau._loglikelihood2()
+    lnL = MG94_tau._loglikelihood2()
     MG94_tau.get_individual_summary('../test/save/')
+    print(lnL)
     # MG94_tau.site_reconstruction()
     # MG94_tau_series = MG94_tau.reconstruction_series
+
+    # MG94+tau+IGC_Omega
+    MG94_tau_omega = ReCodonGeneconv(newicktree, alignment_file, paralog, Model='MG94', IGC_Omega=0.0856028254290315,
+                                     Force=Force, clock=False,
+                                     save_path='../test/save/')
+    new_x = np.concatenate(
+        (MG94_tau.x_process[:-2], [MG94_tau.x_process[-2]], MG94_tau.x_process[-2:], MG94_tau.x_rates))
+    # MG94_tau_omega.update_by_x(new_x)
+    print(MG94_tau_omega._loglikelihood2())
+    MG94_tau_omega.get_mle(True, True, 0, 'BFGS')
+    lnL = MG94_tau_omega._loglikelihood2()
+    MG94_tau_omega.get_individual_summary('../test/save/')
+    print(lnL)
+
 ##
 ##    #MG94
 ##    MG94 = ReCodonGeneconv( newicktree, alignment_file, paralog, Model = 'MG94', Force = {5:0.0}, clock = None, save_path = '../test/save/')

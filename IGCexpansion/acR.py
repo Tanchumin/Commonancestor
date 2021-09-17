@@ -840,11 +840,13 @@ if __name__ == '__main__':
     Force = None
     model = 'MG94'
 
-    type = 'situation1'
+    type = 'situation_co'
     save_name = model+name
-    geneconv = ReCodonGeneconv(newicktree, alignment_file, paralog, Model=model, Force=Force, clock=None,
+    geneconv = ReCodonGeneconv(newicktree, alignment_file, paralog, Model=model, IGC_Omega=1,Force=Force, clock=None,
                                save_path='../test/save/', save_name=save_name)
 
     self = AncestralState1(geneconv)
     scene = self.get_scene()
-    self.get_paralog_diverge()
+   # self.get_paralog_diverge()
+    print(geneconv.omega)
+    print(geneconv.IGC_Omega)
