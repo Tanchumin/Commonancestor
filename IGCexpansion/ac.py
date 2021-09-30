@@ -1,6 +1,7 @@
 # coding=utf-8
 # A separate file for Ancestral State Reconstruction
 # Uses Alex Griffing's JsonCTMCTree package for likelihood and gradient calculation
+# resampling approach
 # Xiang Ji
 # xji4@tulane.edu
 # Tanchumin Xu
