@@ -847,9 +847,12 @@ if __name__ == '__main__':
                                save_path='../test/save/', save_name=save_name)
 
     self = AncestralState1(geneconv)
-    scene = self.get_scene()
+    print(([(None, None)] * (6 - 4)))
 
-    print(scene['tree'])
+
+ #   scene = self.get_scene()
+
+ #   print(scene['tree']['edge_processes'])
 
    # self.get_paralog_diverge()
   #  print(geneconv.omega)

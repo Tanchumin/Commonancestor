@@ -98,7 +98,7 @@ class Embrachtau:
         self.kappa = 1.2  # real values
         self.omega = 0.9  # real values
         self.tau = 1.4  # real values
-        self.K=0
+        self.K=1
         self.sites=None
         self.scene=None
 
@@ -189,7 +189,7 @@ class Embrachtau:
         # check if there is exactly one paralog name in the sequence name
         return [seq_name.replace(matched_paralog[0], ''), matched_paralog[0]]
 
-    def get_initial_x_process(self, transformation='log'):
+    def get_initial_x_process(self, transformation='log',ifmodel="old"):
 
         count = np.array([0, 0, 0, 0], dtype=float)  # count for A, C, G, T in all seq
         for name in self.name_to_seq:
@@ -197,27 +197,66 @@ class Embrachtau:
                 count[i] += ''.join(self.name_to_seq[name]).count('ACGT'[i])
         count = count / count.sum()
 
-        if self.Model == 'MG94':
-            # x_process[] = %AG, %A, %C, kappa, omega, tau
-            if self.IGC_Omega is None:
+        if ifmodel=="old":
+
+            if self.Model == 'MG94':
+                # x_process[] = %AG, %A, %C, kappa, omega, tau
+                if self.IGC_Omega is None:
+                    self.x_process = np.log(
+                        np.array([count[0] + count[2], count[0] / (count[0] + count[2]), count[1] / (count[1] + count[3]),
+                                  self.kappa, self.omega, self.tau]))
+                else:
+                    self.x_process = np.log(
+                        np.array([count[0] + count[2], count[0] / (count[0] + count[2]), count[1] / (count[1] + count[3]),
+                                  self.kappa, self.omega, self.IGC_Omega, self.tau]))
+            elif self.Model == 'HKY':
+                # x_process[] = %AG, %A, %C, kappa, tau
+                self.omega = 1.0
                 self.x_process = np.log(
                     np.array([count[0] + count[2], count[0] / (count[0] + count[2]), count[1] / (count[1] + count[3]),
-                              self.kappa, self.omega, self.tau]))
-            else:
+                              self.kappa, self.tau]))
+        elif ifmodel=="EM_full":
+            if self.Model == 'MG94':
+                # x_process[] = %AG, %A, %C, kappa, omega, tau
+                if self.IGC_Omega is None:
+                    self.x_process = np.log(
+                        np.array([count[0] + count[2], count[0] / (count[0] + count[2]), count[1] / (count[1] + count[3]),
+                                  self.kappa, self.omega, self.tau,self.K]))
+                else:
+                    self.x_process = np.log(
+                        np.array([count[0] + count[2], count[0] / (count[0] + count[2]), count[1] / (count[1] + count[3]),
+                                  self.kappa, self.omega, self.IGC_Omega, self.tau,self.K]))
+            elif self.Model == 'HKY':
+                # x_process[] = %AG, %A, %C, kappa, tau
+                self.omega = 1.0
                 self.x_process = np.log(
                     np.array([count[0] + count[2], count[0] / (count[0] + count[2]), count[1] / (count[1] + count[3]),
-                              self.kappa, self.omega, self.IGC_Omega, self.tau]))
-        elif self.Model == 'HKY':
-            # x_process[] = %AG, %A, %C, kappa, tau
-            self.omega = 1.0
-            self.x_process = np.log(
-                np.array([count[0] + count[2], count[0] / (count[0] + count[2]), count[1] / (count[1] + count[3]),
-                          self.kappa, self.tau]))
+                              self.kappa, self.tau,self.K]))
+
+        elif ifmodel=="EM_reduce":
+            if self.Model == 'MG94':
+                # x_process[] = %AG, %A, %C, kappa, omega, tau
+                if self.IGC_Omega is None:
+                    self.x_process = np.log(
+                        np.array(
+                            [self.tau, self.K]))
+                else:
+                    self.x_process = np.log(
+                        np.array(
+                            [self.tau, self.K]))
+            elif self.Model == 'HKY':
+                # x_process[] = %AG, %A, %C, kappa, tau
+                self.omega = 1.0
+                self.x_process = np.log(
+                    np.array([self.tau, self.K]))
 
         self.x_rates = np.log(np.array([0.1 * self.edge_to_blen[edge] for edge in self.edge_to_blen.keys()]))
 
-        if transformation == 'log':
+        if transformation == 'log' :
             self.x = np.concatenate((self.x_process, self.x_rates))
+        elif transformation == 'log' and ifmodel=="EM_reduce":
+            self.x = np.concatenate(self.x_process)
+
         elif transformation == 'None':
             self.x_process = np.exp(self.x_process)
             self.x_rates = np.exp(self.x_rates)
@@ -308,7 +347,7 @@ class Embrachtau:
             else:  # ( N_temp_k, leaf ) branch
                 return reduce(mul, self.x_Lr[: (tmp_k + 2)], 1)
 
-    def update_by_x(self, x=None, transformation='log'):
+    def update_by_x(self, x=None, transformation='log',ifmodel="old"):
         k = len(self.edge_to_blen)
         if x is not None:
             self.x = x
@@ -319,10 +358,10 @@ class Embrachtau:
             Force_process = {i: self.Force[i] for i in self.Force.keys() if i < len(self.x) - k}
             Force_rates = {(i - len(self.x_process)): self.Force[i] for i in self.Force.keys() if
                            not i < len(self.x) - k}
-        self.unpack_x_process(Force_process=Force_process, transformation=transformation)
+        self.unpack_x_process(Force_process=Force_process, transformation=transformation,ifmodel=ifmodel)
         self.unpack_x_rates(Force_rates=Force_rates, transformation=transformation)
 
-    def unpack_x_process(self, transformation, Force_process=None):
+    def unpack_x_process(self, transformation, Force_process=None,ifmodel="old"):
         if transformation == 'log':
             x_process = np.exp(self.x_process)
         elif transformation == 'None':
@@ -336,37 +375,80 @@ class Embrachtau:
 
         if self.Model == 'MG94':
             # x_process[] = %AG, %A, %C, kappa, tau, omega
-            check_length = 6 + (not self.IGC_Omega is None)
+            if ifmodel=="old":
+                check_length = 6 + (not self.IGC_Omega is None)
+            elif ifmodel=="EM_full":
+                check_length = 7 + (not self.IGC_Omega is None)
+            elif ifmodel=="EM_reduce":
+                check_length = 2
+
+
             assert (len(self.x_process) == check_length)
 
-            pi_a = x_process[0] * x_process[1]
-            pi_c = (1 - x_process[0]) * x_process[2]
-            pi_g = x_process[0] * (1 - x_process[1])
-            pi_t = (1 - x_process[0]) * (1 - x_process[2])
-            self.pi = [pi_a, pi_c, pi_g, pi_t]
-            self.kappa = x_process[3]
-            self.omega = x_process[4]
-            if self.IGC_Omega is None:
-                self.tau = x_process[5]
-            else:
-                self.IGC_Omega = x_process[5]
-                self.tau = x_process[6]
+            if ifmodel == "old" or ifmodel=="EM_full":
+                pi_a = x_process[0] * x_process[1]
+                pi_c = (1 - x_process[0]) * x_process[2]
+                pi_g = x_process[0] * (1 - x_process[1])
+                pi_t = (1 - x_process[0]) * (1 - x_process[2])
+                self.pi = [pi_a, pi_c, pi_g, pi_t]
+                self.kappa = x_process[3]
+                self.omega = x_process[4]
+                if self.IGC_Omega is None:
+                    self.tau = x_process[5]
+                    if ifmodel == "EM_full":
+                        self.K = x_process[6]
+                else:
+                    self.IGC_Omega = x_process[5]
+                    self.tau = x_process[6]
+                    if ifmodel == "EM_full":
+                        self.K = x_process[7]
+
+            elif ifmodel == "EM_reduce":
+                self.tau = x_process[0]
+                self.K = x_process[1]
+
+
         elif self.Model == 'HKY':
             # x_process[] = %AG, %A, %C, kappa, tau
-            assert (len(self.x_process) == 5)
-            pi_a = x_process[0] * x_process[1]
-            pi_c = (1 - x_process[0]) * x_process[2]
-            pi_g = x_process[0] * (1 - x_process[1])
-            pi_t = (1 - x_process[0]) * (1 - x_process[2])
-            self.pi = [pi_a, pi_c, pi_g, pi_t]
-            self.kappa = x_process[3]
-            self.tau = x_process[4]
+            if ifmodel=="old":
+                check_length = 5
+            elif ifmodel=="EM_full":
+                check_length = 6
+            elif ifmodel=="EM_reduce":
+                check_length = 2
 
-        # Now update the prior distribution
-        self.get_prior()
+            assert (len(self.x_process) == check_length)
 
-        # Now update processes (Rate matrices)
-        self.get_processes()
+            if ifmodel == "old" or ifmodel=="EM_full":
+
+                pi_a = x_process[0] * x_process[1]
+                pi_c = (1 - x_process[0]) * x_process[2]
+                pi_g = x_process[0] * (1 - x_process[1])
+                pi_t = (1 - x_process[0]) * (1 - x_process[2])
+                self.pi = [pi_a, pi_c, pi_g, pi_t]
+                self.kappa = x_process[3]
+                self.tau = x_process[4]
+                if  ifmodel=="EM_full":
+                    self.K = x_process[7]
+
+            elif ifmodel == "EM_reduce":
+                self.tau = x_process[0]
+                self.K = x_process[1]
+
+
+
+
+        if ifmodel == "old":
+
+            # Now update the prior distribution
+            self.get_prior()
+            # Now update processes (Rate matrices)
+            self.get_processes()
+        else:
+            self.get_prior()
+            id=self.compute_paralog_id()
+            self.Get_branch_Q(id)
+
 
     def get_prior(self):
         if self.Model == 'MG94':
@@ -409,7 +491,7 @@ class Embrachtau:
         else:
             save_file = self.save_name
         return save_file
-    
+
     def get_MG94Geneconv_and_MG94(self):
         Qbasic = self.get_MG94Basic()
         row = []
@@ -638,15 +720,15 @@ class Embrachtau:
 
         return ll, edge_derivs
 
-    def _loglikelihood2(self, store=True, edge_derivative=False):
+    def _loglikelihood2(self, store=True, edge_derivative=False,ifmodel="old"):
         '''
         Modified from Alex's objective_and_gradient function in ctmcaas/adv-log-likelihoods/mle_geneconv_common.py
         '''
         if store:
-            self.scene_ll = self.get_scene()
+            self.scene_ll = self.get_scene(ifmodel=ifmodel)
             scene = self.scene_ll
         else:
-            scene = self.get_scene()
+            scene = self.get_scene(ifmodel==ifmodel)
 
         log_likelihood_request = {'property': 'snnlogl'}
         derivatives_request = {'property': 'sdnderi'}
@@ -697,13 +779,19 @@ class Embrachtau:
             for i in range(self.nsites):
                 f.write('\t'.join([str(i), str(ll[i])]) + '\n')
 
-    def get_scene(self):
+    def get_scene(self,ifmodel="old"):
         if self.Model == 'MG94':
             state_space_shape = [61, 61]
         elif self.Model == 'HKY':
             state_space_shape = [4, 4]
         process_definitions = [{'row_states': i['row'], 'column_states': i['col'], 'transition_rates': i['rate']} for i
                                in self.processes]
+        if ifmodel != "old":
+            dd=[]
+            for i in range(len(self.tree['col'])):
+                    dd.append(i)
+            self.tree['process']=dd
+
         scene = dict(
             node_count=len(self.edge_to_blen) + 1,
             process_count=len(self.processes),
@@ -725,19 +813,21 @@ class Embrachtau:
         )
         return scene
 
-    def loglikelihood_and_gradient(self, package='new', display=False):
+    def loglikelihood_and_gradient(self, package='new', display=False,ifmodel="old"):
         '''
         Modified from Alex's objective_and_gradient function in ctmcaas/adv-log-likelihoods/mle_geneconv_common.py
         '''
-        self.update_by_x()
+        self.update_by_x(ifmodel=ifmodel)
         delta = 1e-8
         x = deepcopy(self.x)  # store the current x array
         if package == 'new':
             fn = self._loglikelihood2
         else:
             fn = self._loglikelihood
-
-        ll, edge_derivs = fn(edge_derivative=True)
+        if ifmodel=="old" or ifmodel=="EM_full":
+           ll, edge_derivs = fn(edge_derivative=True)
+        else:
+            ll, edge_derivs = fn()
 
         m = len(self.x) - len(self.edge_to_blen)
 
@@ -751,12 +841,12 @@ class Embrachtau:
                     continue
             x_plus_delta = np.array(self.x)
             x_plus_delta[i] += delta
-            self.update_by_x(x_plus_delta)
+            self.update_by_x(x_plus_delta,ifmodel=ifmodel)
             ll_delta, _ = fn(store=True, edge_derivative=False)
             d_estimate = (ll_delta - ll) / delta
             other_derivs.append(d_estimate)
             # restore self.x
-            self.update_by_x(x)
+            self.update_by_x(x,ifmodel=ifmodel)
         other_derivs = np.array(other_derivs)
         if display:
             print('log likelihood = ', ll)
@@ -817,13 +907,14 @@ class Embrachtau:
         g = -np.concatenate((other_derivs, edge_derivs))
         return f, g
 
-    def objective_and_gradient(self, display, x):
-        self.update_by_x(x)
-        f, g = self.loglikelihood_and_gradient(display=display)
+    def objective_and_gradient(self, display, x, ifmodel="old"):
+        self.update_by_x(x,ifmodel=ifmodel)
+        f, g = self.loglikelihood_and_gradient(display=display,ifmodel=ifmodel)
         self.auto_save += 1
-        if self.auto_save == 5:
-            self.save_x()
-            self.auto_save = 0
+        if ifmodel=="old":
+            if self.auto_save == 5:
+                self.save_x()
+                self.auto_save = 0
         return f, g
 
     def Clock_wrap(self, display, x_clock):
@@ -920,7 +1011,7 @@ class Embrachtau:
 
         return -ll
 
-    def get_mle(self, display=True, derivative=True, em_iterations=0, method='BFGS', niter=2000):
+    def get_mle(self, display=True, derivative=True, em_iterations=0, method='BFGS', niter=2000, ifmodel="old"):
         if em_iterations > 0:
             ll = self._loglikelihood2()
             # http://jsonctmctree.readthedocs.org/en/latest/examples/hky_paralog/yeast_geneconv_zero_tau/index.html#em-for-edge-lengths-only
@@ -941,20 +1032,26 @@ class Embrachtau:
             if self.clock:
                 self.update_by_x_clock()
             else:
-                self.update_by_x()
+                self.update_by_x(ifmodel=ifmodel)
 
         bnds = [(None, -0.05)] * 3
         if not self.clock:
-            self.update_by_x()
+            self.update_by_x(ifmodel=ifmodel)
             if derivative:
-                f = partial(self.objective_and_gradient, display)
+                f = partial(self.objective_and_gradient(ifmodel=ifmodel), display)
             else:
                 f = partial(self.objective_wo_derivative, display)
             guess_x = self.x
-            bnds.extend([(None, None)] * (len(self.x_process) - 4))
+            if ifmodel=="old" or ifmodel=="EM_full":
+                bnds.extend([(None, None)] * (len(self.x_process) - 4))
+                edge_bnds = [(None, None)] * len(self.x_rates)
+                edge_bnds[1] = (self.minlogblen, None)
+            else:
+                bnds.extend([(None, None)] * 2)
+                ####
+                edge_bnds = 0
+
             bnds.extend([(None, 7.0)] * (1))  # Now add upper limit for tau
-            edge_bnds = [(None, None)] * len(self.x_rates)
-            edge_bnds[1] = (self.minlogblen, None)
             bnds.extend(edge_bnds)
 
         else:
@@ -992,12 +1089,24 @@ class Embrachtau:
                                                      niter=niter)  # , callback = self.check_boundary)
 
         print(result)
-        self.save_x()
+        if ifmodel=="old":
+           self.save_x()
+
         return result
 
     def check_boundary(self, x, f, accepted):
         print("at minimum %.4f accepted %d" % (f, int(accepted)))
         return self.edge_to_blen[self.edge_list[1]] > np.exp(self.minlogblen)
+
+    def save_x(self):
+        if self.clock:
+            save = self.x_clock
+        else:
+            save = self.x
+
+        save_file = self.get_save_file_name()
+
+        np.savetxt(save_file, save.T)
 
     def check_boundary_differential_evolution(self, x, convergence):
         print("at lnL %.4f convergence fraction %d" % (self.ll, convergence))
@@ -1273,8 +1382,6 @@ class Embrachtau:
         return index,ratio_nonsynonymous,ratio_synonymous
 
 
-
-
     def compute_paralog_id(self,ifsep=False,repeat=10):
         diverge_list=[]
         global diverge
@@ -1319,9 +1426,28 @@ class Embrachtau:
 
         return id
 
-
-    def EM_branch_tau(self):
+    def re_ini_parameter(self):
         print(1)
+
+
+    def EM_branch_tau(self,MAX=10,ifmodel="EM_full"):
+        print(1)
+        self.get_mle()
+        self.get_scene()
+        self.compute_paralog_id()
+
+        for i in range(MAX):
+            if i!=0:
+                self.re_ini_parameter()
+                self.get_mle(ifmodel=ifmodel)
+
+
+
+
+
+
+
+
 
 
 
