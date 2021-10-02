@@ -7,6 +7,7 @@ from __future__ import print_function
 import jsonctmctree.ll, jsonctmctree.interface
 from IGCexpansion.CodonGeneconv import *
 from IGCexpansion.acR import *
+from IGCexpansion.em_pt import *
 from copy import deepcopy
 import os
 import numpy as np
@@ -41,14 +42,17 @@ if __name__ == '__main__':
 
     type = 'situation1'
     save_name = model+name
-    geneconv = ReCodonGeneconv(newicktree, alignment_file, paralog, Model=model, Force=Force, clock=None,
-                               save_path='./', save_name=save_name)
+ #   geneconv = ReCodonGeneconv(newicktree, alignment_file, paralog, Model=model, Force=Force, clock=None,
+  #                             save_path='./', save_name=save_name)
+#
+  #  self = AncestralState1(geneconv)
 
-    self = AncestralState1(geneconv)
-    scene = self.get_scene()
+    geneconv = Embrachtau(newicktree, alignment_file, paralog, Model=model, Force=Force, clock=None,
+                          save_path='../test/save/', save_name=save_name)
 
-    for i in self.process:
-       print({'row_states': i['row'], 'column_states': i['col'], 'transition_rates': i['rate']})
-       print("xxxxxxxxxxxxxxxxxxxxxx")
+
+    geneconv.EM_branch_tau()
+
+
 
  #   self.get_paralog_diverge()

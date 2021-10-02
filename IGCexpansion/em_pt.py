@@ -1449,35 +1449,29 @@ class Embrachtau:
             self.update_by_x()
 
 
-    def EM_branch_tau(self,MAX=10):
+    def EM_branch_tau(self,MAX=3,epis=0.001):
         self.get_mle()
+        pstau=deepcopy(self.tau)
         self.id=self.compute_paralog_id()
         self.ifmodel="EM_full"
-
         self.get_initial_x_process()
-     #   scene=self.get_scene()
-     #    j=0
-     #    self.processes=self.Get_branch_Q(self.id)
-     #    for i in self.processes:
-     #        print(len(i['row']))
-     #        print(len(i['col']))
-     #        print(len(i['rate']))
-     #        print(j)
-     #        j=j+1
-     #        print("xxxxxxxxxxxxxxxxxxxxxx")
-     #   print(self.processes)
         self.get_mle()
 
+        difference=abs(self.tau-pstau)
+
+        i=0
+
+        while i<=MAX or difference <=epis:
+            pstau = deepcopy(self.tau)
+            self.id = self.compute_paralog_id()
+            self.get_initial_x_process()
+            self.get_mle()
+            i=i+1
+            difference = abs(self.tau - pstau)
 
 
-
-
-
-
-
-
-
-
+        print(self.K)
+        print(self.tau)
 
 
 
