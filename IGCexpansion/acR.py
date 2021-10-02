@@ -68,6 +68,7 @@ class AncestralState1:
         self.sites_length = self.geneconv.nsites
         self.Model=self.geneconv.Model
         self.ifmarginal = False
+        self.process=self.geneconv.processes
 
         self.min_diff=0
 
@@ -703,44 +704,44 @@ class AncestralState1:
             self.jointly_common_ancstral_inference()
             for j in range(ttt):
 
-                            if self.Model=="HKY":
-                                if not j == 1:
-                                     ini2 = self.geneconv.node_to_num[self.geneconv.edge_list[j][0]]
-                                     end2 = self.geneconv.node_to_num[self.geneconv.edge_list[j][1]]
-                                     ini1 = deepcopy(self.sites[ini2,])
-                                     end1 = deepcopy(self.sites[end2,])
+                    if self.Model=="HKY":
+                        if not j == 1:
+                             ini2 = self.geneconv.node_to_num[self.geneconv.edge_list[j][0]]
+                             end2 = self.geneconv.node_to_num[self.geneconv.edge_list[j][1]]
+                             ini1 = deepcopy(self.sites[ini2,])
+                             end1 = deepcopy(self.sites[end2,])
 
-                                     diverge=(self.difference(ini1)[0]+self.difference(end1)[0])*0.5
-                                if mc != 0:
-                                     diverge_list[j] = diverge_list[j] + diverge
-                                else:
-                                     diverge_list.append(diverge)
-                            if self.Model=="MG94":
-                                if not j == 1:
-                                     ini2 = self.geneconv.node_to_num[self.geneconv.edge_list[j][0]]
-                                     end2 = self.geneconv.node_to_num[self.geneconv.edge_list[j][1]]
-                                     ini1 = deepcopy(self.sites[ini2,])
-                                     end1 = deepcopy(self.sites[end2,])
+                             diverge=(self.difference(ini1)[0]+self.difference(end1)[0])*0.5
+                        if mc != 0:
+                             diverge_list[j] = diverge_list[j] + diverge
+                        else:
+                             diverge_list.append(diverge)
+                    if self.Model=="MG94":
+                        if not j == 1:
+                             ini2 = self.geneconv.node_to_num[self.geneconv.edge_list[j][0]]
+                             end2 = self.geneconv.node_to_num[self.geneconv.edge_list[j][1]]
+                             ini1 = deepcopy(self.sites[ini2,])
+                             end1 = deepcopy(self.sites[end2,])
 
-                                     ini_D=self.difference(ini1)[0]
-                                     end_D = self.difference(end1)[0]
-                                     ini_ratio_nonsynonymous=self.difference(ini1)[1]
-                                     end_ratio_nonsynonymous = self.difference(end1)[1]
-                                     ini_ratio_synonymous = self.difference(ini1)[2]
-                                     end_ratio_synonymous = self.difference(end1)[2]
-                                     diverge_nonsynonymous = (ini_D*ini_ratio_nonsynonymous+end_D*end_ratio_nonsynonymous)*0.5
-                                     diverge_synonymous = (ini_D * ini_ratio_synonymous + end_D * end_ratio_synonymous) * 0.5
+                             ini_D=self.difference(ini1)[0]
+                             end_D = self.difference(end1)[0]
+                             ini_ratio_nonsynonymous=self.difference(ini1)[1]
+                             end_ratio_nonsynonymous = self.difference(end1)[1]
+                             ini_ratio_synonymous = self.difference(ini1)[2]
+                             end_ratio_synonymous = self.difference(end1)[2]
+                             diverge_nonsynonymous = (ini_D*ini_ratio_nonsynonymous+end_D*end_ratio_nonsynonymous)*0.5
+                             diverge_synonymous = (ini_D * ini_ratio_synonymous + end_D * end_ratio_synonymous) * 0.5
 
-                                     diverge = float(ini_D + end_D) * 0.5
+                             diverge = float(ini_D + end_D) * 0.5
 
-                                if mc != 0:
-                                    diverge_listnonsynonymous[j] = diverge_listnonsynonymous[j] + diverge_nonsynonymous
-                                    diverge_listsynonymous[j] = diverge_listsynonymous[j] + diverge_synonymous
-                                    diverge_list[j] = diverge_list[j] + diverge
-                                else:
-                                    diverge_listnonsynonymous.append(diverge_nonsynonymous)
-                                    diverge_listsynonymous.append(diverge_synonymous)
-                                    diverge_list.append(diverge)
+                        if mc != 0:
+                            diverge_listnonsynonymous[j] = diverge_listnonsynonymous[j] + diverge_nonsynonymous
+                            diverge_listsynonymous[j] = diverge_listsynonymous[j] + diverge_synonymous
+                            diverge_list[j] = diverge_list[j] + diverge
+                        else:
+                            diverge_listnonsynonymous.append(diverge_nonsynonymous)
+                            diverge_listsynonymous.append(diverge_synonymous)
+                            diverge_list.append(diverge)
 
 
 
@@ -829,8 +830,10 @@ if __name__ == '__main__':
  #    self.get_paralog_diverge()
 
     name = "YBL087C_YER117W_input"
-
     paralog = ['YBL087C', 'YER117W']
+
+
+
     alignment_file = '../test/yeast/' + name + '.fasta'
     newicktree = '../test/yeast/YeastTree.newick'
 
@@ -839,7 +842,7 @@ if __name__ == '__main__':
     # %AG, % A, % C, kappa, tau
     # Force= {0:0.5,1:0.5,2:0.5,3:1,4:0}
     Force = None
-    model = 'MG94'
+    model = 'HKY'
 
     type = 'situation_new'
     save_name = model+name
@@ -847,10 +850,12 @@ if __name__ == '__main__':
                                save_path='../test/save/', save_name=save_name)
 
     self = AncestralState1(geneconv)
-    print(([(None, None)] * (6 - 4)))
 
+    scene = self.get_scene()
+    for i in self.process:
+       print({'row_states': i['row'], 'column_states': i['col'], 'transition_rates': i['rate']})
+       print("xxxxxxxxxxxxxxxxxxxxxx")
 
- #   scene = self.get_scene()
 
  #   print(scene['tree']['edge_processes'])
 

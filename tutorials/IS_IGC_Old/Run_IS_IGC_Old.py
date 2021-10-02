@@ -37,7 +37,7 @@ if __name__ == '__main__':
     # %AG, % A, % C, kappa, tau
     # Force= {0:0.5,1:0.5,2:0.5,3:1,4:0}
     Force = None
-    model = 'MG94'
+    model = 'HKY'
 
     type = 'situation1'
     save_name = model+name
@@ -46,4 +46,9 @@ if __name__ == '__main__':
 
     self = AncestralState1(geneconv)
     scene = self.get_scene()
-    self.get_paralog_diverge()
+
+    for i in self.process:
+       print({'row_states': i['row'], 'column_states': i['col'], 'transition_rates': i['rate']})
+       print("xxxxxxxxxxxxxxxxxxxxxx")
+
+ #   self.get_paralog_diverge()
