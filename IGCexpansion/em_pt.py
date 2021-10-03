@@ -1400,7 +1400,7 @@ class Embrachtau:
         return index,ratio_nonsynonymous,ratio_synonymous
 
 
-    def compute_paralog_id(self,repeat=2):
+    def compute_paralog_id(self,repeat=10):
 
 
         ttt = len(self.tree['col'])
@@ -1449,7 +1449,7 @@ class Embrachtau:
             self.update_by_x()
 
 
-    def EM_branch_tau(self,MAX=3,epis=0.001):
+    def EM_branch_tau(self,MAX=5,epis=0.001):
         self.get_mle()
         pstau=deepcopy(self.tau)
         self.id=self.compute_paralog_id()
@@ -1498,7 +1498,7 @@ if __name__ == '__main__':
    # geneconv.get_scene()
  #   print(geneconv.compute_paralog_id())
 
-    geneconv.EM_branch_tau()
+    geneconv.EM_branch_tau(MAX=5,epis=0.001)
 
 
 
