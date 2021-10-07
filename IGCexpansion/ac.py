@@ -2318,6 +2318,79 @@ class AncestralState:
 
         return ini,end,time_matrix,state_matrix,effect_number,10
 
+#### this is simulation by sequnce
+
+    def solo_difference(self,ini,sizen):
+        index = 0
+        ratio_nonsynonymous = 0
+        ratio_synonymous = 0
+
+        if self.Model == "HKY":
+            str = {0, 5, 10, 15}
+
+            for i in range(sizen):
+                if not ini[i] in str:
+                    index = index + 1
+        else:
+            for i in range(sizen):
+                ca = (ini[i]) // 61
+                cb = (ini[i]) % 61
+                if ca != cb:
+                    index = index + 1
+
+        index=1-(index/sizen)
+
+        return index
+
+    def GLS_sequnce(self, t=0.01, ini=None, sizen=150, k=1,tau=1):
+
+
+        global di
+        global di1
+
+        if self.Model == "HKY":
+            di = 16
+            di1 = 9
+
+        else:
+            di = 3721
+            di1 = 27
+
+
+
+        u=0
+
+        while (u <= t):
+
+            id = self.solo_difference(ini,sizen=sizen)
+
+            self.making_Qg()
+            self.change_t_Q(tau=(np.power(id,k)*tau))
+
+            Q_iiii = np.ones((di))
+            for ii in range(di):
+                Q_iiii[ii] = sum(self.Q[ii,])
+
+            p = np.zeros(sizen)
+            lambda_change = 0
+            for ll in range(sizen):
+                lambda_change = Q_iiii[int(ini[ll])] + lambda_change
+                p[ll] = Q_iiii[int(ini[ll])]
+
+            u=u+ random.exponential(1 / lambda_change)
+            change_location=np.random.choice(range(sizen), 1, p=(p/lambda_change))[0]
+            change_site=ini[change_location]
+
+            a = np.random.choice(range(di1), 1, p=self.Q_new[change_site,])[0]
+            current_state = self.dic_col[int(change_site), a] - 1
+            ini[change_location]=current_state
+
+        return ini
+
+
+
+
+
 
     def remake_matrix(self):
         if self.Model=="HKY":
@@ -2336,7 +2409,6 @@ class AncestralState:
         if self.Q is None:
            self.making_Qmatrix()
 
-
         if self.Model == "HKY":
             for ii in range(16):
                 for jj in range(9):
@@ -2349,18 +2421,23 @@ class AncestralState:
                             self.Q[ii, jj] = self.Q[ii, jj] - self.tau + tau
                         elif (i_b != j_b and j_b == j_p):
                             self.Q[ii, jj] = self.Q[ii, jj] - self.tau + tau
-
         else:
 
-            for ii in range(61):
+            for ii in range(3721):
                 for jj in range(27):
-                    if ii==self.dic_col[ii,jj]-1:
-                        self.Q[ii,jj]=self.Q[ii,jj]-self.tau+tau
+                    i_b = ii // 61
+                    j_b = ii % 61
+                    i_p = (self.dic_col[ii, jj] - 1) // 61
+                    j_p = (self.dic_col[ii, jj] - 1) % 61
+                    if i_p == j_p:
+                        if i_b != j_b and i_b == i_p:
+                            self.Q[ii, jj] = self.Q[ii, jj] - self.tau + tau
+                        elif (i_b != j_b and j_b == j_p):
+                            self.Q[ii, jj] = self.Q[ii, jj] - self.tau + tau
 
         self.tau=tau
 
         # used  before topo so  that can make new Q
-
 
 ### this one is more flexiable
 
@@ -2479,12 +2556,10 @@ class AncestralState:
 
                     end1[ll]=curent_state
 
-        # append ini
             list1=[]
             list1.append(ini)
             mm=np.ones(shape=(4, sizen))
             mm[0,:]=ini
-
 
 
         for i in range(leafnode):
@@ -2720,8 +2795,7 @@ class AncestralState:
 ### test gls algorithm
     def test_gls(self,sizen=10,half=1):
        rr=self.make_ini_testgls(sizen=sizen,half=half)
-       ini=rr[0]
-       end=rr[1]
+
 
        ini=np.ones(sizen)*0
        end=np.ones(sizen)
@@ -3059,7 +3133,6 @@ if __name__ == '__main__':
     #print(np.exp(self.geneconv.x_rates))
 
 
-
 #####################################################
 ######generit simulation data
 #####################################################
@@ -3088,29 +3161,11 @@ if __name__ == '__main__':
  #   self.MC_EM(times=1, repeat=1, ifpermutation=False, ifwholetree=True, ifsave=False, method="bybranch",EM_circle=10)
   #  self.get_igcr_pad(times=10, repeat=1, ifpermutation=False, ifwholetree=True, ifsave=False, method="bybranch")
 # print(self.get_parameter(function="linear"))
+
 #####################################
 ################TEST
 ####################################
 
-   # print(11111111111111)
-    #print(self.get_parameter(function="squre"))
-    #print(self.get_igcr_pad(times=1, repeat=1,ifpermutation=False,ifwholetree=False,ifsave=True,method="divide"))
-
-    # print(self.node_length)
-
-    # print(geneconv.edge_to_blen)
-    # print(geneconv.num_to_node)
-    # print(geneconv.edge_list)
-    # print(scene['tree'])
-    #
-
-    #
-    #
-    #self.rank_ts()
-       # self.monte_carlo(times=2,repeat=2)
-        # print(self.igc_com)
-
-    #aa=self.monte_carlo(times=1,repeat=2)
 
 
 
@@ -3177,38 +3232,3 @@ if __name__ == '__main__':
 #             save_namem = '../test/savecommon3/Ind_' + model +"_node"+ii+"_paralog"+jj+ '_Force_'+name+'mag.txt'
 #             np.savetxt(open(save_namem, 'w+'), mar.T)
 #
-#
-# ##    aa = 0
-#     for i in range(len(j_out["responses"][0][0])):
-#         print(j_out["responses"][0][0][i]1)
-#         aa=array(j_out["responses"][0][0][i])+aa
-#     aa=self.get_scene()
-#     print(aa["observed_data"])
-##    re = self.get_scene()
-##    list_for_iid = re["observed_data"]["iid_observations"]
-##    list_commonan = []
-##    for i in range(len(list_for_iid)):
-##    # for i in range(3):
-##        re["observed_data"]["iid_observations"] = [list_for_iid[i]]
-##
-##        requests = [
-##            {"property": "DNDNODE"}
-##        ]
-##        j_in = {
-##            'scene': re,
-##            'requests': requests
-##        }
-##        j_out = jsonctmctree.interface.process_json_in(j_in)
-##        j_out_matrix = np.array(j_out["responses"][0][0])
-##        list_commonan.append(j_out_matrix)
-##        # print(re["observed_data"]["iid_observations"])
-##    #  print(aa["process_definitions"][0]["row_states"])
-##    #  print(aa["process_definitions"][0]["column_states"])
-##    #  print(aa["process_definitions"][0]["transition_rates"])
-##    list_node=get_interior_node(re)
-##    dict=self.get_dict_trans()
-##    len_node=len(list_node)
-    ##    len_se=len(list_commonan)
-    ##    get_maxpro=get_maxpro(list_commonan,list_node)
-    ##    # print(get_maxpro[2][2]%61)
-        ##    translate=translate_into_seq(promax=get_maxpro,len_node=len_node,dict=dict,model=model,len_se=len_se)
