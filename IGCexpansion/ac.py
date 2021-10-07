@@ -2318,79 +2318,6 @@ class AncestralState:
 
         return ini,end,time_matrix,state_matrix,effect_number,10
 
-#### this is simulation by sequnce
-
-    def solo_difference(self,ini,sizen):
-        index = 0
-        ratio_nonsynonymous = 0
-        ratio_synonymous = 0
-
-        if self.Model == "HKY":
-            str = {0, 5, 10, 15}
-
-            for i in range(sizen):
-                if not ini[i] in str:
-                    index = index + 1
-        else:
-            for i in range(sizen):
-                ca = (ini[i]) // 61
-                cb = (ini[i]) % 61
-                if ca != cb:
-                    index = index + 1
-
-        index=1-(index/sizen)
-
-        return index
-
-    def GLS_sequnce(self, t=0.01, ini=None, sizen=150, k=1,tau=1):
-
-
-        global di
-        global di1
-
-        if self.Model == "HKY":
-            di = 16
-            di1 = 9
-
-        else:
-            di = 3721
-            di1 = 27
-
-
-
-        u=0
-
-        while (u <= t):
-
-            id = self.solo_difference(ini,sizen=sizen)
-
-            self.making_Qg()
-            self.change_t_Q(tau=(np.power(id,k)*tau))
-
-            Q_iiii = np.ones((di))
-            for ii in range(di):
-                Q_iiii[ii] = sum(self.Q[ii,])
-
-            p = np.zeros(sizen)
-            lambda_change = 0
-            for ll in range(sizen):
-                lambda_change = Q_iiii[int(ini[ll])] + lambda_change
-                p[ll] = Q_iiii[int(ini[ll])]
-
-            u=u+ random.exponential(1 / lambda_change)
-            change_location=np.random.choice(range(sizen), 1, p=(p/lambda_change))[0]
-            change_site=ini[change_location]
-
-            a = np.random.choice(range(di1), 1, p=self.Q_new[change_site,])[0]
-            current_state = self.dic_col[int(change_site), a] - 1
-            ini[change_location]=current_state
-
-        return ini
-
-
-
-
-
 
     def remake_matrix(self):
         if self.Model=="HKY":
@@ -2453,7 +2380,6 @@ class AncestralState:
                     p0 = p0 + dict[(ini[i][j]) // 61]
                     p1 = p1 + dict[(ini[i][j]) % 61]
                 list.append(p0)
-
                 list.append(p1)
         else:
             dict = self.geneconv.state_to_nt
@@ -2463,7 +2389,6 @@ class AncestralState:
                 for j in range(sizen):
                     p0 = p0 + dict[(ini[i][j]) // 4]
                     p1 = p1 + dict[(ini[i][j]) % 4]
-
 
                 list.append(p0)
                 list.append(p1)
@@ -2520,9 +2445,6 @@ class AncestralState:
 
             #print(Q)
 
-
-
-    ##### topology is pretty simple
 
     def topo(self,leafnode=4,sizen=999,t=0.1):
         self.sites_length=sizen
@@ -2604,7 +2526,7 @@ class AncestralState:
 
         return list
 
-    ##### topology contain internal node used to do test
+    ##### topology contain internal node used to do test to embed in simulation
     def topo1(self,leafnode=4,sizen=999,t=0.4):
         ini=self.make_ini(sizen=sizen)
 
@@ -2666,7 +2588,6 @@ class AncestralState:
                 mm[i + 1, :] = ini
 
         return list
-
 
 
     def topo_EDNECP(self, sizen=999):
