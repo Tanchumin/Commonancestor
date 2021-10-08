@@ -22,16 +22,6 @@ import json
 import numpy.core.multiarray
 
 
-def get_maxpro(list, nodecom):
-    sites = np.zeros(shape=(len(nodecom), len(list)))
-    for site in range(len(list)):
-        i=0
-        for node in nodecom:
-            sites[i][site] = np.argmax(list[site][:, node])
-            i=i+1
-    return (sites)
-
-
 class GSseq:
 
     def __init__(self,
@@ -88,12 +78,25 @@ class GSseq:
             self.scene = self.geneconv.get_scene()
         return self.scene
 
+
+    def get_station_dis(self):
+        pi=np.zeros(61)
+        for ca in self.geneconv.codon_nonstop:
+            p=1
+            for i in range(3):
+                p=p*self.geneconv.pi['ACGT'.index(ca[i])]
+            pi[int(self.geneconv.codon_to_state[ca])]=p
+
+        pi=pi/sum(pi)
+
+     #   print(pi)
+
     def make_ini(self):
             ini = np.ones(self.sizen)
-            z = self.geneconv.pi
 
 
             if self.Model=="HKY":
+                z = self.geneconv.pi
                 sample=np.ones(4)
                 for i in range(16):
                     if(i // 4 == i%4):
@@ -103,13 +106,14 @@ class GSseq:
                     ini[i] = int(np.random.choice(sample, 1, p=(z))[0])
 
             else:
+                z=self.get_station_dis()
                 sample = np.ones(61)
                 for i in range(3721):
                     if (i // 61 == i % 61):
                         sample[i % 61] = i
 
                 for i in range(self.sizen):
-                    ini[i] = int(np.random.choice(sample, 1, p=(1 / float(61)) * np.ones(61))[0])
+                    ini[i] = int(np.random.choice(sample, 1, p=(z))[0])
 
             return (ini)
 
@@ -344,6 +348,8 @@ class GSseq:
 
         ini=self.make_ini()
         list = []
+        end1=deepcopy(ini)
+        list1 = []
 
         if self.t is None:
             t=0.05
@@ -363,14 +369,14 @@ class GSseq:
                 Q[d,] = Q[d,] / Q_iiii[d]
 
             for ll in range(self.sizen):
-                    curent_state = ini[ll]//4
-                    u = random.exponential(1/Q_iiii[int(curent_state)])
+                    current_state = ini[ll]//4
+                    u = random.exponential(1/Q_iiii[int(current_state)])
                     while(u<=(2*t)):
-                        a = np.random.choice(range(4), 1, p=Q[int(curent_state),])[0]
-                        curent_state = a
-                        u=u+random.exponential(1/Q_iiii[int(curent_state)])
+                        a = np.random.choice(range(4), 1, p=Q[int(current_state),])[0]
+                        current_state = a
+                        u=u+random.exponential(1/Q_iiii[int(current_state)])
 
-                    end1[ll]=curent_state
+                    end1[ll]=current_state
 
             list1=[]
             list1.append(ini)
@@ -379,29 +385,27 @@ class GSseq:
 
         elif self.Model=="MG94":
             Q = self.remake_matrix()
-            end1 = np.ones(self.sizen)
             Q_iiii = np.ones((61))
             for ii in range(61):
                 qii = sum(Q[ii,])
                 if qii != 0:
                     Q_iiii[ii] = sum(Q[ii,])
 
-
             for d in range(61):
                 Q[d,] = Q[d,] / Q_iiii[d]
 
             for ll in range(self.sizen):
-                    curent_state = ini[ll]//61
-                    u = random.exponential(1/Q_iiii[int(curent_state)])
+                    current_state = ini[ll]//61
+                    u = random.exponential(1/Q_iiii[int(current_state)])
                     while(u<=(2*t)):
-                        a = np.random.choice(range(61), 1, p=Q[int(curent_state),])[0]
-                        curent_state = a
-                        u=u+random.exponential(1/Q_iiii[int(curent_state)])
+                        a = np.random.choice(range(61), 1, p=Q[int(current_state),])[0]
+                        current_state = a
+                        u=u+random.exponential(1/Q_iiii[int(current_state)])
 
-                    end1[ll]=curent_state
+                    end1[ll]=current_state
 
 
-            list1=[]
+
             list1.append(ini)
             mm=np.ones(shape=(4, self.sizen))
             mm[0,:]=ini
@@ -443,16 +447,24 @@ class GSseq:
 
     def trans_into_seq(self,ini=None,leafnode=4):
         list = []
+        encoding = "utf - 8"
         if self.Model == 'MG94':
             dict = self.geneconv.state_to_codon
             for i in range(leafnode):
-                p0 = ">paralog0"
-                p1 = ">paralog1"
+                p0 = "\n"+">paralog0"+"\n"
+                p1 = "\n"+">paralog1"+"\n"
                 for j in range(self.sizen):
                     p0 = p0 + dict[(ini[i][j]) // 61]
                     p1 = p1 + dict[(ini[i][j]) % 61]
                 list.append(p0)
                 list.append(p1)
+
+            p0 = "\n"+">paralog0"+"\n"
+            for j in range(self.sizen):
+                p0 = p0 + dict[(ini[leafnode][j])]
+
+            list.append(p0)
+
         else:
             dict = self.geneconv.state_to_nt
             for i in range(leafnode):
@@ -498,12 +510,12 @@ if __name__ == '__main__':
                                    save_path='../test/save/', save_name=save_name)
 
 
-        self = GSseq(geneconv)
+        self = GSseq(geneconv,K=5,fix_tau=3,sizen=444)
         scene = self.get_scene()
 
 
         aaa=self.topo()
-        print(self.trans_into_seq(ini=aaa))
+        self.trans_into_seq(ini=aaa)
     #    aaa=self.make_ini()
      #   print(self.GLS_sequnce(ini=aaa))
 

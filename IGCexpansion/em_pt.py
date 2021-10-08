@@ -587,9 +587,12 @@ class Embrachtau:
                 Qbasic[self.codon_to_state[ca], self.codon_to_state[cb]] = get_MG94BasicRate(ca, cb, self.pi,
                                                                                              self.kappa, self.omega,
                                                                                              self.codon_table)
+
         expected_rate = np.dot(self.prior_distribution, Qbasic.sum(axis=1))
         Qbasic = Qbasic / expected_rate
         return Qbasic
+
+
 
     def get_HKYBasic(self):
         Qbasic = np.array([
@@ -1494,11 +1497,18 @@ if __name__ == '__main__':
     geneconv = Embrachtau(newicktree, alignment_file, paralog, Model=model, Force=Force, clock=None,
                                save_path='../test/save/', save_name=save_name)
 
+    geneconv.get_station_dis()
+
+
+
+
   #  geneconv.get_mle()
    # geneconv.get_scene()
  #   print(geneconv.compute_paralog_id())
 
-    geneconv.EM_branch_tau(MAX=5,epis=0.001)
+  #  geneconv.EM_branch_tau(MAX=5,epis=0.001)
+
+
 
 
 
