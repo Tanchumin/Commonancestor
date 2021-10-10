@@ -1407,7 +1407,7 @@ class Embrachtau:
 
 
         ttt = len(self.tree['col'])
-        id=np.ones(ttt)
+        id=np.zeros(ttt)
         diverge_list=np.ones(ttt)
 
         for mc in range(repeat):
@@ -1436,7 +1436,8 @@ class Embrachtau:
 
 
         for j in range(ttt):
-           id[j] = 1-(float(diverge_list[j]) / repeat)/self.nsites
+            if not j == 1:
+                id[j] = 1-(float(diverge_list[j]) / repeat)/self.nsites
 
 
         return id
