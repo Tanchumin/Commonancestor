@@ -1179,7 +1179,79 @@ class Embrachtau:
         for branch in range(ttt):
             row = []
             col = []
-            if branch!=1:
+            if branch==0:
+                  rate_geneconv = []
+                  for i, pair in enumerate(product(self.codon_nonstop, repeat=2)):
+                # use ca, cb, cc to denote codon_a, codon_b, codon_c, where cc != ca, cc != cb
+                     ca, cb = pair
+                     sa = self.codon_to_state[ca]
+                     sb = self.codon_to_state[cb]
+                     if ca != cb:
+                        for cc in self.codon_nonstop:
+                            if cc == ca or cc == cb:
+                                continue
+                            sc = self.codon_to_state[cc]
+                            # (ca, cb) to (ca, cc)
+                            Qb = Qbasic[sb, sc]
+                            if Qb != 0:
+                                row.append((sa, sb))
+                                col.append((sa, sc))
+                                rate_geneconv.append(Qb)
+
+                            # (ca, cb) to (cc, cb)
+                            Qb = Qbasic[sa, sc]
+                            if Qb != 0:
+                                row.append((sa, sb))
+                                col.append((sc, sb))
+                                rate_geneconv.append(Qb)
+
+                        # (ca, cb) to (ca, ca)
+                        row.append((sa, sb))
+                        col.append((sa, sa))
+                        Qb = Qbasic[sb, sa]
+                        if isNonsynonymous(cb, ca, self.codon_table):
+                            Tgeneconv = self.tau *self.get_IGC_omega()
+                        else:
+                            Tgeneconv = self.tau
+                        rate_geneconv.append(Qb + Tgeneconv)
+
+                        # (ca, cb) to (cb, cb)
+                        row.append((sa, sb))
+                        col.append((sb, sb))
+                        Qb = Qbasic[sa, sb]
+                        rate_geneconv.append(Qb + Tgeneconv)
+
+                     else:
+                        for cc in self.codon_nonstop:
+                            if cc == ca:
+                                continue
+                            sc = self.codon_to_state[cc]
+
+                            # (ca, ca) to (ca,  cc)
+                            Qb = Qbasic[sa, sc]
+                            if Qb != 0:
+                                row.append((sa, sb))
+                                col.append((sa, sc))
+                                rate_geneconv.append(Qb)
+                                # (ca, ca) to (cc, ca)
+                                row.append((sa, sb))
+                                col.append((sc, sa))
+                                rate_geneconv.append(Qb)
+
+                                # (ca, ca) to (cc, cc)
+                                row.append((sa, sb))
+                                col.append((sc, sc))
+                                rate_geneconv.append(0.0)
+
+                  process_geneconv = dict(
+                       row=deepcopy(row),
+                       col=deepcopy(col),
+                       rate=deepcopy(rate_geneconv)
+                  )
+
+                  Qlist.append(deepcopy(process_geneconv))
+
+            elif branch>1:
                   rate_geneconv = []
                   for i, pair in enumerate(product(self.codon_nonstop, repeat=2)):
                 # use ca, cb, cc to denote codon_a, codon_b, codon_c, where cc != ca, cc != cb

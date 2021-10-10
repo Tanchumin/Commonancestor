@@ -424,8 +424,6 @@ class GSseq:
             else:
                 # ini is internal node, leaf is observed;
                 # list store observed
-                if i==0:
-                    print(self.solo_difference(ini))
                 ini = deepcopy(self.GLS_sequnce(ini=deepcopy(ini),t=t,k=self.K,tau=self.fix_tau))
             #    print(ini)
                 leaf = deepcopy(self.GLS_sequnce(ini=deepcopy(ini),t=t,k=self.K,tau=self.fix_tau))
@@ -536,7 +534,7 @@ if __name__ == '__main__':
                                    save_path='../test/save/', save_name=save_name)
 
 
-        self = GSseq(geneconv,K=5,fix_tau=3,sizen=444)
+        self = GSseq(geneconv,K=5,fix_tau=0.01,sizen=444)
         scene = self.get_scene()
 
 
