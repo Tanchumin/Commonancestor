@@ -1394,12 +1394,6 @@ class Embrachtau:
             ratio_synonymous = 1 - ratio_synonymous
 
 
-
-  #      print(index)
-  #      print(ratio_nonsynonymous)
-   #     print("xxxxxxxxxxxx")
-
-
         return index,ratio_nonsynonymous,ratio_synonymous
 
 
@@ -1456,14 +1450,12 @@ class Embrachtau:
         self.get_mle()
         pstau=deepcopy(self.tau)
         self.id=self.compute_paralog_id()
-        self.ifmodel="EM_full"
+        self.ifmodel = "EM_full"
         self.get_initial_x_process()
         self.get_mle()
-
         difference=abs(self.tau-pstau)
 
         i=0
-
         while i<=MAX or difference <=epis:
             pstau = deepcopy(self.tau)
             self.id = self.compute_paralog_id()
@@ -1472,9 +1464,15 @@ class Embrachtau:
             i=i+1
             difference = abs(self.tau - pstau)
 
+            print("EMcircle:")
+            print(i)
+            print(self.id)
+            print(self.K)
+            print(self.tau)
+            print("\n")
 
-        print(self.K)
-        print(self.tau)
+
+
 
 
 
@@ -1498,6 +1496,7 @@ if __name__ == '__main__':
                                save_path='../test/save/', save_name=save_name)
 
   #  geneconv.get_station_dis()
+  #  print(np.power(0,2))
 
 
 
