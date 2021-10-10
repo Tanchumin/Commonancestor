@@ -1407,14 +1407,13 @@ class Embrachtau:
 
 
         ttt = len(self.tree['col'])
-        id=np.zeros(ttt)
-        diverge_list=np.zeros(ttt)
+        id=np.ones(ttt)
+        diverge_list=np.ones(ttt)
 
         for mc in range(repeat):
 
             self.jointly_common_ancstral_inference()
             for j in range(ttt):
-
                 if self.Model == "HKY":
                     if not j == 1:
                         ini2 = self.node_to_num[self.edge_list[j][0]]
@@ -1497,7 +1496,11 @@ if __name__ == '__main__':
     geneconv = Embrachtau(newicktree, alignment_file, paralog, Model=model, Force=Force, clock=None,
                                save_path='../test/save/', save_name=save_name)
 
-    geneconv.get_station_dis()
+  #  geneconv.get_station_dis()
+
+
+
+
 
 
 

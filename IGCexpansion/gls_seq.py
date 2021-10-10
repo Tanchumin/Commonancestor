@@ -253,12 +253,9 @@ class GSseq:
             di1 = 30
 
         u = 0
-
         while (u <= t):
 
             id = self.solo_difference(ini)
-
-
             self.making_Qg()
             self.change_t_Q(tau=(np.power(id, k) * tau))
 
@@ -329,15 +326,14 @@ class GSseq:
                                 if self.isNonsynonymous(cb1, ca1, self.geneconv.codon_table):
                                     self.Q[ii, jj] = self.Q[ii, jj] - (self.tau*self.omega) + (tau*self.omega)
                                 else:
-                                    self.Q[ii, jj] = self.Q[ii, jj] - (self.tau) + (tau)
+                                    self.Q[ii, jj] = self.Q[ii, jj] - self.tau + tau
                             elif (i_b != j_b and j_b == j_p):
                                 cb1 = self.geneconv.state_to_codon[j_b]
                                 ca1 = self.geneconv.state_to_codon[i_b]
                                 if self.isNonsynonymous(cb1, ca1, self.geneconv.codon_table):
                                     self.Q[ii, jj] = self.Q[ii, jj] - (self.tau*self.omega) + (tau*self.omega)
                                 else:
-                                    self.Q[ii, jj] = self.Q[ii, jj] - (self.tau) + (tau)
-
+                                    self.Q[ii, jj] = self.Q[ii, jj] - self.tau + tau
 
             self.tau = tau
 
@@ -397,7 +393,7 @@ class GSseq:
             for ll in range(self.sizen):
                     current_state = ini[ll]//61
                     u = random.exponential(1/Q_iiii[int(current_state)])
-                    while(u<=(2*t)):
+                    while(u<=t):
                         a = np.random.choice(range(61), 1, p=Q[int(current_state),])[0]
                         current_state = a
                         u=u+random.exponential(1/Q_iiii[int(current_state)])
@@ -405,10 +401,8 @@ class GSseq:
                     end1[ll]=current_state
 
 
-
             list1.append(ini)
-            mm=np.ones(shape=(4, self.sizen))
-            mm[0,:]=ini
+
 
 ### start build internal node
         for i in range(leafnode):
@@ -426,17 +420,20 @@ class GSseq:
                 leaf = deepcopy(self.GLS_sequnce(ini=deepcopy(ini),t=t,k=self.K,tau=self.fix_tau))
                 list.append(leaf)
                 list1.append(ini)
-                mm[i + 1, :] = ini
 
             else:
                 # ini is internal node, leaf is observed;
                 # list store observed
+                if i==0:
+                    print(self.solo_difference(ini))
                 ini = deepcopy(self.GLS_sequnce(ini=deepcopy(ini),t=t,k=self.K,tau=self.fix_tau))
             #    print(ini)
                 leaf = deepcopy(self.GLS_sequnce(ini=deepcopy(ini),t=t,k=self.K,tau=self.fix_tau))
                 list.append(leaf)
                 list1.append(ini)
-                mm[i + 1, :] = ini
+
+            print(self.tau)
+            self.measure_difference(ini, leaf, 1)
 
 
         list.append(end1)
@@ -487,6 +484,35 @@ class GSseq:
             pickle.dump(list, f)
 
         return (list)
+
+
+    def measure_difference(self,ini,end,branch):
+
+
+        mutation_rate=0
+        ini_paralog_div=0
+        end_paralog_div = 0
+        if self.Model=="MG94":
+           str = {0}
+           for i in range(61):
+              d=i*61+i
+              str.add(d)
+        elif self.Model=="HKY":
+            str = {0, 5, 10, 15}
+
+        for i  in range(self.sizen):
+            if(ini[i]!=end[i]):
+                mutation_rate=mutation_rate+1
+            if(ini[i] in str):
+                ini_paralog_div=ini_paralog_div+1
+            if(end[i]in str):
+                end_paralog_div=end_paralog_div+1
+
+        print("for branch :", geneconv.edge_list[branch])
+        print("%  identity between  paralogs at branch beginning:", ini_paralog_div/self.sizen)
+        print("%  identity between  paralogs at branch ending:", end_paralog_div / self.sizen)
+        print("%  sites differ between beginning and ending in at least one", mutation_rate/self.sizen)
+        print("**********************")
 
 
 
