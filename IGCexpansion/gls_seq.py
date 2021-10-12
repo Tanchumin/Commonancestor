@@ -26,7 +26,7 @@ class GSseq:
 
     def __init__(self,
                  geneconv ,
-                 sizen=111,branch_list=None,K=0.1,fix_tau=2
+                 sizen=111,branch_list=None,K=0.1,fix_tau=0.2
                  ):
 
         self.geneconv                 = geneconv
@@ -40,6 +40,7 @@ class GSseq:
         self.codon_table = geneconv.codon_table
         self.tau =None
         self.omega=geneconv.omega
+        self.kappa=1
         self.Q_new = None
         self.Q= None
 
@@ -239,7 +240,7 @@ class GSseq:
         return (codon_table[ca] != codon_table[cb])
 
 
-    def GLS_sequnce(self, t=0.2, ini=None,k=1.1, tau=1):
+    def GLS_sequnce(self, t=0.2, ini=None,k=1.1, tau=1.1):
 
         global di
         global di1
@@ -295,7 +296,7 @@ class GSseq:
             return Q
 
         # used  before topo so  that can make new Q
-    def change_t_Q(self, tau=99):
+    def change_t_Q(self, tau=0.99):
 
             if self.Q is None:
                 self.making_Qmatrix()
@@ -340,7 +341,7 @@ class GSseq:
             # used  before topo so  that can make new Q
 
 #   we derive sample tree
-    def topo(self,leafnode=4):
+    def topo(self, leafnode=4):
 
         ini=self.make_ini()
         list = []
@@ -348,7 +349,7 @@ class GSseq:
         list1 = []
 
         if self.t is None:
-            t=0.05
+            t=0.01
         else:
             t=self.t[1]/2
 ### build outgroup
@@ -534,7 +535,7 @@ if __name__ == '__main__':
                                    save_path='../test/save/', save_name=save_name)
 
 
-        self = GSseq(geneconv,K=5,fix_tau=0.01,sizen=444)
+        self = GSseq(geneconv,K=0.01,fix_tau=0.01,sizen=1000)
         scene = self.get_scene()
 
 

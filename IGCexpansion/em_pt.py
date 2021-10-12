@@ -41,7 +41,7 @@ def get_maxpro(list, nodecom):
 
 class Embrachtau:
     def __init__(self, tree_newick, alignment, paralog, Model='MG94', IGC_Omega=None, nnsites=None, clock=False,
-                 Force=None, save_path='./save/', save_name=None, post_dup='N1'):
+                 Force=None, save_path='./save/', save_name=None, post_dup='N1',K=1.1):
         self.newicktree = tree_newick  # newick tree file loc
         self.seqloc = alignment  # multiple sequence alignment, now need to remove gap before-hand
         self.paralog = paralog  # parlaog list
@@ -98,7 +98,7 @@ class Embrachtau:
         self.kappa = 1.2  # real values
         self.omega = 0.9  # real values
         self.tau = 1.4  # real values
-        self.K=1.1
+        self.K=K
         self.sites=None
         self.processes = None# list of basic and geneconv rate matrices. Each matrix is a dictionary used for json parsing
         self.ifmodel="old"
@@ -1176,10 +1176,14 @@ class Embrachtau:
         Qlist = []
         ttt = len(self.tree['col'])
 
+        fk = self.K
+        ftau = self.tau
+
         for branch in range(ttt):
             row = []
             col = []
-            if branch==0:
+
+            if branch == 0:
                   rate_geneconv = []
                   for i, pair in enumerate(product(self.codon_nonstop, repeat=2)):
                 # use ca, cb, cc to denote codon_a, codon_b, codon_c, where cc != ca, cc != cb
@@ -1209,10 +1213,13 @@ class Embrachtau:
                         row.append((sa, sb))
                         col.append((sa, sa))
                         Qb = Qbasic[sb, sa]
+
+
+
                         if isNonsynonymous(cb, ca, self.codon_table):
-                            Tgeneconv = self.tau *self.get_IGC_omega()
+                            Tgeneconv = ftau*np.power(paralog_id[branch], fk) *self.get_IGC_omega()
                         else:
-                            Tgeneconv = self.tau
+                            Tgeneconv = ftau*np.power(paralog_id[branch], fk)
                         rate_geneconv.append(Qb + Tgeneconv)
 
                         # (ca, cb) to (cb, cb)
@@ -1251,7 +1258,7 @@ class Embrachtau:
 
                   Qlist.append(deepcopy(process_geneconv))
 
-            elif branch>1:
+            elif branch > 1:
                   rate_geneconv = []
                   for i, pair in enumerate(product(self.codon_nonstop, repeat=2)):
                 # use ca, cb, cc to denote codon_a, codon_b, codon_c, where cc != ca, cc != cb
@@ -1282,9 +1289,9 @@ class Embrachtau:
                         col.append((sa, sa))
                         Qb = Qbasic[sb, sa]
                         if isNonsynonymous(cb, ca, self.codon_table):
-                            Tgeneconv = self.tau * np.power(paralog_id[branch],self.K)*self.get_IGC_omega()
+                            Tgeneconv = self.tau *np.power(paralog_id[branch],self.K)*self.get_IGC_omega()
                         else:
-                            Tgeneconv = self.tau * np.power(paralog_id[branch],self.K)
+                            Tgeneconv = self.tau*np.power(paralog_id[branch],self.K)
                         rate_geneconv.append(Qb + Tgeneconv)
 
                         # (ca, cb) to (cb, cb)
@@ -1486,7 +1493,6 @@ class Embrachtau:
                         end2 = self.node_to_num[self.edge_list[j][1]]
                         ini1 = deepcopy(self.sites[ini2,])
                         end1 = deepcopy(self.sites[end2,])
-
                         diverge_list[j] = diverge_list[j] + (self.difference(ini1)[0] + self.difference(end1)[0]) * 0.5
 
                 if self.Model == "MG94":
@@ -1497,7 +1503,6 @@ class Embrachtau:
                         end1 = deepcopy(self.sites[end2,])
                         ini_D = self.difference(ini1)[0]
                         end_D = self.difference(end1)[0]
-
                         diverge_list[j] = diverge_list[j] + (float(ini_D + end_D) * 0.5)
 
 
@@ -1518,7 +1523,7 @@ class Embrachtau:
             self.update_by_x()
 
 
-    def EM_branch_tau(self,MAX=5,epis=0.001):
+    def EM_branch_tau(self,MAX=7,epis=0.001):
         self.get_mle()
         pstau=deepcopy(self.tau)
         self.id=self.compute_paralog_id()
