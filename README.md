@@ -1,12 +1,13 @@
 # IGCexpansion
 [![Build Status](https://travis-ci.com/Tanchumin/Commonancestor.svg?branch=master)](https://travis-ci.com/xji3/IGCexpansion)
 
-IGC paralog divergence development folder
+IGC paralog divergence development folder. Here, we provide different approach to detect
+relationship between paralog divergence and IGC rate tau.
 
 ##### Dependent software:
 
 [jsonctmctree package](http://jsonctmctree.readthedocs.org/en/latest/) (powerful likelihood  calculation
-engine by Alex Griffing)
+engine by Alex Griffing, modified by Xiang Ji)
 
 [Biopython](http://biopython.org/wiki/Biopython)
 [networkx](https://networkx.github.io/)

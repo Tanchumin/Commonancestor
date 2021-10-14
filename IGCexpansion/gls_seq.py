@@ -26,7 +26,8 @@ class GSseq:
 
     def __init__(self,
                  geneconv ,
-                 sizen=111,branch_list=None,K=0.1,fix_tau=0.2
+                 sizen=111,branch_list=None,K=0.1,fix_tau=0.2,
+                 pi=[0.25,0.25,0.25,0.25],omega=None,kappa=1,ifmakeQ=False
                  ):
 
         self.geneconv                 = geneconv
@@ -35,33 +36,30 @@ class GSseq:
         self.num_to_state             = None
         self.num_to_node              = None
         self.node_length              = None
-        self.dic_col                  = None
 
-        self.codon_table = geneconv.codon_table
-        self.tau =None
-        self.omega=geneconv.omega
-        self.kappa=1
+        self.tau =fix_tau
+        self.omega=omega
+        self.kappa=kappa
+        self.pi=pi
+
+# change Q
         self.Q_new = None
         self.Q= None
+        self.dic_col= None
+        self.ifmakeQ=ifmakeQ
 
-        self.sites1 = None
-        self.sites2 = None
-        self.sites=None
-        self.dic_di = None
-        self.tauoriginal=0
 
-        self.node_length=0
+# model setting
         self.sites_length = self.geneconv.nsites
         self.Model=self.geneconv.Model
-        self.ifmarginal = False
+        self.sites = None
 
-        self.min_diff=0
-        self.igc_com=None
+#making Q matrix
+        self.codon_nonstop = self.geneconv.codon_nonstop
+        self.codon_to_state=self.geneconv.codon_to_state
+        self.codon_table=self.geneconv.codon_table
 
-        self.judge=None
-        self.P_list= None
-        self.Q_original=None
-
+## simulation setting
         self.sizen=sizen
         self.t= branch_list
         self.fix_t=0.05
@@ -70,10 +68,138 @@ class GSseq:
 
 
 
+    def get_MG94BasicRate(self,ca, cb, pi, kappa, omega, codon_table):
+        dif = [ii for ii in range(3) if ca[ii] != cb[ii]]
+        ndiff = len(dif)
+        if ndiff > 1:
+            return 0
+        elif ndiff == 0:
+            print('Please check your codon tables and make sure no redundancy')
+            print(ca, cb)
+            return 0
+        else:
+            na = ca[dif[0]]
+            nb = cb[dif[0]]
+            QbasicRate = pi['ACGT'.index(nb)]
+
+            if self.isTransition(na, nb):
+                QbasicRate *= kappa
+
+            if self.isNonsynonymous(ca, cb, codon_table):
+                QbasicRate *= omega
+
+            return QbasicRate
+
+
+    def get_MG94Geneconv_and_MG94(self):
+        Qbasic = self.get_MG94Basic()
+        row = []
+        col = []
+        rate_geneconv = []
+        rate_basic = []
+
+        for i, pair in enumerate(product(self.codon_nonstop, repeat=2)):
+            # use ca, cb, cc to denote codon_a, codon_b, codon_c, where cc != ca, cc != cb
+            ca, cb = pair
+            sa = self.codon_to_state[ca]
+            sb = self.codon_to_state[cb]
+            if ca != cb:
+                for cc in self.codon_nonstop:
+                    if cc == ca or cc == cb:
+                        continue
+                    sc = self.codon_to_state[cc]
+                    # (ca, cb) to (ca, cc)
+                    Qb = Qbasic[sb, sc]
+                    if Qb != 0:
+                        row.append((sa, sb))
+                        col.append((sa, sc))
+                        rate_geneconv.append(Qb)
+                        rate_basic.append(0.0)
+
+                    # (ca, cb) to (cc, cb)
+                    Qb = Qbasic[sa, sc]
+                    if Qb != 0:
+                        row.append((sa, sb))
+                        col.append((sc, sb))
+                        rate_geneconv.append(Qb)
+                        rate_basic.append(0.0)
+
+                # (ca, cb) to (ca, ca)
+                row.append((sa, sb))
+                col.append((sa, sa))
+                Qb = Qbasic[sb, sa]
+                if isNonsynonymous(cb, ca, self.codon_table):
+                    Tgeneconv = self.tau * self.omega
+                else:
+                    Tgeneconv = self.tau
+                rate_geneconv.append(Qb + Tgeneconv)
+                rate_basic.append(0.0)
+
+                # (ca, cb) to (cb, cb)
+                row.append((sa, sb))
+                col.append((sb, sb))
+                Qb = Qbasic[sa, sb]
+                rate_geneconv.append(Qb + Tgeneconv)
+                rate_basic.append(0.0)
+
+            else:
+                for cc in self.codon_nonstop:
+                    if cc == ca:
+                        continue
+                    sc = self.codon_to_state[cc]
+
+                    # (ca, ca) to (ca,  cc)
+                    Qb = Qbasic[sa, sc]
+                    if Qb != 0:
+                        row.append((sa, sb))
+                        col.append((sa, sc))
+                        rate_geneconv.append(Qb)
+                        rate_basic.append(0.0)
+                        # (ca, ca) to (cc, ca)
+                        row.append((sa, sb))
+                        col.append((sc, sa))
+                        rate_geneconv.append(Qb)
+                        rate_basic.append(0.0)
+
+                        # (ca, ca) to (cc, cc)
+                        row.append((sa, sb))
+                        col.append((sc, sc))
+                        rate_geneconv.append(0.0)
+                        rate_basic.append(Qb)
+
+        process_geneconv = dict(
+            row=row,
+            col=col,
+            rate=rate_geneconv
+        )
+        process_basic = dict(
+            row=row,
+            col=col,
+            rate=rate_basic
+        )
+        return [process_basic, process_geneconv]
+
+    def get_MG94Basic(self):
+        Qbasic = np.zeros((61, 61), dtype=float)
+        for ca in self.codon_nonstop:
+            for cb in self.codon_nonstop:
+                if ca == cb:
+                    continue
+                Qbasic[self.codon_to_state[ca], self.codon_to_state[cb]] = self.get_MG94BasicRate(ca, cb, self.pi,
+                                                                                             self.kappa, self.omega,
+                                                                                             self.codon_table)
+        expected_rate = np.dot(self.geneconv.prior_distribution, Qbasic.sum(axis=1))
+        Qbasic = Qbasic / expected_rate
+        return Qbasic
+
+    def isTransition(self,na, nb):
+       return (set([na, nb]) == set(['A', 'G']) or set([na, nb]) == set(['C', 'T']))
 
 
     def get_scene(self):
         self.tau=self.geneconv.tau
+        if self.omega is None:
+            self.omega=self.geneconv.omega
         if self.scene is None:
             self.geneconv.get_mle()
             self.scene = self.geneconv.get_scene()
@@ -90,7 +216,7 @@ class GSseq:
 
         pi=pi/sum(pi)
 
-     #   print(pi)
+        return(pi)
 
     def make_ini(self):
             ini = np.ones(self.sizen)
@@ -112,7 +238,6 @@ class GSseq:
                 for i in range(3721):
                     if (i // 61 == i % 61):
                         sample[i % 61] = i
-
                 for i in range(self.sizen):
                     ini[i] = int(np.random.choice(sample, 1, p=(z))[0])
 
@@ -132,12 +257,12 @@ class GSseq:
         if self.Model == "HKY":
             di = 16
             di1 = 9
-            self.Q_new = np.zeros(shape=(16, 9))
+            self.Q_new = np.zeros(shape=(di, di1))
 
         else:
             di = 3721
-            di1 = 30
-            self.Q_new = np.zeros(shape=(3721, 30))
+            di1 = 27
+            self.Q_new = np.zeros(shape=(di, di1))
 
         Q_iiii = np.ones((di))
         for ii in range(di):
@@ -150,10 +275,22 @@ class GSseq:
 
     def making_Qmatrix(self):
 
-        if self.scene is None:
-            self.get_scene()
 
-        scene = self.scene
+        if self.ifmakeQ==True:
+            if self.scene is None:
+                self.processes=self.get_MG94Geneconv_and_MG94()
+                process_definitions = [{'row_states': i['row'], 'column_states': i['col'], 'transition_rates': i['rate']}
+                                       for i in self.processes]
+                self.scene = dict(
+                process_definitions = process_definitions
+                )
+                scene=self.scene
+
+        else:
+            if self.scene is None:
+                self.get_scene()
+            scene = self.scene
+
 
         actual_number = (len(scene['process_definitions'][1]['transition_rates']))
         self.actual_number = actual_number
@@ -191,8 +328,8 @@ class GSseq:
                     index = 1
 
         else:
-            self.Q = np.zeros(shape=(3721, 30))
-            self.dic_col = np.zeros(shape=(3721, 30))
+            self.Q = np.zeros(shape=(3721, 27))
+            self.dic_col = np.zeros(shape=(3721, 27))
             for i in range(actual_number):
                 x_io = (scene['process_definitions'][1]['row_states'][i][0]) * 61 + (scene[
                     'process_definitions'][1]['row_states'][i][1])
@@ -239,11 +376,50 @@ class GSseq:
     def isNonsynonymous(self, ca, cb, codon_table):
         return (codon_table[ca] != codon_table[cb])
 
+    def point_IGC(self,pre,post):
+        i_b = pre // 61
+        j_b = pre % 61
+        i_p = post // 61
+        j_p = post % 61
+
+
+        igc=0
+        point=0
+        change_i=0
+        change_j=0
+
+        if i_p == j_p:
+            if i_b != j_b and i_b == i_p:
+                # y_coor is corresponding coor for igc
+                y_coor = np.argwhere(self.dic_col[int(pre),] == (int(post) + 1))[0]
+                qq = self.Q[int(pre), y_coor]
+                igc = (self.tau) / qq
+                point=1-igc
+
+            elif (i_b != j_b and j_b == j_p):
+                y_coor = np.argwhere(self.dic_col[int(pre),] == (int(post) + 1))[0]
+                qq = self.Q[int(pre), y_coor]
+                igc = (self.tau) / qq
+                point = 1 - igc
+        else:
+            point=1
+
+        if i_p!=i_b:
+            change_i=1
+        else:
+            change_j = 1
+
+
+
+        return point,igc,change_i,change_j
+
 
     def GLS_sequnce(self, t=0.2, ini=None,k=1.1, tau=1.1):
 
         global di
         global di1
+
+        inirel=deepcopy(ini)
 
         if self.Model == "HKY":
             di = 16
@@ -251,11 +427,18 @@ class GSseq:
 
         else:
             di = 3721
-            di1 = 30
+            di1 = 27
 
         u = 0
-        while (u <= t):
+        ifcontinue=True
 
+        igc=0
+        point=0
+        change_i=0
+        change_j=0
+        print("% tau at ini ", self.tau)
+
+        while(ifcontinue==True):
             id = self.solo_difference(ini)
             self.making_Qg()
             self.change_t_Q(tau=(np.power(id, k) * tau))
@@ -275,13 +458,30 @@ class GSseq:
 
 
             u = u + random.exponential(1/lambda_change)
-            # print(p)
-            change_location = np.random.choice(range(self.sizen), 1, p=(p/lambda_change))[0]
-            change_site = int(ini[change_location])
+           # print(u)
+            if (u <= t):
 
-            a = np.random.choice(range(di1), 1, p=self.Q_new[change_site,])[0]
-            current_state = self.dic_col[change_site, a] - 1
-            ini[change_location] = int(current_state)
+                change_location = np.random.choice(range(self.sizen), 1, p=(p/lambda_change))[0]
+                change_site = int(ini[change_location])
+
+                a = np.random.choice(range(di1), 1, p=self.Q_new[change_site,])[0]
+                current_state = self.dic_col[change_site, a] - 1
+                result=self.point_IGC(change_site,current_state)
+                igc=result[1]+igc
+                point=result[0]+point
+                change_j=result[3]+change_j
+                change_i = result[2] + change_i
+                ini[change_location] = int(current_state)
+
+            else:
+                ifcontinue=False
+
+        print("% tau at end", self.tau)
+        print("% propotion of point mutation number", point / self.sizen)
+        print("% propotion of IGC number", igc / self.sizen)
+        print("% propotion of ith paralog  change", change_i / self.sizen)
+        print("% propotion of jth paralog  change", change_j / self.sizen)
+        self.measure_difference(ini=deepcopy(inirel),end=deepcopy(ini))
 
         return ini
 
@@ -315,7 +515,7 @@ class GSseq:
                                 self.Q[ii, jj] = self.Q[ii, jj] - self.tau + tau
             else:
                 for ii in range(3721):
-                    for jj in range(30):
+                    for jj in range(27):
                         i_b = ii // 61
                         j_b = ii % 61
                         i_p = (self.dic_col[ii, jj] - 1) // 61
@@ -341,7 +541,7 @@ class GSseq:
             # used  before topo so  that can make new Q
 
 #   we derive sample tree
-    def topo(self, leafnode=4):
+    def topo(self, leafnode=5):
 
         ini=self.make_ini()
         list = []
@@ -349,7 +549,7 @@ class GSseq:
         list1 = []
 
         if self.t is None:
-            t=0.01
+            t=0.1
         else:
             t=self.t[1]/2
 ### build outgroup
@@ -393,11 +593,15 @@ class GSseq:
 
             for ll in range(self.sizen):
                     current_state = ini[ll]//61
-                    u = random.exponential(1/Q_iiii[int(current_state)])
-                    while(u<=t):
-                        a = np.random.choice(range(61), 1, p=Q[int(current_state),])[0]
-                        current_state = a
-                        u=u+random.exponential(1/Q_iiii[int(current_state)])
+                    ifcontinue = True
+                    u=0
+                    while (ifcontinue == True):
+                        u = u+random.exponential(1 / Q_iiii[int(current_state)])
+                        if (u<=t):
+                            a = np.random.choice(range(61), 1, p=Q[int(current_state),])[0]
+                            current_state = a
+                        else:
+                            ifcontinue=False
 
                     end1[ll]=current_state
 
@@ -431,8 +635,8 @@ class GSseq:
                 list.append(leaf)
                 list1.append(ini)
 
-            print(self.tau)
-            self.measure_difference(ini, leaf, 1)
+
+          #  self.measure_difference(ini, leaf)
 
 
         list.append(end1)
@@ -441,7 +645,7 @@ class GSseq:
         return list
 
 
-    def trans_into_seq(self,ini=None,leafnode=4):
+    def trans_into_seq(self,ini=None,leafnode=5):
         list = []
         encoding = "utf - 8"
         if self.Model == 'MG94':
@@ -485,12 +689,13 @@ class GSseq:
         return (list)
 
 
-    def measure_difference(self,ini,end,branch):
+    def measure_difference(self,ini,end):
 
 
         mutation_rate=0
         ini_paralog_div=0
         end_paralog_div = 0
+
         if self.Model=="MG94":
            str = {0}
            for i in range(61):
@@ -507,7 +712,6 @@ class GSseq:
             if(end[i]in str):
                 end_paralog_div=end_paralog_div+1
 
-        print("for branch :", geneconv.edge_list[branch])
         print("%  identity between  paralogs at branch beginning:", ini_paralog_div/self.sizen)
         print("%  identity between  paralogs at branch ending:", end_paralog_div / self.sizen)
         print("%  sites differ between beginning and ending in at least one", mutation_rate/self.sizen)
@@ -535,8 +739,8 @@ if __name__ == '__main__':
                                    save_path='../test/save/', save_name=save_name)
 
 
-        self = GSseq(geneconv,K=0.01,fix_tau=0.01,sizen=1000)
-        scene = self.get_scene()
+        self = GSseq(geneconv,K=0.01,fix_tau=4,sizen=1000,omega=1,ifmakeQ=True)
+        #scene = self.get_scene()
 
 
         aaa=self.topo()
