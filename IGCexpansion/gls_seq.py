@@ -27,7 +27,8 @@ class GSseq:
     def __init__(self,
                  geneconv ,
                  sizen=111,branch_list=None,K=0.1,fix_tau=0.2,
-                 pi=[0.25,0.25,0.25,0.25],omega=None,kappa=1,ifmakeQ=False
+                 pi=[0.25,0.25,0.25,0.25],omega=None,kappa=1,leafnode=4,
+                 ifmakeQ=False
                  ):
 
         self.geneconv                 = geneconv
@@ -65,6 +66,7 @@ class GSseq:
         self.fix_t=0.05
         self.K=K
         self.fix_tau=fix_tau
+        self.leafnode=leafnode
 
 
 
@@ -477,10 +479,10 @@ class GSseq:
                 ifcontinue=False
 
         print("% tau at end", self.tau)
-        print("% propotion of point mutation number", point / self.sizen)
-        print("% propotion of IGC number", igc / self.sizen)
-        print("% propotion of ith paralog  change", change_i / self.sizen)
-        print("% propotion of jth paralog  change", change_j / self.sizen)
+        print("% estimated number of point mutation number over site length:", point / self.sizen)
+        print("% estimated number of IGC number over site length:", igc / self.sizen)
+        print("% estimated number of ith paralog  change over site length:", change_i / self.sizen)
+        print("% estimated number of jth paralog  change over site length:", change_j / self.sizen)
         self.measure_difference(ini=deepcopy(inirel),end=deepcopy(ini))
 
         return ini
@@ -541,7 +543,7 @@ class GSseq:
             # used  before topo so  that can make new Q
 
 #   we derive sample tree
-    def topo(self, leafnode=5):
+    def topo(self):
 
         ini=self.make_ini()
         list = []
@@ -610,14 +612,14 @@ class GSseq:
 
 
 ### start build internal node
-        for i in range(leafnode):
+        for i in range(self.leafnode):
 
-            if(i== leafnode-1):
+            if(i== self.leafnode-1):
              #   print(ini)
                 leaf = deepcopy(self.GLS_sequnce(ini=deepcopy(ini),t=t,k=self.K,tau=self.fix_tau))
                 list.append(leaf)
 
-            elif (i == leafnode - 2):
+            elif (i == self.leafnode - 2):
                 # ini is internal node, leaf is observed;
                 # list store observed
                 ini = deepcopy(self.GLS_sequnce(ini=deepcopy(ini),t=t,k=self.K,tau=self.fix_tau))
@@ -629,7 +631,10 @@ class GSseq:
             else:
                 # ini is internal node, leaf is observed;
                 # list store observed
-                ini = deepcopy(self.GLS_sequnce(ini=deepcopy(ini),t=t,k=self.K,tau=self.fix_tau))
+                if (i==0):
+                    ini = deepcopy(self.GLS_sequnce(ini=deepcopy(ini),t=t/3,k=self.K,tau=self.fix_tau))
+                else:
+                    ini = deepcopy(self.GLS_sequnce(ini=deepcopy(ini), t=t, k=self.K, tau=self.fix_tau))
             #    print(ini)
                 leaf = deepcopy(self.GLS_sequnce(ini=deepcopy(ini),t=t,k=self.K,tau=self.fix_tau))
                 list.append(leaf)
@@ -645,12 +650,12 @@ class GSseq:
         return list
 
 
-    def trans_into_seq(self,ini=None,leafnode=5):
+    def trans_into_seq(self,ini=None):
         list = []
         encoding = "utf - 8"
         if self.Model == 'MG94':
             dict = self.geneconv.state_to_codon
-            for i in range(leafnode):
+            for i in range(self.leafnode):
                 p0 = "\n"+">paralog0"+"\n"
                 p1 = "\n"+">paralog1"+"\n"
                 for j in range(self.sizen):
@@ -661,13 +666,13 @@ class GSseq:
 
             p0 = "\n"+">paralog0"+"\n"
             for j in range(self.sizen):
-                p0 = p0 + dict[(ini[leafnode][j])]
+                p0 = p0 + dict[(ini[self.leafnode][j])]
 
             list.append(p0)
 
         else:
             dict = self.geneconv.state_to_nt
-            for i in range(leafnode):
+            for i in range(self.leafnode):
                 p0 = "\n"+">paralog0"+"\n"
                 p1 = "\n"+">paralog1"+"\n"
                 for j in range(self.sizen):
@@ -678,7 +683,7 @@ class GSseq:
 
             p0 = "\n"+">paralog0"+"\n"
             for j in range(self.sizen):
-                p0 = p0 + dict[(ini[leafnode][j])]
+                p0 = p0 + dict[(ini[self.leafnode][j])]
 
             list.append(p0)
 
@@ -712,9 +717,9 @@ class GSseq:
             if(end[i]in str):
                 end_paralog_div=end_paralog_div+1
 
-        print("%  identity between  paralogs at branch beginning:", ini_paralog_div/self.sizen)
-        print("%  identity between  paralogs at branch ending:", end_paralog_div / self.sizen)
-        print("%  sites differ between beginning and ending in at least one", mutation_rate/self.sizen)
+        print("% identity between  paralogs at initial branch:", ini_paralog_div/self.sizen)
+        print("% identity between  paralogs at ending branch:", end_paralog_div / self.sizen)
+        print("% site difference between initial and ending branch over site length", mutation_rate/self.sizen)
         print("**********************")
 
 
@@ -739,7 +744,7 @@ if __name__ == '__main__':
                                    save_path='../test/save/', save_name=save_name)
 
 
-        self = GSseq(geneconv,K=0.01,fix_tau=4,sizen=1000,omega=1,ifmakeQ=True)
+        self = GSseq(geneconv,K=0.5,fix_tau=1,sizen=1000,omega=1,leafnode=5,ifmakeQ=True)
         #scene = self.get_scene()
 
 

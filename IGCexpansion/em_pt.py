@@ -433,8 +433,6 @@ class Embrachtau:
                 self.K = x_process[1]
 
 
-
-
         if self.ifmodel == "old":
 
             # Now update the prior distribution
@@ -474,11 +472,11 @@ class Embrachtau:
             if self.Force:
                 prefix_save = prefix_save + '_Force'
 
-            ##        if self.Dir:
-            ##            prefix_save = prefix_save + '_Dir'
+            ## if self.Dir:
+            ##        prefix_save = prefix_save + '_Dir'
             ##
-            ##        if self.gBGC:
-            ##            prefix_save = prefix_save + '_gBGC'
+            ##if self.gBGC:
+            ##        prefix_save = prefix_save + '_gBGC'
 
             if self.clock:
                 suffix_save = '_clock_save.txt'
@@ -927,7 +925,7 @@ class Embrachtau:
 
     def objective_and_gradient_EM_reduce(self, display, x):
         self.update_by_x(x,ifmodel="EM_reduce")
-        f, g = self.loglikelihood_and_gradient(display=display,ifmodel="EM_reduce")
+        f, g = self.loglikelihood_and_gradient(display=display)
         self.auto_save += 1
         return f, g
 
@@ -1025,7 +1023,7 @@ class Embrachtau:
 
         return -ll
 
-    def get_mle(self, display=True, derivative=True, em_iterations=0, method='BFGS', niter=2000, firsttime=True):
+    def get_mle(self, display=True, derivative=True, em_iterations=0, method='BFGS', niter=2000):
         if em_iterations > 0:
             ll = self._loglikelihood2()
             # http://jsonctmctree.readthedocs.org/en/latest/examples/hky_paralog/yeast_geneconv_zero_tau/index.html#em-for-edge-lengths-only
@@ -1062,16 +1060,23 @@ class Embrachtau:
             else:
                 f = partial(self.objective_wo_derivative, display)
             guess_x = self.x
-            if self.ifmodel=="old" or self.ifmodel=="EM_full":
+            if self.ifmodel=="old" :
                 bnds.extend([(None, None)] * (len(self.x_process) - 4))
                 edge_bnds = [(None, None)] * len(self.x_rates)
                 edge_bnds[1] = (self.minlogblen, None)
+            elif self.ifmodel=="EM_full":
+                bnds.extend([(None, None)] * (len(self.x_process) - 5))
+                edge_bnds = [(None, None)] * len(self.x_rates)
+                edge_bnds[1] = (self.minlogblen, None)
             else:
-                bnds.extend([(None, None)] * 2)
-                ####
-                edge_bnds = 0
+                bnds = [(None, 7)] * 1
+                bnds.extend([(-4, 3)] * 1)
 
-            bnds.extend([(None, 7.0)] * (1))  # Now add upper limit for tau
+            bnds.extend([(None, 7.0)] * (1))
+
+            if self.ifmodel=="EM_full":
+                bnds.extend([(-4, 3)] * (1))
+
             bnds.extend(edge_bnds)
 
         else:
@@ -1476,7 +1481,7 @@ class Embrachtau:
         return index,ratio_nonsynonymous,ratio_synonymous
 
 
-    def compute_paralog_id(self,repeat=10):
+    def compute_paralog_id(self,repeat=3):
 
 
         ttt = len(self.tree['col'])
@@ -1510,7 +1515,6 @@ class Embrachtau:
             if not j == 1:
                 id[j] = 1-(float(diverge_list[j]) / repeat)/self.nsites
 
-
         return id
 
     def initialize_by_save(self, save_file):
@@ -1523,10 +1527,13 @@ class Embrachtau:
             self.update_by_x()
 
 
-    def EM_branch_tau(self,MAX=7,epis=0.001):
+    def EM_branch_tau(self,MAX=3,epis=0.01,force=None,K=1.1):
         self.get_mle()
         pstau=deepcopy(self.tau)
         self.id=self.compute_paralog_id()
+        print(self.id)
+        self.K=K
+        self.Force=force
         self.ifmodel = "EM_full"
         self.get_initial_x_process()
         self.get_mle()
@@ -1541,14 +1548,12 @@ class Embrachtau:
             i=i+1
             difference = abs(self.tau - pstau)
 
-            print("EMcircle:")
+            print("EMcycle:")
             print(i)
             print(self.id)
             print(self.K)
             print(self.tau)
             print("\n")
-
-
 
 
 
@@ -1572,21 +1577,12 @@ if __name__ == '__main__':
     geneconv = Embrachtau(newicktree, alignment_file, paralog, Model=model, Force=Force, clock=None,
                                save_path='../test/save/', save_name=save_name)
 
-  #  geneconv.get_station_dis()
-  #  print(np.power(0,2))
-
-
-
-
-
-
-
 
   #  geneconv.get_mle()
    # geneconv.get_scene()
  #   print(geneconv.compute_paralog_id())
 
-  #  geneconv.EM_branch_tau(MAX=5,epis=0.001)
+    geneconv.EM_branch_tau(MAX=5,epis=0.001,force=None,K=2)
 
 
 
