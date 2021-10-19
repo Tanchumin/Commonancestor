@@ -744,7 +744,7 @@ if __name__ == '__main__':
                                    save_path='../test/save/', save_name=save_name)
 
 
-        self = GSseq(geneconv,K=0.5,fix_tau=1,sizen=1000,omega=1,leafnode=5,ifmakeQ=True)
+        self = GSseq(geneconv,K=0.01,fix_tau=2,sizen=1000,omega=1,leafnode=5,ifmakeQ=True)
         #scene = self.get_scene()
 
 

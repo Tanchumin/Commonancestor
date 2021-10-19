@@ -819,6 +819,7 @@ class Embrachtau:
         Modified from Alex's objective_and_gradient function in ctmcaas/adv-log-likelihoods/mle_geneconv_common.py
         '''
         self.update_by_x()
+
         delta = 1e-8
         x = deepcopy(self.x)  # store the current x array
         if package == 'new':
@@ -830,10 +831,12 @@ class Embrachtau:
         else:
             ll, edge_derivs = fn()
 
+
         m = len(self.x) - len(self.edge_to_blen)
 
         # use finite differences to estimate derivatives with respect to these parameters
         other_derivs = []
+
 
         for i in range(m):
             if self.Force != None:
@@ -843,7 +846,9 @@ class Embrachtau:
             x_plus_delta = np.array(self.x)
             x_plus_delta[i] += delta
             self.update_by_x(x_plus_delta)
+            print(4444444444)
             ll_delta, _ = fn(store=True, edge_derivative=False)
+            print(5555555)
             d_estimate = (ll_delta - ll) / delta
             other_derivs.append(d_estimate)
             # restore self.x
@@ -909,6 +914,7 @@ class Embrachtau:
         return f, g
 
     def objective_and_gradient(self, display, x):
+        print(1111111)
         self.update_by_x(x)
         f, g = self.loglikelihood_and_gradient(display=display)
         self.auto_save += 1
@@ -918,6 +924,8 @@ class Embrachtau:
         return f, g
 
     def objective_and_gradient_EM_full(self, display, x):
+
+        print(1111111)
         self.update_by_x(x,ifmodel="EM_full")
         f, g = self.loglikelihood_and_gradient(display=display)
         self.auto_save += 1
@@ -1527,7 +1535,7 @@ class Embrachtau:
             self.update_by_x()
 
 
-    def EM_branch_tau(self,MAX=3,epis=0.01,force=None,K=1.1):
+    def EM_branch_tau(self,MAX=5,epis=0.01,force=None,K=1.1):
         self.get_mle()
         pstau=deepcopy(self.tau)
         self.id=self.compute_paralog_id()
@@ -1539,8 +1547,15 @@ class Embrachtau:
         self.get_mle()
         difference=abs(self.tau-pstau)
 
-        i=0
-        while i<=MAX or difference <=epis:
+        print("EMcycle:")
+        print(0)
+        print(self.id)
+        print(self.K)
+        print(self.tau)
+        print("\n")
+
+        i=1
+        while i<=MAX and difference >=epis:
             pstau = deepcopy(self.tau)
             self.id = self.compute_paralog_id()
             self.get_initial_x_process()
