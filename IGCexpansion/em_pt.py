@@ -846,9 +846,9 @@ class Embrachtau:
             x_plus_delta = np.array(self.x)
             x_plus_delta[i] += delta
             self.update_by_x(x_plus_delta)
-            print(4444444444)
+
             ll_delta, _ = fn(store=True, edge_derivative=False)
-            print(5555555)
+
             d_estimate = (ll_delta - ll) / delta
             other_derivs.append(d_estimate)
             # restore self.x
@@ -914,7 +914,6 @@ class Embrachtau:
         return f, g
 
     def objective_and_gradient(self, display, x):
-        print(1111111)
         self.update_by_x(x)
         f, g = self.loglikelihood_and_gradient(display=display)
         self.auto_save += 1
@@ -1535,7 +1534,7 @@ class Embrachtau:
             self.update_by_x()
 
 
-    def EM_branch_tau(self,MAX=5,epis=0.01,force=None,K=1.1):
+    def EM_branch_tau(self,MAX=6,epis=0.01,force=None,K=0.5):
         self.get_mle()
         pstau=deepcopy(self.tau)
         self.id=self.compute_paralog_id()
@@ -1552,6 +1551,9 @@ class Embrachtau:
         print(self.id)
         print(self.K)
         print(self.tau)
+        print("xxxxxxxxxxxxxxxxx")
+        print("xxxxxxxxxxxxxxxxx")
+        print("xxxxxxxxxxxxxxxxx")
         print("\n")
 
         i=1
@@ -1568,6 +1570,9 @@ class Embrachtau:
             print(self.id)
             print(self.K)
             print(self.tau)
+            print("xxxxxxxxxxxxxxxxx")
+            print("xxxxxxxxxxxxxxxxx")
+            print("xxxxxxxxxxxxxxxxx")
             print("\n")
 
 
@@ -1597,7 +1602,7 @@ if __name__ == '__main__':
    # geneconv.get_scene()
  #   print(geneconv.compute_paralog_id())
 
-    geneconv.EM_branch_tau(MAX=5,epis=0.001,force=None,K=2)
+    geneconv.EM_branch_tau(MAX=5,epis=0.01,force=None,K=2)
 
 
 
