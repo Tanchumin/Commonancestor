@@ -1093,7 +1093,7 @@ class Embrachtau:
                     bnds.extend([(low, high)] * (1))
                 else:
                     bnds.extend([(None, 7.0)] * (1))
-                khigh=np.log(deepcopy(self.kbound))
+                khigh=np.log(deepcopy(float(self.kbound)))
                 bnds.extend([(-4, khigh)] * (1))
 
             bnds.extend(edge_bnds)
