@@ -41,7 +41,7 @@ def get_maxpro(list, nodecom):
 
 class Embrachtau:
     def __init__(self, tree_newick, alignment, paralog, Model='MG94', IGC_Omega=None, nnsites=None, clock=False,
-                 Force=None, save_path='./save/', save_name=None, post_dup='N1',K=1.1):
+                 Force=None, save_path='./save/', save_name=None, post_dup='N1',kbound=kbound):
         self.newicktree = tree_newick  # newick tree file loc
         self.seqloc = alignment  # multiple sequence alignment, now need to remove gap before-hand
         self.paralog = paralog  # parlaog list
@@ -98,11 +98,13 @@ class Embrachtau:
         self.kappa = 1.2  # real values
         self.omega = 0.9  # real values
         self.tau = 1.4  # real values
-        self.K=K
+        self.K=1.1
         self.sites=None
         self.processes = None# list of basic and geneconv rate matrices. Each matrix is a dictionary used for json parsing
         self.ifmodel="old"
         self.id=None
+        self.bound=False
+        self.kbound=kbound
 
         self.scene_ll = None  # used for lnL calculation
 
@@ -1079,7 +1081,12 @@ class Embrachtau:
                 bnds = [(None, 7)] * 1
                 bnds.extend([(-4, 3)] * 1)
 
-            bnds.extend([(None, 7.0)] * (1))
+            if self.bound==True:
+              low=np.log(deepcopy(self.tau))-1
+              high=np.log(deepcopy(self.compute_bound()))
+              bnds.extend([(low,high)] * (1))
+            else:
+              bnds.extend([(None, 7.0)] * (1))
 
             if self.ifmodel=="EM_full":
                 bnds.extend([(-4, 3)] * (1))
@@ -1179,6 +1186,23 @@ class Embrachtau:
 
     def isNonsynonymous(self, ca, cb, codon_table):
         return (codon_table[ca] != codon_table[cb])
+
+    def compute_bound(self):
+        self.id[1]=1
+        min = self.id[0];
+
+        # Loop through the array
+        for i in range(0, len(self.id)):
+            if (self.id[i] < min):
+                min = self.id[i]
+
+        taubound=self.tau/np.power(min,self.kbound)
+        self.id[1] = 0
+
+
+        return taubound
+
+
 
 
     def Get_branch_Q(self,paralog_id):
@@ -1534,7 +1558,7 @@ class Embrachtau:
             self.update_by_x()
 
 
-    def EM_branch_tau(self,MAX=6,epis=0.01,force=None,K=0.5):
+    def EM_branch_tau(self,MAX=6,epis=0.01,force=None,K=0.5,bound=False):
         self.get_mle()
         pstau=deepcopy(self.tau)
         self.id=self.compute_paralog_id()
@@ -1543,6 +1567,7 @@ class Embrachtau:
         self.Force=force
         self.ifmodel = "EM_full"
         self.get_initial_x_process()
+        self.bound=bound
         self.get_mle()
         difference=abs(self.tau-pstau)
 
@@ -1595,7 +1620,7 @@ if __name__ == '__main__':
     type = 'situation_new'
     save_name = model+name
     geneconv = Embrachtau(newicktree, alignment_file, paralog, Model=model, Force=Force, clock=None,
-                               save_path='../test/save/', save_name=save_name)
+                               save_path='../test/save/', save_name=save_name,kbound=5)
 
 
   #  geneconv.get_mle()
