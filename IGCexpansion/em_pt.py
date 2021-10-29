@@ -41,7 +41,7 @@ def get_maxpro(list, nodecom):
 
 class Embrachtau:
     def __init__(self, tree_newick, alignment, paralog, Model='MG94', IGC_Omega=None, nnsites=None, clock=False,
-                 Force=None, save_path='./save/', save_name=None, post_dup='N1',kbound=kbound):
+                 Force=None, save_path='./save/', save_name=None, post_dup='N1',kbound=None):
         self.newicktree = tree_newick  # newick tree file loc
         self.seqloc = alignment  # multiple sequence alignment, now need to remove gap before-hand
         self.paralog = paralog  # parlaog list
@@ -1081,15 +1081,16 @@ class Embrachtau:
                 bnds = [(None, 7)] * 1
                 bnds.extend([(-4, 3)] * 1)
 
-            if self.bound==True:
-              low=np.log(deepcopy(self.tau))-1
-              high=np.log(deepcopy(self.compute_bound()))
-              bnds.extend([(low,high)] * (1))
-            else:
-              bnds.extend([(None, 7.0)] * (1))
 
             if self.ifmodel=="EM_full":
-                bnds.extend([(-4, 3)] * (1))
+                if self.bound == True:
+                    low = np.log(deepcopy(self.tau)) - 1
+                    high = np.log(deepcopy(self.compute_bound()))
+                    bnds.extend([(low, high)] * (1))
+                else:
+                    bnds.extend([(None, 7.0)] * (1))
+                khigh=np.log(deepcopy(self.kbound))
+                bnds.extend([(-4, khigh)] * (1))
 
             bnds.extend(edge_bnds)
 
@@ -1627,7 +1628,8 @@ if __name__ == '__main__':
    # geneconv.get_scene()
  #   print(geneconv.compute_paralog_id())
 
-    geneconv.EM_branch_tau(MAX=5,epis=0.01,force=None,K=2)
+   # geneconv.EM_branch_tau(MAX=5,epis=0.01,force=None,K=2)
+    print(np.log(1))
 
 
 
