@@ -1082,6 +1082,10 @@ class Embrachtau:
                 bnds.extend([(-4, 3)] * 1)
 
 
+            if self.ifmodel=="old":
+                bnds.extend([(None, 7.0)] * (1))
+
+
             if self.ifmodel=="EM_full":
                 if self.bound == True:
                     low = np.log(deepcopy(self.tau)) - 1
@@ -1193,7 +1197,7 @@ class Embrachtau:
         min = self.id[0];
 
         # Loop through the array
-        for i in range(0, len(self.id)):
+        for i in range(len(self.id)):
             if (self.id[i] < min):
                 min = self.id[i]
 
@@ -1630,6 +1634,8 @@ if __name__ == '__main__':
 
    # geneconv.EM_branch_tau(MAX=5,epis=0.01,force=None,K=2)
     print(np.log(1))
+    for i in range(0,5):
+        print(i)
 
 
 
