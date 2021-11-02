@@ -677,7 +677,7 @@ class AncestralState1:
 
 
 
-    def get_paralog_diverge(self,repeat=10):
+    def get_paralog_diverge(self,repeat=10,ifrobust=False):
     #    print(self.geneconv.codon_nonstop)
       #  self.geneconv.get_MG94Geneconv_and_MG94()
 
@@ -696,7 +696,7 @@ class AncestralState1:
 
 
         self.geneconv.get_ExpectedNumGeneconv()
-        tau=self.geneconv.get_summary(branchtau=True)
+        tau=self.geneconv.get_summary(branchtau=True,robust=ifrobust)
         ttt = len(self.scene['tree']["column_nodes"])
 
         for mc in range(repeat):
@@ -766,8 +766,13 @@ class AncestralState1:
       #  print(tau[1])
         #exoect igc
 
-        for j in self.geneconv.edge_list:
-                list.append(tau[1][j])
+        if ifrobust==False:
+            for j in self.geneconv.edge_list:
+                    list.append(tau[1][j])
+        else:
+           for j in range(len(self.geneconv.edge_list)):
+                   list.append(tau[1][j])
+            
 
 #     branch length
         for j in self.geneconv.edge_list:
@@ -795,8 +800,8 @@ class AncestralState1:
         np.savetxt(save_nameP1, list1,fmt="%s")
 
 
-    def print(self):
-        self.geneconv.get_ExpectedNumGeneconv()
+    def print1(self):
+        print(self.geneconv.get_ExpectedNumGeneconv())
 
 
 
@@ -842,7 +847,7 @@ if __name__ == '__main__':
     # %AG, % A, % C, kappa, tau
     # Force= {0:0.5,1:0.5,2:0.5,3:1,4:0}
     Force = None
-    model = 'HKY'
+    model = 'MG94'
 
     type = 'situation_new'
     save_name = model+name
@@ -852,9 +857,9 @@ if __name__ == '__main__':
     self = AncestralState1(geneconv)
 
     scene = self.get_scene()
-    for i in self.process:
-       print({'row_states': i['row'], 'column_states': i['col'], 'transition_rates': i['rate']})
-       print("xxxxxxxxxxxxxxxxxxxxxx")
+    self.geneconv.get_summary()
+
+
 
 
  #   print(scene['tree']['edge_processes'])

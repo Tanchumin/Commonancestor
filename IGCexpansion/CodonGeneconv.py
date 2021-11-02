@@ -11,6 +11,8 @@ from CodonGeneconFunc import *
 import argparse
 # from jsonctmctree.extras import optimize_em
 import ast
+import numpy as np
+from copy import deepcopy
 
 
 # import matplotlib.pyplot as plt
@@ -74,6 +76,8 @@ class ReCodonGeneconv:
         self.kappa = 1.2  # real values
         self.omega = 0.9  # real values
         self.tau = 1.4  # real values
+        self.sites=None
+        self.id=None
 
         self.processes = None  # list of basic and geneconv rate matrices. Each matrix is a dictionary used for json parsing
 
@@ -1426,7 +1430,7 @@ class ReCodonGeneconv:
             self.update_by_x_clock()
         return Clock_drv
 
-    def get_summary(self, output_label=False,branchtau=False):
+    def get_summary(self, output_label=False,branchtau=False,robust=False):
         out = [self.nsites, self.ll]
         out.extend(self.pi)
         if self.Model == 'HKY':  # HKY model doesn't have omega parameter
@@ -1455,25 +1459,43 @@ class ReCodonGeneconv:
         label.extend([(a, b, '2->1') for (a, b) in self.edge_list])
         out.extend([ExpectedDirectionalNumGeneconv[i][1] for i in self.edge_list])
 
+
         # Now add Expected # of point mutations
 
         ExpectedPointMutation = self._ExpectedpointMutationNum()
         label.extend([(a, b, 'mut') for (a, b) in self.edge_list])
         out.extend([ExpectedPointMutation[i] for i in self.edge_list])
 
+        robust_exp_lambda_list = [self.ExpectedGeneconv[i] + ExpectedPointMutation[i]
+                   for i in self.edge_list]
+
+
+
+        for i in range(len(self.tree['col'])):
+            robust_exp_lambda_list[i]=robust_exp_lambda_list[i]-(self.edge_to_blen[self.edge_list[i]]*self.nsites)*2
+
+        print(robust_exp_lambda_list)
+
+
+
         if branchtau==True:
             taulist=[self.ExpectedGeneconv[i] / (self.edge_to_blen[i] * (
                     self.ExpectedDwellTime[0][i] + self.omega * self.ExpectedDwellTime[1][i])) \
                   if (self.ExpectedDwellTime[0][i] + self.omega * self.ExpectedDwellTime[1][i]) != 0 else 0
-              for i in self.edge_list]
+                      for i in self.edge_list]
 
         for i in range(k, len(label)):
             label[i] = '(' + ','.join(label[i]) + ')'
 
+
+        print(self.ExpectedGeneconv)
+
         if output_label:
             return out, label
-        elif branchtau:
+        elif branchtau and robust==False:
             return taulist,self.ExpectedGeneconv,self.edge_to_blen,self.ExpectedDwellTime
+        elif branchtau and robust==True:
+            return taulist,robust_exp_lambda_list,self.edge_to_blen,self.ExpectedDwellTime
         else:
             return out
 
@@ -1568,6 +1590,95 @@ class ReCodonGeneconv:
         else:
             self.x = np.loadtxt(open(save_file, 'r'))
             self.update_by_x()
+
+
+    def jointly_common_ancstral_inference(self):
+
+
+
+        ancestral_state_response = deepcopy(self.get_ancestral_state_response_x())
+
+        node_length = len(self.num_to_node)
+        sites = np.zeros(shape=(node_length, self.nsites))
+        for site in range(self.nsites):
+            for node in range(node_length):
+                sites[node][site] = int(np.array(ancestral_state_response[site])[node])
+
+        self.sites = sites
+
+
+
+    def get_ancestral_state_response_x(self):
+
+        scene=self.get_scene()
+
+        requests = [
+            {'property': "ddnance"}
+        ]
+        # ref:https://jsonctmctree.readthedocs.io/en/latest/examples/yang2014/section_4_4_2_1_marginal/main.html
+        if isinstance(scene, list):  # ref: _loglikelihood() function in JSGeneconv.py
+            raise RuntimeError('Not yet tested.')
+            separate_j_out = []
+            for separate_scene in scene:
+                j_in = {
+                    'scene': separate_scene,
+                    "requests": requests
+                }
+                j_out = jsonctmctree.interface.process_json_in(j_in)
+                separate_j_out.append(j_out)
+            result = separate_j_out
+
+        else:
+            j_in = {
+                'scene': scene,
+                'requests': requests
+            }
+            j_out = jsonctmctree.interface.process_json_in(j_in, debug = True)
+            if j_out['status'] is 'feasible':
+                result = j_out['responses'][0]
+            else:
+                raise RuntimeError('Failed at obtaining ancestral state distributions.')
+
+        return result
+
+
+    def compute_paralog_id(self,repeat=3):
+
+
+        ttt = len(self.tree['col'])
+        id=np.zeros(ttt)
+        diverge_list=np.ones(ttt)
+
+        for mc in range(repeat):
+
+            self.jointly_common_ancstral_inference()
+            for j in range(ttt):
+                if self.Model == "HKY":
+                    if not j == 1:
+                        ini2 = self.node_to_num[self.edge_list[j][0]]
+                        end2 = self.node_to_num[self.edge_list[j][1]]
+                        ini1 = deepcopy(self.sites[ini2,])
+                        end1 = deepcopy(self.sites[end2,])
+                        diverge_list[j] = diverge_list[j] + (self.difference(ini1)[0] + self.difference(end1)[0]) * 0.5
+
+                if self.Model == "MG94":
+                    if not j == 1:
+                        ini2 = self.node_to_num[self.edge_list[j][0]]
+                        end2 = self.node_to_num[self.edge_list[j][1]]
+                        ini1 = deepcopy(self.sites[ini2,])
+                        end1 = deepcopy(self.sites[end2,])
+                        ini_D = self.difference(ini1)[0]
+                        end_D = self.difference(end1)[0]
+                        diverge_list[j] = diverge_list[j] + (float(ini_D + end_D) * 0.5)
+
+
+        for j in range(ttt):
+            if not j == 1:
+                id[j] = 1-(float(diverge_list[j]) / repeat)/self.nsites
+
+        return id
+
+
 
 
 if __name__ == '__main__':

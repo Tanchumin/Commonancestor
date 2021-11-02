@@ -1091,10 +1091,12 @@ class Embrachtau:
                     low = np.log(deepcopy(self.tau)) - 1
                     high = np.log(deepcopy(self.compute_bound()))
                     bnds.extend([(low, high)] * (1))
+                    khigh = np.log(deepcopy(float(self.kbound)))
+                    bnds.extend([(-4, khigh)] * (1))
                 else:
                     bnds.extend([(None, 7.0)] * (1))
-                khigh=np.log(deepcopy(float(self.kbound)))
-                bnds.extend([(-4, khigh)] * (1))
+                    bnds.extend([(-4, (khigh*2))] * (1))
+
 
             bnds.extend(edge_bnds)
 
@@ -1451,7 +1453,7 @@ class Embrachtau:
             for node in range(self.node_length):
                 sites[node][site] = int(np.array(self.ancestral_state_response[site])[node])
 
-            self.sites = sites
+        self.sites = sites
 
     def get_ancestral_state_response_x(self):
 
@@ -1628,14 +1630,14 @@ if __name__ == '__main__':
                                save_path='../test/save/', save_name=save_name,kbound=5)
 
 
-  #  geneconv.get_mle()
-   # geneconv.get_scene()
+    geneconv.get_mle()
+    geneconv.get_scene()
+    geneconv.jointly_common_ancstral_inference()
+    print(geneconv.sites)
+    print(geneconv.compute_paralog_id())
  #   print(geneconv.compute_paralog_id())
 
    # geneconv.EM_branch_tau(MAX=5,epis=0.01,force=None,K=2)
-    print(np.log(1))
-    for i in range(0,5):
-        print(i)
 
 
 
