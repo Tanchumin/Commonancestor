@@ -40,8 +40,8 @@ def get_maxpro(list, nodecom):
 
 
 class Embrachtau:
-    def __init__(self, tree_newick, alignment, paralog, Model='MG94', IGC_Omega=None, nnsites=None, clock=False,
-                 Force=None, save_path='./save/', save_name=None, post_dup='N1',kbound=5.1):
+    def __init__(self, tree_newick, alignment, paralog, Model='MG94', IGC_Omega=None, Tau_Omega = None, nnsites=None, clock=False,
+                 Force=None, save_path='./save/', save_name=None, post_dup='N1',kbound=5.1,ifmodel="old"):
         self.newicktree = tree_newick  # newick tree file loc
         self.seqloc = alignment  # multiple sequence alignment, now need to remove gap before-hand
         self.paralog = paralog  # parlaog list
@@ -100,8 +100,8 @@ class Embrachtau:
         self.tau = 1.4  # real values
         self.K=1.1
         self.sites=None
-        self.processes = None# list of basic and geneconv rate matrices. Each matrix is a dictionary used for json parsing
-        self.ifmodel="old"
+        self.processes = None # list of basic and geneconv rate matrices. Each matrix is a dictionary used for json parsing
+        self.ifmodel=ifmodel
         self.id=None
         self.bound=False
         self.kbound=kbound
@@ -128,6 +128,8 @@ class Embrachtau:
             if os.stat(save_file).st_size > 0:
                 self.initialize_by_save(save_file)
                 print('Successfully loaded parameter value from ' + save_file)
+
+
 
     def get_tree(self):
         self.tree, self.edge_list, self.node_to_num = read_newick(self.newicktree, self.post_dup)
@@ -187,6 +189,11 @@ class Embrachtau:
         return [seq_name.replace(matched_paralog[0], ''), matched_paralog[0]]
 
     def get_initial_x_process(self, transformation='log'):
+
+        if self.ifmodel=="old":
+            self.id = np.ones(len(self.tree['col']))
+        else:
+            self.id = self.compute_paralog_id()
 
         count = np.array([0, 0, 0, 0], dtype=float)  # count for A, C, G, T in all seq
         for name in self.name_to_seq:
@@ -1568,7 +1575,6 @@ class Embrachtau:
     def EM_branch_tau(self,MAX=6,epis=0.01,force=None,K=0.5,bound=False):
         self.get_mle()
         pstau=deepcopy(self.tau)
-        self.id=self.compute_paralog_id()
         print(self.id)
         self.K=K
         self.Force=force
@@ -1592,7 +1598,6 @@ class Embrachtau:
         while i<=MAX and difference >=epis:
             pstau = deepcopy(self.tau)
             self.id = self.compute_paralog_id()
-            self.get_initial_x_process()
             self.get_mle()
             i=i+1
             difference = abs(self.tau - pstau)
@@ -1606,6 +1611,12 @@ class Embrachtau:
             print("xxxxxxxxxxxxxxxxx")
             print("xxxxxxxxxxxxxxxxx")
             print("\n")
+
+# this function is used to renew ini
+    def renew_em_joint(self,ifmodel="EM_full"):
+        self.ifmodel=ifmodel
+        self.get_initial_x_process()
+
 
 
 
@@ -1630,6 +1641,7 @@ if __name__ == '__main__':
                                save_path='../test/save/', save_name=save_name,kbound=5)
 
 
+    print(geneconv.x)
     geneconv.get_mle()
     geneconv.get_scene()
     geneconv.jointly_common_ancstral_inference()
