@@ -208,10 +208,11 @@ class JointAnalysis:
         print('Gradient = ', g)
 
         # Now save parameter values
-        self.auto_save += 1
-        if self.auto_save == JointAnalysis.auto_save_step:
-            self.save_x()
-            self.auto_save = 0
+        if self.ifmodel=="old":
+            self.auto_save += 1
+            if self.auto_save == JointAnalysis.auto_save_step:
+                self.save_x()
+                self.auto_save = 0
         return f, g
 
     def get_mle(self, parallel = True):
@@ -225,9 +226,9 @@ class JointAnalysis:
             result = scipy.optimize.minimize(self.objective_and_gradient, guess_x, jac=True, method='L-BFGS-B', bounds=self.combine_bounds())
         print (result)
 
-        if not self.ifmodel=="EM_full":
-                self.save_x()
-            
+        if self.ifmodel=="old":
+           self.save_x()
+
         return result
 
     def save_x(self):
