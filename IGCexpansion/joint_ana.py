@@ -224,7 +224,10 @@ class JointAnalysis:
         else:
             result = scipy.optimize.minimize(self.objective_and_gradient, guess_x, jac=True, method='L-BFGS-B', bounds=self.combine_bounds())
         print (result)
-        self.save_x()
+
+        if not self.ifmodel=="EM_full":
+                self.save_x()
+            
         return result
 
     def save_x(self):
