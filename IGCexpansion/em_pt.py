@@ -190,10 +190,6 @@ class Embrachtau:
 
     def get_initial_x_process(self, transformation='log'):
 
-        if self.ifmodel=="old":
-            self.id = np.ones(len(self.tree['col']))
-        else:
-            self.id = self.compute_paralog_id()
 
         count = np.array([0, 0, 0, 0], dtype=float)  # count for A, C, G, T in all seq
         for name in self.name_to_seq:
@@ -1614,6 +1610,7 @@ class Embrachtau:
 
 # this function is used to renew ini
     def renew_em_joint(self,ifmodel="EM_full"):
+        self.id = self.compute_paralog_id()
         self.ifmodel=ifmodel
         self.get_initial_x_process()
 
