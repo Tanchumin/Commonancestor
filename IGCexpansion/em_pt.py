@@ -26,6 +26,7 @@ from IGCexpansion.CodonGeneconFunc import isNonsynonymous
 import pickle
 import json
 import numpy.core.multiarray
+import numdifftools as nd
 
 
 
@@ -105,6 +106,9 @@ class Embrachtau:
         self.id=None
         self.bound=False
         self.kbound=kbound
+        self.hessian = False
+        self.save_name1 = save_name+"K"
+        self.auto_save1=0
 
         self.scene_ll = None  # used for lnL calculation
 
@@ -122,6 +126,7 @@ class Embrachtau:
         self.get_tree()
         self.get_data()
         self.get_initial_x_process()
+
         save_file = self.get_save_file_name()
 
         if os.path.isfile(save_file):  # if the save txt file exists and not empty, then read in parameter values
@@ -235,6 +240,9 @@ class Embrachtau:
                     np.array([np.exp(self.x_process[0]), np.exp(self.x_process[1]), np.exp(self.x_process[2]),
                               self.kappa, self.tau,self.K]))
 
+
+
+
         elif self.ifmodel=="EM_reduce":
             if self.Model == 'MG94':
                 # x_process[] = %AG, %A, %C, kappa, omega, tau
@@ -281,6 +289,15 @@ class Embrachtau:
             self.unpack_x_clock(transformation=transformation)
 
         self.update_by_x(transformation=transformation)
+
+# for K
+    def ini_by_file(self):
+        save_file1 = self.get_save_file_name()
+
+        if os.path.isfile(save_file1):  # if the save txt file exists and not empty, then read in parameter values
+            if os.stat(save_file1).st_size > 0:
+                self.initialize_by_save(save_file1)
+                print('Successfully loaded parameter value from ' + save_file1)
 
     def update_by_x_clock(self, x_clock=None, transformation='log'):
         if not x_clock is None:
@@ -468,29 +485,47 @@ class Embrachtau:
             self.processes = self.get_HKYGeneconv()
 
     def get_save_file_name(self):
-        if self.save_name is None:
-            prefix_save = self.save_path + self.Model
-            if self.ifmodel !="old":
-                prefix_save = self.save_path + self.Model+ self.ifmodel
-            if not self.IGC_Omega is None:
-                prefix_save = prefix_save + '_twoOmega'
-            if self.Force:
-                prefix_save = prefix_save + '_Force'
+        if self.ifmodel=="old":
+            if self.save_name is None:
+                prefix_save = self.save_path + self.Model
+                if not self.IGC_Omega is None:
+                    prefix_save = prefix_save + '_twoOmega'
+                if self.Force:
+                    prefix_save = prefix_save + '_Force'
 
-            ## if self.Dir:
-            ##        prefix_save = prefix_save + '_Dir'
-            ##
-            ##if self.gBGC:
-            ##        prefix_save = prefix_save + '_gBGC'
+                ## if self.Dir:
+                ##        prefix_save = prefix_save + '_Dir'
+                ##
+                ##if self.gBGC:
+                ##        prefix_save = prefix_save + '_gBGC'
 
-            if self.clock:
-                suffix_save = '_clock_save.txt'
+                if self.clock:
+                    suffix_save = '_clock_save.txt'
+                else:
+                    suffix_save = '_nonclock_save.txt'
+
+                save_file = prefix_save + '_' + '_'.join(self.paralog) + suffix_save
             else:
-                suffix_save = '_nonclock_save.txt'
-
-            save_file = prefix_save + '_' + '_'.join(self.paralog) + suffix_save
+                save_file = self.save_name
         else:
-            save_file = self.save_name
+            if self.save_name1 is None:
+                prefix_save = self.save_path + self.Model
+                if self.ifmodel != "old":
+                    prefix_save = self.save_path + self.Model + self.ifmodel
+                if not self.IGC_Omega is None:
+                    prefix_save = prefix_save + '_twoOmega'
+                if self.Force:
+                    prefix_save = prefix_save + '_Force'
+
+                if self.clock:
+                    suffix_save = '_clock_save.txt'
+                else:
+                    suffix_save = '_nonclock_save.txt'
+
+                save_file = prefix_save + '_' + '_'.join(self.paralog) + suffix_save
+            else:
+                save_file = self.save_name1
+
         return save_file
 
     def get_MG94Geneconv_and_MG94(self):
@@ -831,10 +866,11 @@ class Embrachtau:
             fn = self._loglikelihood2
         else:
             fn = self._loglikelihood
+
         if self.ifmodel=="old" or self.ifmodel=="EM_full":
-           ll, edge_derivs = fn(edge_derivative=True)
+               ll, edge_derivs = fn(edge_derivative=True)
         else:
-            ll, edge_derivs = fn()
+                ll, edge_derivs = fn()
 
 
         m = len(self.x) - len(self.edge_to_blen)
@@ -868,7 +904,12 @@ class Embrachtau:
         self.ll = ll
         f = -ll
         g = -np.concatenate((other_derivs, edge_derivs))
-        return f, g
+
+        if self.hessian==False:
+            return f, g
+        else:
+            return g
+
 
     def loglikelihood_and_gradient2(self, package='new', display=False):
         '''
@@ -920,19 +961,26 @@ class Embrachtau:
 
     def objective_and_gradient(self, display, x):
         self.update_by_x(x)
+
         f, g = self.loglikelihood_and_gradient(display=display)
         self.auto_save += 1
         if self.auto_save == 5:
-            self.save_x()
-            self.auto_save = 0
+           self.save_x()
+           self.auto_save = 0
+
         return f, g
+
+
+
 
     def objective_and_gradient_EM_full(self, display, x):
 
-        print(1111111)
         self.update_by_x(x,ifmodel="EM_full")
         f, g = self.loglikelihood_and_gradient(display=display)
-        self.auto_save += 1
+        self.auto_save1 += 1
+        if self.auto_save1 == 1:
+            self.save_x()
+            self.auto_save1 = 0
         return f, g
 
     def objective_and_gradient_EM_reduce(self, display, x):
@@ -1001,7 +1049,7 @@ class Embrachtau:
 
         return f, g_clock
 
-    def objective_wo_derivative(self, display, x):
+    def objective_wo_derivative(self, x):
         if self.clock:
             self.update_by_x_clock(x)
             ll = self._loglikelihood2()[0]
@@ -1009,12 +1057,23 @@ class Embrachtau:
             self.update_by_x(x)
             ll = self._loglikelihood2()[0]
 
-        if display:
-            print('log likelihood = ', ll)
-            if self.clock:
-                print('Current x_clock array = ', self.x_clock)
-            else:
-                print('Current x array = ', self.x)
+
+        # if display:
+        #    print('log likelihood = ', ll)
+        #    if self.clock:
+        #        print('Current x_clock array = ', self.x_clock)
+        #    else:
+        #        print('Current x array = ', self.x)
+
+        return -ll
+
+    def objective_wo_derivative1(self, x):
+        assert (len(x)==2)
+        self.x[5] = x[0]
+        self.x[6] = x[1]
+
+        self.update_by_x(self.x)
+        ll = self._loglikelihood2()[0]
 
         return -ll
 
@@ -1098,7 +1157,7 @@ class Embrachtau:
                     bnds.extend([(-4, khigh)] * (1))
                 else:
                     bnds.extend([(None, 7.0)] * (1))
-                    bnds.extend([(-4, (khigh*2))] * (1))
+                    bnds.extend([(-4, None)] * (1))
 
 
             bnds.extend(edge_bnds)
@@ -1139,8 +1198,8 @@ class Embrachtau:
 
         print(result)
 
-        if self.ifmodel=="old":
-           self.save_x()
+
+        self.save_x()
 
         return result
 
@@ -1155,6 +1214,7 @@ class Embrachtau:
             save = self.x
 
         save_file = self.get_save_file_name()
+        print(save_file)
 
         np.savetxt(save_file, save.T)
 
@@ -1522,7 +1582,7 @@ class Embrachtau:
         return index,ratio_nonsynonymous,ratio_synonymous
 
 
-    def compute_paralog_id(self,repeat=3):
+    def compute_paralog_id(self,repeat=5):
 
 
         ttt = len(self.tree['col'])
@@ -1571,11 +1631,13 @@ class Embrachtau:
     def EM_branch_tau(self,MAX=6,epis=0.01,force=None,K=0.5,bound=False):
         self.get_mle()
         pstau=deepcopy(self.tau)
+        self.id = self.compute_paralog_id()
         print(self.id)
         self.K=K
         self.Force=force
         self.ifmodel = "EM_full"
         self.get_initial_x_process()
+        self.ini_by_file()
         self.bound=bound
         self.get_mle()
         difference=abs(self.tau-pstau)
@@ -1615,6 +1677,16 @@ class Embrachtau:
         self.get_initial_x_process()
 
 
+    def get_Hessian(self):
+
+        H = nd.Hessian(self.objective_wo_derivative1)(np.float128((self.x[5:7])))
+
+        return H
+
+
+
+
+
 
 
 
@@ -1638,12 +1710,14 @@ if __name__ == '__main__':
                                save_path='../test/save/', save_name=save_name,kbound=5)
 
 
-    print(geneconv.x)
-    geneconv.get_mle()
-    geneconv.get_scene()
-    geneconv.jointly_common_ancstral_inference()
-    print(geneconv.sites)
-    print(geneconv.compute_paralog_id())
+    geneconv.EM_branch_tau()
+
+
+  #  geneconv.get_mle()
+   # print(timeit(geneconv.objective_wo_derivative(geneconv.x)))
+  #  print(geneconv.get_Hessian())
+
+
  #   print(geneconv.compute_paralog_id())
 
    # geneconv.EM_branch_tau(MAX=5,epis=0.01,force=None,K=2)
