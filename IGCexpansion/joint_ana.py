@@ -3,6 +3,7 @@
 from IGCexpansion.CodonGeneconv import *
 import multiprocessing as mp
 from IGCexpansion.em_pt import *
+import numdifftools as nd
 
 
 class JointAnalysis:
