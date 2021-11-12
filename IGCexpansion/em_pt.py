@@ -107,7 +107,7 @@ class Embrachtau:
         self.bound=False
         self.kbound=kbound
         self.hessian = False
-        self.save_name1=None
+        self.save_name1 = save_name+"K"
         self.auto_save1=0
 
         self.scene_ll = None  # used for lnL calculation
@@ -488,8 +488,6 @@ class Embrachtau:
         if self.ifmodel=="old":
             if self.save_name is None:
                 prefix_save = self.save_path + self.Model
-                if self.ifmodel !="old":
-                    prefix_save = self.save_path + self.Model+ self.ifmodel
                 if not self.IGC_Omega is None:
                     prefix_save = prefix_save + '_twoOmega'
                 if self.Force:
@@ -527,9 +525,6 @@ class Embrachtau:
                 save_file = prefix_save + '_' + '_'.join(self.paralog) + suffix_save
             else:
                 save_file = self.save_name1
-
-
-
 
         return save_file
 
@@ -983,7 +978,7 @@ class Embrachtau:
         self.update_by_x(x,ifmodel="EM_full")
         f, g = self.loglikelihood_and_gradient(display=display)
         self.auto_save1 += 1
-        if self.auto_save1 == 5:
+        if self.auto_save1 == 1:
             self.save_x()
             self.auto_save1 = 0
         return f, g
@@ -1162,7 +1157,7 @@ class Embrachtau:
                     bnds.extend([(-4, khigh)] * (1))
                 else:
                     bnds.extend([(None, 7.0)] * (1))
-                    bnds.extend([(-4, (khigh*2))] * (1))
+                    bnds.extend([(-4, None)] * (1))
 
 
             bnds.extend(edge_bnds)
@@ -1219,6 +1214,7 @@ class Embrachtau:
             save = self.x
 
         save_file = self.get_save_file_name()
+        print(save_file)
 
         np.savetxt(save_file, save.T)
 
@@ -1586,7 +1582,7 @@ class Embrachtau:
         return index,ratio_nonsynonymous,ratio_synonymous
 
 
-    def compute_paralog_id(self,repeat=3):
+    def compute_paralog_id(self,repeat=5):
 
 
         ttt = len(self.tree['col'])
@@ -1635,6 +1631,7 @@ class Embrachtau:
     def EM_branch_tau(self,MAX=6,epis=0.01,force=None,K=0.5,bound=False):
         self.get_mle()
         pstau=deepcopy(self.tau)
+        self.id = self.compute_paralog_id()
         print(self.id)
         self.K=K
         self.Force=force
@@ -1711,6 +1708,9 @@ if __name__ == '__main__':
     save_name = model+name
     geneconv = Embrachtau(newicktree, alignment_file, paralog, Model=model, Force=Force, clock=None,
                                save_path='../test/save/', save_name=save_name,kbound=5)
+
+
+    geneconv.EM_branch_tau()
 
 
   #  geneconv.get_mle()

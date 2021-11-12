@@ -51,6 +51,7 @@ class JointAnalysis:
         self.save_name     = grand_save_name
 
         self.auto_save = 0
+        self.auto_save1 = 0
         self.initialize_x()
 
 
@@ -70,7 +71,7 @@ class JointAnalysis:
                    self.x = np.array(unique_x + shared_x)
 
         else:
-            self.auto_save1 = 0
+            self.save_name1 = None
             self.save_name1 = self.get_save_file_names(None)[0]
 
             if os.path.isfile(self.save_name1):
@@ -107,8 +108,9 @@ class JointAnalysis:
         else:
             general_save_name = save_name
 
-        if self.ifmodel=="EM_full":
-            general_save_name = self.save_path + 'Joint_K_' + model_string + '_' + str( len(self.paralog_list)) + '_pairs_grand_save.txt'
+        if self.ifmodel != "old":
+            general_save_name = self.save_path + 'Joint_k_' + model_string + '_twoOmega_' + str(
+                len(self.paralog_list)) + '_pairs_grand_save.txt'
 
 
         names = []
@@ -277,6 +279,7 @@ class JointAnalysis:
            save_file = self.save_name
         else:
             save_file = self.save_name1
+        print(save_file)
         np.savetxt(save_file, save.T)
 
     def initialize_by_save(self, save_file):
