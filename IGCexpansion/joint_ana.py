@@ -3,6 +3,7 @@
 from IGCexpansion.CodonGeneconv import *
 import multiprocessing as mp
 from IGCexpansion.em_pt import *
+import numdifftools as nd
 
 
 class JointAnalysis:
@@ -50,7 +51,9 @@ class JointAnalysis:
         self.save_name     = grand_save_name
 
         self.auto_save = 0
+        self.auto_save1 = 0
         self.initialize_x()
+
 
     def initialize_x(self):
         if self.ifmodel == "old":
@@ -64,9 +67,18 @@ class JointAnalysis:
 
                    unique_x = [single_x[i] for i in range(len(single_x)) if not i in self.shared_parameters] * len(
                        self.geneconv_list)
+                   self.unique_len=len(unique_x)
                    self.x = np.array(unique_x + shared_x)
 
         else:
+            self.save_name1 = None
+            self.save_name1 = self.get_save_file_names(None)[0]
+
+            if os.path.isfile(self.save_name1):
+                self.initialize_by_save(self.save_name1)
+                print('Successfully loaded parameter value from ' + self.save_name1)
+            else:
+
                 for i in range(len(self.paralog_list)):
                        self.geneconv_list[i].renew_em_joint()
 
@@ -75,6 +87,7 @@ class JointAnalysis:
                 shared_x = [single_x[i] for i in self.shared_parameters]
                 unique_x = [single_x[i] for i in range(len(single_x)) if not i in self.shared_parameters] * len(
                     self.geneconv_list)
+                self.unique_len = len(unique_x)
                 self.x = np.array(unique_x + shared_x)
 
         self.update_by_x(self.x)
@@ -95,6 +108,9 @@ class JointAnalysis:
         else:
             general_save_name = save_name
 
+        if self.ifmodel != "old":
+            general_save_name = self.save_path + 'Joint_k_' + model_string + '_twoOmega_' + str(
+                len(self.paralog_list)) + '_pairs_grand_save.txt'
 
 
         names = []
@@ -156,15 +172,35 @@ class JointAnalysis:
         uniq_derivatives = np.concatenate([[result[1][idx] for idx in range(len(result[1])) if not idx in self.shared_parameters] for result in individual_results])
         shared_derivatives = [[result[1][idx] for idx in range(len(result[1])) if idx in self.shared_parameters] for result in individual_results]
         g = np.concatenate((uniq_derivatives, np.sum(shared_derivatives, axis = 0)))
-        self.auto_save += 1
-        if self.auto_save == self.auto_save_step:
-            self.save_x()
-            self.auto_save = 0
+        if self.ifmodel=="old":
+            self.auto_save += 1
+            if self.auto_save == self.auto_save_step:
+                self.save_x()
+                self.auto_save = 0
+        else:
+            self.auto_save1 += 1
+            if self.auto_save1 == self.auto_save_step:
+                self.save_x()
+                self.auto_save1 = 0
+
 
         print('log likelihood = ', f)
         print('Current x array = ', self.x)
         print('Derivatives = ', g)
         return f, g
+
+    def objective_wo_gradient(self, x):
+        self.x[int(self.unique_len)-1] = x[0]
+        self.x[int(self.unique_len)] = x[1]
+        self.update_by_x(self.x)
+
+
+        individual_results = [geneconv.objective_wo_derivative(False, geneconv.x) for geneconv in self.geneconv_list]
+        f = sum([result[0] for result in individual_results])
+
+        return f
+
+
 
     def _process_objective_and_gradient(self, num_jsgeneconv, display, x, output):
         self.update_by_x(x)
@@ -213,6 +249,13 @@ class JointAnalysis:
             if self.auto_save == JointAnalysis.auto_save_step:
                 self.save_x()
                 self.auto_save = 0
+
+        else:
+            self.auto_save1 += 1
+            if self.auto_save1 == JointAnalysis.auto_save_step:
+                self.save_x()
+                self.auto_save1 = 0
+
         return f, g
 
     def get_mle(self, parallel = True):
@@ -226,14 +269,17 @@ class JointAnalysis:
             result = scipy.optimize.minimize(self.objective_and_gradient, guess_x, jac=True, method='L-BFGS-B', bounds=self.combine_bounds())
         print (result)
 
-        if self.ifmodel=="old":
-           self.save_x()
+        self.save_x()
 
         return result
 
     def save_x(self):
         save = self.x
-        save_file = self.save_name
+        if self.ifmodel=="old":
+           save_file = self.save_name
+        else:
+            save_file = self.save_name1
+        print(save_file)
         np.savetxt(save_file, save.T)
 
     def initialize_by_save(self, save_file):
@@ -248,6 +294,12 @@ class JointAnalysis:
         footer = ' '.join(label)  # row labels
         header = ' '.join(['_'.join(paralog) for paralog in self.paralog_list])
         np.savetxt(summary_file, summary.T, delimiter = ' ', header = header, footer = footer)
+
+
+    def get_Hessian(self):
+        H = nd.Hessian(self.objective_wo_gradient)(np.float128((self.x[int(self.unique_len)-1:int(self.unique_len)+1])))
+
+        return H
 
 
     def em_joint(self,epis=0.01,MAX=5):
@@ -292,6 +344,8 @@ class JointAnalysis:
             print("xxxxxxxxxxxxxxxxx")
             print("\n")
 
+        print(self.get_Hessian())
+
 
 
 
@@ -312,7 +366,7 @@ if __name__ == '__main__':
 
     paralog_list = [paralog_1, paralog_2]
     IGC_Omega = None
-    Shared = [6]
+    Shared = [5]
     alignment_file_list = [alignment_file_1, alignment_file_2]
     Model = 'MG94'
 
@@ -321,6 +375,7 @@ if __name__ == '__main__':
                                    save_path = '../test/save/')
 
     print(joint_analysis.geneconv_list[0].x[1])
+
 
 
    # print(joint_analysis.objective_and_gradient_multi_threaded(joint_analysis.x))
