@@ -1,4 +1,4 @@
-# coding=utf-8
+#! /usr/bin/python3
 # A separate file for Ancestral State Reconstruction
 # Tanchumin Xu
 # txu7@ncsu.edu
@@ -27,9 +27,9 @@ import numpy.core.multiarray
 if __name__ == '__main__':
 
 
-    name = "YBL087C_YER117W_input"
+    name = "joint14_1"
 
-    paralog = ['YBL087C', 'YER117W']
+    paralog = ['1a', '1b']
     alignment_file = './' + name + '.fasta'
     newicktree = './YeastTree.newick'
 
@@ -38,28 +38,14 @@ if __name__ == '__main__':
     # %AG, % A, % C, kappa, tau
     # Force= {0:0.5,1:0.5,2:0.5,3:1,4:0}
     Force = None
-    model = 'HKY'
+    model = 'MG94'
 
     type = 'situation1'
     save_name = model+name
- #   geneconv = ReCodonGeneconv(newicktree, alignment_file, paralog, Model=model, Force=Force, clock=None,
-  #                             save_path='./', save_name=save_name)
-#
-  #  self = AncestralState1(geneconv)
-
     geneconv = Embrachtau(newicktree, alignment_file, paralog, Model=model, Force=Force, clock=None,
                           save_path='../test/save/', save_name=save_name)
-
-
-   # geneconv.EM_branch_tau()
-    for name in geneconv.name_to_seq.keys():
-        print(name)
-
-    print(geneconv.tree['col'])
-    print(geneconv.tree['row'])
-    print(geneconv.observable_nodes)
-    print(geneconv.observable_axes)
+                          
+    geneconv.EM_branch_tau(epis=0.005,MAX=8)
 
 
 
- #   self.get_paralog_diverge()

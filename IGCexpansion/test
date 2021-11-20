@@ -14,263 +14,38 @@ import pickle
 import json
 import numpy.core.multiarray
 from scipy.stats import poisson
+import re
 
-def make_ini_testgls(self, sizen,half):
-    ini = np.ones(sizen)
-    z = np.ones(16)/16
 
-    sample = np.arange(0,15,1)
+def atoi(text):
+    return int(text) if text.isdigit() else text
+def natural_keys(text):
+    return [ atoi(c) for c in re.split('(\d+)',text) ]
 
 
-    for i in range(sizen):
-        ini[i] = int(np.random.choice(sample, 1, p=(z))[0])
 
-    end=ini
-    for i in range(half):
-        end[i]=int(np.random.choice(sample, 1, p=(z))[0])
-        while(end[i]==ini[i]):
-            end[i] = int(np.random.choice(sample, 1, p=(z))[0])
+inputFolder = 'YeastSeq'
 
+files = os.listdir('/Users/txu7/Desktop/igc_research/approach3/' + inputFolder)
+files = ['/Users/txu7/Desktop/igc_research/approach3/' + inputFolder + '/' + file for file in files if 'fasta' in file]
+files.sort(key=natural_keys)
+alignment_file_list = files
+newicktree = '/Users/txu7/Desktop/igc_research/approach3/' + inputFolder + '/YeastTree.newick'
 
 
+p=0
+for i in range(len(alignment_file_list)):
+       print(i)
+       f = open(alignment_file_list[i], "r")
+     # print(p)
+       p=p+len(f.readlines()[1])
+       #p=("".join([p, f.readlines()[1]]))
 
-    return ini,end
+#
+#d=repr(p)
+print(p)
 
-def GLS_si(self,t=0.1,ini =None,sizen=150):
-        if self.Q_new is None:
-           self.making_Qg()
-
-        global di
-        global di1
-
-        if self.Model == "HKY":
-            di=16
-            di1=9
-
-        else:
-            di=3721
-            di1=27
-
-        Q_iiii = np.ones((di))
-        for ii in range(di):
-            qii = sum(self.Q[ii,])
-            if qii != 0:
-                Q_iiii[ii] = qii
-            else:
-                print(qii)
-
-
-
-        end = np.ones(sizen)
-
-        time_matrix = 100 * np.ones(shape=(sizen, 10))
-        state_matrix = np.zeros(shape=(sizen, 10))
-        effect_number=0
-
-
-
-
-        for ll in range(sizen):
-            # most transfer 5 times
-
-                curent_state = ini[ll]
-                u = random.exponential(1/Q_iiii[int(curent_state)])
-                i=0
-
-                while(u<=t):
-                    i=i+1
-                    a = np.random.choice(range(di1), 1, p=self.Q_new[int(curent_state),])[0]
-                    curent_state = self.dic_col[int(curent_state), a] - 1
-                    time_matrix[ll,i]=u
-                    state_matrix[ll,i]=int(curent_state)
-                    u=u+random.exponential(1/Q_iiii[int(curent_state)])
-
-
-                effect_number=i+effect_number
-
-
-
-                end[ll]=int(curent_state)
-
-
-        return ini,end,time_matrix,state_matrix,effect_number,10
-
-def test_gls(self,sizen=20):
-    ini=make_ini(sizen=sizen)
-    end=GLS_si(t=0.1,ini =ini,sizen=sizen)[1]
-    print(ini)
-    print(end)
-
-
-def GLS_m_test(self, t=0.1, ini=None, end=None,sizen=40):
-    global di
-    global di1
-
-
-    di = 16
-    di1 = 9
-
-#### making ini
-
-
-
-    if self.Q_new is None:
-        self.making_Qg()
-
-    Q_iiii = np.ones(di)
-    for ii in range(di):
-        Q_iiii[ii] = sum(self.Q[ii,])
-
-    em = np.zeros(shape=(2, 4))
-
-    max_number = 10
-
-    time_list = []
-    state_list = []
-    dis_matrix = np.ones(sizen)
-
-    for i in range(sizen):
-        if ini[i] != end[i]:
-            time_list.append(0)
-            state_list.append(0)
-            dis_matrix[i] = 0
-        else:
-            time_list.append(1)
-            state_list.append(1)
-    effect_matrix = np.zeros(shape=(sizen))
-
-    # start simulation
-
-    for ii in range(sizen):
-
-        # time_list[ii] ==0 means there is a mutation, initial state not equal to  end state
-        # Q_iiii means a diagonal entries of rate matrix
-
-        if time_list[ii] == 0:
-
-            time_matrix = 100 * np.ones(shape=(repeat, max_number))
-            state_matrix = np.zeros(shape=(repeat, max_number))
-
-            for jj in range(repeat):
-                # most transfer 10 times
-                current_state = ini[ii]
-                i = 0
-                time = [0]
-                state = [0]
-
-                effect_number = 0
-                big_number = 0
-
-                while current_state != end[ii]:
-                    current_state = ini[ii]
-                    i = 1
-                    time = [100]
-                    state = [0]
-                    u1 = np.random.uniform(0, 1)
-                    u = -np.log((1 - (1 - np.exp(-Q_iiii[int(current_state)] * t)) * u1)) / \
-                        (Q_iiii[int(current_state)])
-                    time.append(u)
-                    a = np.random.choice(range(di1), 1, p=self.Q_new[int(current_state),])[0]
-                    old = current_state
-                    current_state = self.dic_col[int(current_state), a] - 1
-
-                    # if jump to absorbing state and without finishing process, we need to resample
-
-                    #    while sum(self.Q_new[int(current_state), ]) == 0:
-                    #         a = np.random.choice(range(di1), 1, p=self.Q_new[int(old), ])[0]
-                    #         current_state = self.dic_col[int(old), a] - 1
-                    state.append(int(current_state))
-
-                    while u <= t:
-                        i = i + 1
-                        u = u + random.exponential(1 / Q_iiii[int(current_state)])
-                        time.append(u)
-                        a = np.random.choice(range(di1), 1, p=self.Q_new[int(current_state),])[0]
-                        old = current_state
-                        current_state = self.dic_col[int(current_state), a] - 1
-
-                        # if jump to absorbing state and without finishing process, we need to resample
-
-                        state.append(int(current_state))
-                    current_state = state[i - 1]
-
-                    if(i==1):
-                        em[1,1]=em[1,1]+1
-                    elif(i==2):
-                        em[1,2]=em[1,2]+1
-                    else:
-                        em[1, 3] = em[1, 3] + 1
-
-
-
-
-
-
-        else:
-
-            time_matrix = 100 * np.ones(shape=(repeat, max_number))
-            state_matrix = np.zeros(shape=(repeat, max_number))
-
-            for jj in range(repeat):
-                # most transfer 10 times
-                current_state = ini[ii]
-                i = 0
-
-                effect_number = 0
-                big_number = 0
-
-                u = 0
-                time = [100]
-                state = [0]
-                while u <= t:
-                    u1 = random.exponential(1 / Q_iiii[int(current_state)])
-                    u = u + u1
-                    i = i + 1
-                    if u <= t:
-                        time.append(u)
-                        a = np.random.choice(range(di1), 1, p=self.Q_new[int(current_state),])[0]
-                        current_state = self.dic_col[int(current_state), a] - 1
-                        # if jump to absorbing state and without finishing process, we need to resample
-
-                        state.append(int(current_state))
-                current_state = state[i - 1]
-                if current_state != end[ii]:
-                    state = [0]
-                    effect_number = 0
-                    big_number = 0
-                    time = [100]
-                    i = 0
-
-                if (i == 0):
-                    em[0, 0] = em[0, 0] + 1
-                elif (i == 2):
-                    em[0, 2] = em[0, 2] + 1
-                else:
-                    em[0, 3] = em[0, 3] + 1
-
-
-
-
-    return em
-
-
-x=0
-while(x<5):
-    print("dddddddd")
-    x=x+1
-    for y in range(6):
-        if(y>=0):
-          print (y)
-          if x*y > 3:
-             break
-
-
-        else:
-            continue
-
-
-            # only executed if the inner loop did NOT break
- #   break  # only executed if the inner loop DID break
-
+#with open("/Users/txu7/Desktop/igc_research/approach3/YeastSeq/new","w+") as new:
+    #new.write(d)
 
 

@@ -42,7 +42,7 @@ def get_maxpro(list, nodecom):
 
 class Embrachtau:
     def __init__(self, tree_newick, alignment, paralog, Model='MG94', IGC_Omega=None, Tau_Omega = None, nnsites=None, clock=False,
-                 Force=None, save_path='./save/', save_name=None, post_dup='N1',kbound=5.1,ifmodel="old"):
+                 Force=None, save_path='./save/', save_name=None, post_dup='N1',kbound=5.1,ifmodel="old",inibranch=0.2):
         self.newicktree = tree_newick  # newick tree file loc
         self.seqloc = alignment  # multiple sequence alignment, now need to remove gap before-hand
         self.paralog = paralog  # parlaog list
@@ -96,17 +96,17 @@ class Embrachtau:
         self.x_Lr = None  # values of clock blen parameters
         self.x_clock = None  # x_process + Lr
         self.pi = None  # real values
-        self.kappa = 1.2  # real values
-        self.omega = 0.9  # real values
-        self.tau = 1.4  # real values
+        self.kappa = 0.8  # real values
+        self.omega = 0.2  # real values
+        self.tau = 1.7  # real values
         self.K=1.1
+        self.inibranch=inibranch
         self.sites=None
         self.processes = None # list of basic and geneconv rate matrices. Each matrix is a dictionary used for json parsing
         self.ifmodel=ifmodel
         self.id=None
         self.bound=False
         self.kbound=kbound
-        self.hessian = False
         self.save_name1 = save_name+"K"
         self.auto_save1=0
 
@@ -139,7 +139,7 @@ class Embrachtau:
     def get_tree(self):
         self.tree, self.edge_list, self.node_to_num = read_newick(self.newicktree, self.post_dup)
         self.num_to_node = {self.node_to_num[i]: i for i in self.node_to_num}
-        self.edge_to_blen = {edge: 1.0 for edge in self.edge_list}
+        self.edge_to_blen = {edge: self.inibranch for edge in self.edge_list}
 
     def nts_to_codons(self):
         for name in self.name_to_seq.keys():
@@ -790,6 +790,8 @@ class Embrachtau:
         else:
             edge_derivs = []
 
+     #   print(edge_derivs)
+
         return ll, edge_derivs
 
     def _sitewise_loglikelihood(self):
@@ -905,10 +907,9 @@ class Embrachtau:
         f = -ll
         g = -np.concatenate((other_derivs, edge_derivs))
 
-        if self.hessian==False:
-            return f, g
-        else:
-            return g
+
+        return f, g
+
 
 
     def loglikelihood_and_gradient2(self, package='new', display=False):
@@ -964,7 +965,7 @@ class Embrachtau:
 
         f, g = self.loglikelihood_and_gradient(display=display)
         self.auto_save += 1
-        if self.auto_save == 5:
+        if self.auto_save == 3:
            self.save_x()
            self.auto_save = 0
 
@@ -1633,6 +1634,7 @@ class Embrachtau:
         pstau=deepcopy(self.tau)
         self.id = self.compute_paralog_id()
         print(self.id)
+        print(self.get_Hessian())
         self.K=K
         self.Force=force
         self.ifmodel = "EM_full"
@@ -1669,6 +1671,8 @@ class Embrachtau:
             print("xxxxxxxxxxxxxxxxx")
             print("xxxxxxxxxxxxxxxxx")
             print("\n")
+
+        print(self.get_Hessian())
 
 # this function is used to renew ini
     def renew_em_joint(self,ifmodel="EM_full"):
@@ -1711,6 +1715,7 @@ if __name__ == '__main__':
 
 
     geneconv.EM_branch_tau()
+   # print(geneconv.name_to_seq)
 
 
   #  geneconv.get_mle()

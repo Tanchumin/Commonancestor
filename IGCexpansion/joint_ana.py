@@ -73,6 +73,7 @@ class JointAnalysis:
         else:
             self.save_name1 = None
             self.save_name1 = self.get_save_file_names(None)[0]
+            self.shared_parameters = [5, 6]
 
             if os.path.isfile(self.save_name1):
                 self.initialize_by_save(self.save_name1)
@@ -83,7 +84,6 @@ class JointAnalysis:
                        self.geneconv_list[i].renew_em_joint()
 
                 single_x = self.geneconv_list[0].x
-                self.shared_parameters=[5,6]
                 shared_x = [single_x[i] for i in self.shared_parameters]
                 unique_x = [single_x[i] for i in range(len(single_x)) if not i in self.shared_parameters] * len(
                     self.geneconv_list)
@@ -143,7 +143,7 @@ class JointAnalysis:
         return x
 
     def update_by_x(self, x):
-        self.check_x_dim()
+      #  self.check_x_dim()
         self.x = np.array(x)
         uniq_dim = len(self.geneconv_list[0].x) - len(self.shared_parameters)
         shared_x = self.x[len(self.geneconv_list) * uniq_dim:]
@@ -285,6 +285,7 @@ class JointAnalysis:
     def initialize_by_save(self, save_file):
         self.x = np.loadtxt(open(save_file, 'r'))
         self.update_by_x(self.x)
+
 
     def get_summary(self, summary_file):
         individual_results = [self.geneconv_list[i].get_summary(True) for i in range(len(self.paralog_list))]
