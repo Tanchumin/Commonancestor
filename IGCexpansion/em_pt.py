@@ -107,6 +107,10 @@ class Embrachtau:
         self.id=None
         self.bound=False
         self.kbound=kbound
+<<<<<<< Updated upstream
+=======
+        self.hessian = False
+>>>>>>> Stashed changes
         self.save_name1 = save_name+"K"
         self.auto_save1=0
 
@@ -907,8 +911,16 @@ class Embrachtau:
         f = -ll
         g = -np.concatenate((other_derivs, edge_derivs))
 
+<<<<<<< Updated upstream
 
         return f, g
+=======
+        if self.hessian==False:
+            return f, g
+        else:
+            return g
+
+>>>>>>> Stashed changes
 
 
 
@@ -965,7 +977,11 @@ class Embrachtau:
 
         f, g = self.loglikelihood_and_gradient(display=display)
         self.auto_save += 1
+<<<<<<< Updated upstream
         if self.auto_save == 3:
+=======
+        if self.auto_save == 5:
+>>>>>>> Stashed changes
            self.save_x()
            self.auto_save = 0
 
@@ -1715,7 +1731,10 @@ if __name__ == '__main__':
 
 
     geneconv.EM_branch_tau()
+<<<<<<< Updated upstream
    # print(geneconv.name_to_seq)
+=======
+>>>>>>> Stashed changes
 
 
   #  geneconv.get_mle()
