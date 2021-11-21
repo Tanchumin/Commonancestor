@@ -42,7 +42,7 @@ def get_maxpro(list, nodecom):
 
 class Embrachtau:
     def __init__(self, tree_newick, alignment, paralog, Model='MG94', IGC_Omega=None, Tau_Omega = None, nnsites=None, clock=False,
-                 Force=None, save_path='./save/', save_name=None, post_dup='N1',kbound=5.1,ifmodel="old",inibranch=0.2):
+                 Force=None, save_path='./save/', save_name=None, post_dup='N1',kbound=5.1,ifmodel="old",inibranch=0.02):
         self.newicktree = tree_newick  # newick tree file loc
         self.seqloc = alignment  # multiple sequence alignment, now need to remove gap before-hand
         self.paralog = paralog  # parlaog list
@@ -786,7 +786,15 @@ class Embrachtau:
 
         status = j_out['status']
 
-        ll = j_out['responses'][0]
+        try:
+            ll = j_out['responses'][0]
+        except Exception:
+            print("xxxxxxxXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",flush=True)
+            print(self.x,flush=True)
+            print("xxxxxxxXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX", flush=True)
+            pass
+
+#        ll = j_out['responses'][0]
         self.ll = ll
         if edge_derivative:
             edge_derivs = j_out['responses'][1]
@@ -901,10 +909,10 @@ class Embrachtau:
             self.update_by_x(x)
         other_derivs = np.array(other_derivs)
         if display:
-            print('log likelihood = ', ll)
-            print('Edge derivatives = ', edge_derivs)
-            print('other derivatives:', other_derivs)
-            print('Current x array = ', self.x)
+            print('log likelihood = ', ll, flush=True)
+            print('Edge derivatives = ', edge_derivs, flush=True)
+            print('other derivatives:', other_derivs, flush=True)
+            print('Current x array = ', self.x, flush=True)
 
         self.ll = ll
         f = -ll
@@ -952,11 +960,13 @@ class Embrachtau:
             # restore self.x
             self.update_by_x(x)
         other_derivs = np.array(other_derivs)
+
         if display:
-            print('log likelihood = ', ll)
-            print('Edge derivatives = ', edge_derivs)
-            print('other derivatives:', other_derivs)
-            print('Current x array = ', self.x)
+            print('log likelihood = ', ll,flush=True)
+            print('Edge derivatives = ', edge_derivs,flush=True)
+            print('other derivatives:', other_derivs,flush=True)
+            print('Current x array = ', self.x,flush=True)
+
 
         self.ll = ll
         f = -ll

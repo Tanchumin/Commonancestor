@@ -79,7 +79,6 @@ class JointAnalysis:
                 self.initialize_by_save(self.save_name1)
                 print('Successfully loaded parameter value from ' + self.save_name1)
             else:
-
                 for i in range(len(self.paralog_list)):
                        self.geneconv_list[i].renew_em_joint()
 
@@ -109,7 +108,7 @@ class JointAnalysis:
             general_save_name = save_name
 
         if self.ifmodel != "old":
-            general_save_name = self.save_path + 'Joint_k_' + model_string + '_twoOmega_' + str(
+            general_save_name = self.save_path + 'Joint_k_' + model_string + '_' + str(
                 len(self.paralog_list)) + '_pairs_grand_save.txt'
 
 
