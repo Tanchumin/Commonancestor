@@ -1017,9 +1017,6 @@ class Embrachtau:
 
         return f, g
 
-
-
-
     def objective_and_gradient_EM_full(self, display, x):
 
         self.update_by_x(x)
@@ -1031,7 +1028,7 @@ class Embrachtau:
         return f, g
 
     def objective_and_gradient_EM_reduce(self, display, x):
-        self.update_by_x(x,ifmodel="EM_reduce")
+        self.update_by_x(x)
         f, g = self.loglikelihood_and_gradient(display=display)
         self.auto_save += 1
         return f, g

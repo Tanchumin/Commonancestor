@@ -158,9 +158,14 @@ class JointAnalysis:
         if self.ifmodel != "old":
             bnds = [(-6.0, -0.05)] * 3
             bnds.extend([(-6.0, 7.0)] * (2))
-            bnds.extend([(-6.0, 7.0)] * (1))
-            bnds.extend([(-6.0, 7.0)] * (1))
-            bnds.extend([(-6.0, 7.0)]*(len(self.geneconv_list[0].x) - 7))
+            if self.Model=="MG94":
+                bnds.extend([(-6.0, 7.0)] * (1))
+                bnds.extend([(-20.0,20.0)] * (1))
+                bnds.extend([(-6.0, 7.0)]*(len(self.geneconv_list[0].x) - 7))
+
+            else:
+                bnds.extend([(-20.0,20.0)] * (1))
+                bnds.extend([(-6.0, 7.0)]*(len(self.geneconv_list[0].x) - 6))
 
         else:
             bnds = [(None, -0.05)] * 3
