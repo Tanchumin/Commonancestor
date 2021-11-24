@@ -21,7 +21,8 @@ class JointAnalysis:
                  Shared = None,
                  save_path = './save/',
                  save_name = None,
-                 post_dup = 'N1'):
+                 post_dup = 'N1',
+                 shared_parameters_for_k=[5,6]):
         # first check if the length of all input lists agree
         assert (len(set([len(alignment_file_list), len(paralog_list)])) == 1)
         # doesn't allow IGC-specific omega for HKY model
@@ -53,6 +54,7 @@ class JointAnalysis:
         self.auto_save = 0
         self.auto_save1 = 0
         self.initialize_x()
+        self.shared_parameters_for_k=shared_parameters_for_k
 
 
     def initialize_x(self):
@@ -73,7 +75,7 @@ class JointAnalysis:
         else:
             self.save_name1 = None
             self.save_name1 = self.get_save_file_names(None)[0]
-            self.shared_parameters = [5, 6]
+            self.shared_parameters = self.shared_parameters_for_k
 
             if os.path.isfile(self.save_name1):
                 self.initialize_by_save(self.save_name1)
@@ -152,8 +154,18 @@ class JointAnalysis:
             geneconv.update_by_x(self.combine_x(uniq_x, shared_x))
 
     def get_original_bounds(self):
-        bnds = [(None, -0.05)] * 3
-        bnds.extend([(None, None)] * (len(self.geneconv_list[0].x) - 3))
+
+        if self.ifmodel != "old":
+            bnds = [(-6.0, -0.05)] * 3
+            bnds.extend([(-6.0, 7.0)] * (2))
+            bnds.extend([(-6.0, 7.0)] * (1))
+            bnds.extend([(-6.0, 7.0)] * (1))
+            bnds.extend([(-6.0, 7.0)]*(len(self.geneconv_list[0].x) - 7))
+
+        else:
+            bnds = [(None, -0.05)] * 3
+            bnds.extend([(None, None)] * (len(self.geneconv_list[0].x) - 3))
+
         return bnds
 
 

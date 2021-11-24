@@ -42,7 +42,7 @@ def get_maxpro(list, nodecom):
 
 class Embrachtau:
     def __init__(self, tree_newick, alignment, paralog, Model='MG94', IGC_Omega=None, Tau_Omega = None, nnsites=None, clock=False,
-                 Force=None, save_path='./save/', save_name=None, post_dup='N1',kbound=5.1,ifmodel="old",inibranch=0.02):
+                 Force=None, save_path='./save/', save_name=None, post_dup='N1',kbound=5.1,ifmodel="old",inibranch=0.02,noboundk=True):
         self.newicktree = tree_newick  # newick tree file loc
         self.seqloc = alignment  # multiple sequence alignment, now need to remove gap before-hand
         self.paralog = paralog  # parlaog list
@@ -107,8 +107,11 @@ class Embrachtau:
         self.id=None
         self.bound=False
         self.kbound=kbound
+        self.noboundk=noboundk
 
         self.hessian = False
+        #debug for shared version
+        self.edge_de=None
 
         self.save_name1 = save_name+"K"
         self.auto_save1=0
@@ -210,6 +213,7 @@ class Embrachtau:
             self.x_rates = np.log(np.array([0.1 * self.edge_to_blen[edge] for edge in self.edge_to_blen.keys()]))
             if self.Model == 'MG94':
                 # x_process[] = %AG, %A, %C, kappa, omega, tau
+
                 if self.IGC_Omega is None:
                     self.x_process = np.log(
                         np.array([count[0] + count[2], count[0] / (count[0] + count[2]), count[1] / (count[1] + count[3]),
@@ -218,6 +222,7 @@ class Embrachtau:
                     self.x_process = np.log(
                         np.array([count[0] + count[2], count[0] / (count[0] + count[2]), count[1] / (count[1] + count[3]),
                                   self.kappa, self.omega, self.IGC_Omega, self.tau]))
+
             elif self.Model == 'HKY':
                 # x_process[] = %AG, %A, %C, kappa, tau
                 self.omega = 1.0
@@ -228,14 +233,26 @@ class Embrachtau:
 
             if self.Model == 'MG94':
                 # x_process[] = %AG, %A, %C, kappa, omega, tau
-                if self.IGC_Omega is None:
-                    self.x_process = np.log(
-                        np.array([np.exp(self.x_process[0]),np.exp(self.x_process[1]), np.exp(self.x_process[2]),
-                                  self.kappa, self.omega, self.tau,self.K]))
-                else:
-                    self.x_process = np.log(
-                        np.array([np.exp(self.x_process[0]), np.exp(self.x_process[1]), np.exp(self.x_process[2]),
+                if self.noboundk==False:
+                    if self.IGC_Omega is None:
+                        self.x_process = np.log(
+                            np.array([np.exp(self.x_process[0]),np.exp(self.x_process[1]), np.exp(self.x_process[2]),
+                                      self.kappa, self.omega, self.tau,self.K]))
+                    else:
+                        self.x_process = np.log(
+                            np.array([np.exp(self.x_process[0]), np.exp(self.x_process[1]), np.exp(self.x_process[2]),
                                   self.kappa, self.omega, self.IGC_Omega, self.tau,self.K]))
+
+                else:
+                    if self.IGC_Omega is None:
+                        self.x_process = np.append(np.log(
+                            np.array([np.exp(self.x_process[0]), np.exp(self.x_process[1]), np.exp(self.x_process[2]),
+                                      self.kappa, self.omega, self.tau])), self.K)
+                    else:
+                        self.x_process = np.append(np.log(
+                            np.array([np.exp(self.x_process[0]), np.exp(self.x_process[1]), np.exp(self.x_process[2]),
+                                      self.kappa, self.omega, self.IGC_Omega, self.tau])), self.K)
+
             elif self.Model == 'HKY':
                 # x_process[] = %AG, %A, %C, kappa, tau
                 self.omega = 1.0
@@ -369,7 +386,7 @@ class Embrachtau:
             else:  # ( N_temp_k, leaf ) branch
                 return reduce(mul, self.x_Lr[: (tmp_k + 2)], 1)
 
-    def update_by_x(self, x=None, transformation='log',ifmodel="old"):
+    def update_by_x(self, x=None, transformation='log'):
         k = len(self.edge_to_blen)
         if x is not None:
             self.x = x
@@ -385,7 +402,16 @@ class Embrachtau:
 
     def unpack_x_process(self, transformation, Force_process=None):
         if transformation == 'log':
-            x_process = np.exp(self.x_process)
+            if self.noboundk==False:
+               x_process = np.exp(self.x_process)
+            else:
+                x_process = np.exp(self.x_process)
+                if self.ifmodel!="old":
+                    if self.Model=="MG94":
+                       x_process[6]=np.log(x_process[6])
+                    else:
+                        x_process[5] = np.log(x_process[5])
+
         elif transformation == 'None':
             x_process = self.x_process
         elif transformation == 'Exp_Neg':
@@ -451,7 +477,7 @@ class Embrachtau:
                 self.kappa = x_process[3]
                 self.tau = x_process[4]
                 if  self.ifmodel=="EM_full":
-                    self.K = x_process[7]
+                    self.K = x_process[5]
 
             elif self.ifmodel == "EM_reduce":
                 self.tau = x_process[0]
@@ -466,7 +492,11 @@ class Embrachtau:
             self.get_processes()
         else:
             self.get_prior()
-            self.processes=self.Get_branch_Q(self.id)
+            if self.Model=="MG94":
+                 self.processes=self.Get_branch_Q(self.id)
+            else:
+                 self.processes = self.Get_branch_QHKY(self.id)
+
 
 
     def get_prior(self):
@@ -791,6 +821,8 @@ class Embrachtau:
         except Exception:
             print("xxxxxxxXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",flush=True)
             print(self.x,flush=True)
+            print(edge_derivative,flush=True)
+            print(self.edge_de,flush=True)
             print("xxxxxxxXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX", flush=True)
             pass
 
@@ -798,6 +830,7 @@ class Embrachtau:
         self.ll = ll
         if edge_derivative:
             edge_derivs = j_out['responses'][1]
+            self.edge_de= edge_derivs
         else:
             edge_derivs = []
 
@@ -989,7 +1022,7 @@ class Embrachtau:
 
     def objective_and_gradient_EM_full(self, display, x):
 
-        self.update_by_x(x,ifmodel="EM_full")
+        self.update_by_x(x)
         f, g = self.loglikelihood_and_gradient(display=display)
         self.auto_save1 += 1
         if self.auto_save1 == 1:
@@ -1081,10 +1114,15 @@ class Embrachtau:
 
         return -ll
 
+# develop this one to compute hessian
     def objective_wo_derivative1(self, x):
         assert (len(x)==2)
-        self.x[5] = x[0]
-        self.x[6] = x[1]
+        if self.Model=="MG94":
+            self.x[5] = x[0]
+            self.x[6] = x[1]
+        else:
+            self.x[4] = x[0]
+            self.x[5] = x[1]
 
         self.update_by_x(self.x)
         ll = self._loglikelihood2()[0]
@@ -1171,7 +1209,7 @@ class Embrachtau:
                     bnds.extend([(-4, khigh)] * (1))
                 else:
                     bnds.extend([(None, 7.0)] * (1))
-                    bnds.extend([(-4, None)] * (1))
+                    bnds.extend([(None, None)] * (1))
 
 
             bnds.extend(edge_bnds)
@@ -1288,16 +1326,17 @@ class Embrachtau:
 
 
 
-
+# here is for MG94
     def Get_branch_Q(self,paralog_id):
+
         Qbasic = self.get_MG94Basic()
 
         rate_basic = []
         Qlist = []
         ttt = len(self.tree['col'])
 
-        fk = self.K
-        ftau = self.tau
+        fk = deepcopy(self.K)
+        ftau = deepcopy(self.tau)
 
         for branch in range(ttt):
             row = []
@@ -1517,6 +1556,122 @@ class Embrachtau:
 
         return Qlist
 
+    def Get_branch_QHKY(self,paralog_id):
+
+        Qbasic = self.get_HKYBasic()
+
+        rate_basic = []
+        Qlist = []
+        ttt = len(self.tree['col'])
+
+        fk = deepcopy(self.K)
+        ftau = deepcopy(self.tau)
+
+        for branch in range(ttt):
+            row = []
+            col = []
+
+            if branch == 0:
+                  rate_geneconv = []
+                  for i, pair_from in enumerate(product('ACGT', repeat=2)):
+                      na, nb = pair_from
+                      sa = self.nt_to_state[na]
+                      sb = self.nt_to_state[nb]
+                      for j, pair_to in enumerate(product('ACGT', repeat=2)):
+                          nc, nd = pair_to
+                          sc = self.nt_to_state[nc]
+                          sd = self.nt_to_state[nd]
+                          if i == j:
+                              continue
+                          GeneconvRate = get_HKYGeneconvRate(pair_from, pair_to, Qbasic, ftau*np.power(paralog_id[branch], fk))
+                          if GeneconvRate != 0.0:
+                              row.append((sa, sb))
+                              col.append((sc, sd))
+                              rate_geneconv.append(GeneconvRate)
+
+                          if na == nb and nc == nd:
+                              row.append((sa, sb))
+                              col.append((sc, sd))
+                              rate_geneconv.append(GeneconvRate)
+
+
+                  process_geneconv = dict(
+                       row=deepcopy(row),
+                       col=deepcopy(col),
+                       rate=deepcopy(rate_geneconv)
+                  )
+
+                  Qlist.append(deepcopy(process_geneconv))
+
+            elif branch > 1:
+                rate_geneconv = []
+                for i, pair_from in enumerate(product('ACGT', repeat=2)):
+                    na, nb = pair_from
+                    sa = self.nt_to_state[na]
+                    sb = self.nt_to_state[nb]
+                    for j, pair_to in enumerate(product('ACGT', repeat=2)):
+                        nc, nd = pair_to
+                        sc = self.nt_to_state[nc]
+                        sd = self.nt_to_state[nd]
+                        if i == j:
+                            continue
+                        GeneconvRate = get_HKYGeneconvRate(pair_from, pair_to, Qbasic,
+                                                           self.tau * np.power(paralog_id[branch], self.K)
+                                                           )
+                        if GeneconvRate != 0.0:
+                            row.append((sa, sb))
+                            col.append((sc, sd))
+                            rate_geneconv.append(GeneconvRate)
+                        if na == nb and nc == nd:
+                            row.append((sa, sb))
+                            col.append((sc, sd))
+                            rate_geneconv.append(GeneconvRate)
+
+                process_geneconv = dict(
+                    row=deepcopy(row),
+                    col=deepcopy(col),
+                    rate=deepcopy(rate_geneconv)
+                )
+
+                Qlist.append(deepcopy(process_geneconv))
+
+
+            else:
+                rate_geneconv = []
+
+                for i, pair_from in enumerate(product('ACGT', repeat=2)):
+                    na, nb = pair_from
+                    sa = self.nt_to_state[na]
+                    sb = self.nt_to_state[nb]
+                    for j, pair_to in enumerate(product('ACGT', repeat=2)):
+                        nc, nd = pair_to
+                        sc = self.nt_to_state[nc]
+                        sd = self.nt_to_state[nd]
+                        if i == j:
+                            continue
+                        GeneconvRate = get_HKYGeneconvRate(pair_from, pair_to, Qbasic, self.tau)
+                        if GeneconvRate != 0.0:
+                            row.append((sa, sb))
+                            col.append((sc, sd))
+                            rate_geneconv.append(GeneconvRate)
+                            rate_basic.append(0.0)
+                        if na == nb and nc == nd:
+                            row.append((sa, sb))
+                            col.append((sc, sd))
+                            rate_geneconv.append(GeneconvRate)
+                            rate_basic.append(Qbasic['ACGT'.index(na), 'ACGT'.index(nc)])
+
+
+                process_basic = dict(
+                    row=deepcopy(row),
+                    col=deepcopy(col),
+                    rate=rate_basic
+                )
+                Qlist.append(deepcopy(process_basic))
+
+
+        return Qlist
+
 
     def jointly_common_ancstral_inference(self):
 
@@ -1565,7 +1720,7 @@ class Embrachtau:
 
         return result
 
-    def difference(self,ini):
+    def difference(self,ini,ifdnalevel=False):
         index = 0
         ratio_nonsynonymous = 0
         ratio_synonymous = 0
@@ -1578,30 +1733,44 @@ class Embrachtau:
                 if not ini[i] in str:
                     index=index+1
         else:
-            for i in range(self.nsites):
-                ca=(ini[i])//61
-                cb=(ini[i])%61
-                if ca != cb:
-                    index=index+1
-                    cb1=self.state_to_codon[cb]
+            if ifdnalevel==False:
+                for i in range(self.nsites):
+                    ca=(ini[i])//61
+                    cb=(ini[i])%61
+                    if ca != cb:
+                        index=index+1
+                        cb1=self.state_to_codon[cb]
+                        ca1 = self.state_to_codon[ca]
+                        if self.isNonsynonymous(cb1, ca1, self.codon_table):
+                            ratio_nonsynonymous=ratio_nonsynonymous+1
+
+                if index != 0:
+                        ratio_nonsynonymous = ratio_nonsynonymous / index
+                        ratio_synonymous = 1 - ratio_synonymous
+
+            else:
+                for i in range(self.nsites):
+                    ca = (ini[i]) // 61
+                    cb = (ini[i]) % 61
+
+                    cb1 = self.state_to_codon[cb]
                     ca1 = self.state_to_codon[ca]
-                    if self.isNonsynonymous(cb1, ca1, self.codon_table):
-                        ratio_nonsynonymous=ratio_nonsynonymous+1
+                    for ii in range(3):
+                        if cb1[ii]!=ca1[ii]:
+                            index=index+1
 
-        if not index==0:
-            ratio_nonsynonymous = ratio_nonsynonymous/index
-            ratio_synonymous = 1 - ratio_synonymous
-
+                index=index/3
 
         return index,ratio_nonsynonymous,ratio_synonymous
 
 
-    def compute_paralog_id(self,repeat=5):
-
+    def compute_paralog_id(self,repeat=5,ifdnalevel=False):
 
         ttt = len(self.tree['col'])
-        id=np.zeros(ttt)
-        diverge_list=np.ones(ttt)
+        id = np.zeros(ttt)
+        diverge_list = np.ones(ttt)
+
+
 
         for mc in range(repeat):
 
@@ -1621,14 +1790,14 @@ class Embrachtau:
                         end2 = self.node_to_num[self.edge_list[j][1]]
                         ini1 = deepcopy(self.sites[ini2,])
                         end1 = deepcopy(self.sites[end2,])
-                        ini_D = self.difference(ini1)[0]
-                        end_D = self.difference(end1)[0]
+                        ini_D = self.difference(ini1,ifdnalevel=ifdnalevel)[0]
+                        end_D = self.difference(end1,ifdnalevel=ifdnalevel)[0]
                         diverge_list[j] = diverge_list[j] + (float(ini_D + end_D) * 0.5)
-
 
         for j in range(ttt):
             if not j == 1:
                 id[j] = 1-(float(diverge_list[j]) / repeat)/self.nsites
+
 
         return id
 
@@ -1642,10 +1811,10 @@ class Embrachtau:
             self.update_by_x()
 
 
-    def EM_branch_tau(self,MAX=6,epis=0.01,force=None,K=0.5,bound=False):
+    def EM_branch_tau(self,MAX=6,epis=0.01,force=None,K=0.5,bound=False,ifdnalevel=False):
         self.get_mle()
         pstau=deepcopy(self.tau)
-        self.id = self.compute_paralog_id()
+        self.id = self.compute_paralog_id(ifdnalevel=ifdnalevel)
         print(self.id)
         print(self.get_Hessian())
         self.K=K
@@ -1670,13 +1839,13 @@ class Embrachtau:
         i=1
         while i<=MAX and difference >=epis:
             pstau = deepcopy(self.tau)
-            self.id = self.compute_paralog_id()
+            self.id = self.compute_paralog_id(ifdnalevel=ifdnalevel)
             self.get_mle()
-            i=i+1
             difference = abs(self.tau - pstau)
 
             print("EMcycle:")
             print(i)
+            i = i + 1
             print(self.id)
             print(self.K)
             print(self.tau)
@@ -1688,15 +1857,17 @@ class Embrachtau:
         print(self.get_Hessian())
 
 # this function is used to renew ini
-    def renew_em_joint(self,ifmodel="EM_full"):
-        self.id = self.compute_paralog_id()
+    def renew_em_joint(self,ifmodel="EM_full",ifdnalevel=False):
+        self.id = self.compute_paralog_id(ifdnalevel=ifdnalevel)
         self.ifmodel=ifmodel
         self.get_initial_x_process()
 
 
     def get_Hessian(self):
-
-        H = nd.Hessian(self.objective_wo_derivative1)(np.float128((self.x[5:7])))
+        if self.Model=="MG94":
+           H = nd.Hessian(self.objective_wo_derivative1)(np.float128((self.x[5:7])))
+        else:
+          H = nd.Hessian(self.objective_wo_derivative1)(np.float128((self.x[4:6])))
 
         return H
 
@@ -1719,7 +1890,7 @@ if __name__ == '__main__':
 
 
     Force = None
-    model = 'MG94'
+    model = 'HKY'
 
     type = 'situation_new'
     save_name = model+name
@@ -1728,6 +1899,10 @@ if __name__ == '__main__':
 
 
     geneconv.EM_branch_tau()
+
+
+
+
 
 
 
