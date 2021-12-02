@@ -42,7 +42,7 @@ def get_maxpro(list, nodecom):
 
 class Embrachtau:
     def __init__(self, tree_newick, alignment, paralog, Model='MG94', IGC_Omega=None, Tau_Omega = None, nnsites=None, clock=False,
-                 Force=None, save_path='./save/', save_name=None, post_dup='N1',kbound=5.1,ifmodel="old",inibranch=0.02,noboundk=True):
+                 Force=None, save_path='./save/', save_name=None, post_dup='N1',kbound=5.1,ifmodel="old",inibranch=0.1,noboundk=True):
         self.newicktree = tree_newick  # newick tree file loc
         self.seqloc = alignment  # multiple sequence alignment, now need to remove gap before-hand
         self.paralog = paralog  # parlaog list
@@ -256,12 +256,14 @@ class Embrachtau:
             elif self.Model == 'HKY':
                 # x_process[] = %AG, %A, %C, kappa, tau
                 self.omega = 1.0
-                self.x_process = np.log(
-                    np.array([np.exp(self.x_process[0]), np.exp(self.x_process[1]), np.exp(self.x_process[2]),
-                              self.kappa, self.tau,self.K]))
-
-
-
+                if self.noboundk == False:
+                    self.x_process = np.log(
+                        np.array([np.exp(self.x_process[0]), np.exp(self.x_process[1]), np.exp(self.x_process[2]),
+                                  self.kappa, self.tau,self.K]))
+                else:
+                    self.x_process = np.append(np.log(
+                        np.array([np.exp(self.x_process[0]), np.exp(self.x_process[1]), np.exp(self.x_process[2]),
+                                  self.kappa, self.tau])), self.K)
 
         elif self.ifmodel=="EM_reduce":
             if self.Model == 'MG94':
@@ -284,7 +286,7 @@ class Embrachtau:
 
         if transformation == 'log' :
             self.x = np.concatenate((self.x_process, self.x_rates))
-        elif transformation == 'log' and ifmodel=="EM_reduce":
+        elif transformation == 'log' and self.ifmodel=="EM_reduce":
             self.x = np.concatenate(self.x_process)
 
         elif transformation == 'None':
@@ -823,6 +825,7 @@ class Embrachtau:
             print(self.x,flush=True)
             print(edge_derivative,flush=True)
             print(self.edge_de,flush=True)
+            print(self.scene_ll)
             print("xxxxxxxXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX", flush=True)
             pass
 
@@ -1857,6 +1860,7 @@ class Embrachtau:
     def renew_em_joint(self,ifmodel="EM_full",ifdnalevel=False):
         self.id = self.compute_paralog_id(ifdnalevel=ifdnalevel)
         self.ifmodel=ifmodel
+        self.noboundk=False
         self.get_initial_x_process()
 
 
@@ -1864,7 +1868,7 @@ class Embrachtau:
         if self.Model=="MG94":
            H = nd.Hessian(self.objective_wo_derivative1)(np.float128((self.x[5:7])))
         else:
-          H = nd.Hessian(self.objective_wo_derivative1)(np.float128((self.x[4:6])))
+           H = nd.Hessian(self.objective_wo_derivative1)(np.float128((self.x[4:6])))
 
         return H
 

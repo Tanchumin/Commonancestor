@@ -1,3 +1,4 @@
+#! /usr/bin/python3
 # coding=utf-8
 
 from IGCexpansion.CodonGeneconv import *
@@ -66,6 +67,7 @@ class JointAnalysis:
 
                    single_x = self.geneconv_list[0].x
                    shared_x = [single_x[i] for i in self.shared_parameters]
+                   print(shared_x)
 
                    unique_x = [single_x[i] for i in range(len(single_x)) if not i in self.shared_parameters] * len(
                        self.geneconv_list)
@@ -160,11 +162,11 @@ class JointAnalysis:
             bnds.extend([(-6.0, 7.0)] * (2))
             if self.Model=="MG94":
                 bnds.extend([(-6.0, 7.0)] * (1))
-                bnds.extend([(-20.0,20.0)] * (1))
+                bnds.extend([(-6.0, 7.0)] * (1))
                 bnds.extend([(-6.0, 7.0)]*(len(self.geneconv_list[0].x) - 7))
 
             else:
-                bnds.extend([(-20.0,20.0)] * (1))
+                bnds.extend([(-6.0, 7.0)] * (1))
                 bnds.extend([(-6.0, 7.0)]*(len(self.geneconv_list[0].x) - 6))
 
         else:
@@ -219,9 +221,17 @@ class JointAnalysis:
 
 
     def _process_objective_and_gradient(self, num_jsgeneconv, display, x, output):
-        self.update_by_x(x)
-        result = self.geneconv_list[num_jsgeneconv].objective_and_gradient(False, self.geneconv_list[num_jsgeneconv].x)
+        if self.Model=="MG94":
+            print(num_jsgeneconv,flush=True)
+            self.update_by_x(x)
+            result = self.geneconv_list[num_jsgeneconv].objective_and_gradient(True, self.geneconv_list[num_jsgeneconv].x)
+            output.put(result)
+        else:
+            self.update_by_x(x)
+            result = self.geneconv_list[num_jsgeneconv].objective_and_gradient(display,
+                                                                               self.geneconv_list[num_jsgeneconv].x)
         output.put(result)
+
 
     def objective_and_gradient_multi_threaded(self, x):
         self.update_by_x(x)
@@ -321,20 +331,20 @@ class JointAnalysis:
 
     def em_joint(self,epis=0.01,MAX=5):
         self.get_mle()
-        pstau = deepcopy(np.exp([self.geneconv_list[i].x[5] for i in range(len(self.paralog_list))]))
+        pstau =deepcopy(([self.geneconv_list[i].tau for i in range(len(self.paralog_list))]))
         pstau=np.sum(pstau)
         self.ifmodel = "EM_full"
         self.initialize_x()
 
         self.get_mle()
-        tau = deepcopy(np.exp([self.geneconv_list[i].x[5] for i in range(len(self.paralog_list))]))
+        tau = deepcopy(([self.geneconv_list[i].tau for i in range(len(self.paralog_list))]))
         tau=np.sum(tau)
         difference = abs(tau - pstau)
 
         print("EMcycle:")
         print(0)
-        print(np.exp(self.geneconv_list[1].x[5]))
-        print(np.exp(self.geneconv_list[1].x[6]))
+        print(self.geneconv_list[1].K)
+        print(self.geneconv_list[1].tau)
         print("xxxxxxxxxxxxxxxxx")
         print("xxxxxxxxxxxxxxxxx")
         print("xxxxxxxxxxxxxxxxx")
@@ -347,21 +357,27 @@ class JointAnalysis:
             for i in range(len(self.paralog_list)):
                  self.geneconv_list[i].id = self.geneconv_list[i].compute_paralog_id()
             self.get_mle()
-            i=i+1
             tau = deepcopy(np.exp([self.geneconv_list[i].x[5] for i in range(len(self.paralog_list))]))
             tau = np.sum(tau)
             difference = abs(tau - pstau)
 
             print("EMcycle:")
             print(i)
-            print(np.exp(self.geneconv_list[1].x[5]))
-            print(np.exp(self.geneconv_list[1].x[6]))
+            i = i + 1
+            print(self.geneconv_list[1].K)
+            print(self.geneconv_list[1].tau)
             print("xxxxxxxxxxxxxxxxx")
             print("xxxxxxxxxxxxxxxxx")
             print("xxxxxxxxxxxxxxxxx")
             print("\n")
 
-        print(self.get_Hessian())
+        for i in range(len(self.paralog_list)):
+            print("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx")
+            print(i)
+            print(self.geneconv_list[i].id)
+            print(self.geneconv_list[i].x)
+
+#        print(self.get_Hessian())
 
 
 
@@ -392,6 +408,7 @@ if __name__ == '__main__':
                                    save_path = '../test/save/')
 
     print(joint_analysis.geneconv_list[0].x[1])
+    print(joint_analysis.multiprocess_combined_list)
 
 
 

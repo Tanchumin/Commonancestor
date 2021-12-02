@@ -21,16 +21,33 @@ from IGCexpansion.CodonGeneconFunc import isNonsynonymous
 import pickle
 import json
 import numpy.core.multiarray
+import re
 
+def atoi(text):
+    return int(text) if text.isdigit() else text
+def natural_keys(text):
+    return [ atoi(c) for c in re.split('(\d+)',text) ]
 
 
 if __name__ == '__main__':
 
+  #  inputFolder = 'YeastSeq'
 
-    name = "YBL087C_YER117W_input"
+    files = os.listdir('./' )
+    files = ['./'  + file for file in files if 'fasta' in file]
+ #   print(files[0])
+    paralog_list = [file.replace('_input.fasta', '') for file in files]
+    paralog_list = [file.replace('./', '') for file in paralog_list]
+    paralog_list.sort(key=natural_keys)
+    paralog_list = [file.split("_") for file in paralog_list]
+#    print(paralog_list[0])
 
-    paralog = ['YBL087C', 'YER117W']
-    alignment_file = './' + name + '.fasta'
+
+
+
+    paralog = paralog_list[0]
+    alignment_file = files[0]
+
     newicktree = './YeastTree.newick'
 
     #   name = 'tau99_01vss'
@@ -38,7 +55,7 @@ if __name__ == '__main__':
     # %AG, % A, % C, kappa, tau
     # Force= {0:0.5,1:0.5,2:0.5,3:1,4:0}
     Force = None
-    model = 'HKY'
+    model = 'MG94'
 
     type = 'situation1'
     save_name = model+name
@@ -51,14 +68,8 @@ if __name__ == '__main__':
                           save_path='../test/save/', save_name=save_name)
 
 
-   # geneconv.EM_branch_tau()
-    for name in geneconv.name_to_seq.keys():
-        print(name)
+    geneconv.EM_branch_tau(ifdnalevel=True)
 
-    print(geneconv.tree['col'])
-    print(geneconv.tree['row'])
-    print(geneconv.observable_nodes)
-    print(geneconv.observable_axes)
 
 
 
