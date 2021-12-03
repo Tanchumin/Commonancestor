@@ -1191,9 +1191,8 @@ class Embrachtau:
                 edge_bnds = [(-10.0, 3)] * len(self.x_rates)
                 edge_bnds[1] = (self.minlogblen, None)
             else:
-                    bnds = [(-10.0, 7.0)] * 1
-                    bnds.extend([(-20, 20)] * 1)
-
+                bnds = [(-10.0, 7.0)] * 1
+                bnds.extend([(-20, 20)] * 1)
 
 
             if self.ifmodel=="old":
@@ -1211,6 +1210,7 @@ class Embrachtau:
                     bnds.extend([(-10.0, 7.0)] * (1))
                     if self.noboundk==True:
                         bnds.extend([(-10.0, 30.0)] * (1))
+                    else:
                         bnds.extend([(-10.0, 5)] * (1))
 
 
