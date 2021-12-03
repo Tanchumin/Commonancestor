@@ -7,7 +7,16 @@ from IGCexpansion.em_pt import *
 from IGCexpansion.joint_ana import *
 from copy import deepcopy
 import os
+import numpy as np
+import pandas as pd
+from numpy import random
+from scipy import linalg
+import copy
 
+from IGCexpansion.CodonGeneconFunc import isNonsynonymous
+import pickle
+import json
+import numpy.core.multiarray
 import re
 
 def atoi(text):
@@ -17,7 +26,7 @@ def natural_keys(text):
 
 if __name__ == '__main__':
 
-    inputFolder = 'harpack1'
+    inputFolder = 'harpack2'
     outputName = 'JointOmega_Yeast'
 
     # parameters
@@ -29,18 +38,18 @@ if __name__ == '__main__':
     files = os.listdir('../' + inputFolder)
     files = ['../'+inputFolder+'/' + file for file in files if 'fasta' in file]
     files.sort(key=natural_keys)
-   # paralog_list = [file.replace('_c.fasta', '') for file in files]
-  #  paralog_list = [file.replace('../harpack1/', '') for file in paralog_list]
-  #  paralog_list.sort(key=natural_keys)
-  #  paralog_list = [file.split("_") for file in paralog_list]
+    paralog_list = [file.replace('_c.fasta', '') for file in files]
+    paralog_list = [file.replace('../harpack2/', '') for file in paralog_list]
+    paralog_list.sort(key=natural_keys)
+    paralog_list = [file.split("_") for file in paralog_list]
     # print(paralog_list)
     # print(files)
     #paralog_list = [['01_'+re.findall(r'\d+', file)[0], '02_'+re.findall(r'\d+', file)[0]] for file in files]
     alignment_file_list = files
     newicktree = '../'+inputFolder+'/intronc.newick'
 
-    Shared = [0,1,2,3, 4]
-    shared_parameters_for_k = [0,1,2,3,4, 5]
+    Shared = [0,1,2,3,4]
+    shared_parameters_for_k = [0, 1, 2, 3, 4, 5]
 
 
     save_path = './' + outputName + '/save/'
@@ -64,7 +73,6 @@ if __name__ == '__main__':
     
     joint_analysis = JointAnalysis(alignment_file_list,  newicktree, paralog_list, Shared = Shared,
                                    Model = Model, Force = Force,
-                                   save_path = './save/',shared_parameters_for_k=shared_parameters_for_k,
-                                   inibranch=0.1)
+                                   save_path = './save/',shared_parameters_for_k=shared_parameters_for_k)
                                    
     print(joint_analysis.em_joint())

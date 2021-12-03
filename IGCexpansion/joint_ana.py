@@ -23,7 +23,8 @@ class JointAnalysis:
                  save_path = './save/',
                  save_name = None,
                  post_dup = 'N1',
-                 shared_parameters_for_k=[5,6]):
+                 shared_parameters_for_k=[5,6],
+                 inibranch=0.1):
         # first check if the length of all input lists agree
         assert (len(set([len(alignment_file_list), len(paralog_list)])) == 1)
         # doesn't allow IGC-specific omega for HKY model
@@ -48,7 +49,7 @@ class JointAnalysis:
         self.geneconv_list = [Embrachtau(tree_newick = tree_newick, alignment = alignment_file_list[i], paralog = paralog_list[i],
                                               Model = Model,  nnsites = nnsites,
                                               clock = False, Force = Force, save_path = save_path, save_name = individual_save_names[i],
-                                              post_dup = post_dup,ifmodel="old")
+                                              post_dup = post_dup,ifmodel="old",inibranch=inibranch)
                               for i in range(len(alignment_file_list))]
         self.save_name     = grand_save_name
 
@@ -79,9 +80,13 @@ class JointAnalysis:
             self.save_name1 = self.get_save_file_names(None)[0]
             self.shared_parameters = self.shared_parameters_for_k
 
+
             if os.path.isfile(self.save_name1):
                 self.initialize_by_save(self.save_name1)
                 print('Successfully loaded parameter value from ' + self.save_name1)
+                for i in range(len(self.paralog_list)):
+                       self.geneconv_list[i].renew_em_joint()
+
             else:
                 for i in range(len(self.paralog_list)):
                        self.geneconv_list[i].renew_em_joint()
@@ -156,38 +161,43 @@ class JointAnalysis:
             geneconv.update_by_x(self.combine_x(uniq_x, shared_x))
 
     def get_original_bounds(self):
+        if self.ifmodel=="EM_full":
+           tau=deepcopy(np.log(self.oldtau))
 
         if self.ifmodel != "old":
-            bnds = [(-6.0, -0.05)] * 3
-            bnds.extend([(-6.0, 7.0)] * (2))
+            bnds = [(-4.0, -0.05)] * 3
+            bnds.extend([(-10.0, 8.0)] * (1))
             if self.Model=="MG94":
-                bnds.extend([(-6.0, 7.0)] * (1))
-                bnds.extend([(-6.0, 7.0)] * (1))
-                bnds.extend([(-6.0, 2.0)]*(len(self.geneconv_list[0].x) - 7))
+                bnds.extend([(-10.0, 8.0)] * (1))
+                bnds.extend([(-10.0, 8.0)] * (1))
+                bnds.extend([(-10.0, 8.0)] * (1))
+                bnds.extend([(-10.0, 4.0)]*(len(self.geneconv_list[0].x) - 7))
 
             else:
-                bnds.extend([(-6.0, 7.0)] * (1))
-                bnds.extend([(-6.0, 2.0)]*(len(self.geneconv_list[0].x) - 6))
+                bnds.extend([(-10.0, 8.0)] * (1))
+                bnds.extend([(-10.0, 8.0)] * (1))
+                bnds.extend([(-10.0, 4.0)]*(len(self.geneconv_list[0].x) - 6))
 
         else:
-            bnds = [(-6.0, -0.05)] * 3
-            bnds.extend([(-6.0, 7.0)] * (1))
+            bnds = [(-4.0, -0.05)] * 3
+            bnds.extend([(-10.0, 7.0)] * (1))
             if self.Model=="MG94":
-                bnds.extend([(-6.0, 7.0)] * (1))
+                bnds.extend([(-10.0, 7.0)] * (1))
                 #tau
-                bnds.extend([(-6.0, 7.0)] * (1))
-                bnds.extend([(-6.0, 2.0)]*(len(self.geneconv_list[0].x) - 6))
+                bnds.extend([(-10.0, 7.0)] * (1))
+                bnds.extend([(-10.0, 4.0)]*(len(self.geneconv_list[0].x) - 6))
 
             else:
                 #tau
-                bnds.extend([(-6.0, 7.0)] * (1))
-                bnds.extend([(-6.0, 2.0)]*(len(self.geneconv_list[0].x) - 5))
+                bnds.extend([(-10.0, 7.0)] * (1))
+                bnds.extend([(-10.0, 4.0)]*(len(self.geneconv_list[0].x) - 5))
 
         return bnds
 
 
     def combine_bounds(self):
         individual_bnds = self.get_original_bounds()
+        print(len(individual_bnds))
         combined_bounds = [individual_bnds[idx] for idx in range(len(individual_bnds)) if not idx in self.shared_parameters] * len(self.paralog_list) \
                           + [individual_bnds[idx] for idx in range(len(individual_bnds)) if idx in self.shared_parameters]
         return combined_bounds
@@ -340,7 +350,9 @@ class JointAnalysis:
 
 
     def em_joint(self,epis=0.01,MAX=5):
-        self.get_mle()
+        ll0=self.get_mle()["fun"]
+      #  print(ll0)
+        self.oldtau=deepcopy(self.geneconv_list[1].tau)
         pstau =deepcopy(([self.geneconv_list[i].tau for i in range(len(self.paralog_list))]))
         pstau=np.sum(pstau)
         self.ifmodel = "EM_full"
@@ -364,8 +376,8 @@ class JointAnalysis:
         i=1
         while i<=MAX and difference >=epis:
             pstau = deepcopy(tau)
-            for i in range(len(self.paralog_list)):
-                 self.geneconv_list[i].id = self.geneconv_list[i].compute_paralog_id()
+            for ii in range(len(self.paralog_list)):
+                 self.geneconv_list[ii].id = self.geneconv_list[ii].compute_paralog_id()
             self.get_mle()
             tau = deepcopy(np.exp([self.geneconv_list[i].x[5] for i in range(len(self.paralog_list))]))
             tau = np.sum(tau)
@@ -380,6 +392,12 @@ class JointAnalysis:
             print("xxxxxxxxxxxxxxxxx")
             print("xxxxxxxxxxxxxxxxx")
             print("\n")
+
+        print("xxxxxxxxxxxxxxxxxxx")
+        print("old tau:")
+        print(self.oldtau)
+        print("old ll:")
+        print(ll0)
 
         for i in range(len(self.paralog_list)):
             print("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx")
