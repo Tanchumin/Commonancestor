@@ -163,15 +163,25 @@ class JointAnalysis:
             if self.Model=="MG94":
                 bnds.extend([(-6.0, 7.0)] * (1))
                 bnds.extend([(-6.0, 7.0)] * (1))
-                bnds.extend([(-6.0, 7.0)]*(len(self.geneconv_list[0].x) - 7))
+                bnds.extend([(-6.0, 2.0)]*(len(self.geneconv_list[0].x) - 7))
 
             else:
                 bnds.extend([(-6.0, 7.0)] * (1))
-                bnds.extend([(-6.0, 7.0)]*(len(self.geneconv_list[0].x) - 6))
+                bnds.extend([(-6.0, 2.0)]*(len(self.geneconv_list[0].x) - 6))
 
         else:
-            bnds = [(None, -0.05)] * 3
-            bnds.extend([(None, None)] * (len(self.geneconv_list[0].x) - 3))
+            bnds = [(-6.0, -0.05)] * 3
+            bnds.extend([(-6.0, 7.0)] * (1))
+            if self.Model=="MG94":
+                bnds.extend([(-6.0, 7.0)] * (1))
+                #tau
+                bnds.extend([(-6.0, 7.0)] * (1))
+                bnds.extend([(-6.0, 2.0)]*(len(self.geneconv_list[0].x) - 6))
+
+            else:
+                #tau
+                bnds.extend([(-6.0, 7.0)] * (1))
+                bnds.extend([(-6.0, 2.0)]*(len(self.geneconv_list[0].x) - 5))
 
         return bnds
 

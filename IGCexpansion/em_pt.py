@@ -42,7 +42,7 @@ def get_maxpro(list, nodecom):
 
 class Embrachtau:
     def __init__(self, tree_newick, alignment, paralog, Model='MG94', IGC_Omega=None, Tau_Omega = None, nnsites=None, clock=False,
-                 Force=None, save_path='./save/', save_name=None, post_dup='N1',kbound=5.1,ifmodel="old",inibranch=0.1,noboundk=True):
+                 Force=None, save_path='./save/', save_name=None, post_dup='N1',kbound=5.1,ifmodel="old",inibranch=0.01,noboundk=True):
         self.newicktree = tree_newick  # newick tree file loc
         self.seqloc = alignment  # multiple sequence alignment, now need to remove gap before-hand
         self.paralog = paralog  # parlaog list
@@ -96,9 +96,9 @@ class Embrachtau:
         self.x_Lr = None  # values of clock blen parameters
         self.x_clock = None  # x_process + Lr
         self.pi = None  # real values
-        self.kappa = 0.8  # real values
+        self.kappa = 0.87  # real values
         self.omega = 0.2  # real values
-        self.tau = 1.7  # real values
+        self.tau = 1.1  # real values
         self.K=1.1
         self.inibranch=inibranch
         self.sites=None
@@ -511,6 +511,7 @@ class Embrachtau:
             self.prior_feasible_states = [(self.nt_to_state[nt], self.nt_to_state[nt]) for nt in 'ACGT']
             distn = [self.pi['ACGT'.index(nt)] for nt in 'ACGT']
             distn = np.array(distn) / sum(distn)
+
         self.prior_distribution = distn
 
     def get_processes(self):
@@ -674,7 +675,13 @@ class Embrachtau:
             [self.kappa, 1.0, 0, 1.0],
             [1.0, self.kappa, 1.0, 0],
         ]) * np.array(self.pi)
-        expected_rate = np.dot(self.prior_distribution, Qbasic.sum(axis=1))
+        if np.dot(self.prior_distribution, Qbasic.sum(axis=1))!=0:
+            expected_rate = np.dot(self.prior_distribution, Qbasic.sum(axis=1))
+        else:
+         #   print(self.prior_distribution)
+         #   print(Qbasic.sum(axis=1))
+          #  print(Qbasic)
+            expected_rate = 1
         Qbasic = Qbasic / expected_rate
         return Qbasic
 
@@ -964,7 +971,7 @@ class Embrachtau:
         Modified from Alex's objective_and_gradient function in ctmcaas/adv-log-likelihoods/mle_geneconv_common.py
         '''
         self.update_by_x()
-        delta = 1e-8
+        delta = 1e-9
         x = deepcopy(self.x)  # store the current x array
         if package == 'new':
             fn = self._loglikelihood2
