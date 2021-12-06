@@ -49,7 +49,7 @@ if __name__ == '__main__':
     newicktree = '../'+inputFolder+'/intronc.newick'
 
     Shared = [0,1,2,3,4]
-    shared_parameters_for_k = [0, 1, 2, 3, 4, 5]
+    shared_parameters_for_k = [0,1,2,3,4,5]
 
 
     save_path = './' + outputName + '/save/'
@@ -73,6 +73,8 @@ if __name__ == '__main__':
     
     joint_analysis = JointAnalysis(alignment_file_list,  newicktree, paralog_list, Shared = Shared,
                                    Model = Model, Force = Force,
-                                   save_path = './save/',shared_parameters_for_k=shared_parameters_for_k)
-                                   
+                                   save_path = './save/',shared_parameters_for_k=shared_parameters_for_k,
+                                   inibranch=0.2,kini=1.11,tauini=0.4)
+ #0.2 0.4 best ini by now
+
     print(joint_analysis.em_joint())

@@ -24,7 +24,9 @@ class JointAnalysis:
                  save_name = None,
                  post_dup = 'N1',
                  shared_parameters_for_k=[5,6],
-                 inibranch=0.1):
+                 inibranch=0.1,
+                 kini=1.1,
+                 tauini=0.4):
         # first check if the length of all input lists agree
         assert (len(set([len(alignment_file_list), len(paralog_list)])) == 1)
         # doesn't allow IGC-specific omega for HKY model
@@ -49,7 +51,7 @@ class JointAnalysis:
         self.geneconv_list = [Embrachtau(tree_newick = tree_newick, alignment = alignment_file_list[i], paralog = paralog_list[i],
                                               Model = Model,  nnsites = nnsites,
                                               clock = False, Force = Force, save_path = save_path, save_name = individual_save_names[i],
-                                              post_dup = post_dup,ifmodel="old",inibranch=inibranch)
+                                              post_dup = post_dup,ifmodel="old",inibranch=inibranch,kini=kini,tauini=tauini)
                               for i in range(len(alignment_file_list))]
         self.save_name     = grand_save_name
 
@@ -164,33 +166,52 @@ class JointAnalysis:
         if self.ifmodel=="EM_full":
            tau=deepcopy(np.log(self.oldtau))
 
-        if self.ifmodel != "old":
-            bnds = [(-4.0, -0.05)] * 3
-            bnds.extend([(-10.0, 8.0)] * (1))
-            if self.Model=="MG94":
-                bnds.extend([(-10.0, 8.0)] * (1))
-                bnds.extend([(-10.0, 8.0)] * (1))
-                bnds.extend([(-10.0, 8.0)] * (1))
-                bnds.extend([(-10.0, 4.0)]*(len(self.geneconv_list[0].x) - 7))
+        # if self.ifmodel != "old":
+        #     bnds = [(-4.0, -0.05)] * 3
+        #     bnds.extend([(-10.0, 8.0)] * (3))
+        #     if self.Model=="MG94":
+        #         bnds.extend([(-10.0, 8.0)] * (1))
+        #         bnds.extend([(-10.0, 4.0)]*(len(self.geneconv_list[0].x) - 7))
+        #
+        #     else:
+        #         bnds.extend([(-10.0, 4.0)]*(len(self.geneconv_list[0].x) - 6))
+        #
+        # else:
+        #     bnds = [(-4.0, -0.05)] * 3
+        #     bnds.extend([(-10.0, 7.0)] * (3))
+        #     if self.Model=="MG94":
+        #         bnds.extend([(-10.0, 4.0)]*(len(self.geneconv_list[0].x) - 6))
+        #
+        #     else:
+        #         #ta
+        #         bnds.extend([(-10.0, 4.0)]*(len(self.geneconv_list[0].x) - 5))
 
-            else:
-                bnds.extend([(-10.0, 8.0)] * (1))
-                bnds.extend([(-10.0, 8.0)] * (1))
-                bnds.extend([(-10.0, 4.0)]*(len(self.geneconv_list[0].x) - 6))
+        # if self.ifmodel != "old":
+        #     bnds = [(-4.0, -0.05)] * 3
+        #     bnds.extend([(-10.0, 8.0)] * (3))
+        #     if self.Model=="MG94":
+        #         bnds.extend([(-10.0, 8.0)] * (1))
+        #         bnds.extend([(-10.0, 4.0)]*(len(self.geneconv_list[0].x) - 7))
+        #
+        #     else:
+        #         bnds.extend([(-10.0, 4.0)]*(len(self.geneconv_list[0].x) - 6))
+        # else:
+        #     bnds = [(None, -0.05)] * 3
+        #     bnds.extend([(None, 7.0)] * (2))
+        #     if self.Model=="MG94":
+        #         bnds.extend([(None, 7.0)] * (1))
+        #         bnds.extend([(None, 4.0)]*(len(self.geneconv_list[0].x) - 6))
+        #
+        #     else:
+        #         #ta
+        #         bnds.extend([(None, 4.0)]*(len(self.geneconv_list[0].x) - 5))
 
-        else:
-            bnds = [(-4.0, -0.05)] * 3
-            bnds.extend([(-10.0, 7.0)] * (1))
-            if self.Model=="MG94":
-                bnds.extend([(-10.0, 7.0)] * (1))
-                #tau
-                bnds.extend([(-10.0, 7.0)] * (1))
-                bnds.extend([(-10.0, 4.0)]*(len(self.geneconv_list[0].x) - 6))
+        bnds = [(-4.0, -0.05)] * 3
+        bnds.extend([(None, 3)]*(len(self.geneconv_list[0].x) - 3))
 
-            else:
-                #tau
-                bnds.extend([(-10.0, 7.0)] * (1))
-                bnds.extend([(-10.0, 4.0)]*(len(self.geneconv_list[0].x) - 5))
+
+
+
 
         return bnds
 
@@ -310,7 +331,8 @@ class JointAnalysis:
         guess_x = self.x
 
         if parallel:
-            result = scipy.optimize.minimize(self.objective_and_gradient_multi_threaded, guess_x, jac=True, method='L-BFGS-B', bounds=self.combine_bounds())
+            result = scipy.optimize.minimize(self.objective_and_gradient_multi_threaded, guess_x, jac=True, method='L-BFGS-B', bounds=self.combine_bounds(),
+                                             options={ 'maxcor': 12,'ftol': 1e-10,'maxls': 22})
         else:
             result = scipy.optimize.minimize(self.objective_and_gradient, guess_x, jac=True, method='L-BFGS-B', bounds=self.combine_bounds())
         print (result)
