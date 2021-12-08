@@ -1,0 +1,109 @@
+reactor is initialized
+create node to conditional likelihoods
+create likelihoods
+check feasibility
+delete likelihoods
+create one sample of node to joint ancestral state
+respond to a "ance" request
+reactor is initialized
+create node to conditional likelihoods
+create likelihoods
+check feasibility
+delete likelihoods
+create one sample of node to joint ancestral state
+respond to a "ance" request
+reactor is initialized
+create node to conditional likelihoods
+create likelihoods
+check feasibility
+delete likelihoods
+create one sample of node to joint ancestral state
+respond to a "ance" request
+reactor is initialized
+create node to conditional likelihoods
+create likelihoods
+check feasibility
+delete likelihoods
+create one sample of node to joint ancestral state
+respond to a "ance" request
+reactor is initialized
+create node to conditional likelihoods
+create likelihoods
+check feasibility
+delete likelihoods
+create one sample of node to joint ancestral state
+respond to a "ance" request
+reactor is initialized
+create node to conditional likelihoods
+create likelihoods
+check feasibility
+delete likelihoods
+create one sample of node to joint ancestral state
+respond to a "ance" request
+reactor is initialized
+create node to conditional likelihoods
+create likelihoods
+check feasibility
+delete likelihoods
+create one sample of node to joint ancestral state
+respond to a "ance" request
+reactor is initialized
+create node to conditional likelihoods
+create likelihoods
+check feasibility
+delete likelihoods
+create one sample of node to joint ancestral state
+respond to a "ance" request
+reactor is initialized
+create node to conditional likelihoods
+create likelihoods
+check feasibility
+delete likelihoods
+create one sample of node to joint ancestral state
+respond to a "ance" request
+reactor is initialized
+create node to conditional likelihoods
+create likelihoods
+check feasibility
+delete likelihoods
+create one sample of node to joint ancestral state
+respond to a "ance" request
+number of sites to be analyzed:  136
+Successfully loaded parameter value from MG94YBL087C_YER117W_input
+log likelihood =  -1367.6793187367875
+Edge derivatives =  [0.002300893198182323, -0.0011494214925677204, -0.0031897130198395227, -0.0015921086794235262, -0.00662939930722975, 0.007156257952329714, -9.71564778359385e-05, -0.0004417863294260693, 0.00011012735695217594, -0.002574438313675001, 0.0005272024609380838, -0.0009701381806650269]
+other derivatives: [-0.01518856  0.0015234   0.0003638   0.00102318 -0.00270575  0.00090949]
+Current x array =  [-0.71556299 -0.60170462 -0.98696865  2.13324492 -2.88203414  1.03309862
+ -4.06709773 -1.53196754 -1.7831619  -1.818979   -2.96911193 -3.02239054
+ -3.555558   -2.93822849 -5.46410489 -2.81740606 -2.94775605 -3.68454832]
+log likelihood =  -1367.742705883817
+Edge derivatives =  [0.018146277316577586, 0.07546138055109697, 0.13345496950305602, 0.09831303545386849, 0.02904217803278998, 0.01177544076449577, 0.012751068700282524, 0.029798231297995373, 0.006497586895531554, 0.06231768798668809, 0.01330631403985269, 0.01831855996339537]
+other derivatives: [ 8.11605787 -0.78803168 -0.29333478 -0.25274858  0.17482762 -0.03260539]
+Current x array =  [-0.73075155 -0.60018122 -0.98660485  2.1342681  -2.88473988  1.03400811
+ -4.06479684 -1.53311697 -1.78635161 -1.82057111 -2.97574133 -3.01523429
+ -3.55565516 -2.93867028 -5.46399476 -2.8199805  -2.94722885 -3.68551845]
+log likelihood =  -1367.6793182211784
+Edge derivatives =  [0.002343661458613616, -0.0009407454608112154, -0.002811504584237262, -0.0013196217930024623, -0.006531217455999161, 0.0071655674359271115, -6.336574535699413e-05, -0.000360246999940278, 0.00012745047481537222, -0.00239493701178696, 0.0005583096577760072, -0.0009176589515749178]
+other derivatives: [ 0.00825366 -0.00070486 -0.00045475  0.00034106 -0.00220552  0.00084128]
+Current x array =  [-0.71560587 -0.60170032 -0.98696762  2.13324781 -2.88204177  1.03310119
+ -4.06709124 -1.53197079 -1.7831709  -1.81898349 -2.96913065 -3.02237034
+ -3.55555828 -2.93822974 -5.46410457 -2.81741333 -2.94775457 -3.68455105]
+      fun: 1367.6793182211784
+ hess_inv: <18x18 LbfgsInvHessProduct with dtype=float64>
+      jac: array([-8.25366442e-03,  7.04858394e-04,  4.54747351e-04, -3.41060513e-04,
+        2.20552465e-03, -8.41282599e-04, -2.34366146e-03,  9.40745461e-04,
+        2.81150458e-03,  1.31962179e-03,  6.53121746e-03, -7.16556744e-03,
+        6.33657454e-05,  3.60247000e-04, -1.27450475e-04,  2.39493701e-03,
+       -5.58309658e-04,  9.17658952e-04])
+  message: b'CONVERGENCE: REL_REDUCTION_OF_F_<=_FACTR*EPSMCH'
+     nfev: 3
+      nit: 1
+   status: 0
+  success: True
+        x: array([-0.71560587, -0.60170032, -0.98696762,  2.13324781, -2.88204177,
+        1.03310119, -4.06709124, -1.53197079, -1.7831709 , -1.81898349,
+       -2.96913065, -3.02237034, -3.55555828, -2.93822974, -5.46410457,
+       -2.81741333, -2.94775457, -3.68455105])
+{('N3', 'N4'): [1.4662533471753523, 1.5846141537210299], ('N2', 'N3'): [3.151204668362695, 2.1857809061426243], ('N4', 'N5'): [0.19668357760228034, 0.5437063810012887], ('N2', 'bayanus'): [3.333603324860356, 5.042751821450844], ('N1', 'N2'): [7.839050037910742, 7.933397282606557], ('N5', 'cerevisiae'): [1.734866140313363, 8.270562789621508], ('N5', 'paradoxus'): [2.4457523471342015, 0.6339106639382748], ('N3', 'kudriavzevii'): [2.445723685841916, 4.049609859711713], ('N4', 'mikatae'): [3.5989025573543536, 2.3564815977351774], ('N0', 'kluyveri'): [0.0, 0.0], ('N0', 'N1'): [0.0891348439439068, 0.08913484394390678], ('N1', 'castellii'): [7.309613926296799, 7.464922115260129]}
+[20.5, 20.5, 113.0, 125.5, 220.5, 172.5, 275.5, 273.0, 295.5, 347.5, 273.0, 303.0]
+[136, 2.8097659492273963, 8.442241139143903, 2.3571371021663317, 0, 3.103029550761938, 2.9592309323876718, 2.291303256039229, 4.810791178678355, 1.9663082075739924, 2.2363163553282246, 3.0456313196968146, 1.4719169372661274, 3.578196395078985, 2.060326219166915, 2.05, 2.05, 11.3, 12.55, 22.05, 17.25, 27.55, 27.3, 29.55, 34.75, 27.3, 30.3, 0.17826968788782432, 0.0, 15.772447320517294, 14.774536041556914, 5.33698557450532, 8.376355146311191, 3.050867500896373, 6.495333545553612, 0.7403899586035743, 5.95538415508952, 10.00542892993488, 3.0796630110724625, 0.01712713488774485, 0.2161093414014988, 0.16810425920585723, 0.16219053484143292, 0.051347930362340984, 0.04868567979819532, 0.028565423056597164, 0.05295939764166012, 0.0042361324897193684, 0.05976032332078676, 0.05245736336682595, 0.025108444519593504, 4.415785226460291, 0.0, 30.2367045891136, 30.782896910735502, 45.36182440820882, 35.76327960989813, 54.316414550591915, 54.843502280733844, 57.38701765748235, 67.70387716162162, 53.304647961650495, 59.53157858652759]

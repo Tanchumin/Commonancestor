@@ -84,10 +84,11 @@ class JointAnalysis:
 
 
             if os.path.isfile(self.save_name1):
-                self.initialize_by_save(self.save_name1)
-                print('Successfully loaded parameter value from ' + self.save_name1)
                 for i in range(len(self.paralog_list)):
                        self.geneconv_list[i].renew_em_joint()
+                self.initialize_by_save(self.save_name1)
+                print('Successfully loaded parameter value from ' + self.save_name1)
+
 
             else:
                 for i in range(len(self.paralog_list)):
@@ -186,29 +187,24 @@ class JointAnalysis:
         #         #ta
         #         bnds.extend([(-10.0, 4.0)]*(len(self.geneconv_list[0].x) - 5))
 
-        # if self.ifmodel != "old":
-        #     bnds = [(-4.0, -0.05)] * 3
-        #     bnds.extend([(-10.0, 8.0)] * (3))
-        #     if self.Model=="MG94":
-        #         bnds.extend([(-10.0, 8.0)] * (1))
-        #         bnds.extend([(-10.0, 4.0)]*(len(self.geneconv_list[0].x) - 7))
-        #
-        #     else:
-        #         bnds.extend([(-10.0, 4.0)]*(len(self.geneconv_list[0].x) - 6))
-        # else:
-        #     bnds = [(None, -0.05)] * 3
-        #     bnds.extend([(None, 7.0)] * (2))
-        #     if self.Model=="MG94":
-        #         bnds.extend([(None, 7.0)] * (1))
-        #         bnds.extend([(None, 4.0)]*(len(self.geneconv_list[0].x) - 6))
-        #
-        #     else:
-        #         #ta
-        #         bnds.extend([(None, 4.0)]*(len(self.geneconv_list[0].x) - 5))
+        if self.ifmodel != "old":
+            bnds = [(None, -0.05)] * 3
+            bnds.extend([(None, 6.0)] * (3))
+            if self.Model=="MG94":
+                bnds.extend([(None, 6.0)] * (1))
+                bnds.extend([(None, 4.0)]*(len(self.geneconv_list[0].x) - 7))
 
-        bnds = [(-4.0, -0.05)] * 3
-        bnds.extend([(None, 3)]*(len(self.geneconv_list[0].x) - 3))
+            else:
+                bnds.extend([(None, 4.0)]*(len(self.geneconv_list[0].x) - 6))
+        else:
+            bnds = [(None, -0.05)] * 3
+            bnds.extend([(None, 6.0)] * (2))
+            if self.Model=="MG94":
+                bnds.extend([(None, 6.0)] * (1))
+                bnds.extend([(None, 4.0)]*(len(self.geneconv_list[0].x) - 6))
 
+            else:
+                bnds.extend([(None, 4.0)]*(len(self.geneconv_list[0].x) - 5))
 
 
 

@@ -19,14 +19,18 @@ import json
 import numpy.core.multiarray
 import re
 
+
 def atoi(text):
     return int(text) if text.isdigit() else text
+
+
 def natural_keys(text):
-    return [ atoi(c) for c in re.split('(\d+)',text) ]
+    return [atoi(c) for c in re.split('(\d+)', text)]
+
 
 if __name__ == '__main__':
 
-    inputFolder = 'harpack2'
+    inputFolder = 'test5'
     outputName = 'JointOmega_Yeast'
 
     # parameters
@@ -36,45 +40,40 @@ if __name__ == '__main__':
     Model = 'HKY'
 
     files = os.listdir('../' + inputFolder)
-    files = ['../'+inputFolder+'/' + file for file in files if 'fasta' in file]
+    files = ['../' + inputFolder + '/' + file for file in files if 'fasta' in file]
     files.sort(key=natural_keys)
-    paralog_list = [file.replace('_c.fasta', '') for file in files]
-    paralog_list = [file.replace('../harpack2/', '') for file in paralog_list]
-    paralog_list.sort(key=natural_keys)
-    paralog_list = [file.split("_") for file in paralog_list]
     # print(paralog_list)
     # print(files)
-    #paralog_list = [['01_'+re.findall(r'\d+', file)[0], '02_'+re.findall(r'\d+', file)[0]] for file in files]
+    # paralog_list = [['01_'+re.findall(r'\d+', file)[0], '02_'+re.findall(r'\d+', file)[0]] for file in files]
     alignment_file_list = files
-    newicktree = '../'+inputFolder+'/intronc.newick'
+    newicktree = '../' + inputFolder + '/sample1.newick'
 
-    Shared = [0,1,2,3,4]
-    shared_parameters_for_k = [0,1,2,3,4,5]
-
+    Shared = [0, 1, 2, 3, 4]
+    shared_parameters_for_k = [0, 1, 2, 3, 4, 5]
 
     save_path = './' + outputName + '/save/'
     summary_path = './' + outputName + '/summary/'
-    os.makedirs(save_path, exist_ok=True) # save parameters
-    os.makedirs(summary_path, exist_ok=True) # save summary
+    os.makedirs(save_path, exist_ok=True)  # save parameters
+    os.makedirs(summary_path, exist_ok=True)  # save summary
     print('start to analyze')
     print('Input: ' + inputFolder)
-#    print('Job name: ' + outputName)
+    #    print('Job name: ' + outputName)
     print('IGC_Omega: ' + str(IGC_Omega))
     print('Tau_Omega: ' + str(Tau_Omega))
     print('number of files: ' + str(len(files)))
 
     print(alignment_file_list)
-    dd=['__Paralog1', '__Paralog2']
-    paralog_list=[]
+    dd = ['paralog0', 'paralog1']
+    paralog_list = []
     for i in range(len(alignment_file_list)):
         paralog_list.append(dd)
 
-  #  print(paralog_list)
-    
-    joint_analysis = JointAnalysis(alignment_file_list,  newicktree, paralog_list, Shared = Shared,
-                                   Model = Model, Force = Force,
-                                   save_path = './save/',shared_parameters_for_k=shared_parameters_for_k,
-                                   inibranch=0.2,kini=1.5,tauini=0.001)
- #0.2 0.4 best ini by now 28965.8
+    #  print(paralog_list)
+
+    joint_analysis = JointAnalysis(alignment_file_list, newicktree, paralog_list, Shared=Shared,
+                                   Model=Model, Force=Force,
+                                   save_path='./save/', shared_parameters_for_k=shared_parameters_for_k,
+                                   inibranch=0.2, kini=1.5, tauini=0.001)
+    # 0.2 0.4 best ini by now 28965.8
 
     print(joint_analysis.em_joint())

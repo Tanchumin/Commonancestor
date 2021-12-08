@@ -1184,16 +1184,16 @@ class Embrachtau:
                 f = partial(self.objective_wo_derivative, display)
             guess_x = self.x
             if self.ifmodel=="old" :
-                bnds.extend([(-10.0, 6)] * (len(self.x_process) - 4))
-                edge_bnds = [(-10.0, 3)] * len(self.x_rates)
+                bnds.extend([(None, 6)] * (len(self.x_process) - 4))
+                edge_bnds = [(None, 3)] * len(self.x_rates)
                 edge_bnds[1] = (self.minlogblen, None)
             elif self.ifmodel=="EM_full":
-                bnds.extend([(-10.0, 6)] * (len(self.x_process) - 5))
-                edge_bnds = [(-10.0, 3)] * len(self.x_rates)
+                bnds.extend([(None, 6)] * (len(self.x_process) - 5))
+                edge_bnds = [(None, 3)] * len(self.x_rates)
                 edge_bnds[1] = (self.minlogblen, None)
             else:
-                bnds = [(-10.0, 7.0)] * 1
-                bnds.extend([(-20, 20)] * 1)
+                bnds = [(None, 7.0)] * 1
+                bnds.extend([(None, 20)] * 1)
 
 
             if self.ifmodel=="old":
@@ -1867,7 +1867,7 @@ class Embrachtau:
         self.id = self.compute_paralog_id(ifdnalevel=ifdnalevel)
         print(self.id)
         self.ifmodel=ifmodel
-        self.noboundk=False
+        self.noboundk=True
         self.get_initial_x_process()
 
 

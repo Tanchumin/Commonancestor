@@ -65,6 +65,7 @@ if __name__ == '__main__':
     joint_analysis = JointAnalysis(alignment_file_list,  newicktree, paralog_list, Shared = Shared,
                                    Model = Model, Force = Force,
                                    save_path = './save/',shared_parameters_for_k=shared_parameters_for_k,
-                                   inibranch=0.1)
+                                   inibranch=0.1,kini=1.44,tauini=0.01)
+    # 0.1 0.8 26539 25991
                                    
     print(joint_analysis.em_joint())

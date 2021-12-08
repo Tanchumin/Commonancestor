@@ -194,6 +194,82 @@ class GSseq:
         Qbasic = Qbasic / expected_rate
         return Qbasic
 
+
+    def get_HKYBasic(self):
+
+        Qbasic = np.array([
+            [0, 1.0, self.kappa, 1.0],
+            [1.0, 0, 1.0, self.kappa],
+            [self.kappa, 1.0, 0, 1.0],
+            [1.0, self.kappa, 1.0, 0],
+        ]) * np.array(self.pi)
+        if np.dot(self.prior_distribution, Qbasic.sum(axis=1))!=0:
+            expected_rate = np.dot(self.prior_distribution, Qbasic.sum(axis=1))
+        else:
+         #   print(self.prior_distribution)
+         #   print(Qbasic.sum(axis=1))
+          #  print(Qbasic)
+            expected_rate = 1
+        Qbasic = Qbasic / expected_rate
+        return Qbasic
+
+    def get_HKYGeneconv(self):
+        # print ('tau = ', self.tau)
+        Qbasic = self.get_HKYBasic()
+        row = []
+        col = []
+        rate_geneconv = []
+        rate_basic = []
+
+        for i, pair_from in enumerate(product('ACGT', repeat=2)):
+            na, nb = pair_from
+            sa = self.geneconv.nt_to_state[na]
+            sb = self.geneconv.nt_to_state[nb]
+            for j, pair_to in enumerate(product('ACGT', repeat=2)):
+                nc, nd = pair_to
+                sc = self.geneconv.nt_to_state[nc]
+                sd = self.geneconv.nt_to_state[nd]
+                if i == j:
+                    continue
+                GeneconvRate = get_HKYGeneconvRate(pair_from, pair_to, Qbasic, self.tau)
+                if GeneconvRate != 0.0:
+                    row.append((sa, sb))
+                    col.append((sc, sd))
+                    rate_geneconv.append(GeneconvRate)
+                    rate_basic.append(0.0)
+                if na == nb and nc == nd:
+                    row.append((sa, sb))
+                    col.append((sc, sd))
+                    rate_geneconv.append(GeneconvRate)
+                    rate_basic.append(Qbasic['ACGT'.index(na), 'ACGT'.index(nc)])
+
+        process_geneconv = dict(
+            row=row,
+            col=col,
+            rate=rate_geneconv
+        )
+        process_basic = dict(
+            row=row,
+            col=col,
+            rate=rate_basic
+        )
+        # process_basic is for HKY_Basic which is equivalent to 4by4 rate matrix
+        return [process_basic, process_geneconv]
+
+
+    def get_prior(self):
+        if self.Model == 'MG94':
+            self.prior_feasible_states = [(self.codon_to_state[codon], self.codon_to_state[codon]) for codon in
+                                          self.codon_nonstop]
+            distn = [reduce(mul, [self.pi['ACGT'.index(b)] for b in codon], 1) for codon in self.codon_nonstop]
+            distn = np.array(distn) / sum(distn)
+        elif self.Model == 'HKY':
+            self.prior_feasible_states = [(self.geneconv.nt_to_state[nt], self.geneconv.nt_to_state[nt]) for nt in 'ACGT']
+            distn = [self.pi['ACGT'.index(nt)] for nt in 'ACGT']
+            distn = np.array(distn) / sum(distn)
+
+        self.prior_distribution = distn
+
     def isTransition(self,na, nb):
        return (set([na, nb]) == set(['A', 'G']) or set([na, nb]) == set(['C', 'T']))
 
@@ -276,11 +352,17 @@ class GSseq:
         return self.Q_new
 
     def making_Qmatrix(self):
+        self.get_prior()
+
 
 
         if self.ifmakeQ==True:
             if self.scene is None:
-                self.processes=self.get_MG94Geneconv_and_MG94()
+                if  self.Model=="MG94":
+                    self.processes=self.get_MG94Geneconv_and_MG94()
+                else:
+                    self.processes = self.get_HKYGeneconv()
+
                 process_definitions = [{'row_states': i['row'], 'column_states': i['col'], 'transition_rates': i['rate']}
                                        for i in self.processes]
                 self.scene = dict(
@@ -379,10 +461,16 @@ class GSseq:
         return (codon_table[ca] != codon_table[cb])
 
     def point_IGC(self,pre,post):
-        i_b = pre // 61
-        j_b = pre % 61
-        i_p = post // 61
-        j_p = post % 61
+        if self.Model=="MG94":
+            site_number=61
+        else:
+            site_number = 4
+
+
+        i_b = pre // site_number
+        j_b = pre % site_number
+        i_p = post // site_number
+        j_p = post % site_number
 
 
         igc=0
@@ -416,7 +504,7 @@ class GSseq:
         return point,igc,change_i,change_j
 
 
-    def GLS_sequnce(self, t=0.2, ini=None,k=1.1, tau=1.1):
+    def GLS_sequnce(self, t=0.1, ini=None,k=1.1, tau=1.1):
 
         global di
         global di1
@@ -551,10 +639,11 @@ class GSseq:
         list1 = []
 
         if self.t is None:
-            t=0.1
+            t=0.04
         else:
             t=self.t[1]/2
-### build outgroup
+
+
         if self.Model=="HKY":
             Q = self.remake_matrix()
             end1 = np.ones(self.sizen)
@@ -709,6 +798,7 @@ class GSseq:
         elif self.Model=="HKY":
             str = {0, 5, 10, 15}
 
+
         for i  in range(self.sizen):
             if(ini[i]!=end[i]):
                 mutation_rate=mutation_rate+1
@@ -736,7 +826,7 @@ if __name__ == '__main__':
         newicktree = '../test/yeast/YeastTree.newick'
 
         Force = None
-        model = 'MG94'
+        model = 'HKY'
 
         type = 'situation_new'
         save_name = model + name
@@ -744,7 +834,7 @@ if __name__ == '__main__':
                                    save_path='../test/save/', save_name=save_name)
 
 
-        self = GSseq(geneconv,K=0.01,fix_tau=2,sizen=1000,omega=1,leafnode=5,ifmakeQ=True)
+        self = GSseq(geneconv,K=1.01,fix_tau=0.8,sizen=20000,omega=1,leafnode=5,ifmakeQ=True)
         #scene = self.get_scene()
 
 
