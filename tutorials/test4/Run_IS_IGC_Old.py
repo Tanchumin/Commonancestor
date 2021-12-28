@@ -73,7 +73,7 @@ if __name__ == '__main__':
     joint_analysis = JointAnalysis(alignment_file_list, newicktree, paralog_list, Shared=Shared,
                                    Model=Model, Force=Force,
                                    save_path='./save/', shared_parameters_for_k=shared_parameters_for_k,
-                                   inibranch=0.2, kini=1.5, tauini=0.001)
+                                   inibranch=0.2, kini=0.5, tauini=0.001)
     # 0.2 0.4 best ini by now 28965.8
 
     print(joint_analysis.em_joint())

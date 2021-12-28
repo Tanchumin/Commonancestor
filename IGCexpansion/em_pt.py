@@ -91,6 +91,7 @@ class Embrachtau:
         self.pi = None  # real values
         self.kappa = 0.87  # real values
         self.omega = 0.2  # real values
+        # set ini value for key parameters
         self.tau = tauini  # real values
         self.K=kini
         self.inibranch=inibranch
@@ -139,6 +140,7 @@ class Embrachtau:
         self.tree, self.edge_list, self.node_to_num = read_newick(self.newicktree, self.post_dup)
         self.num_to_node = {self.node_to_num[i]: i for i in self.node_to_num}
         self.edge_to_blen = {edge: self.inibranch for edge in self.edge_list}
+
 
     def nts_to_codons(self):
         for name in self.name_to_seq.keys():
@@ -909,7 +911,7 @@ class Embrachtau:
         '''
         self.update_by_x()
 
-        delta = 1e-8
+        delta = 1e-7
         x = deepcopy(self.x)  # store the current x array
         if package == 'new':
             fn = self._loglikelihood2
@@ -964,7 +966,7 @@ class Embrachtau:
         Modified from Alex's objective_and_gradient function in ctmcaas/adv-log-likelihoods/mle_geneconv_common.py
         '''
         self.update_by_x()
-        delta = 1e-8
+        delta = 1e-7
         x = deepcopy(self.x)  # store the current x array
         if package == 'new':
             fn = self._loglikelihood2
@@ -1841,10 +1843,10 @@ class Embrachtau:
 
         i=1
         while i<=MAX and difference >=epis:
-            pstau = deepcopy(self.tau)
+            pstau_1 = deepcopy(self.tau)
             self.id = self.compute_paralog_id(ifdnalevel=ifdnalevel)
             self.get_mle()
-            difference = abs(self.tau - pstau)
+            difference = abs(self.tau - pstau_1)
 
             print("EMcycle:")
             print(i)

@@ -213,6 +213,7 @@ class GSseq:
         Qbasic = Qbasic / expected_rate
         return Qbasic
 
+
     def get_HKYGeneconv(self):
         # print ('tau = ', self.tau)
         Qbasic = self.get_HKYBasic()
@@ -253,6 +254,7 @@ class GSseq:
             col=col,
             rate=rate_basic
         )
+   #     print(rate_geneconv)
         # process_basic is for HKY_Basic which is equivalent to 4by4 rate matrix
         return [process_basic, process_geneconv]
 
@@ -834,17 +836,18 @@ if __name__ == '__main__':
                                    save_path='../test/save/', save_name=save_name)
 
 
-        self = GSseq(geneconv,K=1.01,fix_tau=0.8,sizen=20000,omega=1,leafnode=5,ifmakeQ=True)
+        self = GSseq(geneconv,K=1.01,fix_tau=3.5,sizen=3000,omega=1,leafnode=5,ifmakeQ=True)
         #scene = self.get_scene()
 
 
         aaa=self.topo()
         self.trans_into_seq(ini=aaa)
+        print(self.prior_distribution)
     #    aaa=self.make_ini()
      #   print(self.GLS_sequnce(ini=aaa))
 
 
-
+#[0.98735, 0, 0.9398, 0.941275, 0.8757 ,0.875625, 0.81945, 0.820125,  0.770575 ,0.771875]
 
 
 
