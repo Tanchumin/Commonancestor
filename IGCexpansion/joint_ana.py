@@ -156,6 +156,7 @@ class JointAnalysis:
     def update_by_x(self, x):
       #  self.check_x_dim()
         self.x = np.array(x)
+
         uniq_dim = len(self.geneconv_list[0].x) - len(self.shared_parameters)
         shared_x = self.x[len(self.geneconv_list) * uniq_dim:]
         for geneconv_idx in range(len(self.geneconv_list)):
@@ -214,7 +215,6 @@ class JointAnalysis:
 
     def combine_bounds(self):
         individual_bnds = self.get_original_bounds()
-        print(len(individual_bnds))
         combined_bounds = [individual_bnds[idx] for idx in range(len(individual_bnds)) if not idx in self.shared_parameters] * len(self.paralog_list) \
                           + [individual_bnds[idx] for idx in range(len(individual_bnds)) if idx in self.shared_parameters]
         return combined_bounds
@@ -259,7 +259,7 @@ class JointAnalysis:
 
     def _process_objective_and_gradient(self, num_jsgeneconv, display, x, output):
         if self.Model=="MG94":
-            print(num_jsgeneconv,flush=True)
+        #    print(num_jsgeneconv,flush=True)
             self.update_by_x(x)
             result = self.geneconv_list[num_jsgeneconv].objective_and_gradient(True, self.geneconv_list[num_jsgeneconv].x)
             output.put(result)
@@ -267,13 +267,12 @@ class JointAnalysis:
             self.update_by_x(x)
             result = self.geneconv_list[num_jsgeneconv].objective_and_gradient(display,
                                                                                self.geneconv_list[num_jsgeneconv].x)
-        output.put(result)
+            output.put(result)
 
 
     def objective_and_gradient_multi_threaded(self, x):
         self.update_by_x(x)
-        f = 0.0
-        g = 0.0
+
         # Define an output queue
         output = mp.Queue()
 
@@ -291,6 +290,8 @@ class JointAnalysis:
 
         # Get process results from the output queue
         results = [output.get() for p in processes]
+        for result in results:
+            print(result[1])
 
         ##        pool = mp.Pool(processes = self.num_processes)
         ##        results = [pool.apply(psjsgeneconv.objective_and_gradient, args = (display, x))\

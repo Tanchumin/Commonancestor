@@ -10,15 +10,9 @@ from IGCexpansion.CodonGeneconv import *
 from copy import deepcopy
 import os
 import numpy as np
-import pandas as pd
-from numpy import random
-from scipy import linalg
-import copy
-from scipy.stats import poisson
 
-import pickle
-import json
-import numpy.core.multiarray
+from scipy import linalg
+
 
 
 def get_maxpro(list, nodecom):
