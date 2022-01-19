@@ -289,10 +289,6 @@ class JointAnalysis:
             p.join()
 
         # Get process results from the output queue
-        results = [output.get() for p in processes]
-        for result in results:
-            print(result[1])
-
         ##        pool = mp.Pool(processes = self.num_processes)
         ##        results = [pool.apply(psjsgeneconv.objective_and_gradient, args = (display, x))\
         ##                   for psjsgeneconv in self.psjsgeneconv_list]
