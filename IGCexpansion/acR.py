@@ -662,11 +662,6 @@ class AncestralState1:
 
 
 
-        print(index)
-        print(ratio_nonsynonymous)
-        print("xxxxxxxxxxxx")
-
-
         return index,ratio_nonsynonymous,ratio_synonymous
 
 
@@ -772,17 +767,27 @@ class AncestralState1:
         for j in self.geneconv.edge_list:
                  list.append(tau[2][j])
 
-# opportunity time
+# dwell time
         for j in self.geneconv.edge_list:
                 list.append(tau[3][0][j])
         for j in self.geneconv.edge_list:
                 list.append(tau[3][1][j])
 
+
+        for j in self.geneconv.edge_list:
+                list.append(tau[4][0][j])
+                print(tau[4][0][j])
+
+        for j in self.geneconv.edge_list:
+                list.append(tau[4][1][j])
+
+
+
         list1.extend([("brahch",a, b) for (a, b) in self.geneconv.edge_list])
 
 
 
-      #  print(list)
+     #   print(len(list))
 
 
         save_nameP = "./save/"+self.name +'.txt'
@@ -851,13 +856,13 @@ if __name__ == '__main__':
     self = AncestralState1(geneconv)
 
     scene = self.get_scene()
-    self.geneconv.get_summary()
+ #   self.geneconv.get_summary()
 
 
 
 
  #   print(scene['tree']['edge_processes'])
 
-   # self.get_paralog_diverge()
+    self.get_paralog_diverge()
   #  print(geneconv.omega)
   #  print(geneconv.IGC_Omega)

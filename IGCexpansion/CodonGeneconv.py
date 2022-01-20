@@ -1123,7 +1123,7 @@ class ReCodonGeneconv:
             }
             j_out = jsonctmctree.interface.process_json_in(j_in)
 
-            status = j_out['status']
+   #         status = j_out['status']
             ExpectedDwellTime = {self.edge_list[i]: j_out['responses'][0][i] for i in range(len(self.edge_list))}
             return ExpectedDwellTime
         else:
@@ -1377,7 +1377,7 @@ class ReCodonGeneconv:
                 'requests': requests
             }
             j_out = jsonctmctree.interface.process_json_in(j_in)
-            status = j_out['status']
+  #          status = j_out['status']
             SitewiseExpectedDirectionalNumGeneconv = [np.matrix(j_out['responses'][0]).T,
                                                       np.matrix(j_out['responses'][1]).T]
             return SitewiseExpectedDirectionalNumGeneconv
@@ -1429,6 +1429,101 @@ class ReCodonGeneconv:
             self.x_clock[i] -= 1e-8
             self.update_by_x_clock()
         return Clock_drv
+
+
+    def get_ExpectedNumGeneconv_synon(self):
+
+            row_states = []
+            column_states = []
+            proportions = []
+            Qbasic = self.get_MG94Basic()
+            if self.Model == 'MG94':
+                for i, pair in enumerate(product(self.codon_nonstop, repeat=2)):
+                    ca, cb = pair
+                    sa = self.codon_to_state[ca]
+                    sb = self.codon_to_state[cb]
+                    if ca == cb:
+                        continue
+
+                    # (ca, cb) to (ca, ca)
+                    row_states.append((sa, sb))
+                    column_states.append((sa, sa))
+                    Qb = Qbasic[sb, sa]
+                    if isNonsynonymous(cb, ca, self.codon_table):
+                        Tgeneconv =0
+                    else:
+                        Tgeneconv = self.tau
+
+                    proportions.append(Tgeneconv / (Qb + Tgeneconv) if (Qb + Tgeneconv) > 0 else 0.0)
+
+                    # (ca, cb) to (cb, cb)
+                    row_states.append((sa, sb))
+                    column_states.append((sb, sb))
+                    Qb = Qbasic[sa, sb]
+                    proportions.append(Tgeneconv / (Qb + Tgeneconv) if (Qb + Tgeneconv) > 0 else 0.0)
+
+            syGeneconvTransRed={'row_states': row_states, 'column_states': column_states, 'weights': proportions}
+
+
+
+            self.scene_ll = self.get_scene()
+            requests = [{'property': 'SDNTRAN', 'transition_reduction': syGeneconvTransRed}]
+            j_in = {
+                'scene': self.scene_ll,
+                'requests': requests
+            }
+            j_out = jsonctmctree.interface.process_json_in(j_in)
+
+        #    status = j_out['status']
+            ExpectedGeneconv_sy = {self.edge_list[i]: j_out['responses'][0][i] for i in range(len(self.edge_list))}
+
+# nonsy
+            row_states = []
+            column_states = []
+            proportions = []
+            if self.Model == 'MG94':
+                for i, pair in enumerate(product(self.codon_nonstop, repeat=2)):
+                    ca, cb = pair
+                    sa = self.codon_to_state[ca]
+                    sb = self.codon_to_state[cb]
+                    if ca == cb:
+                        continue
+
+                    # (ca, cb) to (ca, ca)
+                    row_states.append((sa, sb))
+                    column_states.append((sa, sa))
+                    Qb = Qbasic[sb, sa]
+                    if isNonsynonymous(cb, ca, self.codon_table):
+                        Tgeneconv = self.tau * self.get_IGC_omega()
+                    else:
+                        Tgeneconv=0
+
+                    proportions.append(Tgeneconv / (Qb + Tgeneconv) if (Qb + Tgeneconv) > 0 else 0.0)
+
+                    # (ca, cb) to (cb, cb)
+                    row_states.append((sa, sb))
+                    column_states.append((sb, sb))
+                    Qb = Qbasic[sa, sb]
+                    proportions.append(Tgeneconv / (Qb + Tgeneconv) if (Qb + Tgeneconv) > 0 else 0.0)
+
+            nonsyGeneconvTransRed = {'row_states': row_states, 'column_states': column_states, 'weights': proportions}
+
+
+
+
+            requests = [{'property': 'SDNTRAN', 'transition_reduction': nonsyGeneconvTransRed}]
+            j_in = {
+                'scene': self.scene_ll,
+                'requests': requests
+            }
+            j_out = jsonctmctree.interface.process_json_in(j_in)
+
+            status = j_out['status']
+            ExpectedGeneconv_nonsy = {self.edge_list[i]: j_out['responses'][0][i] for i in range(len(self.edge_list))}
+
+
+            return ExpectedGeneconv_sy,ExpectedGeneconv_nonsy
+
 
     def get_summary(self, output_label=False,branchtau=False,robust=False):
         out = [self.nsites, self.ll]
@@ -1488,14 +1583,21 @@ class ReCodonGeneconv:
             label[i] = '(' + ','.join(label[i]) + ')'
 
 
-        print(self.ExpectedGeneconv)
+  #      print(self.ExpectedGeneconv)
+
+        if self.Model=="MG94":
+            expsynonsy=self.get_ExpectedNumGeneconv_synon()
+
+
+
+        # robust option compute the change point event and do selection  on tau
 
         if output_label:
             return out, label
         elif branchtau and robust==False:
-            return taulist,self.ExpectedGeneconv,self.edge_to_blen,self.ExpectedDwellTime
+            return taulist,self.ExpectedGeneconv,self.edge_to_blen,self.ExpectedDwellTime,expsynonsy
         elif branchtau and robust==True:
-            return taulist,robust_exp_lambda_list,self.edge_to_blen,self.ExpectedDwellTime
+            return taulist,robust_exp_lambda_list,self.edge_to_blen,self.ExpectedDwellTime,expsynonsy
         else:
             return out
 
