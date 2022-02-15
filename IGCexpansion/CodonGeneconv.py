@@ -1474,7 +1474,6 @@ class ReCodonGeneconv:
             }
             j_out = jsonctmctree.interface.process_json_in(j_in)
 
-        #    status = j_out['status']
             ExpectedGeneconv_sy = {self.edge_list[i]: j_out['responses'][0][i] for i in range(len(self.edge_list))}
 
 # nonsy
@@ -1518,7 +1517,6 @@ class ReCodonGeneconv:
             }
             j_out = jsonctmctree.interface.process_json_in(j_in)
 
-            status = j_out['status']
             ExpectedGeneconv_nonsy = {self.edge_list[i]: j_out['responses'][0][i] for i in range(len(self.edge_list))}
 
 

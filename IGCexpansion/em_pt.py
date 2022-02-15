@@ -32,10 +32,11 @@ import numdifftools as nd
 
 
 
+### iniset is used for joint ana seq version
 class Embrachtau:
     def __init__(self, tree_newick, alignment, paralog, Model='MG94', IGC_Omega=None, Tau_Omega = None, nnsites=None, clock=False,
                  Force=None, save_path='./save/', save_name=None, post_dup='N1',kbound=5.1,ifmodel="old",inibranch=0.1,noboundk=True,
-                 kini=1.1,tauini=0.4):
+                 kini=1.1,tauini=0.4,omegaini=0.5):
         self.newicktree = tree_newick  # newick tree file loc
         self.seqloc = alignment  # multiple sequence alignment, now need to remove gap before-hand
         self.paralog = paralog  # parlaog list
@@ -90,7 +91,7 @@ class Embrachtau:
         self.x_clock = None  # x_process + Lr
         self.pi = None  # real values
         self.kappa = 0.87  # real values
-        self.omega = 0.2  # real values
+        self.omega = omegaini  # real values
         # set ini value for key parameters
         self.tau = tauini  # real values
         self.K=kini
@@ -121,6 +122,8 @@ class Embrachtau:
 
         # Initialize all parameters
         self.initialize_parameters()
+
+        self.index=0
 
     def initialize_parameters(self):
         self.get_tree()
@@ -391,7 +394,9 @@ class Embrachtau:
         Force_process = None
         Force_rates = None
         if self.Force != None:
+      #      print(self.Force)
             Force_process = {i: self.Force[i] for i in self.Force.keys() if i < len(self.x) - k}
+
             Force_rates = {(i - len(self.x_process)): self.Force[i] for i in self.Force.keys() if
                            not i < len(self.x) - k}
         self.unpack_x_process(Force_process=Force_process, transformation=transformation)
@@ -903,6 +908,8 @@ class Embrachtau:
                 'iid_observations': self.iid_observations
             }
         )
+
+      #  print(scene)
         return scene
 
     def loglikelihood_and_gradient(self, package='new', display=False):
@@ -922,6 +929,8 @@ class Embrachtau:
                ll, edge_derivs = fn(edge_derivative=True)
         else:
                 ll, edge_derivs = fn()
+
+      #  print(ll)
 
 
         m = len(self.x) - len(self.edge_to_blen)
@@ -946,6 +955,10 @@ class Embrachtau:
             # restore self.x
             self.update_by_x(x)
         other_derivs = np.array(other_derivs)
+
+
+
+    #    print(ll)
         if display:
             print('log likelihood = ', ll, flush=True)
             print('Edge derivatives = ', edge_derivs, flush=True)
@@ -1012,7 +1025,10 @@ class Embrachtau:
         return f, g
 
     def objective_and_gradient(self, display, x):
+      #  print(self.x)
+     #   print(self.tree)
         self.update_by_x(x)
+
 
         f, g = self.loglikelihood_and_gradient(display=display)
         self.auto_save += 1
@@ -1148,7 +1164,27 @@ class Embrachtau:
 
         return -ll
 
-    def get_mle(self, display=True, derivative=True, em_iterations=0, method='BFGS', niter=2000):
+    def get_mle(self, display=True, derivative=True, em_iterations=0, method='BFGS', niter=2000,
+                tauini=1.1,omegaini=1.4,ifseq=False):
+
+        if ifseq==True and self.Model=="HKY":
+
+            self.tau=tauini
+            self.x_process[4]=np.log(tauini)
+            self.x[4] = np.log(tauini)
+            print(self.x)
+            print(self.tau)
+
+        if ifseq==True and self.Model=="MG94":
+
+            self.tau=tauini
+            self.omega=omegaini
+            self.x_process[5]=np.log(tauini)
+            self.x[5] = np.log(tauini)
+            self.x_process[4]=np.log(omegaini)
+            self.x[4] = np.log(omegaini)
+
+
         if em_iterations > 0:
             ll = self._loglikelihood2()
             # http://jsonctmctree.readthedocs.org/en/latest/examples/hky_paralog/yeast_geneconv_zero_tau/index.html#em-for-edge-lengths-only
@@ -1177,6 +1213,7 @@ class Embrachtau:
             if derivative:
                 if self.ifmodel=="old":
                    f = partial(self.objective_and_gradient, display)
+
                 elif self.ifmodel=="EM_full":
                    f = partial(self.objective_and_gradient_EM_full, display)
                 elif self.ifmodel=="EM_reduce":
@@ -1232,6 +1269,7 @@ class Embrachtau:
             bnds.extend([(-10, 0.0)] * l)
         if method == 'BFGS':
             if derivative:
+
                 result = scipy.optimize.minimize(f, guess_x, jac=True, method='L-BFGS-B', bounds=bnds)
             else:
                 result = scipy.optimize.minimize(f, guess_x, jac=False, method='L-BFGS-B', bounds=bnds)
