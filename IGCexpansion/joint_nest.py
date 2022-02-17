@@ -8,7 +8,7 @@ import numdifftools as nd
 from scipy import  *
 
 
-class JointAnalysis_seq:
+class JointAnalysis_nest:
     auto_save_step = 2
 
     def __init__(self,
@@ -185,14 +185,14 @@ class JointAnalysis_seq:
 
 
         if self.ifmodel != "old":
-            bnds = [(None, -0.05)] * 3
-            bnds.extend([(None, 6.0)] * (3))
+            bnds = [(-9.0, -0.05)] * 3
+            bnds.extend([(-9.0, 6.0)] * (3))
             if self.Model=="MG94":
-                bnds.extend([(None, 6.0)] * (1))
-                bnds.extend([(None, 4.0)]*(len(self.geneconv_list[0].x) - 7))
+                bnds.extend([(-9.0, 6.0)] * (1))
+                bnds.extend([(-9.0, 4.0)]*(len(self.geneconv_list[0].x) - 7))
 
             else:
-                bnds.extend([(None, 4.0)]*(len(self.geneconv_list[0].x) - 6))
+                bnds.extend([(-9.0, 4.0)]*(len(self.geneconv_list[0].x) - 6))
         else:
             bnds = [(None, -0.05)] * 3
             bnds.extend([(None, 6.0)] * (2))
@@ -286,7 +286,7 @@ class JointAnalysis_seq:
         uniq_derivatives = np.concatenate([[result[1][idx] for idx in range(len(result[1])) if not idx in self.shared_parameters] for result in results])
         # for  shared parameter, the derivatives is computed as sum of all genes' corresponding derivaties
         shared_derivatives = [[result[1][idx] for idx in range(len(result[1])) if idx in self.shared_parameters] for result in results]
-        g = np.concatenate((uniq_derivatives, np.sum(shared_derivatives, axis = 0)))
+        g = np.concatenate((uniq_derivatives, np.mean(shared_derivatives, axis = 0)))
 
         print('log  likelihhood = ', f)
         print('Current x array = ', self.x)
@@ -296,13 +296,13 @@ class JointAnalysis_seq:
         # Now save parameter values
         if self.ifmodel=="old":
             self.auto_save += 1
-            if self.auto_save == JointAnalysis.auto_save_step:
+            if self.auto_save == JointAnalysis_nest.auto_save_step:
                 self.save_x()
                 self.auto_save = 0
 
         else:
             self.auto_save1 += 1
-            if self.auto_save1 == JointAnalysis.auto_save_step:
+            if self.auto_save1 == JointAnalysis_nest.auto_save_step:
                 self.save_x()
                 self.auto_save1 = 0
 
@@ -314,8 +314,17 @@ class JointAnalysis_seq:
         guess_x = self.x
 
         if parallel:
-            result = scipy.optimize.minimize(self.objective_and_gradient_multi_threaded, guess_x, jac=True, method='L-BFGS-B', bounds=self.combine_bounds(),
-                                             options={ 'maxcor': 12,'ftol': 1e-11,'maxls': 30})
+       #     result = scipy.optimize.minimize(self.objective_and_gradient_multi_threaded, guess_x, jac=True, method='L-BFGS-B', bounds=self.combine_bounds(),
+                    #                         options={ 'maxcor': 12,'ftol': 1e-8,'maxls': 30})
+
+         #   result = scipy.optimize.minimize(self.objective_and_gradient_multi_threaded, guess_x, jac=True, method='SLSQP',
+            #                         bounds=self.combine_bounds(),
+            #                 options={ 'maxcor': 12,'ftol': 1e-8,'maxls': 30})
+
+
+                 result=scipy.optimize.basinhopping(self.objective_and_gradient_multi_threaded, guess_x, minimizer_kwargs={'method': 'L-BFGS-B', 'jac': True,
+                                                              'bounds': self.combine_bounds()},
+                                niter=150)
         else:
             result = scipy.optimize.minimize(self.objective_and_gradient, guess_x, jac=True, method='L-BFGS-B', bounds=self.combine_bounds())
         print (result)
@@ -403,87 +412,52 @@ class JointAnalysis_seq:
 
 
 ### for fix ind or shared
-    def _process_objective_and_gradient_fix(self, num_jsgeneconv, display, x, output,fix="shared"):
+    def _process_objective_and_gradient_fix(self, num_jsgeneconv, display, output):
         if self.Model=="MG94":
 
-            if fix=="shared":
+                self.update_by_x(self.x)
                 self.geneconv_list[num_jsgeneconv].Force=self.Force_share
-
                 tauini=self.fixtau[num_jsgeneconv]
                 omegaini=self.fixomega[num_jsgeneconv]
-                result = self.geneconv_list[num_jsgeneconv].get_mle(tauini=tauini,omegaini=omegaini,ifseq=True)
-                self.fixtau[num_jsgeneconv]=self.geneconv_list[num_jsgeneconv].tau
-                self.fixomega[num_jsgeneconv] = self.geneconv_list[num_jsgeneconv].omega
-                output.put(self.geneconv_list[num_jsgeneconv].x)
+                self.geneconv_list[num_jsgeneconv].get_mle(tauini=tauini,omegaini=omegaini,ifseq=True)
+                self.fixtau[num_jsgeneconv]=deepcopy(self.geneconv_list[num_jsgeneconv].tau)
+                self.fixomega[num_jsgeneconv] = deepcopy(self.geneconv_list[num_jsgeneconv].omega)
 
-            else:
-                self.update_by_x(x)
                 self.geneconv_list[num_jsgeneconv].Force = None
                 result = self.geneconv_list[num_jsgeneconv].objective_and_gradient(True,
                                                                                    self.geneconv_list[num_jsgeneconv].x)
+                result = [result, self.geneconv_list[num_jsgeneconv].x]
                 output.put(result)
 
         else:
-            if fix=="shared":
 
-            #    self.update_by_x(x)
+
+                self.update_by_x(self.x)
 
                 self.geneconv_list[num_jsgeneconv].Force = self.Force_share
                 tauini = deepcopy( self.fixtau[num_jsgeneconv])
-                result = self.geneconv_list[num_jsgeneconv].get_mle(display=False,tauini=tauini,ifseq=True)
-                self.fixtau[num_jsgeneconv] = self.geneconv_list[num_jsgeneconv].tau
-                output.put(self.geneconv_list[num_jsgeneconv].x)
+                self.geneconv_list[num_jsgeneconv].get_mle(display=False,tauini=tauini,ifseq=True)
 
-            else:
-                self.update_by_x(x)
+                self.fixtau[num_jsgeneconv] = deepcopy(self.geneconv_list[num_jsgeneconv].tau)
+
                 self.geneconv_list[num_jsgeneconv].Force = None
                 result = self.geneconv_list[num_jsgeneconv].objective_and_gradient(False,
                                                                                    self.geneconv_list[num_jsgeneconv].x)
+                result=[result, self.geneconv_list[num_jsgeneconv].x]
                 output.put(result)
 
 
-    def ind_ana(self):
+    def obj(self, x):
 
+        print(x)
 
-
-        output = mp.Queue()
-
-
-        # Setup a list of processes that we want to run
-        processes = [mp.Process(target=self._process_objective_and_gradient_fix, args=(i, False, self.x, output,"shared")) \
-                     for i in self.multiprocess_combined_list]
-
-
-        # Run processes
-        for p in processes:
-            p.start()
-
-        # Exit the completed processes
-        for p in processes:
-            p.join()
-
-        results = [output.get() for p in processes]
-  #      print(results[0])
-
-      #  f = sum([result[0] for result in results])
-        uniq_para = np.concatenate([[results[i][idx] for idx in range(len(results[0]))
-                                     if not idx in self.shared_parameters] for i in self.multiprocess_combined_list])
-
-   #     print(self.geneconv_list[1].x)
-
-
-
-        return uniq_para
-
-    def sha_ana(self,x):
-
-        if self.Model == "HKY":
+        if self.Model=="HKY":
             for i in self.multiprocess_combined_list:
-                self.fixtau[i] = np.exp(x)
-                self.x[-1] = deepcopy(x)
-        if self.Model == "MG94":
-            if self.len(self.shared_parameters) == 1:
-                if self.shared_parameters == 4:
+                self.fixtau[i]=np.exp(x)
+                self.x[-1]=deepcopy(x)
+        if self.Model=="MG94":
+            if self.len(self.shared_parameters)==1:
+                if self.shared_parameters==4:
                     self.x[-1] = deepcopy(x)
                     for i in self.multiprocess_combined_list:
                         self.fixomega[i] = np.exp(x)
@@ -492,11 +466,11 @@ class JointAnalysis_seq:
                     for i in self.multiprocess_combined_list:
                         self.fixtau[i] = np.exp(x)
             else:
-                self.x[-1] = deepcopy(x[1])
-                self.x[-2] = deepcopy(x[0])
-                for i in self.multiprocess_combined_list:
-                    self.fixomega[i] = np.exp(x[0])
-                    self.fixtau[i] = np.exp(x[1])
+                    self.x[-1] = deepcopy(x[1])
+                    self.x[-2] = deepcopy(x[0])
+                    for i in self.multiprocess_combined_list:
+                        self.fixomega[i] = np.exp(x[0])
+                        self.fixtau[i] = np.exp(x[1])
 
         self.update_by_x(self.x)
 
@@ -504,8 +478,9 @@ class JointAnalysis_seq:
 
 
         # Setup a list of processes that we want to run
-        processes = [mp.Process(target=self._process_objective_and_gradient_fix, args=(i, False, self.x, output,"fixed")) \
-                     for i in self.multiprocess_combined_list]
+        processes = [
+            mp.Process(target=self._process_objective_and_gradient_fix, args=(i, False,  output)) \
+            for i in self.multiprocess_combined_list]
 
         # Run processes
         for p in processes:
@@ -515,106 +490,96 @@ class JointAnalysis_seq:
         for p in processes:
             p.join()
 
-        # Get process results from the output queue
         results = [output.get() for p in processes]
+     #   print(results)
 
-        f = np.sum([result[0] for result in results])/len(self.paralog_list)
+        f = np.sum([result[0][0] for result in results])/len(self.paralog_list)
         # uniq_derivatives will get unique derivatives for each gene
-     #   uniq_derivatives = np.concatenate(
-     #       [[0 for idx in range(len(result[1])) if not idx in self.shared_parameters] for result in
-     #        results])
+        uniq_derivatives = np.concatenate([[0 for idx in range(len(result[1])) if not idx in self.shared_parameters] for result in results])
         # for  shared parameter, the derivatives is computed as sum of all genes' corresponding derivaties
-        shared_derivatives = [[result[1][idx] for idx in range(len(result[1])) if idx in self.shared_parameters] for
+        shared_derivatives = [[result[0][1][idx] for idx in range(len(result[0][1])) if idx in self.shared_parameters] for
                               result in results]
 
         g =  np.sum(shared_derivatives, axis=0)/len(self.paralog_list)
 
+
+        uniq_para=np.concatenate([[result[1][idx] for idx in range(len(result[1])) if not idx in self.shared_parameters] for result in results])
+
+        shared_para=[results[0][1][idx] for idx in range(len(self.geneconv_list[0].x)) if idx in self.shared_parameters]
+        self.x = deepcopy(np.concatenate((uniq_para, shared_para)))
+
         print('log  likelihhood = ', f)
-    #    print('Gradient = ',np.sum(shared_derivatives, axis=0))
-     #   print('exp shared = ', np.exp(self.x))
- #       print('Current x array = ', self.x)
-#        print('exp x = ', np.exp(self.x))
- #       print('Gradient = ', g)
+        print('Gradient = ',g)
+        print('exp shared = ', np.exp(self.x))
 
         # Now save parameter values
         if self.ifmodel == "old":
             self.auto_save += 1
-            if self.auto_save == JointAnalysis_seq.auto_save_step:
+            if self.auto_save == JointAnalysis_nest.auto_save_step:
                 self.save_x()
                 self.auto_save = 0
 
         else:
             self.auto_save1 += 1
-            if self.auto_save1 == JointAnalysis_seq.auto_save_step:
+            if self.auto_save1 == JointAnalysis_nest.auto_save_step:
                 self.save_x()
                 self.auto_save1 = 0
+
 
         return f, g
 
 
 
 
-    def mle(self):
-
-# here is parameter instead of dev
-        uniq_para=self.ind_ana()
-
-        shared_para=[self.geneconv_list[0].x[idx] for idx in range(len(self.geneconv_list[0].x)) if idx in self.shared_parameters]
+    def get_nest_mle(self):
 
 
-        self.x = deepcopy(np.concatenate((uniq_para, shared_para)))
+        self.update_by_x(self.x)
 
-
-        if self.Model == "HKY":
-            guess_x = self.x[-1]
-        if self.Model == "MG94":
-            if self.len(self.shared_parameters) == 1:
-                if self.shared_parameters == 4:
-
+        if self.Model=="HKY":
+                    guess_x=self.x[-1]
+        if self.Model=="MG94":
+            if self.len(self.shared_parameters)==1:
+                if self.shared_parameters==4:
                     guess_x = self.x[-1]
                 else:
 
                     guess_x = self.x[-1]
             else:
-                guess_x = np.zeros(2)
+                    guess_x=np.zeros(2)
+                    guess_x[0] = self.x[-2]
+                    guess_x[1] = self.x[-1]
 
-                guess_x[0] = self.x[-2]
-                guess_x[1] = self.x[-1]
 
 
-  #      result = scipy.optimize.minimize(self.sha_ana, guess_x, jac=True, method='L-BFGS-B',
-   #                                          options={ 'maxcor': 12,'ftol': 1e-11,'maxls': 30})
-        result = scipy.optimize.minimize(self.sha_ana, guess_x, jac=True, method='SLSQP',
-                                         options={'gtol': 1e-06})
+# here is parameter instead of dev
+
+    #    result = scipy.optimize.minimize(self.obj, guess_x, jac=True, method='L-BFGS-B')
+     #   result = scipy.optimize.minimize(self.obj, guess_x, jac=True, method='BFGC',
+         #                                options={'xtol': 1e-05})
+
+        if self.Model=="HKY":
+            nmax=150
+        else:
+            nmax=40
+
+        result = scipy.optimize.basinhopping(self.obj, guess_x,
+                                             minimizer_kwargs={'method': 'L-BFGS-B', 'jac': True, },
+                                             niter=nmax)
+
+
 
         self.save_x()
-        print(result)
-        for i in self.multiprocess_combined_list:
-              self.fixtau[i] = self.geneconv_list[i].tau
-              if self.Model=="MG94":
-                    self.fixomega[i] = self.geneconv_list[i].omega
+
+      #  rr=self.get_mle()
+     #   print(self.x)
 
 
-        return self.x
+        return result
 
-    def get_seq_mle(self,MAX=20,epison=0.05):
 
-        oldx=deepcopy(self.x)
-        epison=len(oldx)*epison
-        i=0
-        eps=len(oldx)*100
 
-        while i<=MAX and eps>=epison:
-            newx=self.mle()
-            i=i+1
-            eps=np.sum(abs(newx-oldx))
-            print("Xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx")
-            print(i)
-            print(eps)
-            print("Xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx")
-            oldx=deepcopy(newx)
 
-        print(self.x)
 
 
 
@@ -635,7 +600,7 @@ if __name__ == '__main__':
     alignment_file_list = [alignment_file_1, alignment_file_2]
     Model = 'HKY'
 
-    joint_analysis = JointAnalysis_seq(alignment_file_list,  newicktree, paralog_list, Shared = Shared,
+    joint_analysis = JointAnalysis_nest(alignment_file_list,  newicktree, paralog_list, Shared = Shared,
                                    IGC_Omega = None, Model = Model, Force = Force,Force_share={4:0},tauini=6.0,
                                    save_path = '../test/save/')
 
@@ -645,7 +610,7 @@ if __name__ == '__main__':
   #  print( joint_analysis.geneconv_list[0].Force)
   #  joint_analysis.geneconv_list[0].get_mle(tauini=55)
  #   joint_analysis.ind_ana()
-    print(joint_analysis.get_seq_mle())
+    print(joint_analysis.get_nest_mle())
 
   #  joint_analysis.geneconv_list[0].Force = joint_analysis.Force_share
    # tauini = joint_analysis.fixtau[0]

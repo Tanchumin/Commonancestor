@@ -4,19 +4,10 @@ from __future__ import print_function
 import jsonctmctree.ll, jsonctmctree.interface
 from IGCexpansion.CodonGeneconv import *
 from IGCexpansion.em_pt import *
-from IGCexpansion.joint_ana import *
+from IGCexpansion.joint_nest import *
 from copy import deepcopy
 import os
-import numpy as np
-import pandas as pd
-from numpy import random
-from scipy import linalg
-import copy
 
-from IGCexpansion.CodonGeneconFunc import isNonsynonymous
-import pickle
-import json
-import numpy.core.multiarray
 import re
 
 def atoi(text):
@@ -48,8 +39,8 @@ if __name__ == '__main__':
     alignment_file_list = files
     newicktree = '../'+inputFolder+'/intronc.newick'
 
-    Shared = [0,1,2,3,4]
-    shared_parameters_for_k = [0,1,2,3,4,5]
+    Shared = [4]
+    shared_parameters_for_k = [4]
 
 
     save_path = './' + outputName + '/save/'
@@ -71,10 +62,10 @@ if __name__ == '__main__':
 
   #  print(paralog_list)
     
-    joint_analysis = JointAnalysis(alignment_file_list,  newicktree, paralog_list, Shared = Shared,
-                                   Model = Model, Force = Force,
-                                   save_path = './save/',shared_parameters_for_k=shared_parameters_for_k,
-                                   inibranch=0.2,kini=1.5,tauini=0.001)
+    joint_analysis =JointAnalysis_nest(alignment_file_list,  newicktree, paralog_list, Shared = Shared,
+                                   IGC_Omega = None, Model = Model, Force = Force,Force_share={4:0},tauini=1.0,inibranch=0.4,
+                                   save_path = './save/')
  #0.2 0.4 best ini by now 28965.8
 
-    print(joint_analysis.em_joint())
+    print(joint_analysis.get_nest_mle())
+   # print(joint_analysis.get_mle())

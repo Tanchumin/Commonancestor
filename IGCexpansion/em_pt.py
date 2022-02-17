@@ -34,7 +34,7 @@ import numdifftools as nd
 
 ### iniset is used for joint ana seq version
 class Embrachtau:
-    def __init__(self, tree_newick, alignment, paralog, Model='MG94', IGC_Omega=None, Tau_Omega = None, nnsites=None, clock=False,
+    def __init__(self, tree_newick, alignment, paralog, Model='MG94', IGC_Omega=None, Tau_Omega = None, nnsites=None, clock=False,joint=False,
                  Force=None, save_path='./save/', save_name=None, post_dup='N1',kbound=5.1,ifmodel="old",inibranch=0.1,noboundk=True,
                  kini=1.1,tauini=0.4,omegaini=0.5):
         self.newicktree = tree_newick  # newick tree file loc
@@ -121,7 +121,9 @@ class Embrachtau:
         self.reconstruction_series = None  # nodes * paralogs * 'string'
 
         # Initialize all parameters
+        self.joint=joint
         self.initialize_parameters()
+
 
         self.index=0
 
@@ -132,10 +134,13 @@ class Embrachtau:
 
         save_file = self.get_save_file_name()
 
-        if os.path.isfile(save_file):  # if the save txt file exists and not empty, then read in parameter values
-            if os.stat(save_file).st_size > 0:
-                self.initialize_by_save(save_file)
-                print('Successfully loaded parameter value from ' + save_file)
+
+        if self.joint==False:
+
+            if os.path.isfile(save_file):  # if the save txt file exists and not empty, then read in parameter values
+                if os.stat(save_file).st_size > 0:
+                    self.initialize_by_save(save_file)
+                    print('Successfully loaded parameter value from ' + save_file)
 
 
 
@@ -1172,8 +1177,8 @@ class Embrachtau:
             self.tau=tauini
             self.x_process[4]=np.log(tauini)
             self.x[4] = np.log(tauini)
-            print(self.x)
-            print(self.tau)
+        #    print(self.x)
+       #     print(self.tau)
 
         if ifseq==True and self.Model=="MG94":
 
@@ -1207,7 +1212,7 @@ class Embrachtau:
             else:
                 self.update_by_x()
 
-        bnds = [(None, -0.05)] * 3
+        bnds = [(-10.0, -0.05)] * 3
         if not self.clock:
             self.update_by_x()
             if derivative:
@@ -1223,21 +1228,20 @@ class Embrachtau:
                 f = partial(self.objective_wo_derivative, display)
             guess_x = self.x
             if self.ifmodel=="old" :
-                bnds.extend([(None, 6)] * (len(self.x_process) - 4))
-                edge_bnds = [(None, 3)] * len(self.x_rates)
-                edge_bnds[1] = (self.minlogblen, None)
+                bnds.extend([(-10.0, 6.0)] * (len(self.x_process) - 4))
+                edge_bnds = [(-9.0, 4.0)] * len(self.x_rates)
+                edge_bnds[1] = (self.minlogblen, 4.0)
             elif self.ifmodel=="EM_full":
                 bnds.extend([(None, 6)] * (len(self.x_process) - 5))
-                edge_bnds = [(None, 3)] * len(self.x_rates)
+                edge_bnds = [(None, 4)] * len(self.x_rates)
                 edge_bnds[1] = (self.minlogblen, None)
             else:
                 bnds = [(None, 7.0)] * 1
                 bnds.extend([(None, 20)] * 1)
 
-
+#tau and K
             if self.ifmodel=="old":
-                bnds.extend([(-10.0, 7.0)] * (1))
-
+                bnds.extend([(-10.0, 8.0)] * (1))
 
             if self.ifmodel=="EM_full":
                 if self.bound == True:
@@ -1251,7 +1255,7 @@ class Embrachtau:
                     if self.noboundk==True:
                         bnds.extend([(-10.0, 30.0)] * (1))
                     else:
-                        bnds.extend([(-10.0, 5)] * (1))
+                        bnds.extend([(-10.0, 7)] * (1))
 
 
             bnds.extend(edge_bnds)
@@ -1291,7 +1295,7 @@ class Embrachtau:
                                                                                    'bounds': bnds},
                                                      niter=niter)  # , callback = self.check_boundary)
 
-        print(result)
+      #  print(result)
 
 
         self.save_x()
@@ -1309,7 +1313,7 @@ class Embrachtau:
             save = self.x
 
         save_file = self.get_save_file_name()
-        print(save_file)
+      #  print(save_file)
 
         np.savetxt(save_file, save.T)
 
@@ -1940,7 +1944,6 @@ if __name__ == '__main__':
     Force = None
     model = 'HKY'
 
-    type = 'situation_new'
     save_name = model+name
     geneconv = Embrachtau(newicktree, alignment_file, paralog, Model=model, Force=Force, clock=None,
                                save_path='../test/save/', save_name=save_name,kbound=5)
