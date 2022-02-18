@@ -1030,8 +1030,6 @@ class Embrachtau:
         return f, g
 
     def objective_and_gradient(self, display, x):
-      #  print(self.x)
-     #   print(self.tree)
         self.update_by_x(x)
 
 
@@ -1295,7 +1293,7 @@ class Embrachtau:
                                                                                    'bounds': bnds},
                                                      niter=niter)  # , callback = self.check_boundary)
 
-      #  print(result)
+        print(result)
 
 
         self.save_x()

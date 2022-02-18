@@ -430,15 +430,23 @@ class JointAnalysis_seq:
 
                 self.geneconv_list[num_jsgeneconv].Force = self.Force_share
                 tauini = deepcopy( self.fixtau[num_jsgeneconv])
-                result = self.geneconv_list[num_jsgeneconv].get_mle(display=False,tauini=tauini,ifseq=True)
+                self.geneconv_list[num_jsgeneconv].get_mle(display=display,tauini=tauini,ifseq=True)
                 self.fixtau[num_jsgeneconv] = self.geneconv_list[num_jsgeneconv].tau
-                output.put(self.geneconv_list[num_jsgeneconv].x)
+                output.put(deepcopy(self.geneconv_list[num_jsgeneconv].x))
+                if num_jsgeneconv==3:
+                    print("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx")
+                    print(self.geneconv_list[num_jsgeneconv].x)
+
 
             else:
                 self.update_by_x(x)
                 self.geneconv_list[num_jsgeneconv].Force = None
                 result = self.geneconv_list[num_jsgeneconv].objective_and_gradient(False,
                                                                                    self.geneconv_list[num_jsgeneconv].x)
+                if num_jsgeneconv == 3:
+                    print(self.geneconv_list[num_jsgeneconv].x)
+                print(num_jsgeneconv)
+                print(result[0])
                 output.put(result)
 
 
@@ -450,7 +458,7 @@ class JointAnalysis_seq:
 
 
         # Setup a list of processes that we want to run
-        processes = [mp.Process(target=self._process_objective_and_gradient_fix, args=(i, False, self.x, output,"shared")) \
+        processes = [mp.Process(target=self._process_objective_and_gradient_fix, args=(i, False, None, output,"shared")) \
                      for i in self.multiprocess_combined_list]
 
 
@@ -463,13 +471,13 @@ class JointAnalysis_seq:
             p.join()
 
         results = [output.get() for p in processes]
-  #      print(results[0])
 
       #  f = sum([result[0] for result in results])
         uniq_para = np.concatenate([[results[i][idx] for idx in range(len(results[0]))
                                      if not idx in self.shared_parameters] for i in self.multiprocess_combined_list])
 
-   #     print(self.geneconv_list[1].x)
+
+        print(results[3])
 
 
 
@@ -530,11 +538,7 @@ class JointAnalysis_seq:
         g =  np.sum(shared_derivatives, axis=0)/len(self.paralog_list)
 
         print('log  likelihhood = ', f)
-    #    print('Gradient = ',np.sum(shared_derivatives, axis=0))
-     #   print('exp shared = ', np.exp(self.x))
- #       print('Current x array = ', self.x)
-#        print('exp x = ', np.exp(self.x))
- #       print('Gradient = ', g)
+
 
         # Now save parameter values
         if self.ifmodel == "old":
@@ -584,7 +588,7 @@ class JointAnalysis_seq:
 
   #      result = scipy.optimize.minimize(self.sha_ana, guess_x, jac=True, method='L-BFGS-B',
    #                                          options={ 'maxcor': 12,'ftol': 1e-11,'maxls': 30})
-        result = scipy.optimize.minimize(self.sha_ana, guess_x, jac=True, method='SLSQP',
+        result = scipy.optimize.minimize(self.sha_ana, guess_x, jac=True, method='L-BFGS-B',
                                          options={'gtol': 1e-06})
 
         self.save_x()

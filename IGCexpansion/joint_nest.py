@@ -26,8 +26,9 @@ class JointAnalysis_nest:
                  post_dup = 'N1',
                  Force_share=None,
                  shared_parameters_for_k=[5,6],
+                 Force_share_k={5: 0, 6: 0},
                  inibranch=0.1,
-                 kini=1.1,
+                 kini=3.1,
                  tauini=0.4,
                  omegaini=0.5):
         # first check if the length of all input lists agree
@@ -52,6 +53,7 @@ class JointAnalysis_nest:
             self.shared_parameters = []
         else:
             self.shared_parameters = Shared
+
         grand_save_name, individual_save_names = self.get_save_file_names(save_name)
         self.geneconv_list = [Embrachtau(tree_newick = tree_newick, alignment = alignment_file_list[i], paralog = paralog_list[i],
                                               Model = Model,  nnsites = nnsites,
@@ -62,13 +64,19 @@ class JointAnalysis_nest:
 
         self.auto_save = 0
         self.auto_save1 = 0
+
         self.initialize_x()
         self.shared_parameters_for_k=shared_parameters_for_k
+        self.Force_share_k=Force_share_k
+
+
         self.fixtau=np.zeros(len(self.paralog_list))
         self.fixomega=np.zeros(len(self.paralog_list))
+        self.fixk = np.zeros(len(self.paralog_list))
 
         for i in range(len(self.paralog_list)):
             self.fixtau[i] = tauini
+            self.fixk[i] = kini
             if self.Model == "MG94":
                   self.fixomega[i]=omegaini
 
@@ -80,10 +88,8 @@ class JointAnalysis_nest:
                 print('Successfully loaded parameter value from ' + self.save_name)
             else:
 
-
                    single_x = self.geneconv_list[0].x
                    shared_x = [single_x[i] for i in self.shared_parameters]
-                   print(shared_x)
 
                    unique_x = [single_x[i] for i in range(len(single_x)) if not i in self.shared_parameters] * len(
                        self.geneconv_list)
@@ -91,9 +97,11 @@ class JointAnalysis_nest:
                    self.x = np.array(unique_x + shared_x)
 
         else:
+
             self.save_name1 = None
             self.save_name1 = self.get_save_file_names(None)[0]
             self.shared_parameters = self.shared_parameters_for_k
+            self.Force_share=self.Force_share_k
 
 
             if os.path.isfile(self.save_name1):
@@ -101,6 +109,8 @@ class JointAnalysis_nest:
                        self.geneconv_list[i].renew_em_joint()
                 self.initialize_by_save(self.save_name1)
                 print('Successfully loaded parameter value from ' + self.save_name1)
+                for i in range(len(self.paralog_list)):
+                    self.fixk[i] = self.x[-1]
 
 
             else:
@@ -109,12 +119,14 @@ class JointAnalysis_nest:
 
                 single_x = self.geneconv_list[0].x
                 shared_x = [single_x[i] for i in self.shared_parameters]
+
+
                 unique_x = [single_x[i] for i in range(len(single_x)) if not i in self.shared_parameters] * len(
                     self.geneconv_list)
                 self.unique_len = len(unique_x)
                 self.x = np.array(unique_x + shared_x)
 
-        self.update_by_x(self.x)
+        self.update_by_x(deepcopy(self.x))
         if self.multiprocess_combined_list is None:
             self.multiprocess_combined_list = range(len(self.geneconv_list))
 
@@ -125,10 +137,9 @@ class JointAnalysis_nest:
             model_string = self.Model
 
         if save_name is None:
-            if self.IGC_Omega is None:
-                general_save_name = self.save_path + 'Joint_' + model_string + '_' + str(len(self.paralog_list)) + '_pairs_grand_save.txt'
-            else:
-                general_save_name = self.save_path + 'Joint_' + model_string + '_twoOmega_' + str(len(self.paralog_list)) + '_pairs_grand_save.txt'
+
+            general_save_name = self.save_path + 'Joint_' + model_string + '_' + str(len(self.paralog_list)) + '_pairs_grand_save.txt'
+
         else:
             general_save_name = save_name
 
@@ -334,6 +345,7 @@ class JointAnalysis_nest:
         return result
 
     def save_x(self):
+
         save = self.x
         if self.ifmodel=="old":
            save_file = self.save_name
@@ -352,63 +364,6 @@ class JointAnalysis_nest:
         H = nd.Hessian(self.objective_wo_gradient)(np.float128((self.x[int(self.unique_len)-1:int(self.unique_len)+1])))
 
         return H
-
-
-    def em_joint(self,epis=0.01,MAX=5):
-        ll0=self.get_mle()["fun"]
-      #  print(ll0)
-        self.oldtau=deepcopy(self.geneconv_list[1].tau)
-        pstau =deepcopy(([self.geneconv_list[i].tau for i in range(len(self.paralog_list))]))
-        pstau=np.sum(pstau)
-        self.ifmodel = "EM_full"
-        self.initialize_x()
-
-        self.get_mle()
-        tau = deepcopy(([self.geneconv_list[i].tau for i in range(len(self.paralog_list))]))
-        tau=np.sum(tau)
-        difference = abs(tau - pstau)
-
-        print("EMcycle:")
-        print(0)
-        print(self.geneconv_list[1].K)
-        print(self.geneconv_list[1].tau)
-        print("xxxxxxxxxxxxxxxxx")
-        print("xxxxxxxxxxxxxxxxx")
-        print("xxxxxxxxxxxxxxxxx")
-        print("\n")
-
-
-        i=1
-        while i<=MAX and difference >=epis:
-            pstau = deepcopy(tau)
-            for ii in range(len(self.paralog_list)):
-                 self.geneconv_list[ii].id = self.geneconv_list[ii].compute_paralog_id()
-            self.get_mle()
-            tau = deepcopy(np.exp([self.geneconv_list[i].x[5] for i in range(len(self.paralog_list))]))
-            tau = np.sum(tau)
-            difference = abs(tau - pstau)
-
-            print("EMcycle:")
-            print(i)
-            i = i + 1
-            print(self.geneconv_list[1].K)
-            print(self.geneconv_list[1].tau)
-            print("xxxxxxxxxxxxxxxxx")
-            print("xxxxxxxxxxxxxxxxx")
-            print("xxxxxxxxxxxxxxxxx")
-            print("\n")
-
-        print("xxxxxxxxxxxxxxxxxxx")
-        print("old tau:")
-        print(self.oldtau)
-        print("old ll:")
-        print(ll0)
-
-        for i in range(len(self.paralog_list)):
-            print("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx")
-            print(i)
-            print(self.geneconv_list[i].id)
-            print(self.geneconv_list[i].x)
 
 
 ### for fix ind or shared
@@ -451,26 +406,41 @@ class JointAnalysis_nest:
 
         print(x)
 
-        if self.Model=="HKY":
-            for i in self.multiprocess_combined_list:
-                self.fixtau[i]=np.exp(x)
-                self.x[-1]=deepcopy(x)
-        if self.Model=="MG94":
-            if self.len(self.shared_parameters)==1:
-                if self.shared_parameters==4:
-                    self.x[-1] = deepcopy(x)
-                    for i in self.multiprocess_combined_list:
-                        self.fixomega[i] = np.exp(x)
+        if self.ifmodel!="old":
+
+                if len(self.shared_parameters_for_k)==1:
+                        self.x[-1] = deepcopy(x)
+                        self.fixk = np.ones(len(self.paralog_list)) * (x)
                 else:
-                    self.x[-1] = x
-                    for i in self.multiprocess_combined_list:
-                        self.fixtau[i] = np.exp(x)
-            else:
+                        self.x[-1] = deepcopy(x[1])
+                        self.x[-2] = deepcopy(x[0])
+                        self.fixk = np.ones(len(self.paralog_list)) * (x[1])
+                        self.fixtau = np.ones(len(self.paralog_list)) * np.exp(x[0])
+
+
+        else:
+            if self.Model == "HKY":
+                for i in self.multiprocess_combined_list:
+                    self.fixtau[i] = np.exp(x)
+                    self.x[-1] = deepcopy(x)
+            if self.Model == "MG94":
+                if len(self.shared_parameters) == 1:
+                    if self.shared_parameters == 4:
+                        self.x[-1] = deepcopy(x)
+                        for i in self.multiprocess_combined_list:
+                            self.fixomega[i] = np.exp(x)
+                    else:
+                        self.x[-1] = x
+                        for i in self.multiprocess_combined_list:
+                            self.fixtau[i] = np.exp(x)
+                else:
                     self.x[-1] = deepcopy(x[1])
                     self.x[-2] = deepcopy(x[0])
                     for i in self.multiprocess_combined_list:
                         self.fixomega[i] = np.exp(x[0])
                         self.fixtau[i] = np.exp(x[1])
+
+
 
         self.update_by_x(self.x)
 
@@ -502,15 +472,17 @@ class JointAnalysis_nest:
 
         g =  np.sum(shared_derivatives, axis=0)/len(self.paralog_list)
 
-
         uniq_para=np.concatenate([[result[1][idx] for idx in range(len(result[1])) if not idx in self.shared_parameters] for result in results])
-
         shared_para=[results[0][1][idx] for idx in range(len(self.geneconv_list[0].x)) if idx in self.shared_parameters]
         self.x = deepcopy(np.concatenate((uniq_para, shared_para)))
 
         print('log  likelihhood = ', f)
         print('Gradient = ',g)
-        print('exp shared = ', np.exp(self.x))
+        if self.ifmodel=="old":
+             print('exp shared = ', np.exp(self.x))
+        else:
+            print('exp shared = ', np.exp(self.x[:-1]))
+            print('K = ',(self.x[-1]))
 
         # Now save parameter values
         if self.ifmodel == "old":
@@ -531,51 +503,119 @@ class JointAnalysis_nest:
 
 
 
-    def get_nest_mle(self):
+    def get_nest_mle(self,opt="BFGS"):
 
 
-        self.update_by_x(self.x)
+        self.update_by_x(deepcopy(self.x))
 
-        if self.Model=="HKY":
-                    guess_x=self.x[-1]
-        if self.Model=="MG94":
-            if self.len(self.shared_parameters)==1:
-                if self.shared_parameters==4:
-                    guess_x = self.x[-1]
+
+        if self.ifmodel=="old":
+
+            if self.Model=="HKY":
+                        guess_x=self.x[-1]
+            if self.Model=="MG94":
+                if len(self.shared_parameters)==1:
+                    if self.shared_parameters==4:
+                        guess_x = self.x[-1]
+                    else:
+
+                        guess_x = self.x[-1]
                 else:
+                        guess_x=np.zeros(2)
+                        guess_x[0] = self.x[-2]
+                        guess_x[1] = self.x[-1]
 
-                    guess_x = self.x[-1]
-            else:
-                    guess_x=np.zeros(2)
-                    guess_x[0] = self.x[-2]
-                    guess_x[1] = self.x[-1]
+        else:
 
-
-
-# here is parameter instead of dev
-
-    #    result = scipy.optimize.minimize(self.obj, guess_x, jac=True, method='L-BFGS-B')
-     #   result = scipy.optimize.minimize(self.obj, guess_x, jac=True, method='BFGC',
-         #                                options={'xtol': 1e-05})
+                if len(self.shared_parameters_for_k) == 1:
+                        guess_x =  deepcopy(self.x[-1])
+                else:
+                    guess_x = np.zeros(2)
+                    guess_x[0] = deepcopy(self.x[-2])
+                    guess_x[1] = deepcopy(self.x[-1])
 
         if self.Model=="HKY":
-            nmax=150
+            nmax=100
         else:
             nmax=40
 
-        result = scipy.optimize.basinhopping(self.obj, guess_x,
-                                             minimizer_kwargs={'method': 'L-BFGS-B', 'jac': True, },
+        if opt=="BFGS":
+            result = scipy.optimize.minimize(self.obj, guess_x, jac=True, method='L-BFGS-B')
+
+        else:
+            bnds = [(-5.0, 3.0)] * 1
+            bnds.extend([(-5.0, 10.0)] * (1))
+            result = scipy.optimize.basinhopping(self.obj, guess_x,
+                                             minimizer_kwargs={'method': 'L-BFGS-B', 'jac': True,'bounds':bnds},
                                              niter=nmax)
 
 
-
         self.save_x()
-
-      #  rr=self.get_mle()
-     #   print(self.x)
+        self.update_by_x(self.x)
+        print(result)
 
 
         return result
+
+
+    def em_joint(self,epis=0.01,MAX=3,opt="BFGS"):
+        ll0=self.get_nest_mle()["fun"]
+        self.oldtau=deepcopy(self.geneconv_list[1].tau)
+        psK =deepcopy(self.geneconv_list[0].K)
+
+        self.ifmodel = "EM_full"
+        self.initialize_x()
+        print(" We assume K is shared and tau may be shared")
+
+        self.get_nest_mle(opt=opt)
+        K = deepcopy(self.geneconv_list[0].K)
+        difference = abs(K - psK)
+
+        print("EMcycle:")
+        print(0)
+        print(self.geneconv_list[0].K)
+        print(self.geneconv_list[0].tau)
+        print("xxxxxxxxxxxxxxxxx")
+        print("xxxxxxxxxxxxxxxxx")
+        print("xxxxxxxxxxxxxxxxx")
+        print("\n")
+
+
+        i=1
+        while i<=MAX and difference >=epis:
+            psK = deepcopy(K)
+            for ii in range(len(self.paralog_list)):
+                 self.geneconv_list[ii].id = self.geneconv_list[ii].compute_paralog_id()
+            self.get_nest_mle(opt=opt)
+            K = deepcopy(np.exp(self.geneconv_list[i].K))
+            difference = abs(K - psK)
+
+
+            print("xxxxxxxxxxxxxxxxxxxxxxxxxxx")
+            print("xxxxxxxxxxxxxxxxxxxxxxxxxxx")
+            print("EMcycle:")
+            print(i)
+            i = i + 1
+            print(self.geneconv_list[1].K)
+            print(self.geneconv_list[1].tau)
+            print("xxxxxxxxxxxxxxxxxxxxxxxxxxx")
+            print("xxxxxxxxxxxxxxxxxxxxxxxxxxx")
+
+            print("\n")
+
+        print("xxxxxxxxxxxxxxxxxxxxxxxxxxx")
+        print("old tau:")
+        print(self.oldtau)
+        print("old ll:")
+        print(ll0)
+        print("xxxxxxxxxxxxxxxxxxxxxxxxxxx")
+
+
+        for i in range(len(self.paralog_list)):
+            print("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx")
+            print(i)
+            print(self.geneconv_list[i].id)
+            print(self.geneconv_list[i].x)
 
 
 
@@ -601,7 +641,8 @@ if __name__ == '__main__':
     Model = 'HKY'
 
     joint_analysis = JointAnalysis_nest(alignment_file_list,  newicktree, paralog_list, Shared = Shared,
-                                   IGC_Omega = None, Model = Model, Force = Force,Force_share={4:0},tauini=6.0,
+                                   IGC_Omega = None, Model = Model, Force = Force,Force_share={4:0},
+                                   shared_parameters_for_k=[4,5],Force_share_k={4:0,5:0},tauini=6.0,kini=1.1,
                                    save_path = '../test/save/')
 
 
@@ -610,7 +651,7 @@ if __name__ == '__main__':
   #  print( joint_analysis.geneconv_list[0].Force)
   #  joint_analysis.geneconv_list[0].get_mle(tauini=55)
  #   joint_analysis.ind_ana()
-    print(joint_analysis.get_nest_mle())
+    print(joint_analysis.em_joint())
 
   #  joint_analysis.geneconv_list[0].Force = joint_analysis.Force_share
    # tauini = joint_analysis.fixtau[0]

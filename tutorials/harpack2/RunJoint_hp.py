@@ -50,8 +50,7 @@ if __name__ == '__main__':
     print('start to analyze')
     print('Input: ' + inputFolder)
 #    print('Job name: ' + outputName)
-    print('IGC_Omega: ' + str(IGC_Omega))
-    print('Tau_Omega: ' + str(Tau_Omega))
+
     print('number of files: ' + str(len(files)))
 
     print(alignment_file_list)
@@ -63,9 +62,11 @@ if __name__ == '__main__':
   #  print(paralog_list)
     
     joint_analysis =JointAnalysis_nest(alignment_file_list,  newicktree, paralog_list, Shared = Shared,
-                                   IGC_Omega = None, Model = Model, Force = Force,Force_share={4:0},tauini=1.0,inibranch=0.4,
+                                   IGC_Omega = None, Model = Model, Force = Force,Force_share={4:0},
+                                       shared_parameters_for_k=[4, 5], Force_share_k={4: 0, 5: 0},
+                                       tauini=1.2,inibranch=0.2,kini=1.1,
                                    save_path = './save/')
  #0.2 0.4 best ini by now 28965.8
 
-    print(joint_analysis.get_nest_mle())
+    print(joint_analysis.em_joint())
    # print(joint_analysis.get_mle())
