@@ -374,7 +374,7 @@ class JointAnalysis_nest:
                 self.geneconv_list[num_jsgeneconv].Force=self.Force_share
                 tauini=self.fixtau[num_jsgeneconv]
                 omegaini=self.fixomega[num_jsgeneconv]
-                self.geneconv_list[num_jsgeneconv].get_mle(tauini=tauini,omegaini=omegaini,ifseq=True)
+                self.geneconv_list[num_jsgeneconv].get_mle(display=False,tauini=tauini,omegaini=omegaini,ifseq=True)
                 self.fixtau[num_jsgeneconv]=deepcopy(self.geneconv_list[num_jsgeneconv].tau)
                 self.fixomega[num_jsgeneconv] = deepcopy(self.geneconv_list[num_jsgeneconv].omega)
 
