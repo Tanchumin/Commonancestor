@@ -373,10 +373,15 @@ class JointAnalysis_nest:
                 self.update_by_x(self.x)
                 self.geneconv_list[num_jsgeneconv].Force=self.Force_share
                 tauini=self.fixtau[num_jsgeneconv]
-                omegaini=self.fixomega[num_jsgeneconv]
-                self.geneconv_list[num_jsgeneconv].get_mle(display=False,tauini=tauini,omegaini=omegaini,ifseq=True)
-                self.fixtau[num_jsgeneconv]=deepcopy(self.geneconv_list[num_jsgeneconv].tau)
-                self.fixomega[num_jsgeneconv] = deepcopy(self.geneconv_list[num_jsgeneconv].omega)
+
+                if self.ifmodel == "old":
+                      omegaini = self.fixomega[num_jsgeneconv]
+                      self.geneconv_list[num_jsgeneconv].get_mle(display=False,tauini=tauini,omegaini=omegaini,ifseq=True)
+                      self.fixtau[num_jsgeneconv]=deepcopy(self.geneconv_list[num_jsgeneconv].tau)
+                      self.fixomega[num_jsgeneconv] = deepcopy(self.geneconv_list[num_jsgeneconv].omega)
+                else:
+                    kini=deepcopy(self.fixk[num_jsgeneconv])
+                    self.geneconv_list[num_jsgeneconv].get_mle(display=False, tauini=tauini,kini=kini, ifseq=True)
 
                 self.geneconv_list[num_jsgeneconv].Force = None
                 result = self.geneconv_list[num_jsgeneconv].objective_and_gradient(True,
@@ -390,11 +395,16 @@ class JointAnalysis_nest:
                 self.update_by_x(self.x)
 
                 self.geneconv_list[num_jsgeneconv].Force = self.Force_share
-                tauini = deepcopy( self.fixtau[num_jsgeneconv])
-                self.geneconv_list[num_jsgeneconv].get_mle(display=False,tauini=tauini,ifseq=True)
+                tauini = deepcopy(self.fixtau[num_jsgeneconv])
+                if self.ifmodel=="old":
+                    self.geneconv_list[num_jsgeneconv].get_mle(display=False,tauini=tauini,ifseq=True)
+
+                else:
+                    kini=deepcopy(self.fixk[num_jsgeneconv])
+                    self.geneconv_list[num_jsgeneconv].get_mle(display=False, tauini=tauini,kini=kini, ifseq=True)
+
 
                 self.fixtau[num_jsgeneconv] = deepcopy(self.geneconv_list[num_jsgeneconv].tau)
-
                 self.geneconv_list[num_jsgeneconv].Force = None
                 result = self.geneconv_list[num_jsgeneconv].objective_and_gradient(False,
                                                                                    self.geneconv_list[num_jsgeneconv].x)
@@ -503,7 +513,7 @@ class JointAnalysis_nest:
 
 
 
-    def get_nest_mle(self,opt="BFGS"):
+    def get_nest_mle(self,opt="LBFGS"):
 
 
         self.update_by_x(deepcopy(self.x))
@@ -526,7 +536,6 @@ class JointAnalysis_nest:
                         guess_x[1] = self.x[-1]
 
         else:
-
                 if len(self.shared_parameters_for_k) == 1:
                         guess_x =  deepcopy(self.x[-1])
                 else:
@@ -539,8 +548,11 @@ class JointAnalysis_nest:
         else:
             nmax=40
 
-        if opt=="BFGS":
+        if opt=="LBFGS":
             result = scipy.optimize.minimize(self.obj, guess_x, jac=True, method='L-BFGS-B')
+        elif opt=="LBFGS":
+            if opt == "LBFGS":
+                result = scipy.optimize.minimize(self.obj, guess_x, jac=True, method='BFGS')
 
         else:
             bnds = [(-5.0, 3.0)] * 1
@@ -577,7 +589,7 @@ class JointAnalysis_nest:
         print(self.geneconv_list[0].tau)
         print("xxxxxxxxxxxxxxxxx")
         print("xxxxxxxxxxxxxxxxx")
-        print("xxxxxxxxxxxxxxxxx")
+
         print("\n")
 
 

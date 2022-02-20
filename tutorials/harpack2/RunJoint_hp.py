@@ -68,5 +68,6 @@ if __name__ == '__main__':
                                    save_path = './save/')
  #0.2 0.4 best ini by now 28965.8
 
-    print(joint_analysis.em_joint())
+ #   print(joint_analysis.get_seq_mle())
+    print(joint_analysis.em_joint(opt="BFGS"))
    # print(joint_analysis.get_mle())

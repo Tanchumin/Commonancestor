@@ -1168,13 +1168,16 @@ class Embrachtau:
         return -ll
 
     def get_mle(self, display=True, derivative=True, em_iterations=0, method='BFGS', niter=2000,
-                tauini=1.1,omegaini=1.4,ifseq=False):
+                tauini=1.1,omegaini=1.4,kini=1.1,ifseq=False):
 
         if ifseq==True and self.Model=="HKY":
 
             self.tau=tauini
             self.x_process[4]=np.log(tauini)
             self.x[4] = np.log(tauini)
+            if self.ifmodel!="old":
+                self.x[5]=kini
+
         #    print(self.x)
        #     print(self.tau)
 
@@ -1186,7 +1189,8 @@ class Embrachtau:
             self.x[5] = np.log(tauini)
             self.x_process[4]=np.log(omegaini)
             self.x[4] = np.log(omegaini)
-
+            if self.ifmodel != "old":
+                self.x[6] = kini
 
         if em_iterations > 0:
             ll = self._loglikelihood2()
