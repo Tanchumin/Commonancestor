@@ -267,6 +267,11 @@ class JointAnalysis:
             self.update_by_x(x)
             result = self.geneconv_list[num_jsgeneconv].objective_and_gradient(display,
                                                                                self.geneconv_list[num_jsgeneconv].x)
+            if num_jsgeneconv==1:
+                print(self.geneconv_list[1].nsites)
+                print(result[0])
+
+
             output.put(result)
 
 
@@ -296,11 +301,7 @@ class JointAnalysis:
         print("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx")
         print("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx")
 
-        for result in results:
-            for idx in range(len(result[1])):
-                print(idx)
-                if idx in self.shared_parameters:
-                   print(result[1][idx])
+        print(results[1][0])
 
         print("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx")
         print("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx")

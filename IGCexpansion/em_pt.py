@@ -984,7 +984,7 @@ class Embrachtau:
         Modified from Alex's objective_and_gradient function in ctmcaas/adv-log-likelihoods/mle_geneconv_common.py
         '''
         self.update_by_x()
-        delta = 1e-7
+        delta = 1e-8
         x = deepcopy(self.x)  # store the current x array
         if package == 'new':
             fn = self._loglikelihood2
@@ -1214,7 +1214,7 @@ class Embrachtau:
             else:
                 self.update_by_x()
 
-        bnds = [(-10.0, -0.05)] * 3
+        bnds = [(-8.0, -0.05)] * 3
         if not self.clock:
             self.update_by_x()
             if derivative:
@@ -1230,8 +1230,8 @@ class Embrachtau:
                 f = partial(self.objective_wo_derivative, display)
             guess_x = self.x
             if self.ifmodel=="old" :
-                bnds.extend([(-10.0, 6.0)] * (len(self.x_process) - 4))
-                edge_bnds = [(-9.0, 4.0)] * len(self.x_rates)
+                bnds.extend([(None, 6.0)] * (len(self.x_process) - 4))
+                edge_bnds = [(None, 4.0)] * len(self.x_rates)
                 edge_bnds[1] = (self.minlogblen, 4.0)
             elif self.ifmodel=="EM_full":
                 bnds.extend([(None, 6)] * (len(self.x_process) - 5))
@@ -1243,7 +1243,7 @@ class Embrachtau:
 
 #tau and K
             if self.ifmodel=="old":
-                bnds.extend([(-10.0, 8.0)] * (1))
+                bnds.extend([(-10.0, 6.0)] * (1))
 
             if self.ifmodel=="EM_full":
                 if self.bound == True:
@@ -1297,7 +1297,7 @@ class Embrachtau:
                                                                                    'bounds': bnds},
                                                      niter=niter)  # , callback = self.check_boundary)
 
-        print(result)
+    #    print(result)
 
 
         self.save_x()

@@ -1,9 +1,6 @@
 #!/bin/python3
 
 from __future__ import print_function
-import jsonctmctree.ll, jsonctmctree.interface
-from IGCexpansion.CodonGeneconv import *
-from IGCexpansion.em_pt import *
 from IGCexpansion.joint_nest import *
 from copy import deepcopy
 import os
@@ -64,10 +61,10 @@ if __name__ == '__main__':
     joint_analysis =JointAnalysis_nest(alignment_file_list,  newicktree, paralog_list, Shared = Shared,
                                    IGC_Omega = None, Model = Model, Force = Force,Force_share={4:0},
                                        shared_parameters_for_k=[4, 5], Force_share_k={4: 0, 5: 0},
-                                       tauini=1.2,inibranch=0.2,kini=1.1,
+                                       tauini=1.2,inibranch=0.2,kini=0.1,
                                    save_path = './save/')
  #0.2 0.4 best ini by now 28965.8
 
- #   print(joint_analysis.get_seq_mle())
-    print(joint_analysis.em_joint(opt="BFGS"))
+  #  print(joint_analysis.get_seq_mle())
+    print(joint_analysis.em_joint())
    # print(joint_analysis.get_mle())

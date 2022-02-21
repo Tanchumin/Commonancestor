@@ -15,46 +15,28 @@ import json
 import numpy.core.multiarray
 from scipy.stats import poisson
 import re
+import multiprocessing as mp
+
+def ddd(output,i):
+    print(i)
+    np.exp(i+i)
+    output.put(i)
 
 
-def atoi(text):
-    return int(text) if text.isdigit() else text
-def natural_keys(text):
-    return [ atoi(c) for c in re.split('(\d+)',text) ]
+output = mp.Queue()
 
+# Setup a list of processes that we want to run
+processes = [
+    mp.Process(target=ddd, args=(output,i)) \
+    for i in range(10)]
 
+# Run processes
+for p in processes:
+    p.start()
 
-#inputFolder = 'YeastSeq'
+# Exit the completed processes
+for p in processes:
+    p.join()
 
-#files = os.listdir('/Users/txu7/Desktop/igc_research/approach3/' + inputFolder)
-#files = ['/Users/txu7/Desktop/igc_research/approach3/' + inputFolder + '/' + file for file in files if 'fasta' in file]
-# files.sort(key=natural_keys)
-# alignment_file_list = files
-# newicktree = '/Users/txu7/Desktop/igc_research/approach3/' + inputFolder + '/YeastTree.newick'
-#
-#
-# p=0
-# for i in range(len(alignment_file_list)):
-#        print(i)
-#        f = open(alignment_file_list[i], "r")
-#      # print(p)
-#        p=p+len(f.readlines()[1])
-#        #p=("".join([p, f.readlines()[1]]))
-#
-# #
-# #d=repr(p)
-# print(p)
-
-
-
-#with open("/Users/txu7/Desktop/igc_research/approach3/YeastSeq/new","w+") as new:
-    #new.write(d)
-
-try:
-    x, y = 7, 0
-    z = x / y
-except Exception:
-    print("xxxxxxx")
-
-
-
+results = [output.get() for p in processes]
+print(results[2])

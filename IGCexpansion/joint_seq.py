@@ -74,12 +74,14 @@ class JointAnalysis_seq:
         self.fixomega=np.zeros(len(self.paralog_list))
         self.fixk = np.zeros(len(self.paralog_list))
 
+        self.siteslist = np.zeros(len(self.paralog_list))
+
         for i in range(len(self.paralog_list)):
             self.fixtau[i] = tauini
             self.fixk[i] = kini
+            self.siteslist[i] = self.geneconv_list[i].nsites
             if self.Model == "MG94":
-                  self.fixomega[i]=omegaini
-
+                self.fixomega[i] = omegaini
 
     def initialize_x(self):
         if self.ifmodel == "old":
@@ -394,21 +396,42 @@ class JointAnalysis_seq:
 
                 self.geneconv_list[num_jsgeneconv].Force = self.Force_share
                 tauini = deepcopy( self.fixtau[num_jsgeneconv])
-                result=self.geneconv_list[num_jsgeneconv].get_mle(display=display,tauini=tauini,ifseq=True)
+                if num_jsgeneconv == 4:
+                   print("for ind")
+                   print(self.geneconv_list[num_jsgeneconv].nsites)
+                   result = self.geneconv_list[num_jsgeneconv].get_mle(display=True,tauini=tauini,ifseq=True)
+                   print(self.geneconv_list[num_jsgeneconv].x)
+                else:
+                   result=self.geneconv_list[num_jsgeneconv].get_mle(display=display,tauini=tauini,ifseq=True)
                 self.fixtau[num_jsgeneconv] = self.geneconv_list[num_jsgeneconv].tau
                 output.put(result)
-                if num_jsgeneconv==0:
-                    print("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx")
-                    print(self.geneconv_list[num_jsgeneconv].nsites)
-                    print(self.geneconv_list[num_jsgeneconv].x)
+
 
 
             else:
                 self.update_by_x(x)
                 self.geneconv_list[num_jsgeneconv].Force = None
-                result = self.geneconv_list[num_jsgeneconv].objective_and_gradient(False,
+                if num_jsgeneconv==4:
+                       print("for shared")
+                       print( self.geneconv_list[num_jsgeneconv].nsites)
+                       result = self.geneconv_list[num_jsgeneconv].objective_and_gradient(True,
                                                                                    self.geneconv_list[num_jsgeneconv].x)
+                else:
+                    result = self.geneconv_list[num_jsgeneconv].objective_and_gradient(False,
+                                                                                       self.geneconv_list[
+                                                                                           num_jsgeneconv].x)
+
                 output.put(result)
+
+    def reorder(self,list):
+        listnew=[]
+        for i in self.multiprocess_combined_list:
+            for j in self.multiprocess_combined_list:
+              if self.siteslist[i]==list[j][2]:
+                  listnew.append(list[j])
+              #    print(j)
+
+        return listnew
 
 
     def ind_ana(self):
@@ -432,6 +455,8 @@ class JointAnalysis_seq:
             p.join()
 
         results = [output.get() for p in processes]
+
+        results = self.reorder(results)
 
       #  f = sum([result[0] for result in results])
         uniq_para = np.concatenate([[result["x"][idx] for idx in range(len(results[0]["x"]))
@@ -495,6 +520,7 @@ class JointAnalysis_seq:
         g =  np.sum(shared_derivatives, axis=0)/len(self.paralog_list)
 
         print('log  likelihhood = ', f)
+        print('gradient =', g)
 
 
         # Now save parameter values
@@ -524,31 +550,27 @@ class JointAnalysis_seq:
 
 
         self.x = deepcopy(np.concatenate((uniq_para, shared_para)))
-        print("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx")
-        print(shared_para[0:10])
-        print("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx")
+
 
 
 
         if self.Model == "HKY":
-            guess_x = self.x[-1]
+            guess_x = deepcopy(self.x[-1])
         if self.Model == "MG94":
             if len(self.shared_parameters) == 1:
                 if self.shared_parameters == 4:
                     guess_x = self.x[-1]
                 else:
-
                     guess_x = self.x[-1]
             else:
                 guess_x = np.zeros(2)
-
                 guess_x[0] = self.x[-2]
                 guess_x[1] = self.x[-1]
 
 
   #      result = scipy.optimize.minimize(self.sha_ana, guess_x, jac=True, method='L-BFGS-B',
    #                                          options={ 'maxcor': 12,'ftol': 1e-11,'maxls': 30})
-        result = scipy.optimize.minimize(self.sha_ana, guess_x, jac=True, method='L-BFGS-B',
+        result = scipy.optimize.minimize(self.sha_ana, guess_x, jac=True, method='BFGS',
                                          options={'gtol': 1e-06})
 
         self.save_x()
@@ -564,13 +586,13 @@ class JointAnalysis_seq:
 
     def get_seq_mle(self,MAX=20,epison=0.05):
 
-        oldx=deepcopy(self.x)
+        oldx=deepcopy(np.exp(self.x))
         epison=len(oldx)*epison
         i=0
         eps=len(oldx)*100
 
         while i<=MAX and eps>=epison:
-            newx=self.mle()
+            newx=np.exp(self.mle())
             i=i+1
             eps=np.sum(abs(newx-oldx))
             print("Xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx")

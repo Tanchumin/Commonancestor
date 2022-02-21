@@ -73,15 +73,20 @@ class JointAnalysis_nest:
         self.fixtau=np.zeros(len(self.paralog_list))
         self.fixomega=np.zeros(len(self.paralog_list))
         self.fixk = np.zeros(len(self.paralog_list))
+        self.siteslist=np.zeros(len(self.paralog_list))
 
         for i in range(len(self.paralog_list)):
             self.fixtau[i] = tauini
             self.fixk[i] = kini
+            self.siteslist[i] = self.geneconv_list[i].nsites
             if self.Model == "MG94":
                   self.fixomega[i]=omegaini
 
 
     def initialize_x(self):
+
+
+
         if self.ifmodel == "old":
             if os.path.isfile(self.save_name):
                 self.initialize_by_save(self.save_name)
@@ -121,10 +126,10 @@ class JointAnalysis_nest:
                 shared_x = [single_x[i] for i in self.shared_parameters]
 
 
-                unique_x = [single_x[i] for i in range(len(single_x)) if not i in self.shared_parameters] * len(
-                    self.geneconv_list)
+                unique_x = np.concatenate([[ self.geneconv_list[ii].x[idx] for idx in range(len(self.geneconv_list[0].x)) if not idx in self.shared_parameters]
+                                           for ii in self.multiprocess_combined_list])
                 self.unique_len = len(unique_x)
-                self.x = np.array(unique_x + shared_x)
+                self.x = np.concatenate((unique_x, shared_x))
 
         self.update_by_x(deepcopy(self.x))
         if self.multiprocess_combined_list is None:
@@ -189,6 +194,9 @@ class JointAnalysis_nest:
             geneconv = self.geneconv_list[geneconv_idx]
             uniq_x = self.x[geneconv_idx * uniq_dim : (geneconv_idx + 1) * uniq_dim]
             geneconv.update_by_x(self.combine_x(uniq_x, shared_x))
+     #       print("xxxxxxxxxxxxxxxxxxxxxxxxxxxx")
+     #       print(self.geneconv_list[1].nsites)
+     #       print(self.geneconv_list[1].x)
 
     def get_original_bounds(self):
         if self.ifmodel=="EM_full":
@@ -370,7 +378,6 @@ class JointAnalysis_nest:
     def _process_objective_and_gradient_fix(self, num_jsgeneconv, display, output):
         if self.Model=="MG94":
 
-                self.update_by_x(self.x)
                 self.geneconv_list[num_jsgeneconv].Force=self.Force_share
                 tauini=self.fixtau[num_jsgeneconv]
 
@@ -384,32 +391,54 @@ class JointAnalysis_nest:
                     self.geneconv_list[num_jsgeneconv].get_mle(display=False, tauini=tauini,kini=kini, ifseq=True)
 
                 self.geneconv_list[num_jsgeneconv].Force = None
-                result = self.geneconv_list[num_jsgeneconv].objective_and_gradient(True,
+                result1 = self.geneconv_list[num_jsgeneconv].objective_and_gradient(True,
                                                                                    self.geneconv_list[num_jsgeneconv].x)
-                result = [result, self.geneconv_list[num_jsgeneconv].x]
+                result = [result1, self.geneconv_list[num_jsgeneconv].x]
                 output.put(result)
 
         else:
 
 
-                self.update_by_x(self.x)
+              #  self.update_by_x(self.x)
+
 
                 self.geneconv_list[num_jsgeneconv].Force = self.Force_share
                 tauini = deepcopy(self.fixtau[num_jsgeneconv])
                 if self.ifmodel=="old":
                     self.geneconv_list[num_jsgeneconv].get_mle(display=False,tauini=tauini,ifseq=True)
 
+
                 else:
+                 #   print(num_jsgeneconv)
                     kini=deepcopy(self.fixk[num_jsgeneconv])
-                    self.geneconv_list[num_jsgeneconv].get_mle(display=False, tauini=tauini,kini=kini, ifseq=True)
+                    #if num_jsgeneconv==1:
+                    #    print(self.geneconv_list[num_jsgeneconv].nsites)
+                    #    print(self.geneconv_list[num_jsgeneconv].x)
+                    #    self.geneconv_list[num_jsgeneconv].get_mle(display=True, tauini=tauini,kini=kini, ifseq=True)
+                   # else:
+
+
+                    self.geneconv_list[num_jsgeneconv].get_mle(display=False, tauini=tauini, kini=kini, ifseq=True)
 
 
                 self.fixtau[num_jsgeneconv] = deepcopy(self.geneconv_list[num_jsgeneconv].tau)
                 self.geneconv_list[num_jsgeneconv].Force = None
-                result = self.geneconv_list[num_jsgeneconv].objective_and_gradient(False,
+                result1 = self.geneconv_list[num_jsgeneconv].objective_and_gradient(False,
                                                                                    self.geneconv_list[num_jsgeneconv].x)
-                result=[result, self.geneconv_list[num_jsgeneconv].x]
+                result=[result1, self.geneconv_list[num_jsgeneconv].x,self.geneconv_list[num_jsgeneconv].nsites]
+
                 output.put(result)
+
+
+    def reorder(self,list):
+        listnew=[]
+        for i in self.multiprocess_combined_list:
+            for j in self.multiprocess_combined_list:
+              if self.siteslist[i]==list[j][2]:
+                  listnew.append(list[j])
+              #    print(j)
+
+        return listnew
 
 
     def obj(self, x):
@@ -429,6 +458,7 @@ class JointAnalysis_nest:
 
 
         else:
+
             if self.Model == "HKY":
                 for i in self.multiprocess_combined_list:
                     self.fixtau[i] = np.exp(x)
@@ -450,9 +480,13 @@ class JointAnalysis_nest:
                         self.fixomega[i] = np.exp(x[0])
                         self.fixtau[i] = np.exp(x[1])
 
+        dd=deepcopy(self.x)
+   #     print("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx")
+  #      print("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx")
 
-
-        self.update_by_x(self.x)
+        self.update_by_x(dd)
+   #     print("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx")
+   #     print("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx")
 
         output = mp.Queue()
 
@@ -461,6 +495,9 @@ class JointAnalysis_nest:
         processes = [
             mp.Process(target=self._process_objective_and_gradient_fix, args=(i, False,  output)) \
             for i in self.multiprocess_combined_list]
+
+
+
 
         # Run processes
         for p in processes:
@@ -471,27 +508,32 @@ class JointAnalysis_nest:
             p.join()
 
         results = [output.get() for p in processes]
+
+        results=self.reorder(results)
+
      #   print(results)
 
         f = np.sum([result[0][0] for result in results])/len(self.paralog_list)
         # uniq_derivatives will get unique derivatives for each gene
-        uniq_derivatives = np.concatenate([[0 for idx in range(len(result[1])) if not idx in self.shared_parameters] for result in results])
         # for  shared parameter, the derivatives is computed as sum of all genes' corresponding derivaties
         shared_derivatives = [[result[0][1][idx] for idx in range(len(result[0][1])) if idx in self.shared_parameters] for
                               result in results]
 
         g =  np.sum(shared_derivatives, axis=0)/len(self.paralog_list)
 
+
         uniq_para=np.concatenate([[result[1][idx] for idx in range(len(result[1])) if not idx in self.shared_parameters] for result in results])
         shared_para=[results[0][1][idx] for idx in range(len(self.geneconv_list[0].x)) if idx in self.shared_parameters]
         self.x = deepcopy(np.concatenate((uniq_para, shared_para)))
 
+
+
         print('log  likelihhood = ', f)
         print('Gradient = ',g)
         if self.ifmodel=="old":
-             print('exp shared = ', np.exp(self.x))
+             print('x = ', self.x)
         else:
-            print('exp shared = ', np.exp(self.x[:-1]))
+            print('non-share x = ', self.x[:-1])
             print('K = ',(self.x[-1]))
 
         # Now save parameter values
@@ -550,19 +592,19 @@ class JointAnalysis_nest:
 
         if opt=="LBFGS":
             result = scipy.optimize.minimize(self.obj, guess_x, jac=True, method='L-BFGS-B')
-        elif opt=="LBFGS":
-            if opt == "LBFGS":
+        elif opt=="BFGS":
                 result = scipy.optimize.minimize(self.obj, guess_x, jac=True, method='BFGS')
 
         else:
-            bnds = [(-5.0, 3.0)] * 1
-            bnds.extend([(-5.0, 10.0)] * (1))
+            bnds = [(-5.0, 4.0)] * 1
+            bnds.extend([(-5.0, 50.0)] * (1))
             result = scipy.optimize.basinhopping(self.obj, guess_x,
                                              minimizer_kwargs={'method': 'L-BFGS-B', 'jac': True,'bounds':bnds},
                                              niter=nmax)
 
 
         self.save_x()
+      #  print(self.x)
         self.update_by_x(self.x)
         print(result)
 
@@ -570,18 +612,21 @@ class JointAnalysis_nest:
         return result
 
 
-    def em_joint(self,epis=0.01,MAX=3,opt="BFGS"):
+    def em_joint(self,epis=0.01,MAX=3,opt="LBFGS"):
         ll0=self.get_nest_mle()["fun"]
-        self.oldtau=deepcopy(self.geneconv_list[1].tau)
         psK =deepcopy(self.geneconv_list[0].K)
+        self.oldtau=deepcopy(self.geneconv_list[0].tau)
 
         self.ifmodel = "EM_full"
         self.initialize_x()
-        print(" We assume K is shared and tau may be shared")
+        print(" We assume K is shared and tau may be shared:")
+
+   #     print(self.x)
 
         self.get_nest_mle(opt=opt)
         K = deepcopy(self.geneconv_list[0].K)
         difference = abs(K - psK)
+
 
         print("EMcycle:")
         print(0)
@@ -599,7 +644,7 @@ class JointAnalysis_nest:
             for ii in range(len(self.paralog_list)):
                  self.geneconv_list[ii].id = self.geneconv_list[ii].compute_paralog_id()
             self.get_nest_mle(opt=opt)
-            K = deepcopy(np.exp(self.geneconv_list[i].K))
+            K = deepcopy(self.geneconv_list[0].K)
             difference = abs(K - psK)
 
 
@@ -608,8 +653,8 @@ class JointAnalysis_nest:
             print("EMcycle:")
             print(i)
             i = i + 1
-            print(self.geneconv_list[1].K)
-            print(self.geneconv_list[1].tau)
+            print(self.geneconv_list[0].K)
+            print(self.geneconv_list[0].tau)
             print("xxxxxxxxxxxxxxxxxxxxxxxxxxx")
             print("xxxxxxxxxxxxxxxxxxxxxxxxxxx")
 
@@ -658,12 +703,10 @@ if __name__ == '__main__':
                                    save_path = '../test/save/')
 
 
-    #joint_analysis.get_mle()
-  #  joint_analysis.geneconv_list[0].Force={4:0}
-  #  print( joint_analysis.geneconv_list[0].Force)
-  #  joint_analysis.geneconv_list[0].get_mle(tauini=55)
+
  #   joint_analysis.ind_ana()
     print(joint_analysis.em_joint())
+
 
   #  joint_analysis.geneconv_list[0].Force = joint_analysis.Force_share
    # tauini = joint_analysis.fixtau[0]
