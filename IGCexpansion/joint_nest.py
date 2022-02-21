@@ -78,7 +78,7 @@ class JointAnalysis_nest:
         for i in range(len(self.paralog_list)):
             self.fixtau[i] = tauini
             self.fixk[i] = kini
-            self.siteslist[i] = self.geneconv_list[i].nsites
+            self.siteslist[i] = i
             if self.Model == "MG94":
                   self.fixomega[i]=omegaini
 
@@ -442,7 +442,7 @@ class JointAnalysis_nest:
                 self.geneconv_list[num_jsgeneconv].Force = None
                 result1 = self.geneconv_list[num_jsgeneconv].objective_and_gradient(False,
                                                                                    self.geneconv_list[num_jsgeneconv].x)
-                result=[result1, self.geneconv_list[num_jsgeneconv].x,self.geneconv_list[num_jsgeneconv].nsites]
+                result=[result1, self.geneconv_list[num_jsgeneconv].x,num_jsgeneconv]
 
                 output.put(result)
 
@@ -453,7 +453,6 @@ class JointAnalysis_nest:
             for j in self.multiprocess_combined_list:
               if self.siteslist[i]==list[j][2]:
                   listnew.append(list[j])
-              #    print(j)
 
         return listnew
 
@@ -487,7 +486,7 @@ class JointAnalysis_nest:
                         for i in self.multiprocess_combined_list:
                             self.fixomega[i] = np.exp(x)
                     else:
-                        self.x[-1] = x
+                        self.x[-1] = deepcopy(x)
                         for i in self.multiprocess_combined_list:
                             self.fixtau[i] = np.exp(x)
                 else:
@@ -498,12 +497,8 @@ class JointAnalysis_nest:
                         self.fixtau[i] = np.exp(x[1])
 
         dd=deepcopy(self.x)
-   #     print("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx")
-  #      print("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx")
-
         self.update_by_x(dd)
-   #     print("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx")
-   #     print("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx")
+
 
         output = mp.Queue()
 
@@ -512,7 +507,6 @@ class JointAnalysis_nest:
         processes = [
             mp.Process(target=self._process_objective_and_gradient_fix, args=(i, False,  output)) \
             for i in self.multiprocess_combined_list]
-
 
 
 
