@@ -806,7 +806,7 @@ class Embrachtau:
 
         return ll, edge_derivs
 
-    def _loglikelihood2(self, store=True, edge_derivative=False):
+    def _loglikelihood2(self, store=True, edge_derivative=False,ifhessian=False):
         '''
         Modified from Alex's objective_and_gradient function in ctmcaas/adv-log-likelihoods/mle_geneconv_common.py
         '''
@@ -880,6 +880,7 @@ class Embrachtau:
                 f.write('\t'.join([str(i), str(ll[i])]) + '\n')
 
     def get_scene(self):
+
         if self.Model == 'MG94':
             state_space_shape = [61, 61]
         elif self.Model == 'HKY':

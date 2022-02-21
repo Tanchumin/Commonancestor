@@ -367,9 +367,26 @@ class JointAnalysis_nest:
         self.update_by_x(self.x)
 
 
+    def objective_wo_gradient(self,x):
+
+        self.x[-2] = x[0]
+        self.x[-1] = x[1]
+
+        self.update_by_x(self.x)
+
+        f=0
+
+        for i in self.multiprocess_combined_list:
+           f=self.geneconv_list[i]._loglikelihood2()[0]+f
+
+        print(f)
+
+        return -f
+
+
 
     def get_Hessian(self):
-        H = nd.Hessian(self.objective_wo_gradient)(np.float128((self.x[int(self.unique_len)-1:int(self.unique_len)+1])))
+        H = nd.Hessian(self.objective_wo_gradient)(np.float128([self.x[-2],self.x[-1]]))
 
         return H
 
@@ -623,7 +640,7 @@ class JointAnalysis_nest:
 
    #     print(self.x)
 
-        self.get_nest_mle(opt=opt)
+        ll1=self.get_nest_mle(opt=opt)["fun"]
         K = deepcopy(self.geneconv_list[0].K)
         difference = abs(K - psK)
 
@@ -632,6 +649,7 @@ class JointAnalysis_nest:
         print(0)
         print(self.geneconv_list[0].K)
         print(self.geneconv_list[0].tau)
+        print(ll1)
         print("xxxxxxxxxxxxxxxxx")
         print("xxxxxxxxxxxxxxxxx")
 
@@ -643,7 +661,7 @@ class JointAnalysis_nest:
             psK = deepcopy(K)
             for ii in range(len(self.paralog_list)):
                  self.geneconv_list[ii].id = self.geneconv_list[ii].compute_paralog_id()
-            self.get_nest_mle(opt=opt)
+            ll1 = self.get_nest_mle(opt=opt)["fun"]
             K = deepcopy(self.geneconv_list[0].K)
             difference = abs(K - psK)
 
@@ -655,6 +673,7 @@ class JointAnalysis_nest:
             i = i + 1
             print(self.geneconv_list[0].K)
             print(self.geneconv_list[0].tau)
+            print(ll1)
             print("xxxxxxxxxxxxxxxxxxxxxxxxxxx")
             print("xxxxxxxxxxxxxxxxxxxxxxxxxxx")
 
@@ -673,6 +692,9 @@ class JointAnalysis_nest:
             print(i)
             print(self.geneconv_list[i].id)
             print(self.geneconv_list[i].x)
+
+
+        return ll1
 
 
 
@@ -704,8 +726,10 @@ if __name__ == '__main__':
 
 
 
- #   joint_analysis.ind_ana()
-    print(joint_analysis.em_joint())
+    joint_analysis.em_joint()
+    print(joint_analysis.get_Hessian())
+  #  print([joint_analysis.x[-2],joint_analysis.x[-1]])
+
 
 
   #  joint_analysis.geneconv_list[0].Force = joint_analysis.Force_share
