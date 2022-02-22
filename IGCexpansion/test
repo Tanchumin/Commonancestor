@@ -39,4 +39,4 @@ for p in processes:
     p.join()
 
 results = [output.get() for p in processes]
-print(results[2])
+

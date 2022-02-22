@@ -396,11 +396,11 @@ class JointAnalysis_nest:
         if self.Model=="MG94":
 
                 self.geneconv_list[num_jsgeneconv].Force=self.Force_share
-                tauini=self.fixtau[num_jsgeneconv]
+                tauini=deepcopy(self.fixtau[num_jsgeneconv])
 
                 if self.ifmodel == "old":
                       omegaini = deepcopy(self.fixomega[num_jsgeneconv])
-              #        self.geneconv_list[num_jsgeneconv].get_mle(display=False,tauini=tauini,omegaini=omegaini,ifseq=True)
+                      self.geneconv_list[num_jsgeneconv].get_mle(display=False,tauini=tauini,omegaini=omegaini,ifseq=True)
                       self.fixtau[num_jsgeneconv]=deepcopy(self.geneconv_list[num_jsgeneconv].tau)
                       self.fixomega[num_jsgeneconv] = deepcopy(self.geneconv_list[num_jsgeneconv].omega)
                 else:
@@ -452,12 +452,13 @@ class JointAnalysis_nest:
         listnew=[]
         for i in self.multiprocess_combined_list:
             for j in self.multiprocess_combined_list:
-              if self.siteslist[i]==list[j][2]:
-                  listnew.append(list[j])
-                  print(i)
-                  print(j)
-                  print(list[j])
-                  print(list[j][2])
+                print(i)
+                print(j)
+                print(list[j])
+                print(list[j][2])
+
+                if self.siteslist[i]==list[j][2]:
+                       listnew.append(list[j])
 
         return listnew
 
