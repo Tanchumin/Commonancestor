@@ -400,7 +400,7 @@ class JointAnalysis_nest:
 
                 if self.ifmodel == "old":
                       omegaini = deepcopy(self.fixomega[num_jsgeneconv])
-                      self.geneconv_list[num_jsgeneconv].get_mle(display=False,tauini=tauini,omegaini=omegaini,ifseq=True)
+              #        self.geneconv_list[num_jsgeneconv].get_mle(display=False,tauini=tauini,omegaini=omegaini,ifseq=True)
                       self.fixtau[num_jsgeneconv]=deepcopy(self.geneconv_list[num_jsgeneconv].tau)
                       self.fixomega[num_jsgeneconv] = deepcopy(self.geneconv_list[num_jsgeneconv].omega)
                 else:
@@ -409,9 +409,9 @@ class JointAnalysis_nest:
                     self.fixtau[num_jsgeneconv] = deepcopy(self.geneconv_list[num_jsgeneconv].tau)
 
                 self.geneconv_list[num_jsgeneconv].Force = None
-                result1 = self.geneconv_list[num_jsgeneconv].objective_and_gradient(True,
+                result1 = self.geneconv_list[num_jsgeneconv].objective_and_gradient(False,
                                                                                    self.geneconv_list[num_jsgeneconv].x)
-                result = [result1, self.geneconv_list[num_jsgeneconv].x,num_jsgeneconv]
+                result = [result1, self.geneconv_list[num_jsgeneconv].x, num_jsgeneconv]
                 output.put(result)
 
         else:
@@ -454,6 +454,10 @@ class JointAnalysis_nest:
             for j in self.multiprocess_combined_list:
               if self.siteslist[i]==list[j][2]:
                   listnew.append(list[j])
+                  print(i)
+                  print(j)
+                  print(list[j])
+                  print(list[j][2])
 
         return listnew
 
@@ -710,12 +714,12 @@ if __name__ == '__main__':
 
     paralog_list = [paralog_1, paralog_2]
     IGC_Omega = None
-    Shared = [4]
+    Shared = [5]
     alignment_file_list = [alignment_file_1, alignment_file_2]
-    Model = 'HKY'
+    Model = 'MG94'
 
     joint_analysis = JointAnalysis_nest(alignment_file_list,  newicktree, paralog_list, Shared = Shared,
-                                   IGC_Omega = None, Model = Model, Force = Force,Force_share={4:0},
+                                   IGC_Omega = None, Model = Model, Force = Force,Force_share={5:0},
                                    shared_parameters_for_k=[4,5],Force_share_k={4:0,5:0},tauini=6.0,kini=1.1,
                                    save_path = '../test/save/')
 
