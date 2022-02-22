@@ -399,18 +399,19 @@ class JointAnalysis_nest:
                 tauini=self.fixtau[num_jsgeneconv]
 
                 if self.ifmodel == "old":
-                      omegaini = self.fixomega[num_jsgeneconv]
+                      omegaini = deepcopy(self.fixomega[num_jsgeneconv])
                       self.geneconv_list[num_jsgeneconv].get_mle(display=False,tauini=tauini,omegaini=omegaini,ifseq=True)
                       self.fixtau[num_jsgeneconv]=deepcopy(self.geneconv_list[num_jsgeneconv].tau)
                       self.fixomega[num_jsgeneconv] = deepcopy(self.geneconv_list[num_jsgeneconv].omega)
                 else:
                     kini=deepcopy(self.fixk[num_jsgeneconv])
                     self.geneconv_list[num_jsgeneconv].get_mle(display=False, tauini=tauini,kini=kini, ifseq=True)
+                    self.fixtau[num_jsgeneconv] = deepcopy(self.geneconv_list[num_jsgeneconv].tau)
 
                 self.geneconv_list[num_jsgeneconv].Force = None
                 result1 = self.geneconv_list[num_jsgeneconv].objective_and_gradient(True,
                                                                                    self.geneconv_list[num_jsgeneconv].x)
-                result = [result1, self.geneconv_list[num_jsgeneconv].x]
+                result = [result1, self.geneconv_list[num_jsgeneconv].x,num_jsgeneconv]
                 output.put(result)
 
         else:
