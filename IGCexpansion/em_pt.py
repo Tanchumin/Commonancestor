@@ -833,9 +833,6 @@ class Embrachtau:
         status = j_out['status']
 
 
-
-
-
         ll = j_out['responses'][0]
         self.ll = ll
         if edge_derivative:
@@ -1003,7 +1000,8 @@ class Embrachtau:
 
 # finite difference central
   # ll_delta1 is f(x+2/h)
-            delta=deepcopy(abs(self.x[i])*0.0001)
+
+            delta=deepcopy(max(1,abs(self.x[i]))*0.000001)
             x_plus_delta1 = np.array(self.x)
             x_plus_delta1[i] += delta/2
             self.update_by_x(x_plus_delta1)
@@ -2014,7 +2012,8 @@ if __name__ == '__main__':
                                save_path='../test/save/', save_name=save_name,kbound=5)
 
 
-    geneconv.EM_branch_tau()
+    #geneconv.EM_branch_tau()
+
 
 
 
