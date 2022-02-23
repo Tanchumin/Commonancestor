@@ -377,16 +377,14 @@ class JointAnalysis_nest:
         f=0
 
         for i in self.multiprocess_combined_list:
-           f=self.geneconv_list[i]._loglikelihood2()[0]+f
-
-        print(f)
+           f=self.geneconv_list[i]._loglikelihood3()+f
 
         return -f
 
 
 
     def get_Hessian(self):
-        H = nd.Hessian(self.objective_wo_gradient)(np.float128([self.x[-2],self.x[-1]]))
+        H = nd.Hessian(self.objective_wo_gradient)(np.float128([np.exp(self.x[-2]),self.x[-1]]))
 
         return H
 
@@ -452,10 +450,10 @@ class JointAnalysis_nest:
         listnew=[]
         for i in self.multiprocess_combined_list:
             for j in self.multiprocess_combined_list:
-                print(i)
-                print(j)
-                print(list[j])
-                print(list[j][2])
+           #     print(i)
+          #      print(j)
+           #     print(list[j])
+          #      print(list[j][2])
 
                 if self.siteslist[i]==list[j][2]:
                        listnew.append(list[j])
@@ -694,7 +692,13 @@ class JointAnalysis_nest:
             print(self.geneconv_list[i].x)
 
 
+        print(self.get_Hessian())
+
+
         return ll1
+
+
+
 
 
 
@@ -715,19 +719,18 @@ if __name__ == '__main__':
 
     paralog_list = [paralog_1, paralog_2]
     IGC_Omega = None
-    Shared = [5]
+    Shared = [4]
     alignment_file_list = [alignment_file_1, alignment_file_2]
-    Model = 'MG94'
+    Model = 'HKY'
 
     joint_analysis = JointAnalysis_nest(alignment_file_list,  newicktree, paralog_list, Shared = Shared,
-                                   IGC_Omega = None, Model = Model, Force = Force,Force_share={5:0},
+                                   IGC_Omega = None, Model = Model, Force = Force,Force_share={4:0},
                                    shared_parameters_for_k=[4,5],Force_share_k={4:0,5:0},tauini=6.0,kini=1.1,
                                    save_path = '../test/save/')
 
 
 
     joint_analysis.em_joint()
-    print(joint_analysis.get_Hessian())
   #  print([joint_analysis.x[-2],joint_analysis.x[-1]])
 
 

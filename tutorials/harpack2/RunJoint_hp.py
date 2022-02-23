@@ -67,4 +67,5 @@ if __name__ == '__main__':
 
   #  print(joint_analysis.get_seq_mle())
     print(joint_analysis.em_joint())
+
    # print(joint_analysis.get_mle())

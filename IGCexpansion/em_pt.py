@@ -122,7 +122,11 @@ class Embrachtau:
 
         # Initialize all parameters
         self.joint=joint
+        self.ifhessian = False
         self.initialize_parameters()
+
+        #hessian
+
 
 
         self.index=0
@@ -232,7 +236,7 @@ class Embrachtau:
                 self.x_process = np.log(
                     np.array([count[0] + count[2], count[0] / (count[0] + count[2]), count[1] / (count[1] + count[3]),
                               self.kappa, self.tau]))
-        elif self.ifmodel=="EM_full":
+        else:
 
             if self.Model == 'MG94':
                 # x_process[] = %AG, %A, %C, kappa, omega, tau
@@ -268,22 +272,8 @@ class Embrachtau:
                         np.array([np.exp(self.x_process[0]), np.exp(self.x_process[1]), np.exp(self.x_process[2]),
                                   self.kappa, self.tau])), self.K)
 
-        elif self.ifmodel=="EM_reduce":
-            if self.Model == 'MG94':
-                # x_process[] = %AG, %A, %C, kappa, omega, tau
-                if self.IGC_Omega is None:
-                    self.x_process = np.log(
-                        np.array(
-                            [self.tau, self.K]))
-                else:
-                    self.x_process = np.log(
-                        np.array(
-                            [self.tau, self.K]))
-            elif self.Model == 'HKY':
-                # x_process[] = %AG, %A, %C, kappa, tau
-                self.omega = 1.0
-                self.x_process = np.log(
-                    np.array([self.tau, self.K]))
+
+
 
 
 
@@ -419,10 +409,21 @@ class Embrachtau:
                     else:
                         x_process[5] = np.log(x_process[5])
 
+
         elif transformation == 'None':
             x_process = self.x_process
         elif transformation == 'Exp_Neg':
             x_process = np.concatenate((self.x_process[:3], -np.log(self.x_process[3:])))
+
+        if self.ifhessian == True:
+                x_process = np.exp(self.x_process)
+
+                if self.Model == "MG94":
+                    x_process[5] = np.log(x_process[5])
+                    x_process[6] = np.log(x_process[6])
+                else:
+                    x_process[4] = np.log(x_process[4])
+                    x_process[5] = np.log(x_process[5])
 
         if Force_process != None:
             for i in Force_process.keys():
@@ -806,10 +807,11 @@ class Embrachtau:
 
         return ll, edge_derivs
 
-    def _loglikelihood2(self, store=True, edge_derivative=False,ifhessian=False):
+    def _loglikelihood2(self, store=True, edge_derivative=False):
         '''
         Modified from Alex's objective_and_gradient function in ctmcaas/adv-log-likelihoods/mle_geneconv_common.py
         '''
+
         if store:
             self.scene_ll = self.get_scene()
             scene = self.scene_ll
@@ -830,18 +832,11 @@ class Embrachtau:
 
         status = j_out['status']
 
-        try:
-            ll = j_out['responses'][0]
-        except Exception:
-            print("xxxxxxxXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",flush=True)
-            print(self.x,flush=True)
-            print(edge_derivative,flush=True)
-            print(self.edge_de,flush=True)
-            print(self.scene_ll)
-            print("xxxxxxxXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX", flush=True)
-            pass
 
-#        ll = j_out['responses'][0]
+
+
+
+        ll = j_out['responses'][0]
         self.ll = ll
         if edge_derivative:
             edge_derivs = j_out['responses'][1]
@@ -852,6 +847,55 @@ class Embrachtau:
      #   print(edge_derivs)
 
         return ll, edge_derivs
+
+
+    def _loglikelihood3(self, store=True, edge_derivative=False):
+            '''
+            Modified from Alex's objective_and_gradient function in ctmcaas/adv-log-likelihoods/mle_geneconv_common.py
+            '''
+
+            self.ifhessian=True
+            self.update_by_x(self.x)
+
+            if store:
+                self.scene_ll = self.get_scene()
+                scene = self.scene_ll
+            else:
+                scene = self.get_scene()
+
+            log_likelihood_request = {'property': 'snnlogl'}
+            derivatives_request = {'property': 'sdnderi'}
+            if edge_derivative and self.ifmodel != "EM_reduce":
+                requests = [log_likelihood_request, derivatives_request]
+            else:
+                requests = [log_likelihood_request]
+            j_in = {
+                'scene': self.scene_ll,
+                'requests': requests
+            }
+            j_out = jsonctmctree.interface.process_json_in(j_in)
+
+            status = j_out['status']
+
+            try:
+                ll = j_out['responses'][0]
+            except Exception:
+                print("xxxxxxxXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX", flush=True)
+                print(self.x, flush=True)
+                print(edge_derivative, flush=True)
+                print(self.edge_de, flush=True)
+                print(self.scene_ll)
+                print("xxxxxxxXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX", flush=True)
+                pass
+
+            #        ll = j_out['responses'][0]
+            self.ll = ll
+
+          #  print(self.x_process[5])
+
+            #   print(edge_derivs)
+
+            return ll
 
     def _sitewise_loglikelihood(self):
         scene = self.get_scene()
@@ -924,7 +968,6 @@ class Embrachtau:
         '''
         self.update_by_x()
 
-        delta = 1e-7
         x = deepcopy(self.x)  # store the current x array
         if package == 'new':
             fn = self._loglikelihood2
@@ -950,16 +993,35 @@ class Embrachtau:
                 if i in self.Force.keys():  # check here
                     other_derivs.append(0.0)
                     continue
-            x_plus_delta = np.array(self.x)
-            x_plus_delta[i] += delta
-            self.update_by_x(x_plus_delta)
 
-            ll_delta, _ = fn(store=True, edge_derivative=False)
 
-            d_estimate = (ll_delta - ll) / delta
+          #  x_plus_delta = np.array(self.x)
+          #  x_plus_delta[i] += delta
+          #  self.update_by_x(x_plus_delta)
+          #  ll_delta, _ = fn(store=True, edge_derivative=False)
+        #  d_estimate = (ll_delta - ll) / delta
+
+# finite difference central
+  # ll_delta1 is f(x+2/h)
+            delta=deepcopy(abs(self.x[i])*0.0001)
+            x_plus_delta1 = np.array(self.x)
+            x_plus_delta1[i] += delta/2
+            self.update_by_x(x_plus_delta1)
+            ll_delta1, _ = fn(store=True, edge_derivative=False)
+
+ # ll_delta0 is f(x-2/h)
+            x_plus_delta0 = np.array(self.x)
+            x_plus_delta0[i] -= delta/2
+            self.update_by_x(x_plus_delta0)
+            ll_delta0, _ = fn(store=True, edge_derivative=False)
+
+
+            d_estimate = (ll_delta1 - ll_delta0) / delta
+
             other_derivs.append(d_estimate)
             # restore self.x
             self.update_by_x(x)
+
         other_derivs = np.array(other_derivs)
 
 
