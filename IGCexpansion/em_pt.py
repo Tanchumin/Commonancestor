@@ -203,6 +203,7 @@ class Embrachtau:
     def separate_species_paralog_names(self, seq_name):
         assert (seq_name in self.name_to_seq)  # check if it is a valid sequence name
         matched_paralog = [paralog for paralog in self.paralog if paralog in seq_name]
+
         # check if there is exactly one paralog name in the sequence name
         return [seq_name.replace(matched_paralog[0], ''), matched_paralog[0]]
 
@@ -1314,11 +1315,11 @@ class Embrachtau:
                     khigh = np.log(deepcopy(float(self.kbound)))
                     bnds.extend([(-4, khigh)] * (1))
                 else:
-                    bnds.extend([(-10.0, 7.0)] * (1))
+                    bnds.extend([(-20.0, 7.0)] * (1))
                     if self.noboundk==True:
-                        bnds.extend([(-10.0, 30.0)] * (1))
+                        bnds.extend([(-20.0, 30.0)] * (1))
                     else:
-                        bnds.extend([(-10.0, 7)] * (1))
+                        bnds.extend([(-20.0, 7)] * (1))
 
 
             bnds.extend(edge_bnds)
@@ -1337,7 +1338,14 @@ class Embrachtau:
         if method == 'BFGS':
             if derivative:
 
-                result = scipy.optimize.minimize(f, guess_x, jac=True, method='L-BFGS-B', bounds=bnds)
+            #    if self.ifmodel=="old":
+
+                       result = scipy.optimize.minimize(f, guess_x, jac=True, method='L-BFGS-B', bounds=bnds)
+        #        else:
+
+           #            result = scipy.optimize.basinhopping(f, guess_x,
+            #                                       minimizer_kwargs={'method': 'L-BFGS-B', 'jac': True, 'bounds': bnds},
+            #                                       niter=100)
             else:
                 result = scipy.optimize.minimize(f, guess_x, jac=False, method='L-BFGS-B', bounds=bnds)
         elif method == 'differential_evolution':
@@ -1358,7 +1366,7 @@ class Embrachtau:
                                                                                    'bounds': bnds},
                                                      niter=niter)  # , callback = self.check_boundary)
 
-    #    print(result)
+        print(result)
 
 
         self.save_x()
@@ -1880,8 +1888,6 @@ class Embrachtau:
         id = np.zeros(ttt)
         diverge_list = np.ones(ttt)
 
-
-
         for mc in range(repeat):
 
             self.jointly_common_ancstral_inference()
@@ -1921,7 +1927,7 @@ class Embrachtau:
             self.update_by_x()
 
 
-    def EM_branch_tau(self,MAX=6,epis=0.01,force=None,K=0.5,bound=False,ifdnalevel=False):
+    def EM_branch_tau(self,MAX=2,epis=0.01,force=None,K=0.5,bound=False,ifdnalevel=False):
         llo=self.get_mle()["fun"]
         pstau=deepcopy(self.tau)
         self.id = self.compute_paralog_id(ifdnalevel=ifdnalevel)
@@ -1957,7 +1963,9 @@ class Embrachtau:
             print(i)
             i = i + 1
             print(self.id)
+            print("K:")
             print(self.K)
+            print("Tau:")
             print(self.tau)
             print("xxxxxxxxxxxxxxxxx")
             print("xxxxxxxxxxxxxxxxx")
@@ -1984,12 +1992,120 @@ class Embrachtau:
         else:
            H = nd.Hessian(self.objective_wo_derivative1)(np.float128((self.x[4:6])))
 
+        H=np.linalg.inv(H)
+
         return H
 
 
+    def get_summary(self):
+        scene=self.get_scene()
+        ttt = len(scene['tree']["column_nodes"])
+        self.id = self.compute_paralog_id(ifdnalevel=False)
+        self.jointly_common_ancstral_inference()
+        igc_total=0
+        mutatation_total=0
+        ### make a dic
+        list = []
+        matrix_dim = len(scene['process_definitions'][0]['row_states'])
+        for i in range(matrix_dim):
+            list.append(tuple(np.concatenate([scene['process_definitions'][0]['row_states'][i],
+                                              scene['process_definitions'][0]['column_states'][i]])))
+
+        index = np.arange(matrix_dim)
+
+        dictionary = dict(zip(list, index))
+
+        for j in range(ttt):
+                if not j == 1:
+                    ini2 = self.node_to_num[self.edge_list[j][0]]
+                    end2 = self.node_to_num[self.edge_list[j][1]]
+                    ini1 = deepcopy(self.sites[ini2,])
+                    end1 = deepcopy(self.sites[end2,])
+                    result=self.whether_IGC(ini=ini1,end=end1,paralog_id=self.id[j],idnum=j,scene=scene,dic=dictionary)
+                    igc_total +=result[0]
+                    mutatation_total +=result[1]
+
+
+        return igc_total,mutatation_total
 
 
 
+
+    def whether_IGC(self, ini,end, paralog_id,idnum,scene,dic):
+            branchtau = self.tau*np.power(paralog_id,self.K)
+            igc=0
+            mutation=0
+            process= scene['process_definitions'][idnum]['transition_rates']
+
+
+            if self.Model == "HKY":
+                for ll in range(self.nsites):
+
+                    i_b = int(ini[ll]) // 4
+                    j_b =  int(ini[ll]) % 4
+                    i_p = int(end[ll]) // 4
+                    j_p = int(end[ll]) % 4
+
+
+                    if i_b != i_p or j_b != j_p:
+                        mutation +=1
+                        if i_p == j_p:
+                            element = tuple([i_b, j_b, i_p, j_p])
+                            location = dic[element]
+                            qq = process[location]
+                            if i_b != j_b and i_b == i_p:
+                                igc += (branchtau) / qq
+                            elif (i_b != j_b and j_b == j_p):
+                                igc += (branchtau) / qq
+
+
+            else:
+                for ll in range(self.nsites):
+
+                    i_b = int(ini[ll]) // 61
+                    j_b = int(ini[ll]) % 61
+                    i_p = int(end[ll]) // 61
+                    j_p = int(end[ll]) % 61
+
+
+                    if i_b != i_p or j_b != j_p:
+                        mutation += 1
+
+                        if (i_p == j_p):
+                            element = tuple([i_b, j_b, i_p, j_p])
+                            location = dic[element]
+                            qq = process[location]
+                            if (i_b != j_b and i_b == i_p):
+
+                                ca = geneconv.state_to_codon[j_b]
+                                cb = geneconv.state_to_codon[j_p]
+
+                                if isNonsynonymous(cb, ca, self.codon_table):
+                                    tau = branchtau * self.omega
+                                else:
+                                    tau = branchtau
+
+
+                                igc  += float(tau) / qq
+
+
+                            elif (i_b != j_b and j_b == j_p):
+
+                                ca = geneconv.state_to_codon[i_b]
+                                cb = geneconv.state_to_codon[i_p]
+
+                                if isNonsynonymous(cb, ca, self.codon_table):
+                                    tau = branchtau * self.omega
+                                else:
+                                    tau = branchtau
+
+                                igc += float(tau) / qq
+
+
+
+
+
+            return igc,mutation
 
 
 
@@ -2012,7 +2128,11 @@ if __name__ == '__main__':
                                save_path='../test/save/', save_name=save_name,kbound=5)
 
 
-    #geneconv.EM_branch_tau()
+    geneconv.EM_branch_tau()
+    print(geneconv.get_summary())
+
+
+
 
 
 

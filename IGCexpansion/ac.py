@@ -1300,7 +1300,6 @@ class AncestralState:
                     elif(i_b!=j_b and j_b==j_p):
                         y_coor=np.argwhere(self.dic_col[int(history_matrix[ii, 6]),] == (int(history_matrix[ii, 7]) + 1))[0]
                         qq=self.Q[int(history_matrix[ii, 6]),y_coor]
-                        u=random.uniform(0,1)
                         if method=="state":
                             p_h[ii, 2]=(self.tau)/qq
                         else:
