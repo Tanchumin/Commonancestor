@@ -1366,7 +1366,9 @@ class Embrachtau:
                                                                                    'bounds': bnds},
                                                      niter=niter)  # , callback = self.check_boundary)
 
-        print(result)
+        if ifseq != True:
+            print(result)
+
 
 
         self.save_x()
@@ -1928,11 +1930,12 @@ class Embrachtau:
 
 
     def EM_branch_tau(self,MAX=2,epis=0.01,force=None,K=0.5,bound=False,ifdnalevel=False):
-        llo=self.get_mle()["fun"]
+        ll0=self.get_mle()["fun"]
         pstau=deepcopy(self.tau)
         self.id = self.compute_paralog_id(ifdnalevel=ifdnalevel)
         print(self.id)
         print(self.get_Hessian())
+        old_sum = self.get_summary()
         self.K=K
         self.Force=force
         self.ifmodel = "EM_full"
@@ -1956,7 +1959,7 @@ class Embrachtau:
         while i<=MAX and difference >=epis:
             pstau_1 = deepcopy(self.tau)
             self.id = self.compute_paralog_id(ifdnalevel=ifdnalevel)
-            self.get_mle()
+            ll1=self.get_mle()["fun"]
             difference = abs(self.tau - pstau_1)
 
             print("EMcycle:")
@@ -1972,8 +1975,20 @@ class Embrachtau:
             print("xxxxxxxxxxxxxxxxx")
             print("\n")
 
+
+        new_sum = self.get_summary()
+
+
         print("old tau: ",pstau)
-        print("old ll: ",llo)
+        print("old ll: ",ll0)
+        print("old sum",old_sum)
+        print("old igc prop",old_sum[0]/old_sum[1])
+
+        print("new sum",new_sum)
+        print("new tau: ",self.tau)
+        print("K: ", self.K)
+        print("new ll: ",ll1)
+        print("new igc prop", new_sum[0] / new_sum[1])
 
         print(self.get_Hessian())
 
@@ -2032,10 +2047,16 @@ class Embrachtau:
 
 
     def whether_IGC(self, ini,end, paralog_id,idnum,scene,dic):
-            branchtau = self.tau*np.power(paralog_id,self.K)
+
             igc=0
             mutation=0
-            process= scene['process_definitions'][idnum]['transition_rates']
+
+            if self.ifmodel=="old":
+                process = scene['process_definitions'][1]['transition_rates']
+                branchtau = self.tau
+            else:
+                process= scene['process_definitions'][idnum]['transition_rates']
+                branchtau = self.tau * np.power(paralog_id, self.K)
 
 
             if self.Model == "HKY":
@@ -2050,13 +2071,32 @@ class Embrachtau:
                     if i_b != i_p or j_b != j_p:
                         mutation +=1
                         if i_p == j_p:
-                            element = tuple([i_b, j_b, i_p, j_p])
-                            location = dic[element]
-                            qq = process[location]
+
                             if i_b != j_b and i_b == i_p:
-                                igc += (branchtau) / qq
+                                element = tuple([i_b, j_b, i_p, j_p])
+                                location = dic[element]
+                                qq = process[location]
+                                if qq!=0:
+                                   igc += (branchtau) / qq
+                                else:
+                                    print(i_b)
+                                    print(j_b)
+                                    print(i_p)
+                                    print(j_b)
+                                    print(ll)
+
                             elif (i_b != j_b and j_b == j_p):
-                                igc += (branchtau) / qq
+                                element = tuple([i_b, j_b, i_p, j_p])
+                                location = dic[element]
+                                qq = process[location]
+                                if qq != 0:
+                                    igc += (branchtau) / qq
+                                else:
+                                    print(i_b)
+                                    print(j_b)
+                                    print(i_p)
+                                    print(j_b)
+                                    print(ll)
 
 
             else:
@@ -2072,10 +2112,11 @@ class Embrachtau:
                         mutation += 1
 
                         if (i_p == j_p):
-                            element = tuple([i_b, j_b, i_p, j_p])
-                            location = dic[element]
-                            qq = process[location]
+
                             if (i_b != j_b and i_b == i_p):
+                                element = tuple([i_b, j_b, i_p, j_p])
+                                location = dic[element]
+                                qq = process[location]
 
                                 ca = geneconv.state_to_codon[j_b]
                                 cb = geneconv.state_to_codon[j_p]
@@ -2085,11 +2126,21 @@ class Embrachtau:
                                 else:
                                     tau = branchtau
 
-
-                                igc  += float(tau) / qq
+                                if qq != 0:
+                                    igc += (branchtau) / qq
+                                else:
+                                    print(i_b)
+                                    print(j_b)
+                                    print(i_p)
+                                    print(j_b)
+                                    print(ll)
 
 
                             elif (i_b != j_b and j_b == j_p):
+
+                                element = tuple([i_b, j_b, i_p, j_p])
+                                location = dic[element]
+                                qq = process[location]
 
                                 ca = geneconv.state_to_codon[i_b]
                                 cb = geneconv.state_to_codon[i_p]
@@ -2099,7 +2150,14 @@ class Embrachtau:
                                 else:
                                     tau = branchtau
 
-                                igc += float(tau) / qq
+                                if qq != 0:
+                                    igc += (branchtau) / qq
+                                else:
+                                    print(i_b)
+                                    print(j_b)
+                                    print(i_p)
+                                    print(j_b)
+                                    print(ll)
 
 
 
@@ -2129,7 +2187,7 @@ if __name__ == '__main__':
 
 
     geneconv.EM_branch_tau()
-    print(geneconv.get_summary())
+ #   print(geneconv.get_summary())
 
 
 
