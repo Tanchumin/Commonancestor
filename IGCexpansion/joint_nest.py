@@ -83,6 +83,8 @@ class JointAnalysis_nest:
             if self.Model == "MG94":
                   self.fixomega[i]=omegaini
 
+        self.ifexp=False
+
 
     def initialize_x(self):
 
@@ -377,15 +379,26 @@ class JointAnalysis_nest:
 
         f=0
 
-        for i in self.multiprocess_combined_list:
-           f=self.geneconv_list[i]._loglikelihood3()+f
+        if self.ifexp==True:
+
+            for i in self.multiprocess_combined_list:
+               f=self.geneconv_list[i]._loglikelihood3()+f
+
+        else:
+            for i in self.multiprocess_combined_list:
+               f=self.geneconv_list[i]._loglikelihood2()[0]+f
 
         return -f
 
 
 
     def get_Hessian(self):
-        H = nd.Hessian(self.objective_wo_gradient)(np.float128([np.exp(self.x[-2]),self.x[-1]]))
+
+        if self.ifexp==True:
+             H = nd.Hessian(self.objective_wo_gradient)(np.float128([np.exp(self.x[-2]),self.x[-1]]))
+        else:
+            H = nd.Hessian(self.objective_wo_gradient)(np.float128([(self.x[-2]), self.x[-1]]))
+
 
         H=np.linalg.inv(H)
 
@@ -878,7 +891,8 @@ class JointAnalysis_nest:
 
 
 
-
+        print(self.get_Hessian())
+        self.ifexp=True
         print(self.get_Hessian())
 
 

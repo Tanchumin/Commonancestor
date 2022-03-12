@@ -130,6 +130,7 @@ class Embrachtau:
 
 
         self.index=0
+        self.ifexp=False
 
     def initialize_parameters(self):
         self.get_tree()
@@ -1208,7 +1209,11 @@ class Embrachtau:
             self.x[5] = x[1]
 
         self.update_by_x(self.x)
-        ll = self._loglikelihood2()[0]
+
+        if self.ifexp==False:
+            ll = self._loglikelihood2()[0]
+        else:
+            ll = self._loglikelihood3()
 
         return -ll
 
@@ -1990,6 +1995,10 @@ class Embrachtau:
         print("new ll: ",ll1)
         print("new igc prop", new_sum[0] / new_sum[1])
 
+
+
+        print(self.get_Hessian())
+        self.ifexp=True
         print(self.get_Hessian())
 
 # this function is used to renew ini
@@ -2002,16 +2011,25 @@ class Embrachtau:
 
 
     def get_Hessian(self):
-        if self.Model=="MG94":
-           H = nd.Hessian(self.objective_wo_derivative1)(np.float128((self.x[5:7])))
+
+
+        if self.ifexp != True:
+            if self.Model=="MG94":
+               H = nd.Hessian(self.objective_wo_derivative1)(np.float128((self.x[5:7])))
+            else:
+               H = nd.Hessian(self.objective_wo_derivative1)(np.float128((self.x[4:6])))
+
         else:
-           H = nd.Hessian(self.objective_wo_derivative1)(np.float128((self.x[4:6])))
+            if self.Model == "MG94":
+                H = nd.Hessian(self.objective_wo_derivative1)(np.float128([np.exp(self.x[5]),self.x[6]]))
+            else:
+                H = nd.Hessian(self.objective_wo_derivative1)([np.exp(self.x[4]),self.x[5]])
 
         H=np.linalg.inv(H)
 
         return H
 
-
+#### thos two get prop for IGC
     def get_summary(self):
         scene=self.get_scene()
         ttt = len(scene['tree']["column_nodes"])
