@@ -809,7 +809,7 @@ class JointAnalysis_nest:
         return result
 
 
-    def em_joint(self,epis=0.01,MAX=3,opt="LBFGS"):
+    def em_joint(self,epis=0.01,MAX=2,opt="LBFGS"):
         ll0=self.get_nest_mle()["fun"]
         old_sum=self.get_summary()
         psK =deepcopy(self.geneconv_list[0].K)
