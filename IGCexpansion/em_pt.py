@@ -2136,16 +2136,16 @@ class Embrachtau:
                                 location = dic[element]
                                 qq = process[location]
 
-                                ca = geneconv.state_to_codon[j_b]
-                                cb = geneconv.state_to_codon[j_p]
+                                ca = self.state_to_codon[j_b]
+                                cb = self.state_to_codon[j_p]
 
                                 if isNonsynonymous(cb, ca, self.codon_table):
-                                    tau = branchtau * self.omega
+                                    tauo = branchtau * self.omega
                                 else:
-                                    tau = branchtau
+                                    tauo = branchtau
 
                                 if qq != 0:
-                                    igc += (branchtau) / qq
+                                    igc += (tauo) / qq
                                 else:
                                     print(i_b)
                                     print(j_b)
@@ -2160,16 +2160,16 @@ class Embrachtau:
                                 location = dic[element]
                                 qq = process[location]
 
-                                ca = geneconv.state_to_codon[i_b]
-                                cb = geneconv.state_to_codon[i_p]
+                                ca = self.state_to_codon[i_b]
+                                cb = self.state_to_codon[i_p]
 
                                 if isNonsynonymous(cb, ca, self.codon_table):
-                                    tau = branchtau * self.omega
+                                    tauo = branchtau * self.omega
                                 else:
-                                    tau = branchtau
+                                    tauo = branchtau
 
                                 if qq != 0:
-                                    igc += (branchtau) / qq
+                                    igc += (tauo) / qq
                                 else:
                                     print(i_b)
                                     print(j_b)
