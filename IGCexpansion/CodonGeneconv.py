@@ -1093,6 +1093,7 @@ class ReCodonGeneconv:
             }
             j_out = jsonctmctree.interface.process_json_in(j_in)
 
+
             ExpectedDwellTime = [{self.edge_list[i]: j_out['responses'][j][i] for i in range(len(self.edge_list))} for j
                                  in range(len(j_out))]
             return ExpectedDwellTime
@@ -1782,36 +1783,26 @@ class ReCodonGeneconv:
 
 
 if __name__ == '__main__':
-    paralog = ['YLR406C', 'YDL075W']
+
+
+
+    name = "YBL087C_YER117W_input"
+
+    paralog = ['YBL087C', 'YER117W']
+    alignment_file = '../test/yeast/' + name + '.fasta'
+    newicktree = '../test/yeast/YeastTree.newick'
+
+
     Force = None
-    alignment_file = '../test/YLR406C_YDL075W_test_input.fasta'
-    newicktree = '../test/YeastTree.newick'
-    ##    test.get_individual_summary(summary_path = '../test/Summary/')
-    ##    test.get_SitewisePosteriorSummary(summary_path = '../test/Summary/')
-    # Force MG94:{5:0.0} HKY:{4:0.0}
+    model = 'HKY'
 
-    # MG94+tau
-    MG94_tau = ReCodonGeneconv(newicktree, alignment_file, paralog, Model='MG94', Force=Force, clock=False,
-                               save_path='../test/save/')
-    # MG94_tau.get_mle(True, True, 0, 'BFGS')
-    lnL = MG94_tau._loglikelihood2()
-    MG94_tau.get_individual_summary('../test/save/')
-    print(lnL)
-    # MG94_tau.site_reconstruction()
-    # MG94_tau_series = MG94_tau.reconstruction_series
+    save_name = model+name
+    geneconv = ReCodonGeneconv(newicktree, alignment_file, paralog, Model=model, Force=Force, clock=None,
+                               save_path='../test/save/', save_name=save_name,)
 
-    # MG94+tau+IGC_Omega
-    MG94_tau_omega = ReCodonGeneconv(newicktree, alignment_file, paralog, Model='MG94', IGC_Omega=0.0856028254290315,
-                                     Force=Force, clock=False,
-                                     save_path='../test/save/')
-    new_x = np.concatenate(
-        (MG94_tau.x_process[:-2], [MG94_tau.x_process[-2]], MG94_tau.x_process[-2:], MG94_tau.x_rates))
-    # MG94_tau_omega.update_by_x(new_x)
-    print(MG94_tau_omega._loglikelihood2())
-    MG94_tau_omega.get_mle(True, True, 0, 'BFGS')
-    lnL = MG94_tau_omega._loglikelihood2()
-    MG94_tau_omega.get_individual_summary('../test/save/')
-    print(lnL)
+
+    geneconv.get_mle()
+    print(geneconv._ExpectedHetDwellTime())
 
 ##
 ##    #MG94

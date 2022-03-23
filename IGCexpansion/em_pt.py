@@ -1001,7 +1001,7 @@ class Embrachtau:
         #  d_estimate = (ll_delta - ll) / delta
 
 # finite difference central
-  # ll_delta1 is f(x+2/h)
+  # ll_delta1 is f(x+h/2)
 
             delta=deepcopy(max(1,abs(self.x[i]))*0.000001)
             x_plus_delta1 = np.array(self.x)
@@ -1009,7 +1009,7 @@ class Embrachtau:
             self.update_by_x(x_plus_delta1)
             ll_delta1, _ = fn(store=True, edge_derivative=False)
 
- # ll_delta0 is f(x-2/h)
+ # ll_delta0 is f(x-h/2)
             x_plus_delta0 = np.array(self.x)
             x_plus_delta0[i] -= delta/2
             self.update_by_x(x_plus_delta0)
@@ -1934,13 +1934,16 @@ class Embrachtau:
             self.update_by_x()
 
 
-    def EM_branch_tau(self,MAX=2,epis=0.01,force=None,K=0.5,bound=False,ifdnalevel=False):
+    def EM_branch_tau(self,MAX=8,epis=0.01,force=None,K=0.5,bound=False,ifdnalevel=False):
+        list=[]
+        list.append(self.nsites)
         ll0=self.get_mle()["fun"]
         pstau=deepcopy(self.tau)
         self.id = self.compute_paralog_id(ifdnalevel=ifdnalevel)
         print(self.id)
+        idold=deepcopy(self.id)
         print(self.get_Hessian())
-        old_sum = self.get_summary()
+        old_sum = self.get_summary(branchtau=True)
         self.K=K
         self.Force=force
         self.ifmodel = "EM_full"
@@ -1981,25 +1984,67 @@ class Embrachtau:
             print("\n")
 
 
-        new_sum = self.get_summary()
+        new_sum = self.get_summary(branchtau=True)
 
 
         print("old tau: ",pstau)
+        list.append(pstau)
         print("old ll: ",ll0)
-        print("old sum",old_sum)
+        print("old sum IGC",old_sum[0])
+        print("old sum TOTAL", old_sum[1])
+        list.append(old_sum[0])
+        list.append(old_sum[1])
         print("old igc prop",old_sum[0]/old_sum[1])
+        list.append(old_sum[0]/old_sum[1])
+        for j in range(len(self.edge_list)):
+                list.append(idold[j])
 
-        print("new sum",new_sum)
+        for j in range(len(self.edge_list)):
+                list.append(old_sum[2][j])
+
+        print("new sum IGC",new_sum[0])
+        print("new sum TOTAL", new_sum[1])
         print("new tau: ",self.tau)
         print("K: ", self.K)
         print("new ll: ",ll1)
+        list.append(ll1)
+        list.append(self.tau)
+        list.append(self.K)
+        list.append(new_sum[0])
+        list.append(new_sum[1])
+        list.append(new_sum[0] / new_sum[1])
         print("new igc prop", new_sum[0] / new_sum[1])
 
 
+        for j in range(len(self.edge_list)):
+                list.append(self.id[j])
 
-        print(self.get_Hessian())
+        for j in range(len(self.edge_list)):
+                list.append(new_sum[2][j])
+
+        hessian=self.get_Hessian()
+        print(hessian)
+        list.append(hessian[0][0])
+        list.append(hessian[1][1])
         self.ifexp=True
-        print(self.get_Hessian())
+        hessian = self.get_Hessian()
+        print(hessian)
+        list.append(hessian[0][0])
+        list.append(hessian[1][1])
+
+
+
+        save_nameP = "../save/" + self.Model +'.txt'
+        with open(save_nameP, 'wb') as f:
+            np.savetxt(f, list)
+
+        print(list)
+
+
+
+
+
+
 
 # this function is used to renew ini
     def renew_em_joint(self,ifmodel="EM_full",ifdnalevel=False):
@@ -2011,7 +2056,6 @@ class Embrachtau:
 
 
     def get_Hessian(self):
-
 
         if self.ifexp != True:
             if self.Model=="MG94":
@@ -2030,36 +2074,68 @@ class Embrachtau:
         return H
 
 #### thos two get prop for IGC
-    def get_summary(self):
+    def get_summary(self,approx=True,branchtau=False):
         scene=self.get_scene()
         ttt = len(scene['tree']["column_nodes"])
-        self.id = self.compute_paralog_id(ifdnalevel=False)
+        exp_blen=scene['tree']["edge_rate_scaling_factors"]
+
         self.jointly_common_ancstral_inference()
-        igc_total=0
-        mutatation_total=0
-        ### make a dic
-        list = []
-        matrix_dim = len(scene['process_definitions'][0]['row_states'])
-        for i in range(matrix_dim):
-            list.append(tuple(np.concatenate([scene['process_definitions'][0]['row_states'][i],
-                                              scene['process_definitions'][0]['column_states'][i]])))
+        self.id = self.compute_paralog_id(ifdnalevel=False)
+        igc_total = 0
+        mutatation_total = 0
 
-        index = np.arange(matrix_dim)
+        if approx==False:
 
-        dictionary = dict(zip(list, index))
+            ### make a dic
+            list = []
+            matrix_dim = len(scene['process_definitions'][0]['row_states'])
+            for i in range(matrix_dim):
+                list.append(tuple(np.concatenate([scene['process_definitions'][0]['row_states'][i],
+                                                  scene['process_definitions'][0]['column_states'][i]])))
 
-        for j in range(ttt):
-                if not j == 1:
-                    ini2 = self.node_to_num[self.edge_list[j][0]]
-                    end2 = self.node_to_num[self.edge_list[j][1]]
-                    ini1 = deepcopy(self.sites[ini2,])
-                    end1 = deepcopy(self.sites[end2,])
-                    result=self.whether_IGC(ini=ini1,end=end1,paralog_id=self.id[j],idnum=j,scene=scene,dic=dictionary)
-                    igc_total +=result[0]
-                    mutatation_total +=result[1]
+            index = np.arange(matrix_dim)
+
+            dictionary = dict(zip(list, index))
+
+            for j in range(ttt):
+                    if not j == 1:
+                        ini2 = self.node_to_num[self.edge_list[j][0]]
+                        end2 = self.node_to_num[self.edge_list[j][1]]
+                        ini1 = deepcopy(self.sites[ini2,])
+                        end1 = deepcopy(self.sites[end2,])
+                        result=self.whether_IGC(ini=ini1,end=end1,paralog_id=self.id[j],idnum=j,scene=scene,dic=dictionary)
+                        igc_total +=result[0]
+                        mutatation_total +=result[1]
+
+            return igc_total, mutatation_total
+
+        else:
+
+            expect_num_igc=self._ExpectedNumGeneconv()
+            expect_num_pm=self._ExpectedpointMutationNum()
+            igc_total=np.sum(expect_num_igc)
+            mutatation_total=np.sum(expect_num_pm)+igc_total
+
+            if branchtau == True:
+
+                        expected_DwellTime=self._ExpectedHetDwellTime()
+                        if self.Model=="MG94":
+                            taulist = [expect_num_igc[i] / (exp_blen[i] * (
+                            expected_DwellTime[0][i] + self.omega * expected_DwellTime[1][i])) \
+                                        if (expected_DwellTime[0][i] + self.omega *expected_DwellTime[1][i]) != 0 else 0
+                                            for i in range(ttt)]
+                        else:
+                             taulist = [expect_num_igc[i] / (exp_blen[i] *
+                                             expected_DwellTime[i]) if expected_DwellTime[i] != 0 else 0
+                                        for i in range(ttt)]
 
 
-        return igc_total,mutatation_total
+                        return igc_total, mutatation_total,taulist
+
+            else:
+
+                return igc_total, mutatation_total
+
 
 
 
@@ -2185,6 +2261,313 @@ class Embrachtau:
 
 
 
+
+    ####### new way for computatiom sum
+    def get_geneconvTransRed(self, paralog_id):
+        row_states = []
+        column_states = []
+        proportions = []
+
+        if self.ifmodel == "old":
+            tau=self.tau
+        else:
+            tau=self.tau * np.power(paralog_id, self.K)
+
+        if self.Model == 'MG94':
+            Qbasic = self.get_MG94Basic()
+            for i, pair in enumerate(product(self.codon_nonstop, repeat=2)):
+                ca, cb = pair
+                sa = self.codon_to_state[ca]
+                sb = self.codon_to_state[cb]
+                if ca == cb:
+                    continue
+
+                # (ca, cb) to (ca, ca)
+                row_states.append((sa, sb))
+                column_states.append((sa, sa))
+                Qb = Qbasic[sb, sa]
+                if isNonsynonymous(cb, ca, self.codon_table):
+                    Tgeneconv = tau * self.omega
+                else:
+                    Tgeneconv = tau
+                proportions.append(Tgeneconv / (Qb + Tgeneconv) if (Qb + Tgeneconv) > 0 else 0.0)
+
+                # (ca, cb) to (cb, cb)
+                row_states.append((sa, sb))
+                column_states.append((sb, sb))
+                Qb = Qbasic[sa, sb]
+                proportions.append(Tgeneconv / (Qb + Tgeneconv) if (Qb + Tgeneconv) > 0 else 0.0)
+
+        elif self.Model == 'HKY':
+            Qbasic = self.get_HKYBasic()
+            for i, pair in enumerate(product('ACGT', repeat=2)):
+                na, nb = pair
+                sa = self.nt_to_state[na]
+                sb = self.nt_to_state[nb]
+                if na == nb:
+                    continue
+
+                # (na, nb) to (na, na)
+                row_states.append((sa, sb))
+                column_states.append((sa, sa))
+                GeneconvRate = get_HKYGeneconvRate(pair, na + na, Qbasic, tau)
+                proportions.append(tau / GeneconvRate if GeneconvRate > 0 else 0.0)
+
+                # (na, nb) to (nb, nb)
+                row_states.append((sa, sb))
+                column_states.append((sb, sb))
+                GeneconvRate = get_HKYGeneconvRate(pair, nb + nb, Qbasic, tau)
+                proportions.append(tau / GeneconvRate if GeneconvRate > 0 else 0.0)
+
+        return {'row_states': row_states, 'column_states': column_states, 'weights': proportions}
+    def _ExpectedNumGeneconv(self, package='new', display=False):
+        scene = self.get_scene()
+        ttt = len(scene['tree']["column_nodes"])
+        expect_num_igc = np.zeros(ttt)
+        for j in range(ttt):
+            if not j == 1:
+                self.GeneconvTransRed = self.get_geneconvTransRed(self.id[j])
+
+                if package == 'new':
+                    self.scene_ll = self.get_scene()
+                    requests = [{'property': 'SDNTRAN', 'transition_reduction': self.GeneconvTransRed}]
+                    j_in = {
+                        'scene': self.scene_ll,
+                        'requests': requests
+                    }
+                    j_out = jsonctmctree.interface.process_json_in(j_in)
+
+                    status = j_out['status']
+                    expect_num_igc[j] = j_out['responses'][0][j]
+
+                else:
+                    print('Need to implement this for old package')
+
+
+        return expect_num_igc
+
+
+    def get_pointMutationRed(self, paralog_id):
+        row_states = []
+        col_states = []
+        proportions = []
+
+        if self.ifmodel=="old":
+            tau=self.tau
+        else:
+            tau=self.tau * np.power(paralog_id, self.K)
+
+        if self.Model == 'MG94':
+            Qbasic = self.get_MG94Basic()
+            for i, pair in enumerate(product(self.codon_nonstop, repeat=2)):
+                ca, cb = pair
+                sa = self.codon_to_state[ca]
+                sb = self.codon_to_state[cb]
+                if ca != cb:
+                    for cc in self.codon_nonstop:
+                        if cc == ca or cc == cb:
+                            continue
+                        sc = self.codon_to_state[cc]
+
+                        # (ca, cb) to (ca, cc)
+                        Qb = Qbasic[sb, sc]
+                        if Qb != 0:
+                            row_states.append((sa, sb))
+                            col_states.append((sa, sc))
+                            proportions.append(1.0)
+
+                        # (ca, cb) to (cc, cb)
+                        Qb = Qbasic[sa, sc]
+                        if Qb != 0:
+                            row_states.append((sa, sb))
+                            col_states.append((sc, sb))
+                            proportions.append(1.0)
+                    # (ca, cb) to (ca, ca)
+                    row_states.append((sa, sb))
+                    col_states.append((sa, sa))
+                    Qb = Qbasic[sb, sa]
+                    if isNonsynonymous(cb, ca, self.codon_table):
+                        Tgeneconv = tau * self.omega
+                    else:
+                        Tgeneconv = tau
+                    proportions.append(1.0 - Tgeneconv / (Qb + Tgeneconv) if (Qb + Tgeneconv) > 0 else 0.0)
+
+                    # (ca, cb) to (cb, cb)
+                    row_states.append((sa, sb))
+                    col_states.append((sb, sb))
+                    Qb = Qbasic[sa, sb]
+                    proportions.append(1.0 - Tgeneconv / (Qb + Tgeneconv) if (Qb + Tgeneconv) > 0 else 0.0)
+                else:
+                    for cc in self.codon_nonstop:
+                        if cc == ca:
+                            continue
+                        sc = self.codon_to_state[cc]
+
+                        # (ca, ca) to (ca,  cc)
+                        Qb = Qbasic[sa, sc]
+                        if Qb != 0:
+                            row_states.append((sa, sb))
+                            col_states.append((sa, sc))
+                            proportions.append(1.0)
+                            # (ca, ca) to (cc, ca)
+                            row_states.append((sa, sb))
+                            col_states.append((sc, sa))
+                            proportions.append(1.0)
+
+                            # (ca, ca) to (cc, cc)
+                            row_states.append((sa, sb))
+                            col_states.append((sc, sc))
+                            proportions.append(1.0)
+        elif self.Model == 'HKY':
+            Qbasic = self.get_HKYBasic()
+            for i, pair in enumerate(product('ACGT', repeat=2)):
+                na, nb = pair
+                sa = self.nt_to_state[na]
+                sb = self.nt_to_state[nb]
+                if na != nb:
+                    for nc in 'ACGT':
+                        if nc == na or nc == nb:
+                            continue
+                        sc = self.nt_to_state[nc]
+
+                        # (na, nb) to (na, nc)
+                        Qb = Qbasic[sb, sc]
+                        if Qb != 0:
+                            row_states.append((sa, sb))
+                            col_states.append((sa, sc))
+                            proportions.append(1.0)
+
+                        # (na, nb) to (nc, nb)
+                        Qb = Qbasic[sa, sc]
+                        if Qb != 0:
+                            row_states.append((sa, sb))
+                            col_states.append((sc, sb))
+                            proportions.append(1.0)
+
+                    # (na, nb) to (na, na)
+                    row_states.append((sa, sb))
+                    col_states.append((sa, sa))
+                    Qb = Qbasic[sb, sa]
+                    proportions.append(Qb / (Qb + tau))
+
+                    # (na, nb) to (nb, nb)
+                    row_states.append((sa, sb))
+                    col_states.append((sb, sb))
+                    Qb = Qbasic[sa, sb]
+                    proportions.append(Qb / (Qb + tau))
+                else:
+                    for nc in 'ACGT':
+                        if nc == na:
+                            continue
+                        sc = self.nt_to_state[nc]
+
+                        Qb = Qbasic[sa, sc]
+                        if Qb != 0.0:
+                            row_states.append((sa, sb))
+                            col_states.append((sa, sc))
+                            proportions.append(1.0)
+
+                            row_states.append((sa, sb))
+                            col_states.append((sc, sa))
+                            proportions.append(1.0)
+
+        return [{'row_states': row_states, 'column_states': col_states, 'weights': proportions}]
+
+    def _ExpectedpointMutationNum(self, package='new', display=False):
+        scene = self.get_scene()
+        ttt = len(scene['tree']["column_nodes"])
+        expect_num_pm = np.zeros(ttt)
+        for j in range(ttt):
+            if not j == 1:
+                pointMutationRed = self.get_pointMutationRed(paralog_id=self.id[j])
+                if package == 'new':
+                    self.scene_ll = self.get_scene()
+                    requests = [{'property': 'SDNTRAN', 'transition_reduction': i} for i in pointMutationRed]
+                    assert (len(requests) == 1)  # should be exactly 1 request
+                    j_in = {
+                        'scene': self.scene_ll,
+                        'requests': requests
+                    }
+                    j_out = jsonctmctree.interface.process_json_in(j_in)
+                    status = j_out['status']
+                    expect_num_pm[j]= j_out['responses'][0][j]
+                else:
+                    print('Need to implement this for old package')
+
+
+        return expect_num_pm
+
+    def _ExpectedHetDwellTime(self, package='new', display=False):
+
+        if package == 'new':
+            self.scene_ll = self.get_scene()
+            if self.Model == 'MG94':
+                syn_heterogeneous_states = [(a, b) for (a, b) in
+                                            list(product(range(len(self.codon_to_state)), repeat=2)) if
+                                            a != b and self.isSynonymous(self.codon_nonstop[a], self.codon_nonstop[b])]
+                nonsyn_heterogeneous_states = [(a, b) for (a, b) in
+                                               list(product(range(len(self.codon_to_state)), repeat=2)) if
+                                               a != b and not self.isSynonymous(self.codon_nonstop[a],
+                                                                                self.codon_nonstop[b])]
+                dwell_request = [dict(
+                    property='SDWDWEL',
+                    state_reduction=dict(
+                        states=syn_heterogeneous_states,
+                        weights=[2] * len(syn_heterogeneous_states)
+                    )),
+                    dict(
+                        property='SDWDWEL',
+                        state_reduction=dict(
+                            states=nonsyn_heterogeneous_states,
+                            weights=[2] * len(nonsyn_heterogeneous_states)
+                        ))
+                ]
+
+            elif self.Model == 'HKY':
+                heterogeneous_states = [(a, b) for (a, b) in list(product(range(len(self.nt_to_state)), repeat=2)) if
+                                        a != b]
+                dwell_request = [dict(
+                    property='SDWDWEL',
+                    state_reduction=dict(
+                        states=heterogeneous_states,
+                        weights=[2] * len(heterogeneous_states)
+                    )
+                )]
+
+            j_in = {
+                'scene': self.scene_ll,
+                'requests': dwell_request,
+            }
+            j_out = jsonctmctree.interface.process_json_in(j_in)
+
+            ttt=len(self.edge_list)
+            if self.Model=="MG94":
+                ExpectedDwellTime=np.zeros((2,ttt))
+
+                for i in range(len(self.edge_list)):
+                    for j in range(2):
+                        ExpectedDwellTime[j][i]=j_out['responses'][j][i]
+            else:
+                ExpectedDwellTime = np.zeros(ttt)
+
+                for i in range(len(self.edge_list)):
+                     ExpectedDwellTime[i] = j_out['responses'][0][i]
+
+
+            return ExpectedDwellTime
+        else:
+            print('Need to implement this for old package')
+
+
+
+
+
+
+
+
+
+
+
 if __name__ == '__main__':
 
 
@@ -2204,8 +2587,9 @@ if __name__ == '__main__':
                                save_path='../test/save/', save_name=save_name,kbound=5)
 
 
-    geneconv.EM_branch_tau()
- #   print(geneconv.get_summary())
+    geneconv.EM_branch_tau(MAX=2)
+    print(geneconv.get_summary(approx=True,branchtau=True))
+
 
 
 

@@ -9,7 +9,7 @@
 from __future__ import print_function
 from IGCexpansion.CodonGeneconv import ReCodonGeneconv
 import argparse, os
-from IGCexpansion.em_pt1 import *
+from IGCexpansion.em_pt import *
 
 
 
@@ -46,9 +46,12 @@ if __name__ == '__main__':
     summary_folder = './summary/'
     check_folder(summary_folder)
 
-    geneconv = Embrachtau1(newicktree, alignment_file, paralog, Model=model, Force=Force, clock=None,
+    geneconv = Embrachtau(newicktree, alignment_file, paralog, Model=model, Force=Force, clock=None,
                                save_path='../test/save/', save_name=save_name,kbound=5,tauini=0.01,kini=2.1,inibranch=0.01)
-    geneconv.EM_branch_tau(K=-1.8)
+    geneconv.EM_branch_tau()
+
+
+
 
 
 
