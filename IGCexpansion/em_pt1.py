@@ -2167,6 +2167,8 @@ class Embrachtau1:
         Qbasic = self.get_HKYBasic()
         rate_geneconv = []
 
+        bstau=np.exp(self.branch_tau)
+
 
         for i, pair_from in enumerate(product('ACGT', repeat=2)):
             na, nb = pair_from
@@ -2174,12 +2176,10 @@ class Embrachtau1:
                 nc, nd = pair_to
                 if i == j:
                     continue
-                GeneconvRate = get_HKYGeneconvRate(pair_from, pair_to, Qbasic, self.branch_tau)
+                GeneconvRate = get_HKYGeneconvRate(pair_from, pair_to, Qbasic, bstau)
                 if GeneconvRate != 0.0:
-
                     rate_geneconv.append(GeneconvRate)
                 if na == nb and nc == nd:
-
                     rate_geneconv.append(GeneconvRate)
 
 
@@ -2190,6 +2190,7 @@ class Embrachtau1:
     def redesign__MG94Geneconv(self):
         Qbasic = self.get_MG94Basic()
         rate_geneconv = []
+        bstau = np.exp(self.branch_tau)
 
 
         for i, pair in enumerate(product(self.codon_nonstop, repeat=2)):
@@ -2216,9 +2217,9 @@ class Embrachtau1:
                 # (ca, cb) to (ca, ca)
                 Qb = Qbasic[sb, sa]
                 if isNonsynonymous(cb, ca, self.codon_table):
-                    Tgeneconv = self.branch_tau * self.omega
+                    Tgeneconv = bstau * self.omega
                 else:
-                    Tgeneconv = self.branch_tau
+                    Tgeneconv = bstau
                 rate_geneconv.append(Qb + Tgeneconv)
 
                 # (ca, cb) to (cb, cb)
@@ -2241,7 +2242,6 @@ class Embrachtau1:
                         # (ca, ca) to (cc, cc)
                         rate_geneconv.append(0.0)
 
-        print(rate_geneconv)
 
         return rate_geneconv
 
@@ -2364,17 +2364,17 @@ class Embrachtau1:
         ll=self.loglikelihood_branch()
 
 
-        delta = deepcopy(max(1, abs(np.log(self.branch_tau))) * 0.000001)
+        delta = deepcopy(max(1, abs((self.branch_tau))) * 0.000001)
 
-        x_plus_delta1 = deepcopy(np.log(self.branch_tau))
+        x_plus_delta1 = deepcopy((self.branch_tau))
         x_plus_delta1 += delta / 2
-        self.branch_tau=np.exp(x_plus_delta1)
+        self.branch_tau=(x_plus_delta1)
         ll_delta1 = self.loglikelihood_branch()
 
             # ll_delta0 is f(x-h/2)
-        x_plus_delta0 = deepcopy(np.log(self.branch_tau))
+        x_plus_delta0 = deepcopy((self.branch_tau))
         x_plus_delta0 -= delta
-        self.branch_tau = np.exp(x_plus_delta0)
+        self.branch_tau = (x_plus_delta0)
         ll_delta0 = self.loglikelihood_branch()
 
         d_estimate = (ll_delta1 - ll_delta0) / delta
@@ -2393,16 +2393,16 @@ class Embrachtau1:
     def get_branch_mle(self,branch):
 
 
-        guess_x=np.power(self.tau,self.id[branch])*self.tau
+        guess_x=np.log(np.power(self.tau,self.id[branch])*self.tau)
         self.branch_tau=deepcopy(guess_x)
-        bnds = [(0.001, 100.0)]
+        bnds = [(-5.0, 5.0)]
 
 
         result = scipy.optimize.minimize(self.loglikelihood_branch_gradient, guess_x, jac=True, method='L-BFGS-B',bounds=bnds)
         print(result)
 
 
-        return self.branch_tau
+        return np.exp(self.branch_tau)
 
 
     def test(self):
