@@ -1011,7 +1011,7 @@ class Embrachtau:
 
  # ll_delta0 is f(x-h/2)
             x_plus_delta0 = np.array(self.x)
-            x_plus_delta0[i] -= delta/2
+            x_plus_delta0[i] -= delta
             self.update_by_x(x_plus_delta0)
             ll_delta0, _ = fn(store=True, edge_derivative=False)
 
@@ -1070,10 +1070,11 @@ class Embrachtau:
             x_plus_delta[i] += delta / 2.0
             self.update_by_x(x_plus_delta)
             ll_delta_plus, _ = fn(store=True, edge_derivative=False)
+
             x_plus_delta[i] -= delta
             self.update_by_x(x_plus_delta)
             ll_delta_minus, _ = fn(store=True, edge_derivative=False)
-            x_plus_delta[i] += delta / 2.0
+
             d_estimate = (ll_delta_plus - ll_delta_minus) / delta
             other_derivs.append(d_estimate)
             # restore self.x
@@ -1934,7 +1935,7 @@ class Embrachtau:
             self.update_by_x()
 
 
-    def EM_branch_tau(self,MAX=8,epis=0.01,force=None,K=0.5,bound=False,ifdnalevel=False):
+    def EM_branch_tau(self,MAX=4,epis=0.01,force=None,K=0.5,bound=False,ifdnalevel=False):
         list=[]
         list.append(self.nsites)
         ll0=self.get_mle()["fun"]
@@ -2589,13 +2590,6 @@ if __name__ == '__main__':
 
     geneconv.EM_branch_tau(MAX=2)
     print(geneconv.get_summary(approx=True,branchtau=True))
-
-
-
-
-
-
-
 
 
 

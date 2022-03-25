@@ -19,13 +19,9 @@ import numpy as np
 import pandas as pd
 from numpy import random
 from scipy import linalg
-import copy
-from scipy.stats import poisson
+
 
 from IGCexpansion.CodonGeneconFunc import isNonsynonymous
-import pickle
-import json
-import numpy.core.multiarray
 import numdifftools as nd
 
 
@@ -130,6 +126,18 @@ class Embrachtau1:
 
 
         self.index=0
+        self.ifexp=False
+
+
+        #### for bs tau
+        self.Q=None
+        self.dic_col=None
+        self.branch_tau=2.1
+        self.ini=None
+        self.end=None
+        self.time=0.1
+        self.if_rerun=True
+
 
     def initialize_parameters(self):
         self.get_tree()
@@ -238,9 +246,12 @@ class Embrachtau1:
                     np.array([count[0] + count[2], count[0] / (count[0] + count[2]), count[1] / (count[1] + count[3]),
                               self.kappa, self.tau]))
         else:
+            save_file = self.get_save_file_name()
+            save_file = save_file
 
             if self.Model == 'MG94':
                 # x_process[] = %AG, %A, %C, kappa, omega, tau
+
                 if self.noboundk==False:
                     if self.IGC_Omega is None:
                         self.x_process = np.log(
@@ -261,7 +272,7 @@ class Embrachtau1:
                             np.array([np.exp(self.x_process[0]), np.exp(self.x_process[1]), np.exp(self.x_process[2]),
                                       self.kappa, self.omega, self.IGC_Omega, self.tau])), self.K)
 
-            elif self.Model == 'HKY':
+            else:
                 # x_process[] = %AG, %A, %C, kappa, tau
                 self.omega = 1.0
                 if self.noboundk == False:
@@ -273,8 +284,20 @@ class Embrachtau1:
                         np.array([np.exp(self.x_process[0]), np.exp(self.x_process[1]), np.exp(self.x_process[2]),
                                   self.kappa, self.tau])), self.K)
 
+            if self.joint == False:
 
+                print(save_file)
 
+                if os.path.isfile(save_file):  # if the save txt file exists and not empty, then read in parameter values
+                    if os.stat(save_file).st_size > 0:
+                        self.initialize_by_save(save_file)
+                        print('Successfully loaded parameter value from ' + save_file)
+                        self.if_rerun=False
+
+                        if self.Model =="MG94":
+                              self.k=self.x[6]
+                        else:
+                              self.k = self.x[5]
 
 
 
@@ -1000,7 +1023,7 @@ class Embrachtau1:
         #  d_estimate = (ll_delta - ll) / delta
 
 # finite difference central
-  # ll_delta1 is f(x+2/h)
+  # ll_delta1 is f(x+h/2)
 
             delta=deepcopy(max(1,abs(self.x[i]))*0.000001)
             x_plus_delta1 = np.array(self.x)
@@ -1008,9 +1031,9 @@ class Embrachtau1:
             self.update_by_x(x_plus_delta1)
             ll_delta1, _ = fn(store=True, edge_derivative=False)
 
- # ll_delta0 is f(x-2/h)
+ # ll_delta0 is f(x-h/2)
             x_plus_delta0 = np.array(self.x)
-            x_plus_delta0[i] -= delta/2
+            x_plus_delta0[i] -= delta
             self.update_by_x(x_plus_delta0)
             ll_delta0, _ = fn(store=True, edge_derivative=False)
 
@@ -1072,7 +1095,8 @@ class Embrachtau1:
             x_plus_delta[i] -= delta
             self.update_by_x(x_plus_delta)
             ll_delta_minus, _ = fn(store=True, edge_derivative=False)
-            x_plus_delta[i] += delta / 2.0
+
+
             d_estimate = (ll_delta_plus - ll_delta_minus) / delta
             other_derivs.append(d_estimate)
             # restore self.x
@@ -1208,7 +1232,11 @@ class Embrachtau1:
             self.x[5] = x[1]
 
         self.update_by_x(self.x)
-        ll = self._loglikelihood2()[0]
+
+        if self.ifexp==False:
+            ll = self._loglikelihood2()[0]
+        else:
+            ll = self._loglikelihood3()
 
         return -ll
 
@@ -1366,7 +1394,9 @@ class Embrachtau1:
                                                                                    'bounds': bnds},
                                                      niter=niter)  # , callback = self.check_boundary)
 
-        print(result)
+        if ifseq != True:
+            print(result)
+
 
 
         self.save_x()
@@ -1494,9 +1524,9 @@ class Embrachtau1:
 
 
                         if isNonsynonymous(cb, ca, self.codon_table):
-                            Tgeneconv = ftau*np.exp((1-paralog_id[branch])* fk) *self.get_IGC_omega()
+                            Tgeneconv = ftau*np.power(paralog_id[branch], fk) *self.get_IGC_omega()
                         else:
-                            Tgeneconv = ftau*np.exp(1-paralog_id[branch]* fk)
+                            Tgeneconv = ftau*np.power(paralog_id[branch], fk)
                         rate_geneconv.append(Qb + Tgeneconv)
 
                         # (ca, cb) to (cb, cb)
@@ -1566,9 +1596,9 @@ class Embrachtau1:
                         col.append((sa, sa))
                         Qb = Qbasic[sb, sa]
                         if isNonsynonymous(cb, ca, self.codon_table):
-                            Tgeneconv = self.tau *ftau*np.exp((1-paralog_id[branch])* self.K)*self.get_IGC_omega()
+                            Tgeneconv = self.tau *np.power(paralog_id[branch],self.K)*self.get_IGC_omega()
                         else:
-                            Tgeneconv = self.tau*np.exp(1-paralog_id[branch]* fk)
+                            Tgeneconv = self.tau*np.power(paralog_id[branch],self.K)
                         rate_geneconv.append(Qb + Tgeneconv)
 
                         # (ca, cb) to (cb, cb)
@@ -1701,7 +1731,7 @@ class Embrachtau1:
                           sd = self.nt_to_state[nd]
                           if i == j:
                               continue
-                          GeneconvRate = get_HKYGeneconvRate(pair_from, pair_to, Qbasic, ftau*np.exp((1-paralog_id[branch])* (fk)))
+                          GeneconvRate = get_HKYGeneconvRate(pair_from, pair_to, Qbasic, ftau*np.power(paralog_id[branch], fk))
                           if GeneconvRate != 0.0:
                               row.append((sa, sb))
                               col.append((sc, sd))
@@ -1734,7 +1764,7 @@ class Embrachtau1:
                         if i == j:
                             continue
                         GeneconvRate = get_HKYGeneconvRate(pair_from, pair_to, Qbasic,
-                                                           self.tau * np.exp((1-paralog_id[branch])* self.K)
+                                                           self.tau * np.power(paralog_id[branch], self.K)
                                                            )
                         if GeneconvRate != 0.0:
                             row.append((sa, sb))
@@ -1888,8 +1918,6 @@ class Embrachtau1:
         id = np.zeros(ttt)
         diverge_list = np.ones(ttt)
 
-
-
         for mc in range(repeat):
 
             self.jointly_common_ancstral_inference()
@@ -1929,12 +1957,16 @@ class Embrachtau1:
             self.update_by_x()
 
 
-    def EM_branch_tau(self,MAX=6,epis=0.01,force=None,K=0.5,bound=False,ifdnalevel=False):
-        llo=self.get_mle()["fun"]
+    def EM_branch_tau(self,MAX=8,epis=0.01,force=None,K=0.5,bound=False,ifdnalevel=False):
+        list=[]
+        list.append(self.nsites)
+        ll0=self.get_mle()["fun"]
         pstau=deepcopy(self.tau)
         self.id = self.compute_paralog_id(ifdnalevel=ifdnalevel)
         print(self.id)
+        idold=deepcopy(self.id)
         print(self.get_Hessian())
+        old_sum = self.get_summary(branchtau=True)
         self.K=K
         self.Force=force
         self.ifmodel = "EM_full"
@@ -1958,24 +1990,84 @@ class Embrachtau1:
         while i<=MAX and difference >=epis:
             pstau_1 = deepcopy(self.tau)
             self.id = self.compute_paralog_id(ifdnalevel=ifdnalevel)
-            self.get_mle()
+            ll1=self.get_mle()["fun"]
             difference = abs(self.tau - pstau_1)
 
             print("EMcycle:")
             print(i)
             i = i + 1
             print(self.id)
+            print("K:")
             print(self.K)
+            print("Tau:")
             print(self.tau)
             print("xxxxxxxxxxxxxxxxx")
             print("xxxxxxxxxxxxxxxxx")
             print("xxxxxxxxxxxxxxxxx")
             print("\n")
 
-        print("old tau: ",pstau)
-        print("old ll: ",llo)
 
-        print(self.get_Hessian())
+        new_sum = self.get_summary(branchtau=True)
+
+
+        print("old tau: ",pstau)
+        list.append(pstau)
+        print("old ll: ",ll0)
+        print("old sum IGC",old_sum[0])
+        print("old sum TOTAL", old_sum[1])
+        list.append(old_sum[0])
+        list.append(old_sum[1])
+        print("old igc prop",old_sum[0]/old_sum[1])
+        list.append(old_sum[0]/old_sum[1])
+        for j in range(len(self.edge_list)):
+                list.append(idold[j])
+
+        for j in range(len(self.edge_list)):
+                list.append(old_sum[2][j])
+
+        print("new sum IGC",new_sum[0])
+        print("new sum TOTAL", new_sum[1])
+        print("new tau: ",self.tau)
+        print("K: ", self.K)
+        print("new ll: ",ll1)
+        list.append(ll1)
+        list.append(self.tau)
+        list.append(self.K)
+        list.append(new_sum[0])
+        list.append(new_sum[1])
+        list.append(new_sum[0] / new_sum[1])
+        print("new igc prop", new_sum[0] / new_sum[1])
+
+
+        for j in range(len(self.edge_list)):
+                list.append(self.id[j])
+
+        for j in range(len(self.edge_list)):
+                list.append(new_sum[2][j])
+
+        hessian=self.get_Hessian()
+        print(hessian)
+        list.append(hessian[0][0])
+        list.append(hessian[1][1])
+        self.ifexp=True
+        hessian = self.get_Hessian()
+        print(hessian)
+        list.append(hessian[0][0])
+        list.append(hessian[1][1])
+
+
+
+        save_nameP = "./save/" + self.Model +'.txt'
+        with open(save_nameP, 'wb') as f:
+            np.savetxt(f, list)
+
+        print(list)
+
+
+
+
+
+
 
 # this function is used to renew ini
     def renew_em_joint(self,ifmodel="EM_full",ifdnalevel=False):
@@ -1987,21 +2079,518 @@ class Embrachtau1:
 
 
     def get_Hessian(self):
-        if self.Model=="MG94":
-           H = nd.Hessian(self.objective_wo_derivative1)(np.float128((self.x[5:7])))
+
+        if self.ifexp != True:
+            if self.Model=="MG94":
+               H = nd.Hessian(self.objective_wo_derivative1)(np.float128((self.x[5:7])))
+            else:
+               H = nd.Hessian(self.objective_wo_derivative1)(np.float128((self.x[4:6])))
+
         else:
-           H = nd.Hessian(self.objective_wo_derivative1)(np.float128((self.x[4:6])))
+            if self.Model == "MG94":
+                H = nd.Hessian(self.objective_wo_derivative1)(np.float128([np.exp(self.x[5]),self.x[6]]))
+            else:
+                H = nd.Hessian(self.objective_wo_derivative1)([np.exp(self.x[4]),self.x[5]])
+
+        H=np.linalg.inv(H)
 
         return H
 
+#### thos two get prop for IGC
+    def get_summary(self,approx=True,branchtau=False):
+        scene=self.get_scene()
+        ttt = len(scene['tree']["column_nodes"])
+        exp_blen=scene['tree']["edge_rate_scaling_factors"]
 
-# hare is some summary sstatistics come from single gene
-    def summary(self):
-        print(11)
+        self.jointly_common_ancstral_inference()
+        self.id = self.compute_paralog_id(ifdnalevel=False)
+        igc_total = 0
+        mutatation_total = 0
+
+        if approx==False:
+
+            ### make a dic
+            list = []
+            matrix_dim = len(scene['process_definitions'][0]['row_states'])
+            for i in range(matrix_dim):
+                list.append(tuple(np.concatenate([scene['process_definitions'][0]['row_states'][i],
+                                                  scene['process_definitions'][0]['column_states'][i]])))
+
+            index = np.arange(matrix_dim)
+
+            dictionary = dict(zip(list, index))
+
+            for j in range(ttt):
+                    if not j == 1:
+                        ini2 = self.node_to_num[self.edge_list[j][0]]
+                        end2 = self.node_to_num[self.edge_list[j][1]]
+                        ini1 = deepcopy(self.sites[ini2,])
+                        end1 = deepcopy(self.sites[end2,])
+                        result=self.whether_IGC(ini=ini1,end=end1,paralog_id=self.id[j],idnum=j,scene=scene,dic=dictionary)
+                        igc_total +=result[0]
+                        mutatation_total +=result[1]
+
+            return igc_total, mutatation_total
+
+        else:
+
+            expect_num_igc=self._ExpectedNumGeneconv()
+            expect_num_pm=self._ExpectedpointMutationNum()
+            igc_total=np.sum(expect_num_igc)
+            mutatation_total=np.sum(expect_num_pm)+igc_total
+
+            if branchtau == True:
+
+                        expected_DwellTime=self._ExpectedHetDwellTime()
+                        if self.Model=="MG94":
+                            taulist = [expect_num_igc[i] / (exp_blen[i] * (
+                            expected_DwellTime[0][i] + self.omega * expected_DwellTime[1][i])) \
+                                        if (expected_DwellTime[0][i] + self.omega *expected_DwellTime[1][i]) != 0 else 0
+                                            for i in range(ttt)]
+                        else:
+                             taulist = [expect_num_igc[i] / (exp_blen[i] *
+                                             expected_DwellTime[i]) if expected_DwellTime[i] != 0 else 0
+                                        for i in range(ttt)]
+
+
+                        return igc_total, mutatation_total,taulist
+
+            else:
+
+                return igc_total, mutatation_total
 
 
 
 
+    def redesign_HKYGeneconv(self):
+        # print ('tau = ', self.tau)
+        Qbasic = self.get_HKYBasic()
+        rate_geneconv = []
+
+
+        for i, pair_from in enumerate(product('ACGT', repeat=2)):
+            na, nb = pair_from
+            for j, pair_to in enumerate(product('ACGT', repeat=2)):
+                nc, nd = pair_to
+                if i == j:
+                    continue
+                GeneconvRate = get_HKYGeneconvRate(pair_from, pair_to, Qbasic, self.branch_tau)
+                if GeneconvRate != 0.0:
+
+                    rate_geneconv.append(GeneconvRate)
+                if na == nb and nc == nd:
+
+                    rate_geneconv.append(GeneconvRate)
+
+
+
+        return  rate_geneconv
+
+
+    def redesign__MG94Geneconv(self):
+        Qbasic = self.get_MG94Basic()
+        rate_geneconv = []
+
+
+        for i, pair in enumerate(product(self.codon_nonstop, repeat=2)):
+            # use ca, cb, cc to denote codon_a, codon_b, codon_c, where cc != ca, cc != cb
+            ca, cb = pair
+            sa = self.codon_to_state[ca]
+            sb = self.codon_to_state[cb]
+            if ca != cb:
+                for cc in self.codon_nonstop:
+                    if cc == ca or cc == cb:
+                        continue
+                    sc = self.codon_to_state[cc]
+                    # (ca, cb) to (ca, cc)
+                    Qb = Qbasic[sb, sc]
+                    if Qb != 0:
+                        rate_geneconv.append(Qb)
+
+                    # (ca, cb) to (cc, cb)
+                    Qb = Qbasic[sa, sc]
+                    if Qb != 0:
+                        rate_geneconv.append(Qb)
+
+
+                # (ca, cb) to (ca, ca)
+                Qb = Qbasic[sb, sa]
+                if isNonsynonymous(cb, ca, self.codon_table):
+                    Tgeneconv = self.branch_tau * self.omega
+                else:
+                    Tgeneconv = self.branch_tau
+                rate_geneconv.append(Qb + Tgeneconv)
+
+                # (ca, cb) to (cb, cb)
+
+                Qb = Qbasic[sa, sb]
+                rate_geneconv.append(Qb + Tgeneconv)
+
+
+            else:
+                for cc in self.codon_nonstop:
+                    if cc == ca:
+                        continue
+                    sc = self.codon_to_state[cc]
+                    Qb = Qbasic[sa, sc]
+                    if Qb != 0:
+                        # (ca, ca) to (ca,  cc)
+                        rate_geneconv.append(Qb)
+                        # (ca, ca) to (cc, ca)
+                        rate_geneconv.append(Qb)
+                        # (ca, ca) to (cc, cc)
+                        rate_geneconv.append(0.0)
+
+        print(rate_geneconv)
+
+        return rate_geneconv
+
+
+    def making_Qmatrix(self):
+
+        if self.Model=="HKY":
+           Q_trans=self.redesign_HKYGeneconv()
+
+        else:
+           Q_trans = self.redesign__MG94Geneconv()
+
+        scene = self.get_scene()
+
+        actual_number = len(Q_trans)
+
+        global x_i
+        x_i = 0
+
+        global index
+        index = 0
+
+        # dic is from 1:16
+
+        if self.Model == 'HKY':
+            self.Q = np.zeros(shape=(16, 9))
+            self.dic_col = np.zeros(shape=(16, 9))
+            for i in range(actual_number):
+
+                # x_io means current index for row states, x_i is states for last times
+                # self.dic_col indicates the coordinates for ending states
+
+                x_io = (scene['process_definitions'][1]['row_states'][i][0]) * 4 + (scene['process_definitions'][1][
+                    'row_states'][i][1])
+
+                if x_i == x_io:
+                    self.Q[x_io, index] = Q_trans[i]
+                    self.dic_col[x_io, index] = 1 + (scene['process_definitions'][1]['column_states'][i][0]) * 4 + (
+                        scene['process_definitions'][1]['column_states'][i][1])
+                    x_i = x_io
+                    index = index + 1
+
+                else:
+                    self.Q[x_io, 0] = Q_trans[i]
+                    self.dic_col[x_io, 0] = 1 + (scene['process_definitions'][1]['column_states'][i][0]) * 4 + (
+                        scene['process_definitions'][1]['column_states'][i][1])
+                    x_i = x_io
+                    index = 1
+
+        else:
+            self.Q = np.zeros(shape=(3721, 27))
+            self.dic_col = np.zeros(shape=(3721, 27))
+            for i in range(actual_number):
+                x_io = (scene['process_definitions'][1]['row_states'][i][0]) * 61 + (scene[
+                    'process_definitions'][1]['row_states'][i][1])
+                if x_i == x_io:
+                    self.Q[x_io, index] = Q_trans[i]
+                    self.dic_col[x_io, index] = 1 + (scene['process_definitions'][1]['column_states'][i][0]) * 61 + (
+                        scene['process_definitions'][1]['column_states'][i][1])
+                    x_i = x_io
+                    index = index + 1
+
+
+                else:
+                    self.Q[x_io, 0] = Q_trans[i]
+                    self.dic_col[x_io, 0] = 1 + (scene['process_definitions'][1]['column_states'][i][0]) * 61 + (
+                        scene['process_definitions'][1]['column_states'][i][1])
+                    x_i = x_io
+                    index = 1
+
+
+        return self.Q, self.dic_col
+
+    def original_Q(self,if_rebuild_Q=True):
+        if if_rebuild_Q==True:
+           self.making_Qmatrix()
+
+        if self.Model == 'HKY':
+            self.Q_original = np.zeros(shape=(16, 16))
+            for i in range(16):
+                for j in range(9):
+                    index=int(self.dic_col[i,j]-1)
+                    if(index>=0):
+                        self.Q_original[i,index]=self.Q[i,j]
+
+            for k in  range(16):
+                self.Q_original[k,k]=-sum(self.Q_original[k,])
+
+        else:
+            self.Q_original = np.zeros(shape=(3721, 3721))
+            for i in range(3721):
+                for j in range(27):
+                    index=int(self.dic_col[i,j]-1)
+                    self.Q_original[i,index]=self.Q[i,j]
+
+            for k in  range(3721):
+                self.Q_original[k, k]=-sum(self.Q_original[k,])
+
+
+    def loglikelihood_branch(self):
+
+            self.original_Q(if_rebuild_Q=True)
+            Q = linalg.expm(self.Q_original * self.time)
+
+            logllsum=0
+
+            for ll in range(self.nsites):
+                logllsum +=np.log(Q[int(self.ini[ll])][int(self.end[ll])])
+
+            return logllsum
+
+    def loglikelihood_branch_gradient(self, x_new):
+        '''
+        Modified from Alex's objective_and_gradient function in ctmcaas/adv-log-likelihoods/mle_geneconv_common.py
+        '''
+
+        self.branch_tau = deepcopy(x_new)
+        x = deepcopy(x_new)
+
+        ll=self.loglikelihood_branch()
+
+
+        delta = deepcopy(max(1, abs(np.log(self.branch_tau))) * 0.000001)
+
+        x_plus_delta1 = deepcopy(np.log(self.branch_tau))
+        x_plus_delta1 += delta / 2
+        self.branch_tau=np.exp(x_plus_delta1)
+        ll_delta1 = self.loglikelihood_branch()
+
+            # ll_delta0 is f(x-h/2)
+        x_plus_delta0 = deepcopy(np.log(self.branch_tau))
+        x_plus_delta0 -= delta
+        self.branch_tau = np.exp(x_plus_delta0)
+        ll_delta0 = self.loglikelihood_branch()
+
+        d_estimate = (ll_delta1 - ll_delta0) / delta
+
+        self.branch_tau = x
+
+        print('log likelihood = ', ll, flush=True)
+        print(' derivatives = ', d_estimate, flush=True)
+        print('tau:',self.branch_tau, flush=True)
+
+        f = -ll
+        g = -d_estimate
+
+        return f, g
+
+    def get_branch_mle(self,branch):
+
+
+        guess_x=np.power(self.tau,self.id[branch])*self.tau
+        self.branch_tau=deepcopy(guess_x)
+        bnds = [(0.001, 100.0)]
+
+
+        result = scipy.optimize.minimize(self.loglikelihood_branch_gradient, guess_x, jac=True, method='L-BFGS-B',bounds=bnds)
+        print(result)
+
+
+        return self.branch_tau
+
+
+    def test(self):
+        self.get_mle()
+        self.jointly_common_ancstral_inference()
+        self.id = self.compute_paralog_id(ifdnalevel=False)
+
+
+
+        ttt = len(self.tree['col'])
+
+        for j in range(ttt):
+            if self.Model == "HKY":
+                if  j > 1:
+                    ini2 = self.node_to_num[self.edge_list[j][0]]
+                    end2 = self.node_to_num[self.edge_list[j][1]]
+                    self.ini = deepcopy(self.sites[ini2,])
+                    self.end = deepcopy(self.sites[end2,])
+                    self.time=np.exp(self.x_rates[j])
+                    print(self.get_branch_mle(branch=j))
+
+            if self.Model == "MG94":
+                if  j > 1:
+                    ini2 = self.node_to_num[self.edge_list[j][0]]
+                    end2 = self.node_to_num[self.edge_list[j][1]]
+                    self.ini = deepcopy(self.sites[ini2,])
+                    self.end = deepcopy(self.sites[end2,])
+                    self.time = np.exp(self.x_rates[j])
+                    print(self.get_branch_mle(branch=j))
+
+    def sum_branch(self,MAX=3,epis=0.01):
+
+        list = []
+        list.append(self.nsites)
+        ll0 = self.get_mle()["fun"]
+        pstau = deepcopy(self.tau)
+###### old
+        self.id = self.compute_paralog_id()
+        idold = deepcopy(self.id)
+        for j in range(len(self.edge_list)):
+            list.append(idold[j])
+
+        ttt = len(self.tree['col'])
+        for j in range(ttt):
+            if self.Model == "HKY":
+                if j > 1:
+                    ini2 = self.node_to_num[self.edge_list[j][0]]
+                    end2 = self.node_to_num[self.edge_list[j][1]]
+                    self.ini = deepcopy(self.sites[ini2,])
+                    self.end = deepcopy(self.sites[end2,])
+                    self.time = np.exp(self.x_rates[j])
+                    bstau=self.get_branch_mle(branch=j)
+                    print(bstau)
+                    list.append(bstau)
+
+
+            if self.Model == "MG94":
+                if j > 1:
+                    ini2 = self.node_to_num[self.edge_list[j][0]]
+                    end2 = self.node_to_num[self.edge_list[j][1]]
+                    self.ini = deepcopy(self.sites[ini2,])
+                    self.end = deepcopy(self.sites[end2,])
+                    self.time = np.exp(self.x_rates[j])
+                    print(self.get_branch_mle(branch=j))
+
+        self.ifmodel = "EM_full"
+        self.get_initial_x_process()
+
+        if self.if_rerun==True:
+
+            self.get_mle()
+            difference = abs(self.tau - pstau)
+
+            print("EMcycle:")
+            print(0)
+            print(self.id)
+            print(self.K)
+            print(self.tau)
+            print("xxxxxxxxxxxxxxxxx")
+            print("xxxxxxxxxxxxxxxxx")
+            print("xxxxxxxxxxxxxxxxx")
+            print("\n")
+
+            i = 1
+            while i <= MAX and difference >= epis:
+                pstau_1 = deepcopy(self.tau)
+                self.id = self.compute_paralog_id()
+                ll1 = self.get_mle()["fun"]
+                difference = abs(self.tau - pstau_1)
+
+                print("EMcycle:")
+                print(i)
+                i = i + 1
+                print(self.id)
+                print("K:")
+                print(self.K)
+                print("Tau:")
+                print(self.tau)
+                print("xxxxxxxxxxxxxxxxx")
+                print("xxxxxxxxxxxxxxxxx")
+                print("xxxxxxxxxxxxxxxxx")
+                print("\n")
+
+            print("old ll: ", ll0)
+            list.append(ll0)
+            print("old tau: ", pstau)
+            list.append(pstau)
+
+            print("new tau: ", self.tau)
+            print("K: ", self.K)
+            print("new ll: ", ll1)
+            list.append(ll1)
+            list.append(self.tau)
+            list.append(self.K)
+
+
+            for j in range(len(self.edge_list)):
+                list.append(self.id[j])
+
+
+            hessian = self.get_Hessian()
+            print(hessian)
+            list.append(hessian[0][0])
+            list.append(hessian[1][1])
+            self.ifexp = True
+            hessian = self.get_Hessian()
+            print(hessian)
+            list.append(hessian[0][0])
+            list.append(hessian[1][1])
+
+            self.id = self.compute_paralog_id()
+            ttt = len(self.tree['col'])
+
+            for j in range(ttt):
+                if self.Model == "HKY":
+                    if j > 1:
+                        ini2 = self.node_to_num[self.edge_list[j][0]]
+                        end2 = self.node_to_num[self.edge_list[j][1]]
+                        self.ini = deepcopy(self.sites[ini2,])
+                        self.end = deepcopy(self.sites[end2,])
+                        self.time = np.exp(self.x_rates[j])
+                        bstau = self.get_branch_mle(branch=j)
+                        print(bstau)
+                        list.append(bstau)
+
+                if self.Model == "MG94":
+                    if j > 1:
+                        ini2 = self.node_to_num[self.edge_list[j][0]]
+                        end2 = self.node_to_num[self.edge_list[j][1]]
+                        self.ini = deepcopy(self.sites[ini2,])
+                        self.end = deepcopy(self.sites[end2,])
+                        self.time = np.exp(self.x_rates[j])
+                        bstau = self.get_branch_mle(branch=j)
+                        print(bstau)
+                        list.append(bstau)
+
+        else:
+            self.id = self.compute_paralog_id()
+            for j in range(len(self.edge_list)):
+                list.append(self.id[j])
+
+            for j in range(len(self.edge_list)):
+                if self.Model == "HKY":
+                    if j > 1:
+                        ini2 = self.node_to_num[self.edge_list[j][0]]
+                        end2 = self.node_to_num[self.edge_list[j][1]]
+                        self.ini = deepcopy(self.sites[ini2,])
+                        self.end = deepcopy(self.sites[end2,])
+                        self.time = np.exp(self.x_rates[j])
+                        bstau = self.get_branch_mle(branch=j)
+                        list.append(bstau)
+
+                if self.Model == "MG94":
+                    if j > 1:
+                        ini2 = self.node_to_num[self.edge_list[j][0]]
+                        end2 = self.node_to_num[self.edge_list[j][1]]
+                        self.ini = deepcopy(self.sites[ini2,])
+                        self.end = deepcopy(self.sites[end2,])
+                        self.time = np.exp(self.x_rates[j])
+                        bstau = self.get_branch_mle(branch=j)
+                        list.append(bstau)
+
+
+        print(list)
+
+        save_nameP = "../save/" + self.Model +"new_tau"+'.txt'
+        with open(save_nameP, 'wb') as f:
+            np.savetxt(f, list)
 
 
 
@@ -2027,7 +2616,12 @@ if __name__ == '__main__':
                                save_path='../test/save/', save_name=save_name,kbound=5)
 
 
-    #geneconv.EM_branch_tau()
+    geneconv.sum_branch()
+ #   print(geneconv.get_summary(approx=True,branchtau=True))
+
+
+
+
 
 
 
