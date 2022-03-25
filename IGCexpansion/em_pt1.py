@@ -2588,7 +2588,7 @@ class Embrachtau1:
 
         print(list)
 
-        save_nameP = "../save/" + self.Model +"new_tau"+'.txt'
+        save_nameP = "./save/" + self.Model +"new_tau"+'.txt'
         with open(save_nameP, 'wb') as f:
             np.savetxt(f, list)
 
