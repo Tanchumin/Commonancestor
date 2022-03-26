@@ -2393,7 +2393,7 @@ class Embrachtau1:
     def get_branch_mle(self,branch):
 
 
-        guess_x=np.log(np.power(self.tau,self.id[branch])*self.tau)
+        guess_x=np.log(np.power(self.id[branch],self.K)*self.tau)
         self.branch_tau=deepcopy(guess_x)
         bnds = [(None,5.0)]
 
