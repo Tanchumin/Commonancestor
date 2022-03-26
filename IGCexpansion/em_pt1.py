@@ -2167,7 +2167,7 @@ class Embrachtau1:
         Qbasic = self.get_HKYBasic()
         rate_geneconv = []
 
-        bstau=(self.branch_tau)
+        bstau=np.exp(self.branch_tau)
 
 
         for i, pair_from in enumerate(product('ACGT', repeat=2)):
@@ -2190,7 +2190,7 @@ class Embrachtau1:
     def redesign__MG94Geneconv(self):
         Qbasic = self.get_MG94Basic()
         rate_geneconv = []
-        bstau = (self.branch_tau)
+        bstau = np.exp(self.branch_tau)
 
 
         for i, pair in enumerate(product(self.codon_nonstop, repeat=2)):
@@ -2393,9 +2393,9 @@ class Embrachtau1:
     def get_branch_mle(self,branch):
 
 
-        guess_x=(np.power(self.tau,self.id[branch])*self.tau)
+        guess_x=np.log(np.power(self.tau,self.id[branch])*self.tau)
         self.branch_tau=deepcopy(guess_x)
-        bnds = [(0.001,30.000)]
+        bnds = [(None,5.0)]
 
         result = scipy.optimize.minimize(self.loglikelihood_branch_gradient, guess_x, jac=True, method='L-BFGS-B',bounds=bnds,
                                          options={'gtol': 1e-07,
@@ -2404,7 +2404,7 @@ class Embrachtau1:
         print(result)
 
 
-        return (self.branch_tau)
+        return np.exp(self.branch_tau)
 
 
     def test(self):
