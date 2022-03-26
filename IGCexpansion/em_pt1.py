@@ -2167,7 +2167,7 @@ class Embrachtau1:
         Qbasic = self.get_HKYBasic()
         rate_geneconv = []
 
-        bstau=np.exp(self.branch_tau)
+        bstau=(self.branch_tau)
 
 
         for i, pair_from in enumerate(product('ACGT', repeat=2)):
@@ -2393,16 +2393,18 @@ class Embrachtau1:
     def get_branch_mle(self,branch):
 
 
-        guess_x=np.log(np.power(self.tau,self.id[branch])*self.tau)
+        guess_x=(np.power(self.tau,self.id[branch])*self.tau)
         self.branch_tau=deepcopy(guess_x)
-        bnds = [(-5.0, 5.0)]
+        bnds = [(0.001,30.000)]
 
-
-        result = scipy.optimize.minimize(self.loglikelihood_branch_gradient, guess_x, jac=True, method='L-BFGS-B',bounds=bnds)
+        result = scipy.optimize.minimize(self.loglikelihood_branch_gradient, guess_x, jac=True, method='L-BFGS-B',bounds=bnds,
+                                         options={'gtol': 1e-07,
+                                                  'eps': 1e-09,
+                                                  'maxls': 25 })
         print(result)
 
 
-        return np.exp(self.branch_tau)
+        return (self.branch_tau)
 
 
     def test(self):
@@ -2588,10 +2590,9 @@ class Embrachtau1:
 
         print(list)
 
-        save_nameP = "./save/" + self.Model +"new_tau"+'.txt'
+        save_nameP = "../save/" + self.Model +"new_tau"+'.txt'
         with open(save_nameP, 'wb') as f:
             np.savetxt(f, list)
-
 
 
 
