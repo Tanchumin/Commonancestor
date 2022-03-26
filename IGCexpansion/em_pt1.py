@@ -2190,7 +2190,7 @@ class Embrachtau1:
     def redesign__MG94Geneconv(self):
         Qbasic = self.get_MG94Basic()
         rate_geneconv = []
-        bstau = np.exp(self.branch_tau)
+        bstau = (self.branch_tau)
 
 
         for i, pair in enumerate(product(self.codon_nonstop, repeat=2)):
@@ -2590,7 +2590,7 @@ class Embrachtau1:
 
         print(list)
 
-        save_nameP = "../save/" + self.Model +"new_tau"+'.txt'
+        save_nameP = "./save/" + self.Model +"new_tau"+'.txt'
         with open(save_nameP, 'wb') as f:
             np.savetxt(f, list)
 
