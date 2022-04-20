@@ -247,10 +247,9 @@ class Embrachtau1:
                               self.kappa, self.tau]))
         else:
             save_file = self.get_save_file_name()
-            save_file = save_file
+
 
             if self.Model == 'MG94':
-                # x_process[] = %AG, %A, %C, kappa, omega, tau
 
                 if self.noboundk==False:
                     if self.IGC_Omega is None:
@@ -285,6 +284,7 @@ class Embrachtau1:
                                   self.kappa, self.tau])), self.K)
 
             if self.joint == False:
+
 
                 print(save_file)
 

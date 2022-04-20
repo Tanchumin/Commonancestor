@@ -1935,7 +1935,7 @@ class Embrachtau:
             self.update_by_x()
 
 
-    def EM_branch_tau(self,MAX=4,epis=0.01,force=None,K=0.5,bound=False,ifdnalevel=False):
+    def EM_branch_tau(self,MAX=4,epis=0.01,force=None,K=0.5,tau=None,bound=False,ifdnalevel=False):
         list=[]
         list.append(self.nsites)
         ll0=self.get_mle()["fun"]
@@ -1946,6 +1946,8 @@ class Embrachtau:
         print(self.get_Hessian())
         old_sum = self.get_summary(branchtau=True)
         self.K=K
+        if tau !=None:
+            self.tau=tau
         self.Force=force
         self.ifmodel = "EM_full"
         self.get_initial_x_process()
@@ -2588,8 +2590,8 @@ if __name__ == '__main__':
                                save_path='../test/save/', save_name=save_name,kbound=5)
 
 
-    geneconv.EM_branch_tau(MAX=2)
-    print(geneconv.get_summary(approx=True,branchtau=True))
+    geneconv.EM_branch_tau(MAX=2,K=1.4,tau=5)
+    # print(geneconv.get_summary(approx=True,branchtau=True))
 
 
 
