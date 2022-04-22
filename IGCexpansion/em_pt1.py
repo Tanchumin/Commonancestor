@@ -1324,8 +1324,8 @@ class Embrachtau1:
                 edge_bnds = [(None, 4.0)] * len(self.x_rates)
                 edge_bnds[1] = (self.minlogblen, 4.0)
             elif self.ifmodel=="EM_full":
-                bnds.extend([(-10.0, 6)] * (len(self.x_process) - 5))
-                edge_bnds = [(None, 4)] * len(self.x_rates)
+                bnds.extend([(-10.0, 6.0)] * (len(self.x_process) - 5))
+                edge_bnds = [(-10.0, 4.0)] * len(self.x_rates)
                 edge_bnds[1] = (self.minlogblen, None)
             else:
                 bnds = [(None, 7.0)] * 1
@@ -1343,11 +1343,11 @@ class Embrachtau1:
                     khigh = np.log(deepcopy(float(self.kbound)))
                     bnds.extend([(-4, khigh)] * (1))
                 else:
-                    bnds.extend([(-20.0, 7.0)] * (1))
+                    bnds.extend([(-10.0, 7.0)] * (1))
                     if self.noboundk==True:
-                        bnds.extend([(-20.0, 30.0)] * (1))
+                        bnds.extend([(-10.0, 20.0)] * (1))
                     else:
-                        bnds.extend([(-20.0, 7)] * (1))
+                        bnds.extend([(-10.0, 7)] * (1))
 
 
             bnds.extend(edge_bnds)
@@ -2347,9 +2347,12 @@ class Embrachtau1:
             Q = linalg.expm(self.Q_original * self.time)
 
             logllsum=0
+            log_value=0.001
 
             for ll in range(self.nsites):
-                logllsum +=np.log(Q[int(self.ini[ll])][int(self.end[ll])])
+                log_value=Q[int(self.ini[ll])][int(self.end[ll])]
+                if log_value>0:
+                    logllsum +=np.log(log_value)
 
             return logllsum
 
