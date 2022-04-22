@@ -1324,7 +1324,7 @@ class Embrachtau1:
                 edge_bnds = [(None, 4.0)] * len(self.x_rates)
                 edge_bnds[1] = (self.minlogblen, 4.0)
             elif self.ifmodel=="EM_full":
-                bnds.extend([(None, 6)] * (len(self.x_process) - 5))
+                bnds.extend([(-10.0, 6)] * (len(self.x_process) - 5))
                 edge_bnds = [(None, 4)] * len(self.x_rates)
                 edge_bnds[1] = (self.minlogblen, None)
             else:
