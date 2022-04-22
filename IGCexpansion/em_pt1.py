@@ -2398,7 +2398,7 @@ class Embrachtau1:
 
         guess_x=np.log(np.power(self.id[branch],self.K)*self.tau)
         self.branch_tau=deepcopy(guess_x)
-        bnds = [(None,5.0)]
+        bnds = [(-10.0,5.0)]
 
         result = scipy.optimize.minimize(self.loglikelihood_branch_gradient, guess_x, jac=True, method='L-BFGS-B',bounds=bnds,
                                          options={'gtol': 1e-07,
