@@ -2435,17 +2435,26 @@ class Embrachtau1:
                     self.time = np.exp(self.x_rates[j])
                     print(self.get_branch_mle(branch=j))
 
-    def sum_branch(self,MAX=3,epis=0.01):
+    def sum_branch(self,MAX=4,epis=0.01):
 
         list = []
         list.append(self.nsites)
         ll0 = self.get_mle()["fun"]
+        list.append(ll0)
+        list.append(self.tau)
+        list.append(self.omega)
         pstau = deepcopy(self.tau)
+
+
 ###### old
         self.id = self.compute_paralog_id()
         idold = deepcopy(self.id)
+
+        list.append(pstau)
         for j in range(len(self.edge_list)):
             list.append(idold[j])
+        for j in range(len(self.edge_list)):
+            list.append(self.x_rates[j])
 
         ttt = len(self.tree['col'])
         for j in range(ttt):
@@ -2508,22 +2517,20 @@ class Embrachtau1:
                 print("xxxxxxxxxxxxxxxxx")
                 print("\n")
 
-            print("old ll: ", ll0)
-            list.append(ll0)
-            print("old tau: ", pstau)
-            list.append(pstau)
 
             print("new tau: ", self.tau)
             print("K: ", self.K)
             print("new ll: ", ll1)
             list.append(ll1)
+            list.append(self.omega)
             list.append(self.tau)
             list.append(self.K)
 
 
             for j in range(len(self.edge_list)):
                 list.append(self.id[j])
-
+            for j in range(len(self.edge_list)):
+                list.append(self.x_rates[j])
 
             hessian = self.get_Hessian()
             print(hessian)
@@ -2537,7 +2544,6 @@ class Embrachtau1:
 
             self.id = self.compute_paralog_id()
             ttt = len(self.tree['col'])
-
             for j in range(ttt):
                 if self.Model == "HKY":
                     if j > 1:
@@ -2565,6 +2571,8 @@ class Embrachtau1:
             self.id = self.compute_paralog_id()
             for j in range(len(self.edge_list)):
                 list.append(self.id[j])
+            for j in range(len(self.edge_list)):
+                list.append(self.x_rates[j])
 
             for j in range(len(self.edge_list)):
                 if self.Model == "HKY":
@@ -2617,7 +2625,7 @@ if __name__ == '__main__':
                                save_path='../test/save/', save_name=save_name,kbound=5)
 
 
-    geneconv.sum_branch()
+    geneconv.sum_branch(MAX=2)
  #   print(geneconv.get_summary(approx=True,branchtau=True))
 
 
