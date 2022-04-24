@@ -32,7 +32,7 @@ import numdifftools as nd
 class Embrachtau1:
     def __init__(self, tree_newick, alignment, paralog, Model='MG94', IGC_Omega=None, Tau_Omega = None, nnsites=None, clock=False,joint=False,
                  Force=None, save_path='./save/', save_name=None, post_dup='N1',kbound=5.1,ifmodel="old",inibranch=0.1,noboundk=True,
-                 kini=1.1,tauini=0.4,omegaini=0.5):
+                 kini=4.1,tauini=0.4,omegaini=0.5):
         self.newicktree = tree_newick  # newick tree file loc
         self.seqloc = alignment  # multiple sequence alignment, now need to remove gap before-hand
         self.paralog = paralog  # parlaog list
@@ -2438,7 +2438,7 @@ class Embrachtau1:
                     self.time = np.exp(self.x_rates[j])
                     print(self.get_branch_mle(branch=j))
 
-    def sum_branch(self,MAX=4,epis=0.01):
+    def sum_branch(self,MAX=4,epis=0.01,K=4.1):
 
         list = []
         list.append(self.nsites)
@@ -2483,6 +2483,7 @@ class Embrachtau1:
                     print(self.get_branch_mle(branch=j))
 
         self.ifmodel = "EM_full"
+        self.K=K
         self.get_initial_x_process()
 
         if self.if_rerun==True:
