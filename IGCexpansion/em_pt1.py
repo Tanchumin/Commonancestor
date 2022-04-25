@@ -90,6 +90,8 @@ class Embrachtau1:
         self.omega = omegaini  # real values
         # set ini value for key parameters
         self.tau = tauini  # real values
+        self.tau_F=tauini
+        self.k_F = kini
         self.K=kini
         self.inibranch=inibranch
         self.sites=None
@@ -1008,6 +1010,9 @@ class Embrachtau1:
         # use finite differences to estimate derivatives with respect to these parameters
         other_derivs = []
 
+        self.tau_F = self.tau
+        self.k_F = self.K
+
 
         for i in range(m):
             if self.Force != None:
@@ -1024,6 +1029,7 @@ class Embrachtau1:
 
 # finite difference central
   # ll_delta1 is f(x+h/2)
+
 
             delta=deepcopy(max(1,abs(self.x[i]))*0.000001)
             x_plus_delta1 = np.array(self.x)
@@ -1059,6 +1065,9 @@ class Embrachtau1:
         f = -ll
         g = -np.concatenate((other_derivs, edge_derivs))
 
+        self.tau_F=self.tau
+        self.k_F=self.K
+
 
 
         return f, g
@@ -1082,6 +1091,9 @@ class Embrachtau1:
 
         # use finite differences to estimate derivatives with respect to these parameters
         other_derivs = []
+
+        self.tau_F=self.tau
+        self.k_F=self.K
 
         for i in range(m):
             if self.Force != None:
@@ -1113,6 +1125,10 @@ class Embrachtau1:
         self.ll = ll
         f = -ll
         g = -np.concatenate((other_derivs, edge_derivs))
+
+        self.tau_F=self.tau
+        self.k_F=self.K
+
         return f, g
 
     def objective_and_gradient(self, display, x):
@@ -1483,8 +1499,6 @@ class Embrachtau1:
         Qlist = []
         ttt = len(self.tree['col'])
 
-        fk = self.K
-        ftau = self.tau
 
         for branch in range(ttt):
             row = []
@@ -1524,9 +1538,9 @@ class Embrachtau1:
 
 
                         if isNonsynonymous(cb, ca, self.codon_table):
-                            Tgeneconv = ftau*np.power(paralog_id[branch], fk) *self.get_IGC_omega()
+                            Tgeneconv = self.tau_F * np.power(paralog_id[branch], self.k_F) *self.get_IGC_omega()
                         else:
-                            Tgeneconv = ftau*np.power(paralog_id[branch], fk)
+                            Tgeneconv = self.tau_F * np.power(paralog_id[branch], self.k_F)
                         rate_geneconv.append(Qb + Tgeneconv)
 
                         # (ca, cb) to (cb, cb)
@@ -1712,8 +1726,6 @@ class Embrachtau1:
         Qlist = []
         ttt = len(self.tree['col'])
 
-        fk = self.K
-        ftau = self.tau
 
         for branch in range(ttt):
             row = []
@@ -1731,7 +1743,7 @@ class Embrachtau1:
                           sd = self.nt_to_state[nd]
                           if i == j:
                               continue
-                          GeneconvRate = get_HKYGeneconvRate(pair_from, pair_to, Qbasic, ftau*np.power(paralog_id[branch], fk))
+                          GeneconvRate = get_HKYGeneconvRate(pair_from, pair_to, Qbasic, self.tau_F*np.power(paralog_id[branch], self.k_F))
                           if GeneconvRate != 0.0:
                               row.append((sa, sb))
                               col.append((sc, sd))

@@ -95,6 +95,8 @@ class Embrachtau:
         # set ini value for key parameters
         self.tau = tauini  # real values
         self.K=kini
+        self.tau_F=tauini
+        self.k_F = kini
         self.inibranch=inibranch
         self.sites=None
         self.processes = None # list of basic and geneconv rate matrices. Each matrix is a dictionary used for json parsing
@@ -986,6 +988,9 @@ class Embrachtau:
         # use finite differences to estimate derivatives with respect to these parameters
         other_derivs = []
 
+        self.tau_F=self.tau
+        self.k_F=self.K
+
 
         for i in range(m):
             if self.Force != None:
@@ -1037,6 +1042,9 @@ class Embrachtau:
         f = -ll
         g = -np.concatenate((other_derivs, edge_derivs))
 
+        self.tau_F=self.tau
+        self.k_F=self.K
+
 
 
         return f, g
@@ -1060,6 +1068,9 @@ class Embrachtau:
 
         # use finite differences to estimate derivatives with respect to these parameters
         other_derivs = []
+
+        self.tau_F=self.tau
+        self.k_F=self.K
 
         for i in range(m):
             if self.Force != None:
@@ -1461,8 +1472,6 @@ class Embrachtau:
         Qlist = []
         ttt = len(self.tree['col'])
 
-        fk = self.K
-        ftau = self.tau
 
         for branch in range(ttt):
             row = []
@@ -1502,9 +1511,9 @@ class Embrachtau:
 
 
                         if isNonsynonymous(cb, ca, self.codon_table):
-                            Tgeneconv = ftau*np.power(paralog_id[branch], fk) *self.get_IGC_omega()
+                            Tgeneconv = self.tau_F*np.power(paralog_id[branch], self.k_F) *self.get_IGC_omega()
                         else:
-                            Tgeneconv = ftau*np.power(paralog_id[branch], fk)
+                            Tgeneconv = self.tau_F*np.power(paralog_id[branch], self.k_F)
                         rate_geneconv.append(Qb + Tgeneconv)
 
                         # (ca, cb) to (cb, cb)
@@ -1690,8 +1699,6 @@ class Embrachtau:
         Qlist = []
         ttt = len(self.tree['col'])
 
-        fk = self.K
-        ftau = self.tau
 
         for branch in range(ttt):
             row = []
@@ -1709,7 +1716,7 @@ class Embrachtau:
                           sd = self.nt_to_state[nd]
                           if i == j:
                               continue
-                          GeneconvRate = get_HKYGeneconvRate(pair_from, pair_to, Qbasic, ftau*np.power(paralog_id[branch], fk))
+                          GeneconvRate = get_HKYGeneconvRate(pair_from, pair_to, Qbasic, self.tau_F*np.power(paralog_id[branch], self.k_F))
                           if GeneconvRate != 0.0:
                               row.append((sa, sb))
                               col.append((sc, sd))
