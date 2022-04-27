@@ -58,7 +58,7 @@ if __name__ == '__main__':
     model = 'MG94'
 
     type = 'situation1'
-    save_name = model+name
+    save_name = model
  #   geneconv = ReCodonGeneconv(newicktree, alignment_file, paralog, Model=model, Force=Force, clock=None,
   #                             save_path='./', save_name=save_name)
 #
@@ -68,7 +68,7 @@ if __name__ == '__main__':
                           save_path='../test/save/', save_name=save_name)
 
 
-    geneconv.EM_branch_tau(ifdnalevel=True)
+    geneconv.EM_branch_tau(ifdnalevel=False)
 
 
 

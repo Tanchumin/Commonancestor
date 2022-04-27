@@ -48,7 +48,7 @@ if __name__ == '__main__':
 
     geneconv = Embrachtau(newicktree, alignment_file, paralog, Model=model, Force=Force, clock=None,
                                save_path='../test/save/', save_name=save_name,kbound=5,tauini=0.01,kini=2.1,inibranch=0.01)
-    geneconv.EM_branch_tau()
+    geneconv.EM_branch_tau(K=4.0)
 
 
 

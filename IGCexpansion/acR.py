@@ -79,6 +79,10 @@ class AncestralState1:
 
         self.name=self.geneconv.save_name
 
+        self.dwell_id=True
+
+        self.scene_ll=None
+
     def get_mle(self):
         self.geneconv.get_mle()
 
@@ -680,15 +684,58 @@ class AncestralState1:
             list.append(self.geneconv.omega)
 
         diverge_list=[]
-        diverge_listnonsynonymous=[]
-        diverge_listsynonymous=[]
+
+        ttt = len(geneconv.tree['col'])
+        id = np.zeros(ttt)
+
+        diverge_listnonsynonymous = np.zeros(ttt)
+        diverge_listsynonymous = np.zeros(ttt)
 
 
         self.geneconv.get_ExpectedNumGeneconv()
         tau=self.geneconv.get_summary(branchtau=True,robust=ifrobust)
         ttt = len(self.scene['tree']["column_nodes"])
 
-        for mc in range(repeat):
+        if self.dwell_id == True:
+            expected_DwellTime = self._ExpectedHetDwellTime()
+            if self.Model == "MG94":
+                id = [1 - ((
+                                   expected_DwellTime[0][i] + geneconv.omega * expected_DwellTime[1][i])
+
+                           / (2 * geneconv.nsites))
+                      for i in range(ttt)]
+                diverge_listnonsynonymous = [1 - ((
+                                    geneconv.omega * expected_DwellTime[1][i])
+                           / (2 * geneconv.nsites))
+                      for i in range(ttt)]
+                diverge_listsynonymous = [1 - ((
+                                     expected_DwellTime[0][i])
+                           / (2 * geneconv.nsites))
+                      for i in range(ttt)]
+
+
+            else:
+                id = [1 - (expected_DwellTime[i] / (2 * geneconv.nsites
+                                                    ))
+                      for i in range(ttt)]
+
+
+
+
+            if self.Model == "HKY":
+                  for j in range(ttt):
+                        list.append(id[j])
+            elif self.Model == "MG94":
+                  for j in range(ttt):
+                        list.append(diverge_listnonsynonymous[j])
+                  for j in range(ttt):
+                        list.append(diverge_listsynonymous[j])
+                  for j in range(ttt):
+                        list.append(id[j])
+
+
+        else:
+           for mc in range(repeat):
 
             self.jointly_common_ancstral_inference()
             for j in range(ttt):
@@ -732,7 +779,17 @@ class AncestralState1:
                             diverge_listsynonymous.append(diverge_synonymous)
                             diverge_list.append(diverge)
 
-
+           if self.Model == "HKY":
+                for j in range(ttt):
+                    list.append(diverge_list[j] / repeat)
+           elif self.Model == "MG94":
+                for j in range(ttt):
+                    list.append(diverge_listnonsynonymous[j] / repeat)
+                for j in range(ttt):
+                    list.append(diverge_listsynonymous[j] / repeat)
+                for j in range(ttt):
+                    d = float(diverge_list[j]) / repeat
+                    list.append(d)
 
 
 
@@ -740,17 +797,7 @@ class AncestralState1:
                     list.append(tau[0][j])
 
 #        print(divergelist)
-        if self.Model == "HKY":
-              for j in range(ttt):
-                    list.append(diverge_list[j]/repeat)
-        elif self.Model == "MG94":
-              for j in range(ttt):
-                    list.append(diverge_listnonsynonymous[j]/repeat)
-              for j in range(ttt):
-                    list.append(diverge_listsynonymous[j]/repeat)
-              for j in range(ttt):
-                    d=float(diverge_list[j])/repeat
-                    list.append(d)
+
 
       #  print(tau[1])
         #exoect igc
@@ -761,7 +808,6 @@ class AncestralState1:
         else:
            for j in range(len(self.geneconv.edge_list)):
                    list.append(tau[1][j])
-            
 
 #     branch length
         for j in self.geneconv.edge_list:
@@ -781,13 +827,11 @@ class AncestralState1:
         for j in self.geneconv.edge_list:
                 list.append(tau[4][1][j])
 
+        print(list)
+
 
 
         list1.extend([("brahch",a, b) for (a, b) in self.geneconv.edge_list])
-
-
-
-     #   print(len(list))
 
 
         save_nameP = "./save/"+self.name +'.txt'
@@ -801,6 +845,75 @@ class AncestralState1:
 
     def print1(self):
         print(self.geneconv.get_ExpectedNumGeneconv())
+
+    def isSynonymous(self, first_codon, second_codon):
+        return self.codon_table[first_codon] == self.codon_table[second_codon]
+
+
+
+
+    def _ExpectedHetDwellTime(self, package='new', display=False):
+
+        if package == 'new':
+            self.scene_ll = self.get_scene()
+            if self.Model == 'MG94':
+                syn_heterogeneous_states = [(a, b) for (a, b) in
+                                            list(product(range(len(geneconv.codon_to_state)), repeat=2)) if
+                                            a != b and self.isSynonymous(geneconv.codon_nonstop[a], geneconv.codon_nonstop[b])]
+                nonsyn_heterogeneous_states = [(a, b) for (a, b) in
+                                               list(product(range(len(geneconv.codon_to_state)), repeat=2)) if
+                                               a != b and not self.isSynonymous(geneconv.codon_nonstop[a],
+                                                                                geneconv.codon_nonstop[b])]
+                dwell_request = [dict(
+                    property='SDWDWEL',
+                    state_reduction=dict(
+                        states=syn_heterogeneous_states,
+                        weights=[2] * len(syn_heterogeneous_states)
+                    )),
+                    dict(
+                        property='SDWDWEL',
+                        state_reduction=dict(
+                            states=nonsyn_heterogeneous_states,
+                            weights=[2] * len(nonsyn_heterogeneous_states)
+                        ))
+                ]
+
+            elif self.Model == 'HKY':
+                heterogeneous_states = [(a, b) for (a, b) in list(product(range(len(geneconv.nt_to_state)), repeat=2)) if
+                                        a != b]
+                dwell_request = [dict(
+                    property='SDWDWEL',
+                    state_reduction=dict(
+                        states=heterogeneous_states,
+                        weights=[2] * len(heterogeneous_states)
+                    )
+                )]
+
+            j_in = {
+                'scene': self.scene_ll,
+                'requests': dwell_request,
+            }
+            j_out = jsonctmctree.interface.process_json_in(j_in)
+
+            ttt=len(geneconv.edge_list)
+            if self.Model=="MG94":
+                ExpectedDwellTime=np.zeros((2,ttt))
+
+                for i in range(len(geneconv.edge_list)):
+                    for j in range(2):
+                        ExpectedDwellTime[j][i]=j_out['responses'][j][i]
+            else:
+                ExpectedDwellTime = np.zeros(ttt)
+
+                for i in range(len(geneconv.edge_list)):
+                     ExpectedDwellTime[i] = j_out['responses'][0][i]
+
+
+            return ExpectedDwellTime
+        else:
+            print('Need to implement this for old package')
+
+
 
 
 
@@ -856,13 +969,13 @@ if __name__ == '__main__':
     self = AncestralState1(geneconv)
 
     scene = self.get_scene()
- #   self.geneconv.get_summary()
+    self.get_paralog_diverge()
 
 
 
 
  #   print(scene['tree']['edge_processes'])
 
-    self.get_paralog_diverge()
+   # self.get_paralog_diverge()
   #  print(geneconv.omega)
   #  print(geneconv.IGC_Omega)
