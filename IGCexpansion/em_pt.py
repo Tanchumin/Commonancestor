@@ -34,9 +34,9 @@ import numdifftools as nd
 
 ### iniset is used for joint ana seq version
 class Embrachtau:
-    def __init__(self, tree_newick, alignment, paralog, Model='MG94', IGC_Omega=None, Tau_Omega = None, nnsites=None, clock=False,joint=False,
+    def __init__(self, tree_newick, alignment, paralog, Model='MG94', IGC_Omega=None,  nnsites=None, clock=False,joint=False,
                  Force=None, save_path='./save/', save_name=None, post_dup='N1',kbound=5.1,ifmodel="old",inibranch=0.1,noboundk=True,
-                 kini=1.1,tauini=0.4,omegaini=0.5):
+                 kini=1.1,tauini=0.4,omegaini=0.5,dwell_id=True):
         self.newicktree = tree_newick  # newick tree file loc
         self.seqloc = alignment  # multiple sequence alignment, now need to remove gap before-hand
         self.paralog = paralog  # parlaog list
@@ -134,7 +134,7 @@ class Embrachtau:
         self.index=0
         self.ifexp=False
 
-        self.dwell_id =True
+        self.dwell_id =dwell_id
 
     def initialize_parameters(self):
         self.get_tree()
@@ -2737,17 +2737,17 @@ if __name__ == '__main__':
 
 
     Force = None
-    model = 'MG94'
+    model = 'HKY'
 
     save_name = model+name
     geneconv = Embrachtau(newicktree, alignment_file, paralog, Model=model, Force=Force, clock=None,
                                save_path='../test/save/', save_name=save_name,kbound=5)
 
 
-  #  geneconv.EM_branch_tau(MAX=2,K=1.4)
+    geneconv.EM_branch_tau(MAX=2,K=1.4)
 
-    print(geneconv.get_mle())
-    print(print(geneconv.compute_paralog_id()))
+  #  print(geneconv.get_mle())
+   # print(print(geneconv.compute_paralog_id()))
 
     # print(geneconv.get_summary(approx=True,branchtau=True))
 
