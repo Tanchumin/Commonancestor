@@ -833,14 +833,19 @@ class AncestralState1:
 
         list1.extend([("brahch",a, b) for (a, b) in self.geneconv.edge_list])
 
+        save_nameP = "./save/" + self.Model + "new_tau_paralog" + '.txt'
+        with open(save_nameP, 'wb') as f:
+           np.savetxt(f, list)
 
-        save_nameP = "./save/"+self.name +'.txt'
-        with open(save_nameP, 'w+') as f:
-            np.savetxt(f, list, delimiter=' ', )
+
+   #     save_nameP = "./save/"+self.name +'.txt'
+   #     with open(save_nameP, 'w+') as f:
+   #         np.savetxt(f, list, delimiter=' ', )
 
 
-        save_nameP1 = "./save/"+self.name +'.name.txt'
-        np.savetxt(save_nameP1, list1,fmt="%s")
+    #    save_nameP1 = "./save/"+self.name +'.name.txt'
+     #   np.savetxt(save_nameP1, list1,fmt="%s")
+
 
 
     def print1(self):
