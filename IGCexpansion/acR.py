@@ -700,22 +700,22 @@ class AncestralState1:
             expected_DwellTime = self._ExpectedHetDwellTime()
             if self.Model == "MG94":
                 id = [1 - ((
-                                   expected_DwellTime[0][i] + geneconv.omega * expected_DwellTime[1][i])
+                                   expected_DwellTime[0][i] + self.geneconv.omega * expected_DwellTime[1][i])
 
-                           / (2 * geneconv.nsites))
+                           / (2 * self.geneconv.nsites))
                       for i in range(ttt)]
                 diverge_listnonsynonymous = [1 - ((
-                                    geneconv.omega * expected_DwellTime[1][i])
-                           / (2 * geneconv.nsites))
+                                    self.geneconv.omega * expected_DwellTime[1][i])
+                           / (2 * self.geneconv.nsites))
                       for i in range(ttt)]
                 diverge_listsynonymous = [1 - ((
                                      expected_DwellTime[0][i])
-                           / (2 * geneconv.nsites))
+                           / (2 * self.geneconv.nsites))
                       for i in range(ttt)]
 
 
             else:
-                id = [1 - (expected_DwellTime[i] / (2 * geneconv.nsites
+                id = [1 - (expected_DwellTime[i] / (2 * self.geneconv.nsites
                                                     ))
                       for i in range(ttt)]
 
@@ -863,12 +863,12 @@ class AncestralState1:
             self.scene_ll = self.get_scene()
             if self.Model == 'MG94':
                 syn_heterogeneous_states = [(a, b) for (a, b) in
-                                            list(product(range(len(geneconv.codon_to_state)), repeat=2)) if
-                                            a != b and self.isSynonymous(geneconv.codon_nonstop[a], geneconv.codon_nonstop[b])]
+                                            list(product(range(len(self.geneconv.codon_to_state)), repeat=2)) if
+                                            a != b and self.isSynonymous(self.geneconv.codon_nonstop[a], self.geneconv.codon_nonstop[b])]
                 nonsyn_heterogeneous_states = [(a, b) for (a, b) in
-                                               list(product(range(len(geneconv.codon_to_state)), repeat=2)) if
-                                               a != b and not self.isSynonymous(geneconv.codon_nonstop[a],
-                                                                                geneconv.codon_nonstop[b])]
+                                               list(product(range(len(self.geneconv.codon_to_state)), repeat=2)) if
+                                               a != b and not self.isSynonymous(self.geneconv.codon_nonstop[a],
+                                                                                self.geneconv.codon_nonstop[b])]
                 dwell_request = [dict(
                     property='SDWDWEL',
                     state_reduction=dict(
@@ -884,7 +884,7 @@ class AncestralState1:
                 ]
 
             elif self.Model == 'HKY':
-                heterogeneous_states = [(a, b) for (a, b) in list(product(range(len(geneconv.nt_to_state)), repeat=2)) if
+                heterogeneous_states = [(a, b) for (a, b) in list(product(range(len(self.geneconv.nt_to_state)), repeat=2)) if
                                         a != b]
                 dwell_request = [dict(
                     property='SDWDWEL',
@@ -904,13 +904,13 @@ class AncestralState1:
             if self.Model=="MG94":
                 ExpectedDwellTime=np.zeros((2,ttt))
 
-                for i in range(len(geneconv.edge_list)):
+                for i in range(len(self.geneconv.edge_list)):
                     for j in range(2):
                         ExpectedDwellTime[j][i]=j_out['responses'][j][i]
             else:
                 ExpectedDwellTime = np.zeros(ttt)
 
-                for i in range(len(geneconv.edge_list)):
+                for i in range(len(self.geneconv.edge_list)):
                      ExpectedDwellTime[i] = j_out['responses'][0][i]
 
 
