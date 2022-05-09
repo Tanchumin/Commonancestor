@@ -900,7 +900,7 @@ class AncestralState1:
             }
             j_out = jsonctmctree.interface.process_json_in(j_in)
 
-            ttt=len(geneconv.edge_list)
+            ttt=len(self.geneconv.edge_list)
             if self.Model=="MG94":
                 ExpectedDwellTime=np.zeros((2,ttt))
 
