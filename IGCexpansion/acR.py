@@ -685,7 +685,7 @@ class AncestralState1:
 
         diverge_list=[]
 
-        ttt = len(geneconv.tree['col'])
+        ttt = len(self.geneconv.tree['col'])
         id = np.zeros(ttt)
 
         diverge_listnonsynonymous = np.zeros(ttt)
