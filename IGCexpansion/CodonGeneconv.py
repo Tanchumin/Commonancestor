@@ -1093,9 +1093,14 @@ class ReCodonGeneconv:
             }
             j_out = jsonctmctree.interface.process_json_in(j_in)
 
-
-            ExpectedDwellTime = [{self.edge_list[i]: j_out['responses'][j][i] for i in range(len(self.edge_list))} for j
+            if self.Model == 'MG94':
+               ExpectedDwellTime = [{self.edge_list[i]: j_out['responses'][j][i] for i in range(len(self.edge_list))} for j
                                  in range(len(j_out))]
+
+            else:
+                ExpectedDwellTime = [{self.edge_list[i]: j_out['responses'][0][i] for i in range(len(self.edge_list))}
+                                     ]
+
             return ExpectedDwellTime
         else:
             print('Need to implement this for old package')
@@ -1573,10 +1578,17 @@ class ReCodonGeneconv:
 
 
         if branchtau==True:
-            taulist=[self.ExpectedGeneconv[i] / (self.edge_to_blen[i] * (
+            if self.Model == "MG94":
+
+                 taulist=[self.ExpectedGeneconv[i] / (self.edge_to_blen[i] * (
                     self.ExpectedDwellTime[0][i] + self.omega * self.ExpectedDwellTime[1][i])) \
                   if (self.ExpectedDwellTime[0][i] + self.omega * self.ExpectedDwellTime[1][i]) != 0 else 0
                       for i in self.edge_list]
+            else:
+                 taulist = [self.ExpectedGeneconv[i] / (self.edge_to_blen[i] *  self.ExpectedDwellTime[0][i])  \
+                               if (self.ExpectedDwellTime[0][i]) != 0 else 0
+                           for i in self.edge_list]
+
 
         for i in range(k, len(label)):
             label[i] = '(' + ','.join(label[i]) + ')'
@@ -1588,17 +1600,28 @@ class ReCodonGeneconv:
             expsynonsy=self.get_ExpectedNumGeneconv_synon()
 
 
-
         # robust option compute the change point event and do selection  on tau
+        if self.Model == "MG94":
 
-        if output_label:
-            return out, label
-        elif branchtau and robust==False:
-            return taulist,self.ExpectedGeneconv,self.edge_to_blen,self.ExpectedDwellTime,expsynonsy
-        elif branchtau and robust==True:
-            return taulist,robust_exp_lambda_list,self.edge_to_blen,self.ExpectedDwellTime,expsynonsy
+            if output_label:
+                return out, label
+            elif branchtau and robust==False:
+                return taulist,self.ExpectedGeneconv,self.edge_to_blen,self.ExpectedDwellTime,expsynonsy
+            elif branchtau and robust==True:
+                return taulist,robust_exp_lambda_list,self.edge_to_blen,self.ExpectedDwellTime,expsynonsy
+            else:
+                return out
         else:
-            return out
+            if output_label:
+                return out, label
+            elif branchtau and robust==False:
+                return taulist,self.ExpectedGeneconv,self.edge_to_blen,self.ExpectedDwellTime
+            elif branchtau and robust==True:
+                return taulist,robust_exp_lambda_list,self.edge_to_blen,self.ExpectedDwellTime
+            else:
+                return out
+
+
 
     def _get_dwell_time_summary(self, out, label):
         if not self.ExpectedGeneconv:

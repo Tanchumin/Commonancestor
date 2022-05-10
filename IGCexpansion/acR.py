@@ -700,8 +700,7 @@ class AncestralState1:
             expected_DwellTime = self._ExpectedHetDwellTime()
             if self.Model == "MG94":
                 id = [1 - ((
-                                   expected_DwellTime[0][i] + self.geneconv.omega * expected_DwellTime[1][i])
-
+                        expected_DwellTime[0][i] + self.geneconv.omega * expected_DwellTime[1][i])
                            / (2 * self.geneconv.nsites))
                       for i in range(ttt)]
                 diverge_listnonsynonymous = [1 - ((
@@ -718,8 +717,6 @@ class AncestralState1:
                 id = [1 - (expected_DwellTime[i] / (2 * self.geneconv.nsites
                                                     ))
                       for i in range(ttt)]
-
-
 
 
             if self.Model == "HKY":
@@ -814,18 +811,21 @@ class AncestralState1:
                  list.append(tau[2][j])
 
 # dwell time
-        for j in self.geneconv.edge_list:
-                list.append(tau[3][0][j])
-        for j in self.geneconv.edge_list:
-                list.append(tau[3][1][j])
+        if self.Model == "MG94":
+            for j in self.geneconv.edge_list:
+                    list.append(tau[3][0][j])
+            for j in self.geneconv.edge_list:
+                    list.append(tau[3][1][j])
+            for j in self.geneconv.edge_list:
+                    list.append(tau[4][0][j])
+            for j in self.geneconv.edge_list:
+                     list.append(tau[4][1][j])
+
+        else:
+            for j in self.geneconv.edge_list:
+                   list.append(tau[3][0][j])
 
 
-        for j in self.geneconv.edge_list:
-                list.append(tau[4][0][j])
-                print(tau[4][0][j])
-
-        for j in self.geneconv.edge_list:
-                list.append(tau[4][1][j])
 
         print(list)
 
@@ -964,7 +964,7 @@ if __name__ == '__main__':
     # %AG, % A, % C, kappa, tau
     # Force= {0:0.5,1:0.5,2:0.5,3:1,4:0}
     Force = None
-    model = 'MG94'
+    model = 'HKY'
 
     type = 'situation_new'
     save_name = model+name
