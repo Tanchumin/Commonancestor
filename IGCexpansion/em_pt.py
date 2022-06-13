@@ -2744,7 +2744,8 @@ if __name__ == '__main__':
                                save_path='../test/save/', save_name=save_name,kbound=5)
 
 
-    geneconv.EM_branch_tau(MAX=2,K=1.4)
+   # geneconv.EM_branch_tau(MAX=2,K=1.4)
+    print(geneconv.prior_distribution)
 
   #  print(geneconv.get_mle())
    # print(print(geneconv.compute_paralog_id()))

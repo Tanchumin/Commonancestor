@@ -32,7 +32,7 @@ import numdifftools as nd
 class Embrachtau1:
     def __init__(self, tree_newick, alignment, paralog, Model='MG94', IGC_Omega=None, Tau_Omega = None, nnsites=None, clock=False,joint=False,
                  Force=None, save_path='./save/', save_name=None, post_dup='N1',kbound=5.1,ifmodel="old",inibranch=0.1,noboundk=True,
-                 kini=4.1,tauini=0.4,omegaini=0.5,dwell_id=True):
+                 kini=4.1,tauini=0.4,omegaini=0.5,dwell_id=True,ifDNA=True):
         self.newicktree = tree_newick  # newick tree file loc
         self.seqloc = alignment  # multiple sequence alignment, now need to remove gap before-hand
         self.paralog = paralog  # parlaog list
@@ -129,6 +129,7 @@ class Embrachtau1:
 
         self.index=0
         self.ifexp=False
+        self.ifDNA=ifDNA
 
 
         #### for bs tau
@@ -1934,7 +1935,6 @@ class Embrachtau1:
 
         if self.dwell_id == False:
 
-
             for mc in range(repeat):
 
                 self.jointly_common_ancstral_inference()
@@ -1964,23 +1964,27 @@ class Embrachtau1:
         else:
 
             self.jointly_common_ancstral_inference()
-            expected_DwellTime = self._ExpectedHetDwellTime()
+
             if self.Model == "MG94":
-                id = [1 - ((
-                                   expected_DwellTime[0][i] + self.omega * expected_DwellTime[1][i])
 
-                           / (2 * self.nsites))
-                      for i in range(ttt)]
+                if self.ifDNA==True:
+                    expected_DwellTime = self._ExpectedHetDwellTime_DNA()
 
-                # id = [ 1-(((
-                #         expected_DwellTime[0][i] + self.omega * expected_DwellTime[1][i])+
-                #           (
-                #                   expected_DwellTime[2][i] + self.omega * expected_DwellTime[3][i])*2+
-                #           (
-                #                   expected_DwellTime[4][i] + self.omega * expected_DwellTime[5][i]) * 3)
-                #           /(2*3*self.nsites))
+                    id = [ 1-(((
+                         expected_DwellTime[0][i] + self.omega * expected_DwellTime[1][i])+
+                           (  expected_DwellTime[2][i] + self.omega * expected_DwellTime[3][i])*2 +
+                          ( expected_DwellTime[4][i] + self.omega * expected_DwellTime[5][i]) * 3)
+                          /(2*3*self.nsites))
+                           for i in range(ttt)]
+                else:
+                    expected_DwellTime = self._ExpectedHetDwellTime()
+                    id = [1 - ((
+                                       expected_DwellTime[0][i] + self.omega * expected_DwellTime[1][i])
+                               / (2 * self.nsites))
+                          for i in range(ttt)]
 
             else:
+                expected_DwellTime = self._ExpectedHetDwellTime()
                 id = [1 - (expected_DwellTime[i] / (2 * self.nsites
                                                     ))
                       for i in range(ttt)]
@@ -2490,7 +2494,8 @@ class Embrachtau1:
         ll0 = self.get_mle()["fun"]
         list.append(ll0)
         list.append(self.tau)
-        list.append(self.omega)
+        if self.Model == "MG94":
+            list.append(self.omega)
         pstau = deepcopy(self.tau)
 
 
@@ -2499,7 +2504,6 @@ class Embrachtau1:
         idold = deepcopy(self.id)
         print(self.id)
 
-        list.append(pstau)
         for j in range(len(self.edge_list)):
             list.append(idold[j])
         for j in range(len(self.edge_list)):
@@ -2526,7 +2530,10 @@ class Embrachtau1:
                     self.ini = deepcopy(self.sites[ini2,])
                     self.end = deepcopy(self.sites[end2,])
                     self.time = np.exp(self.x_rates[j])
-                    print(self.get_branch_mle(branch=j))
+                    bstau = self.get_branch_mle(branch=j)
+                    print(bstau)
+                    list.append(bstau)
+
 
         self.ifmodel = "EM_full"
         self.K=K
@@ -2572,7 +2579,8 @@ class Embrachtau1:
             print("K: ", self.K)
             print("new ll: ", ll1)
             list.append(ll1)
-            list.append(self.omega)
+            if self.Model == "MG94":
+                list.append(self.omega)
             list.append(self.tau)
             list.append(self.K)
 
@@ -2632,7 +2640,7 @@ class Embrachtau1:
                         self.ini = deepcopy(self.sites[ini2,])
                         self.end = deepcopy(self.sites[end2,])
                         self.time = np.exp(self.x_rates[j])
-                        bstau = self.get_branch_mle(branch=j)
+                        bstau = self.get_branch_mle(branch=j)[0]
                         list.append(bstau)
 
                 if self.Model == "MG94":
@@ -2642,7 +2650,7 @@ class Embrachtau1:
                         self.ini = deepcopy(self.sites[ini2,])
                         self.end = deepcopy(self.sites[end2,])
                         self.time = np.exp(self.x_rates[j])
-                        bstau = self.get_branch_mle(branch=j)
+                        bstau = self.get_branch_mle(branch=j)[0]
                         list.append(bstau)
 
 
@@ -2724,120 +2732,119 @@ class Embrachtau1:
 
 
 
-    # def _ExpectedHetDwellTime(self, package='new', display=False):
-    #
-    #     if package == 'new':
-    #         self.scene_ll = self.get_scene()
-    #         if self.Model == 'MG94':
-    #             syn_heterogeneous_states_1 = [(a, b) for (a, b) in
-    #                                         list(product(range(len(self.codon_to_state)), repeat=2)) if
-    #                                         a != b and self.isSynonymous(self.codon_nonstop[a], self.codon_nonstop[b]) and
-    #                                         self.measure_difference_two(self.codon_nonstop[a],
-    #                                                                             self.codon_nonstop[b])==1]
-    #             nonsyn_heterogeneous_states_1 = [(a, b) for (a, b) in
-    #                                            list(product(range(len(self.codon_to_state)), repeat=2)) if
-    #                                            a != b and not self.isSynonymous(self.codon_nonstop[a],
-    #                                                                             self.codon_nonstop[b]) and
-    #                                            self.measure_difference_two(self.codon_nonstop[a],
-    #                                                                             self.codon_nonstop[b])==1]
-    #             syn_heterogeneous_states_2 = [(a, b) for (a, b) in
-    #                                           list(product(range(len(self.codon_to_state)), repeat=2)) if
-    #                                           a != b and self.isSynonymous(self.codon_nonstop[a],
-    #                                                                        self.codon_nonstop[b]) and
-    #                                           self.measure_difference_two(self.codon_nonstop[a],
-    #                                                                       self.codon_nonstop[b]) == 2]
-    #             nonsyn_heterogeneous_states_2 = [(a, b) for (a, b) in
-    #                                              list(product(range(len(self.codon_to_state)), repeat=2)) if
-    #                                              a != b and not self.isSynonymous(self.codon_nonstop[a],
-    #                                                                               self.codon_nonstop[b]) and
-    #                                              self.measure_difference_two(self.codon_nonstop[a],
-    #                                                                          self.codon_nonstop[b]) == 2]
-    #             syn_heterogeneous_states_3 = [(a, b) for (a, b) in
-    #                                           list(product(range(len(self.codon_to_state)), repeat=2)) if
-    #                                           a != b and self.isSynonymous(self.codon_nonstop[a],
-    #                                                                        self.codon_nonstop[b]) and
-    #                                           self.measure_difference_two(self.codon_nonstop[a],
-    #                                                                       self.codon_nonstop[b]) == 3]
-    #             nonsyn_heterogeneous_states_3 = [(a, b) for (a, b) in
-    #                                              list(product(range(len(self.codon_to_state)), repeat=2)) if
-    #                                              a != b and not self.isSynonymous(self.codon_nonstop[a],
-    #                                                                               self.codon_nonstop[b]) and
-    #                                              self.measure_difference_two(self.codon_nonstop[a],
-    #                                                                          self.codon_nonstop[b]) == 3]
-    #             dwell_request = [dict(
-    #                 property='SDWDWEL',
-    #                 state_reduction=dict(
-    #                     states=syn_heterogeneous_states_1,
-    #                     weights=[2] * len(syn_heterogeneous_states_1)
-    #                 )),
-    #                 dict(
-    #                     property='SDWDWEL',
-    #                     state_reduction=dict(
-    #                         states=nonsyn_heterogeneous_states_1,
-    #                         weights=[2] * len(nonsyn_heterogeneous_states_1)
-    #                     )),
-    #                 dict(
-    #                     property='SDWDWEL',
-    #                     state_reduction=dict(
-    #                         states=syn_heterogeneous_states_2,
-    #                         weights=[2] * len(syn_heterogeneous_states_2)
-    #                     )),
-    #                 dict(
-    #                     property='SDWDWEL',
-    #                     state_reduction=dict(
-    #                         states=nonsyn_heterogeneous_states_2,
-    #                         weights=[2] * len(nonsyn_heterogeneous_states_2)
-    #                     )),
-    #                 dict(
-    #                     property='SDWDWEL',
-    #                     state_reduction=dict(
-    #                         states=syn_heterogeneous_states_3,
-    #                         weights=[2] * len(syn_heterogeneous_states_3)
-    #                     )),
-    #                 dict(
-    #                     property='SDWDWEL',
-    #                     state_reduction=dict(
-    #                         states=nonsyn_heterogeneous_states_3,
-    #                         weights=[2] * len(nonsyn_heterogeneous_states_3)
-    #                     ))
-    #             ]
-    #
-    #         elif self.Model == 'HKY':
-    #             heterogeneous_states = [(a, b) for (a, b) in list(product(range(len(self.nt_to_state)), repeat=2)) if
-    #                                     a != b]
-    #             dwell_request = [dict(
-    #                 property='SDWDWEL',
-    #                 state_reduction=dict(
-    #                     states=heterogeneous_states,
-    #                     weights= [2] * len(heterogeneous_states)
-    #                 )
-    #             )]
-    #
-    #         j_in = {
-    #             'scene': self.scene_ll,
-    #             'requests': dwell_request,
-    #         }
-    #         j_out = jsonctmctree.interface.process_json_in(j_in)
-    #
-    #         ttt=len(self.edge_list)
-    #         if self.Model=="MG94":
-    #             ExpectedDwellTime=np.zeros((6,ttt))
-    #
-    #             for i in range(len(self.edge_list)):
-    #                 for j in range(6):
-    #                     ExpectedDwellTime[j][i]=j_out['responses'][j][i]
-    #         else:
-    #             ExpectedDwellTime = np.zeros(ttt)
-    #
-    #             for i in range(len(self.edge_list)):
-    #                  ExpectedDwellTime[i] = j_out['responses'][0][i]
-    #
-    #
-    #
-    #
-    #         return ExpectedDwellTime
-    #     else:
-    #         print('Need to implement this for old package')
+    def _ExpectedHetDwellTime_DNA(self, package='new', display=False):
+
+        if package == 'new':
+            self.scene_ll = self.get_scene()
+            if self.Model == 'MG94':
+                syn_heterogeneous_states_1 = [(a, b) for (a, b) in
+                                            list(product(range(len(self.codon_to_state)), repeat=2)) if
+                                            a != b and self.isSynonymous(self.codon_nonstop[a], self.codon_nonstop[b]) and
+                                            self.measure_difference_two(self.codon_nonstop[a],
+                                                                                self.codon_nonstop[b])==1]
+                nonsyn_heterogeneous_states_1 = [(a, b) for (a, b) in
+                                               list(product(range(len(self.codon_to_state)), repeat=2)) if
+                                               a != b and not self.isSynonymous(self.codon_nonstop[a],
+                                                                                self.codon_nonstop[b]) and
+                                               self.measure_difference_two(self.codon_nonstop[a],
+                                                                                self.codon_nonstop[b])==1]
+                syn_heterogeneous_states_2 = [(a, b) for (a, b) in
+                                              list(product(range(len(self.codon_to_state)), repeat=2)) if
+                                              a != b and self.isSynonymous(self.codon_nonstop[a],
+                                                                           self.codon_nonstop[b]) and
+                                              self.measure_difference_two(self.codon_nonstop[a],
+                                                                          self.codon_nonstop[b]) == 2]
+                nonsyn_heterogeneous_states_2 = [(a, b) for (a, b) in
+                                                 list(product(range(len(self.codon_to_state)), repeat=2)) if
+                                                 a != b and not self.isSynonymous(self.codon_nonstop[a],
+                                                                                  self.codon_nonstop[b]) and
+                                                 self.measure_difference_two(self.codon_nonstop[a],
+                                                                             self.codon_nonstop[b]) == 2]
+                syn_heterogeneous_states_3 = [(a, b) for (a, b) in
+                                              list(product(range(len(self.codon_to_state)), repeat=2)) if
+                                              a != b and self.isSynonymous(self.codon_nonstop[a],
+                                                                           self.codon_nonstop[b]) and
+                                              self.measure_difference_two(self.codon_nonstop[a],
+                                                                          self.codon_nonstop[b]) == 3]
+                nonsyn_heterogeneous_states_3 = [(a, b) for (a, b) in
+                                                 list(product(range(len(self.codon_to_state)), repeat=2)) if
+                                                 a != b and not self.isSynonymous(self.codon_nonstop[a],
+                                                                                  self.codon_nonstop[b]) and
+                                                 self.measure_difference_two(self.codon_nonstop[a],
+                                                                             self.codon_nonstop[b]) == 3]
+                dwell_request = [dict(
+                    property='SDWDWEL',
+                    state_reduction=dict(
+                        states=syn_heterogeneous_states_1,
+                        weights=[2] * len(syn_heterogeneous_states_1)
+                    )),
+                    dict(
+                        property='SDWDWEL',
+                        state_reduction=dict(
+                            states=nonsyn_heterogeneous_states_1,
+                            weights=[2] * len(nonsyn_heterogeneous_states_1)
+                        )),
+                    dict(
+                        property='SDWDWEL',
+                        state_reduction=dict(
+                            states=syn_heterogeneous_states_2,
+                            weights=[2] * len(syn_heterogeneous_states_2)
+                        )),
+                    dict(
+                        property='SDWDWEL',
+                        state_reduction=dict(
+                            states=nonsyn_heterogeneous_states_2,
+                            weights=[2] * len(nonsyn_heterogeneous_states_2)
+                        )),
+                    dict(
+                        property='SDWDWEL',
+                        state_reduction=dict(
+                            states=syn_heterogeneous_states_3,
+                            weights=[2] * len(syn_heterogeneous_states_3)
+                        )),
+                    dict(
+                        property='SDWDWEL',
+                        state_reduction=dict(
+                            states=nonsyn_heterogeneous_states_3,
+                            weights=[2] * len(nonsyn_heterogeneous_states_3)
+                        ))
+                ]
+
+            elif self.Model == 'HKY':
+                heterogeneous_states = [(a, b) for (a, b) in list(product(range(len(self.nt_to_state)), repeat=2)) if
+                                        a != b]
+                dwell_request = [dict(
+                    property='SDWDWEL',
+                    state_reduction=dict(
+                        states=heterogeneous_states,
+                        weights= [2] * len(heterogeneous_states)
+                    )
+                )]
+
+            j_in = {
+                'scene': self.scene_ll,
+                'requests': dwell_request,
+            }
+            j_out = jsonctmctree.interface.process_json_in(j_in)
+
+            ttt=len(self.edge_list)
+            if self.Model=="MG94":
+                ExpectedDwellTime=np.zeros((6,ttt))
+
+                for i in range(ttt):
+                    for j in range(6):
+                        ExpectedDwellTime[j][i]=j_out['responses'][j][i]
+            else:
+                ExpectedDwellTime = np.zeros(ttt)
+
+                for i in range(len(self.edge_list)):
+                     ExpectedDwellTime[i] = j_out['responses'][0][i]
+
+
+
+            return ExpectedDwellTime
+        else:
+            print('Need to implement this for old package')
 
 
 
@@ -2855,7 +2862,7 @@ if __name__ == '__main__':
 
 
     Force = None
-    model = 'HKY'
+    model = 'MG94'
 
     save_name = model+name
     geneconv = Embrachtau1(newicktree, alignment_file, paralog, Model=model, Force=Force, clock=None,
