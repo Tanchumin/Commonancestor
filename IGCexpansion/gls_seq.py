@@ -5,12 +5,11 @@
 # txu7@ncsu.edu
 
 from __future__ import print_function
-import jsonctmctree.ll, jsonctmctree.interface
 from CodonGeneconv import *
 from copy import deepcopy
 import os
 import numpy as np
-import pandas as pd
+import array
 from numpy import random
 from scipy import linalg
 import copy
@@ -18,7 +17,6 @@ from scipy.stats import poisson
 
 from IGCexpansion.CodonGeneconFunc import isNonsynonymous
 import pickle
-import json
 import numpy.core.multiarray
 
 
@@ -506,6 +504,8 @@ class GSseq:
         return point,igc,change_i,change_j
 
 
+# GLS algorithmm on sequence level, which just generate on
+
     def GLS_sequnce(self, t=0.1, ini=None,k=1.1, tau=1.1):
 
         global di
@@ -587,7 +587,7 @@ class GSseq:
 
             return Q
 
-        # used  before topo so  that can make new Q
+# used  before topo so  that can make new Q
     def change_t_Q(self, tau=0.99):
 
             if self.Q is None:
@@ -632,7 +632,9 @@ class GSseq:
 
             # used  before topo so  that can make new Q
 
-#   we derive sample tree
+#   we use the same tree as yeast data
+
+#
     def topo(self):
 
         ini=self.make_ini()
@@ -741,14 +743,23 @@ class GSseq:
         return list
 
 
-    def trans_into_seq(self,ini=None):
+# translate the sequence with number level into site level
+# 1 -> ATT
+
+    def trans_into_seq(self,ini=None,casenumber=1):
         list = []
-        encoding = "utf - 8"
+
+        name_list=["a","b","c","d","e","f"]
+
         if self.Model == 'MG94':
             dict = self.geneconv.state_to_codon
             for i in range(self.leafnode):
-                p0 = "\n"+">paralog0"+"\n"
-                p1 = "\n"+">paralog1"+"\n"
+                if i==0:
+                   p0 = ">"+name_list[i]+"paralog0"+"\n"
+                else:
+                   p0 = "\n" + ">" + name_list[i] + "paralog0" + "\n"
+
+                p1 = "\n"+">"+name_list[i]+"paralog1"+"\n"
                 for j in range(self.sizen):
                     p0 = p0 + dict[(ini[i][j]) // 61]
                     p1 = p1 + dict[(ini[i][j]) % 61]
@@ -764,23 +775,32 @@ class GSseq:
         else:
             dict = self.geneconv.state_to_nt
             for i in range(self.leafnode):
-                p0 = "\n"+">paralog0"+"\n"
-                p1 = "\n"+">paralog1"+"\n"
+                if i==0:
+                   p0 = ">"+name_list[i]+"paralog0"+"\n"
+                else:
+                   p0 = "\n" + ">" + name_list[i] + "paralog0" + "\n"
+                p1 = "\n"+">"+name_list[i]+"paralog1"+"\n"
                 for j in range(self.sizen):
                     p0 = p0 + dict[(ini[i][j]) // 4]
                     p1 = p1 + dict[(ini[i][j]) % 4]
                 list.append(p0)
                 list.append(p1)
 
-            p0 = "\n"+">paralog0"+"\n"
+            p0 = "\n"+">"+name_list[i+1]+"paralog0"+"\n"
             for j in range(self.sizen):
                 p0 = p0 + dict[(ini[self.leafnode][j])]
 
             list.append(p0)
 
-        save_nameP = '../test/savesample/' + "FIX_k"+'sample1.txt'
+
+        save_nameP = '../test/savesample/' + "FIX_k_"+str(casenumber)+'_sample.fasta'
         with open(save_nameP, 'wb') as f:
-            pickle.dump(list, f)
+            for file in list:
+               f.write(file.encode('utf-8'))
+
+
+
+
 
         return (list)
 
@@ -836,7 +856,7 @@ if __name__ == '__main__':
                                    save_path='../test/save/', save_name=save_name)
 
 
-        self = GSseq(geneconv,K=1.01,fix_tau=3.5,sizen=3000,omega=1,leafnode=5,ifmakeQ=True)
+        self = GSseq(geneconv,K=1.01,fix_tau=3.5,sizen=300,omega=1,leafnode=5,ifmakeQ=True)
         #scene = self.get_scene()
 
 
