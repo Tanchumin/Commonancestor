@@ -17,26 +17,17 @@ from scipy.stats import poisson
 import re
 import multiprocessing as mp
 
-def ddd(output,i):
-    print(i)
-    np.exp(i+i)
-    output.put(i)
+def build_dic(dd=3):
+    list= {}
+    for i in range(dd):
+        list[i]=None
+
+    for i in range(dd):
+        list[i]="DDDDDDD"
+
+    return list
+
+print(build_dic()[1])
 
 
-output = mp.Queue()
-
-# Setup a list of processes that we want to run
-processes = [
-    mp.Process(target=ddd, args=(output,i)) \
-    for i in range(10)]
-
-# Run processes
-for p in processes:
-    p.start()
-
-# Exit the completed processes
-for p in processes:
-    p.join()
-
-results = [output.get() for p in processes]
 

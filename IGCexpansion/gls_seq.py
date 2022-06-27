@@ -5,10 +5,11 @@
 # txu7@ncsu.edu
 
 from __future__ import print_function
-from CodonGeneconv import *
+from em_pt1 import *
 from copy import deepcopy
 import os
 import numpy as np
+import scipy
 import array
 from numpy import random
 from scipy import linalg
@@ -24,9 +25,9 @@ class GSseq:
 
     def __init__(self,
                  geneconv ,
-                 sizen=111,branch_list=None,K=0.1,fix_tau=0.2,
+                 sizen=400,branch_list=None,K=None,fix_tau=None,
                  pi=[0.25,0.25,0.25,0.25],omega=None,kappa=1,leafnode=4,
-                 ifmakeQ=False
+                 ifmakeQ=False,
                  ):
 
         self.geneconv                 = geneconv
@@ -36,7 +37,7 @@ class GSseq:
         self.num_to_node              = None
         self.node_length              = None
 
-        self.tau =fix_tau
+
         self.omega=omega
         self.kappa=kappa
         self.pi=pi
@@ -53,6 +54,7 @@ class GSseq:
         self.Model=self.geneconv.Model
         self.sites = None
 
+
 #making Q matrix
         self.codon_nonstop = self.geneconv.codon_nonstop
         self.codon_to_state=self.geneconv.codon_to_state
@@ -61,10 +63,36 @@ class GSseq:
 ## simulation setting
         self.sizen=sizen
         self.t= branch_list
-        self.fix_t=0.05
         self.K=K
+## self.tau is used to update for Q matriex
+        self.tau =fix_tau
         self.fix_tau=fix_tau
         self.leafnode=leafnode
+
+
+
+        self.initialize_parameters()
+
+
+
+    def initialize_parameters(self):
+        self.tree=deepcopy(self.geneconv.tree)
+        self.pi=deepcopy(self.geneconv.pi)
+
+        if self.ifmakeQ==False:
+            print("The parameters and tree are inherited from inputs")
+            self.geneconv.read_parameter_gls()
+            self.scene=self.geneconv.get_scene()
+
+        if self.fix_tau is None:
+            self.fix_tau = self.geneconv.tau
+            self.tau=self.geneconv.tau
+        if self.K is None:
+            self.K = self.geneconv.K
+        if self.omega is None:
+            self.omega = self.geneconv.omega
+
+
 
 
 
@@ -75,7 +103,6 @@ class GSseq:
             return 0
         elif ndiff == 0:
             print('Please check your codon tables and make sure no redundancy')
-            print(ca, cb)
             return 0
         else:
             na = ca[dif[0]]
@@ -274,14 +301,6 @@ class GSseq:
        return (set([na, nb]) == set(['A', 'G']) or set([na, nb]) == set(['C', 'T']))
 
 
-    def get_scene(self):
-        self.tau=self.geneconv.tau
-        if self.omega is None:
-            self.omega=self.geneconv.omega
-        if self.scene is None:
-            self.geneconv.get_mle()
-            self.scene = self.geneconv.get_scene()
-        return self.scene
 
 
     def get_station_dis(self):
@@ -299,14 +318,12 @@ class GSseq:
     def make_ini(self):
             ini = np.ones(self.sizen)
 
-
             if self.Model=="HKY":
-                z = self.geneconv.pi
+                z = self.pi
                 sample=np.ones(4)
                 for i in range(16):
                     if(i // 4 == i%4):
                         sample[i%4]=i
-
                 for i in range(self.sizen):
                     ini[i] = int(np.random.choice(sample, 1, p=(z))[0])
 
@@ -351,13 +368,13 @@ class GSseq:
 
         return self.Q_new
 
+### OBTAIN FULL Q  matrix
+
     def making_Qmatrix(self):
+
         self.get_prior()
 
-
-
         if self.ifmakeQ==True:
-            if self.scene is None:
                 if  self.Model=="MG94":
                     self.processes=self.get_MG94Geneconv_and_MG94()
                 else:
@@ -368,12 +385,9 @@ class GSseq:
                 self.scene = dict(
                 process_definitions = process_definitions
                 )
-                scene=self.scene
 
-        else:
-            if self.scene is None:
-                self.get_scene()
-            scene = self.scene
+
+        scene=self.scene
 
 
         actual_number = (len(scene['process_definitions'][1]['transition_rates']))
@@ -434,7 +448,7 @@ class GSseq:
 
         return self.Q, self.dic_col
 
-
+    # test stat for simulation
     def solo_difference(self, ini):
             index = 0
 
@@ -459,6 +473,7 @@ class GSseq:
 
     def isNonsynonymous(self, ca, cb, codon_table):
         return (codon_table[ca] != codon_table[cb])
+
 
     def point_IGC(self,pre,post):
         if self.Model=="MG94":
@@ -504,12 +519,13 @@ class GSseq:
         return point,igc,change_i,change_j
 
 
-# GLS algorithmm on sequence level, which just generate on
+# GLS algorithm on sequence level, which just generate on ini and end seqynce
 
     def GLS_sequnce(self, t=0.1, ini=None,k=1.1, tau=1.1):
 
         global di
         global di1
+
 
         inirel=deepcopy(ini)
 
@@ -587,7 +603,7 @@ class GSseq:
 
             return Q
 
-# used  before topo so  that can make new Q
+# use change_t_Q before topo so  that can make new Q conditioned on (tau^id)*K at each GLS step
     def change_t_Q(self, tau=0.99):
 
             if self.Q is None:
@@ -630,11 +646,8 @@ class GSseq:
 
             self.tau = tau
 
-            # used  before topo so  that can make new Q
 
-#   we use the same tree as yeast data
 
-#
     def topo(self):
 
         ini=self.make_ini()
@@ -642,102 +655,200 @@ class GSseq:
         end1=deepcopy(ini)
         list1 = []
 
-        if self.t is None:
-            t=0.04
+
+        if self.ifmakeQ==False:
+                t=self.geneconv.tree['rate']
+
         else:
-            t=self.t[1]/2
+            if self.t is None:
 
-
-        if self.Model=="HKY":
-            Q = self.remake_matrix()
-            end1 = np.ones(self.sizen)
-            Q_iiii = np.ones((4))
-            for ii in range(4):
-                qii = sum(Q[ii,])
-                if qii != 0:
-                    Q_iiii[ii] = sum(Q[ii,])
-
-            for d in range(4):
-                Q[d,] = Q[d,] / Q_iiii[d]
-
-            for ll in range(self.sizen):
-                    current_state = ini[ll]//4
-                    u = random.exponential(1/Q_iiii[int(current_state)])
-                    while(u<=(2*t)):
-                        a = np.random.choice(range(4), 1, p=Q[int(current_state),])[0]
-                        current_state = a
-                        u=u+random.exponential(1/Q_iiii[int(current_state)])
-
-                    end1[ll]=current_state
-
-            list1=[]
-            list1.append(ini)
-            mm=np.ones(shape=(4, self.sizen))
-            mm[0,:]=ini
-
-        elif self.Model=="MG94":
-            Q = self.remake_matrix()
-            Q_iiii = np.ones((61))
-            for ii in range(61):
-                qii = sum(Q[ii,])
-                if qii != 0:
-                    Q_iiii[ii] = sum(Q[ii,])
-
-            for d in range(61):
-                Q[d,] = Q[d,] / Q_iiii[d]
-
-            for ll in range(self.sizen):
-                    current_state = ini[ll]//61
-                    ifcontinue = True
-                    u=0
-                    while (ifcontinue == True):
-                        u = u+random.exponential(1 / Q_iiii[int(current_state)])
-                        if (u<=t):
-                            a = np.random.choice(range(61), 1, p=Q[int(current_state),])[0]
-                            current_state = a
-                        else:
-                            ifcontinue=False
-
-                    end1[ll]=current_state
-
-
-            list1.append(ini)
-
-
-### start build internal node
-        for i in range(self.leafnode):
-
-            if(i== self.leafnode-1):
-             #   print(ini)
-                leaf = deepcopy(self.GLS_sequnce(ini=deepcopy(ini),t=t,k=self.K,tau=self.fix_tau))
-                list.append(leaf)
-
-            elif (i == self.leafnode - 2):
-                # ini is internal node, leaf is observed;
-                # list store observed
-                ini = deepcopy(self.GLS_sequnce(ini=deepcopy(ini),t=t,k=self.K,tau=self.fix_tau))
-                # self.change_t_Q(0.1)
-                leaf = deepcopy(self.GLS_sequnce(ini=deepcopy(ini),t=t,k=self.K,tau=self.fix_tau))
-                list.append(leaf)
-                list1.append(ini)
-
+                t = 0.04
+                print("Model assumes all branch with the same branch length", t)
             else:
-                # ini is internal node, leaf is observed;
-                # list store observed
-                if (i==0):
-                    ini = deepcopy(self.GLS_sequnce(ini=deepcopy(ini),t=t/3,k=self.K,tau=self.fix_tau))
-                else:
-                    ini = deepcopy(self.GLS_sequnce(ini=deepcopy(ini), t=t, k=self.K, tau=self.fix_tau))
-            #    print(ini)
-                leaf = deepcopy(self.GLS_sequnce(ini=deepcopy(ini),t=t,k=self.K,tau=self.fix_tau))
-                list.append(leaf)
+                t=self.t
+
+
+        if self.ifmakeQ==True and self.t is None:
+
+            if self.Model=="HKY":
+                Q = self.remake_matrix()
+                end1 = np.ones(self.sizen)
+                Q_iiii = np.ones((4))
+                for ii in range(4):
+                    qii = sum(Q[ii,])
+                    if qii != 0:
+                        Q_iiii[ii] = sum(Q[ii,])
+
+                for d in range(4):
+                    Q[d,] = Q[d,] / Q_iiii[d]
+
+                for ll in range(self.sizen):
+                        current_state = ini[ll]//4
+                        u = random.exponential(1/Q_iiii[int(current_state)])
+                        while(u<=(2*t)):
+                            a = np.random.choice(range(4), 1, p=Q[int(current_state),])[0]
+                            current_state = a
+                            u=u+random.exponential(1/Q_iiii[int(current_state)])
+
+                        end1[ll]=current_state
+
+                list1=[]
                 list1.append(ini)
 
 
-          #  self.measure_difference(ini, leaf)
+            elif self.Model=="MG94":
+                Q = self.remake_matrix()
+                Q_iiii = np.ones((61))
+                for ii in range(61):
+                    qii = sum(Q[ii,])
+                    if qii != 0:
+                        Q_iiii[ii] = sum(Q[ii,])
+
+                for d in range(61):
+                    Q[d,] = Q[d,] / Q_iiii[d]
+
+                for ll in range(self.sizen):
+                        current_state = ini[ll]//61
+                        ifcontinue = True
+                        u=0
+                        while (ifcontinue == True):
+                            u = u+random.exponential(1 / Q_iiii[int(current_state)])
+                            if (u<=t):
+                                a = np.random.choice(range(61), 1, p=Q[int(current_state),])[0]
+                                current_state = a
+                            else:
+                                ifcontinue=False
+
+                        end1[ll]=current_state
 
 
-        list.append(end1)
+                list1.append(ini)
+
+
+
+    ### start build internal node
+            for i in range(self.leafnode):
+
+                if(i== self.leafnode-1):
+                 #   print(ini)
+                    leaf = deepcopy(self.GLS_sequnce(ini=deepcopy(ini),t=t,k=self.K,tau=self.fix_tau))
+                    list.append(leaf)
+
+                elif (i == self.leafnode - 2):
+                    # ini is internal node, leaf is observed;
+                    # list store observed
+                    ini = deepcopy(self.GLS_sequnce(ini=deepcopy(ini),t=t,k=self.K,tau=self.fix_tau))
+                    # self.change_t_Q(0.1)
+                    leaf = deepcopy(self.GLS_sequnce(ini=deepcopy(ini),t=t,k=self.K,tau=self.fix_tau))
+                    list.append(leaf)
+                    list1.append(ini)
+
+                else:
+                    # ini is internal node, leaf is observed;
+                    # list store observed
+                    if (i==0):
+                        ini = deepcopy(self.GLS_sequnce(ini=deepcopy(ini),t=t/3,k=self.K,tau=self.fix_tau))
+                    else:
+                        ini = deepcopy(self.GLS_sequnce(ini=deepcopy(ini), t=t, k=self.K, tau=self.fix_tau))
+                #    print(ini)
+                    leaf = deepcopy(self.GLS_sequnce(ini=deepcopy(ini),t=t,k=self.K,tau=self.fix_tau))
+                    list.append(leaf)
+                    list1.append(ini)
+
+            list.append(end1)
+
+        else:
+
+            out_index=np.where(self.tree['process'] != scipy.stats.mode(self.tree['process'])[0])[0]
+
+            branch_root_to_outgroup=self.geneconv.tree['col'][out_index[0]]
+
+            print(branch_root_to_outgroup)
+
+
+            length_edge=len(self.tree['row'])
+            hash_node={}
+            for i in range(length_edge+1):
+                hash_node[i] = None
+
+            hash_node[0]=deepcopy(ini)
+
+
+            for i in range(length_edge):
+                print(self.tree)
+                if i!=out_index:
+                    ini_index=self.geneconv.tree['row'][i]
+                    end_index = self.geneconv.tree['col'][i]
+
+
+                    if hash_node[end_index] is None:
+                        ini_seq=deepcopy(hash_node[ini_index])
+                        end_seq = deepcopy(self.GLS_sequnce(ini=ini_seq, t=t[i], k=self.K, tau=self.fix_tau))
+                        hash_node[end_index]=deepcopy(end_seq)
+                        if end_index in set(self.geneconv.observable_nodes):
+                      #      print(end_index)
+                   #         print(end_seq)
+                            list.append(end_seq)
+
+
+
+
+                else:
+                    # out group
+                    if self.Model == "HKY":
+                        Q = self.remake_matrix()
+                        end1 = np.ones(self.sizen)
+                        Q_iiii = np.ones((4))
+                        for ii in range(4):
+                            qii = sum(Q[ii,])
+                            if qii != 0:
+                                Q_iiii[ii] = sum(Q[ii,])
+
+                        for d in range(4):
+                            Q[d,] = Q[d,] / Q_iiii[d]
+
+                        for ll in range(self.sizen):
+                            current_state = ini[ll] // 4
+                            u = random.exponential(1 / Q_iiii[int(current_state)])
+                            while (u <= (2 * t[i])):
+                                a = np.random.choice(range(4), 1, p=Q[int(current_state),])[0]
+                                current_state = a
+                                u = u + random.exponential(1 / Q_iiii[int(current_state)])
+
+                            end1[ll] = current_state
+
+
+
+
+                    else:
+                        Q = self.remake_matrix()
+                        Q_iiii = np.ones((61))
+                        for ii in range(61):
+                            qii = sum(Q[ii,])
+                            if qii != 0:
+                                Q_iiii[ii] = sum(Q[ii,])
+
+                        for d in range(61):
+                            Q[d,] = Q[d,] / Q_iiii[d]
+
+                        for ll in range(self.sizen):
+                            current_state = ini[ll] // 61
+                            ifcontinue = True
+                            u = 0
+                            while (ifcontinue == True):
+                                u = u + random.exponential(1 / Q_iiii[int(current_state)])
+                                if (u <= t[i]):
+                                    a = np.random.choice(range(61), 1, p=Q[int(current_state),])[0]
+                                    current_state = a
+                                else:
+                                    ifcontinue = False
+
+                            end1[ll] = current_state
+
+                    end_index = self.geneconv.tree['col'][i]
+
+                    hash_node[end_index] = deepcopy(end1)
+            list.append(end1)
 
 
         return list
@@ -749,11 +860,11 @@ class GSseq:
     def trans_into_seq(self,ini=None,casenumber=1):
         list = []
 
-        name_list=["a","b","c","d","e","f"]
+        name_list=["a","b","c","d","e","f","g","h"]
 
         if self.Model == 'MG94':
             dict = self.geneconv.state_to_codon
-            for i in range(self.leafnode):
+            for i in range(len(set(geneconv.observable_nodes))):
                 if i==0:
                    p0 = ">"+name_list[i]+"paralog0"+"\n"
                 else:
@@ -768,13 +879,14 @@ class GSseq:
 
             p0 = "\n"+">paralog0"+"\n"
             for j in range(self.sizen):
-                p0 = p0 + dict[(ini[self.leafnode][j])]
+                p0 = p0 + dict[(ini[i][j])]
 
             list.append(p0)
 
         else:
             dict = self.geneconv.state_to_nt
-            for i in range(self.leafnode):
+            for i in range(len(set(geneconv.observable_nodes))):
+                print(ini[i])
                 if i==0:
                    p0 = ">"+name_list[i]+"paralog0"+"\n"
                 else:
@@ -786,9 +898,9 @@ class GSseq:
                 list.append(p0)
                 list.append(p1)
 
-            p0 = "\n"+">"+name_list[i+1]+"paralog0"+"\n"
+            p0 = "\n"+">"+name_list[i]+"paralog0"+"\n"
             for j in range(self.sizen):
-                p0 = p0 + dict[(ini[self.leafnode][j])]
+                p0 = p0 + dict[(ini[i][j])]
 
             list.append(p0)
 
@@ -797,8 +909,6 @@ class GSseq:
         with open(save_nameP, 'wb') as f:
             for file in list:
                f.write(file.encode('utf-8'))
-
-
 
 
 
@@ -852,17 +962,25 @@ if __name__ == '__main__':
 
         type = 'situation_new'
         save_name = model + name
-        geneconv = ReCodonGeneconv(newicktree, alignment_file, paralog, Model=model, Force=Force, clock=None,
-                                   save_path='../test/save/', save_name=save_name)
+        geneconv = Embrachtau1(newicktree, alignment_file, paralog, Model=model, Force=Force, clock=None,
+                                   save_path='../test/save/', save_name=save_name,if_rerun=False)
 
 
-        self = GSseq(geneconv,K=1.01,fix_tau=3.5,sizen=300,omega=1,leafnode=5,ifmakeQ=True)
+    #    self = GSseq(geneconv,K=1.01,fix_tau=3.5,sizen=300,omega=1,leafnode=5,ifmakeQ=False)
+        self = GSseq(geneconv,  ifmakeQ=False)
         #scene = self.get_scene()
 
 
         aaa=self.topo()
         self.trans_into_seq(ini=aaa)
-        print(self.prior_distribution)
+        print(self.geneconv.tree)
+        print(self.geneconv.tree['rate'])
+        print(set(    geneconv.observable_nodes))
+
+        print(np.where(self.geneconv.tree['process']!=scipy.stats.mode(self.geneconv.tree['process'])[0])[0])
+     #   print(self.prior_distribution)
+
+
     #    aaa=self.make_ini()
      #   print(self.GLS_sequnce(ini=aaa))
 

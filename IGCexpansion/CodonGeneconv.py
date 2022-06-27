@@ -750,10 +750,12 @@ class ReCodonGeneconv:
             x_plus_delta[i] += delta / 2.0
             self.update_by_x(x_plus_delta)
             ll_delta_plus, _ = fn(store=True, edge_derivative=False)
+
             x_plus_delta[i] -= delta
             self.update_by_x(x_plus_delta)
             ll_delta_minus, _ = fn(store=True, edge_derivative=False)
             x_plus_delta[i] += delta / 2.0
+
             d_estimate = (ll_delta_plus - ll_delta_minus) / delta
             other_derivs.append(d_estimate)
             # restore self.x
@@ -1824,8 +1826,19 @@ if __name__ == '__main__':
                                save_path='../test/save/', save_name=save_name,)
 
 
-    geneconv.get_mle()
-    print(geneconv._ExpectedHetDwellTime())
+   # geneconv.get_mle()
+    print(geneconv.tree)
+    print(len(set(geneconv.observable_nodes)))
+   # print(geneconv.edge_list)
+  #  print(geneconv.node_to_num)
+  #  print(geneconv.observable_nodes)
+  #  print(geneconv.tree["row"])
+   #     self.tree = None  # store the tree dictionary used for json likelihood package parsing
+    #    self.edge_to_blen = None  # dictionary store the unpacked tree branch length information {(node_from, node_to):blen}
+   #     self.edge_list = None  # kept all edges in the same order with x_rates
+  #      self.node_to_num = None  # dictionary used for translating tree info from self.edge_to_blen to self.tree
+  #      self.num_to_node = None  # dictionary used for translating tree info from self.tree to self.edge_to_blen
+
 
 ##
 ##    #MG94
