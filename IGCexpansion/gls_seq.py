@@ -77,18 +77,21 @@ class GSseq:
 
     def initialize_parameters(self):
         self.tree=deepcopy(self.geneconv.tree)
-        self.pi=deepcopy(self.geneconv.pi)
+
 
         if self.ifmakeQ==False:
             print("The parameters and tree are inherited from inputs")
             self.geneconv.read_parameter_gls()
             self.scene=self.geneconv.get_scene()
+            self.pi = deepcopy(self.geneconv.pi)
 
         if self.fix_tau is None:
             self.fix_tau = self.geneconv.tau
             self.tau=self.geneconv.tau
+
         if self.K is None:
             self.K = self.geneconv.K
+
         if self.omega is None:
             self.omega = self.geneconv.omega
 
@@ -285,6 +288,7 @@ class GSseq:
 
 
     def get_prior(self):
+
         if self.Model == 'MG94':
             self.prior_feasible_states = [(self.codon_to_state[codon], self.codon_to_state[codon]) for codon in
                                           self.codon_nonstop]
@@ -374,15 +378,17 @@ class GSseq:
 
         self.get_prior()
 
-        if self.ifmakeQ==True:
-                if  self.Model=="MG94":
+
+        if  self.Model=="MG94":
                     self.processes=self.get_MG94Geneconv_and_MG94()
-                else:
+        else:
                     self.processes = self.get_HKYGeneconv()
 
-                process_definitions = [{'row_states': i['row'], 'column_states': i['col'], 'transition_rates': i['rate']}
+        process_definitions = [{'row_states': i['row'], 'column_states': i['col'], 'transition_rates': i['rate']}
                                        for i in self.processes]
-                self.scene = dict(
+
+        if self.ifmakeQ==True:
+             self.scene = dict(
                 process_definitions = process_definitions
                 )
 
@@ -390,7 +396,10 @@ class GSseq:
         scene=self.scene
 
 
+
+
         actual_number = (len(scene['process_definitions'][1]['transition_rates']))
+        print(scene['process_definitions'][1]['transition_rates'])
         self.actual_number = actual_number
 
         global x_i
@@ -566,11 +575,14 @@ class GSseq:
 
 
             u = u + random.exponential(1/lambda_change)
-           # print(u)
             if (u <= t):
 
                 change_location = np.random.choice(range(self.sizen), 1, p=(p/lambda_change))[0]
                 change_site = int(ini[change_location])
+
+                print(change_site)
+
+
 
                 a = np.random.choice(range(di1), 1, p=self.Q_new[change_site,])[0]
                 current_state = self.dic_col[change_site, a] - 1
@@ -763,7 +775,7 @@ class GSseq:
 
             branch_root_to_outgroup=self.geneconv.tree['col'][out_index[0]]
 
-            print(branch_root_to_outgroup)
+
 
 
             length_edge=len(self.tree['row'])
@@ -775,7 +787,7 @@ class GSseq:
 
 
             for i in range(length_edge):
-                print(self.tree)
+
                 if i!=out_index:
                     ini_index=self.geneconv.tree['row'][i]
                     end_index = self.geneconv.tree['col'][i]
@@ -789,9 +801,6 @@ class GSseq:
                       #      print(end_index)
                    #         print(end_seq)
                             list.append(end_seq)
-
-
-
 
                 else:
                     # out group
@@ -862,9 +871,16 @@ class GSseq:
 
         name_list=["a","b","c","d","e","f","g","h"]
 
+        if self.ifmakeQ==True and self.t is None:
+
+            depth=self.leafnode
+
+        else:
+            depth = len(set(geneconv.observable_nodes))-1
+
         if self.Model == 'MG94':
             dict = self.geneconv.state_to_codon
-            for i in range(len(set(geneconv.observable_nodes))):
+            for i in range(depth):
                 if i==0:
                    p0 = ">"+name_list[i]+"paralog0"+"\n"
                 else:
@@ -877,7 +893,7 @@ class GSseq:
                 list.append(p0)
                 list.append(p1)
 
-            p0 = "\n"+">paralog0"+"\n"
+            p0 = "\n"++name_list[i]+">paralog0"+"\n"
             for j in range(self.sizen):
                 p0 = p0 + dict[(ini[i][j])]
 
@@ -885,8 +901,8 @@ class GSseq:
 
         else:
             dict = self.geneconv.state_to_nt
-            for i in range(len(set(geneconv.observable_nodes))):
-                print(ini[i])
+            for i in range(depth):
+
                 if i==0:
                    p0 = ">"+name_list[i]+"paralog0"+"\n"
                 else:
@@ -898,9 +914,12 @@ class GSseq:
                 list.append(p0)
                 list.append(p1)
 
-            p0 = "\n"+">"+name_list[i]+"paralog0"+"\n"
+
+            p0 = "\n"+">"+name_list[i+1]+"paralog0"+"\n"
+
             for j in range(self.sizen):
-                p0 = p0 + dict[(ini[i][j])]
+
+                p0 = p0 + dict[(ini[i+1][j])]
 
             list.append(p0)
 
@@ -966,22 +985,15 @@ if __name__ == '__main__':
                                    save_path='../test/save/', save_name=save_name,if_rerun=False)
 
 
-    #    self = GSseq(geneconv,K=1.01,fix_tau=3.5,sizen=300,omega=1,leafnode=5,ifmakeQ=False)
-        self = GSseq(geneconv,  ifmakeQ=False)
-        #scene = self.get_scene()
+    #    self = GSseq(geneconv,K=1.01,fix_tau=3.5,sizen=300,omega=1,leafnode=5,ifmakeQ=True)
+        self = GSseq(geneconv, ifmakeQ=False)
+
 
 
         aaa=self.topo()
         self.trans_into_seq(ini=aaa)
-        print(self.geneconv.tree)
-        print(self.geneconv.tree['rate'])
-        print(set(    geneconv.observable_nodes))
+   #     print(set(self.geneconv.observable_nodes))
 
-        print(np.where(self.geneconv.tree['process']!=scipy.stats.mode(self.geneconv.tree['process'])[0])[0])
-     #   print(self.prior_distribution)
-
-
-    #    aaa=self.make_ini()
      #   print(self.GLS_sequnce(ini=aaa))
 
 
