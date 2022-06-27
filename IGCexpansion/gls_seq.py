@@ -26,7 +26,7 @@ class GSseq:
     def __init__(self,
                  geneconv ,
                  sizen=400,branch_list=None,K=None,fix_tau=None,
-                 pi=[0.25,0.25,0.25,0.25],omega=None,kappa=1,leafnode=4,
+                 pi=None,omega=None,kappa=None,leafnode=4,
                  ifmakeQ=False,
                  ):
 
@@ -81,8 +81,7 @@ class GSseq:
 
         if self.ifmakeQ==False:
             print("The parameters and tree are inherited from inputs")
-            self.geneconv.read_parameter_gls()
-            self.scene=self.geneconv.get_scene()
+            self.scene=self.geneconv.read_parameter_gls()
             self.pi = deepcopy(self.geneconv.pi)
 
         if self.fix_tau is None:
@@ -94,6 +93,11 @@ class GSseq:
 
         if self.omega is None:
             self.omega = self.geneconv.omega
+
+        if self.kappa is None:
+            self.kappa=self.geneconv.kappa
+
+
 
 
 
@@ -380,7 +384,7 @@ class GSseq:
 
 
         if  self.Model=="MG94":
-                    self.processes=self.get_MG94Geneconv_and_MG94()
+                    self.processes = self.get_MG94Geneconv_and_MG94()
         else:
                     self.processes = self.get_HKYGeneconv()
 
@@ -399,7 +403,7 @@ class GSseq:
 
 
         actual_number = (len(scene['process_definitions'][1]['transition_rates']))
-        print(scene['process_definitions'][1]['transition_rates'])
+
         self.actual_number = actual_number
 
         global x_i
@@ -580,8 +584,6 @@ class GSseq:
                 change_location = np.random.choice(range(self.sizen), 1, p=(p/lambda_change))[0]
                 change_site = int(ini[change_location])
 
-                print(change_site)
-
 
 
                 a = np.random.choice(range(di1), 1, p=self.Q_new[change_site,])[0]
@@ -607,11 +609,11 @@ class GSseq:
 
     def remake_matrix(self):
             if self.Model == "HKY":
-                Q = self.geneconv.get_HKYBasic()
+                Q = self.get_HKYBasic()
              #   print(Q)
 
             if self.Model == "MG94":
-                Q = self.geneconv.get_MG94Basic()
+                Q = self.get_MG94Basic()
 
             return Q
 
@@ -985,7 +987,7 @@ if __name__ == '__main__':
                                    save_path='../test/save/', save_name=save_name,if_rerun=False)
 
 
-    #    self = GSseq(geneconv,K=1.01,fix_tau=3.5,sizen=300,omega=1,leafnode=5,ifmakeQ=True)
+    #    self = GSseq(geneconv,pi=[0.25,0.25,0.25,0.25],K=1.01,fix_tau=3.5,sizen=300,omega=1,leafnode=5,ifmakeQ=True)
         self = GSseq(geneconv, ifmakeQ=False)
 
 

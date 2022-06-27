@@ -2858,6 +2858,12 @@ class Embrachtau1:
             self.id=id
             self.ifmodel = "EM_full"
             self.get_initial_x_process()
+            self.get_processes()
+
+            scene=self.get_scene()
+
+
+        return scene
 
 
 
