@@ -76,6 +76,7 @@ class GSseq:
 
 
     def initialize_parameters(self):
+
         self.tree=deepcopy(self.geneconv.tree)
 
 
@@ -83,6 +84,7 @@ class GSseq:
             print("The parameters and tree are inherited from inputs")
             self.scene=self.geneconv.read_parameter_gls()
             self.pi = deepcopy(self.geneconv.pi)
+
 
         if self.fix_tau is None:
             self.fix_tau = self.geneconv.tau
@@ -97,6 +99,8 @@ class GSseq:
         if self.kappa is None:
             self.kappa=self.geneconv.kappa
 
+        if self.pi is None:
+            self.pi = self.geneconv.pi
 
 
 
@@ -238,9 +242,6 @@ class GSseq:
         if np.dot(self.prior_distribution, Qbasic.sum(axis=1))!=0:
             expected_rate = np.dot(self.prior_distribution, Qbasic.sum(axis=1))
         else:
-         #   print(self.prior_distribution)
-         #   print(Qbasic.sum(axis=1))
-          #  print(Qbasic)
             expected_rate = 1
         Qbasic = Qbasic / expected_rate
         return Qbasic
@@ -532,7 +533,7 @@ class GSseq:
         return point,igc,change_i,change_j
 
 
-# GLS algorithm on sequence level, which just generate on ini and end seqynce
+# GLS algorithm on sequence level, which just generate on ini and end sequence
 
     def GLS_sequnce(self, t=0.1, ini=None,k=1.1, tau=1.1):
 
@@ -557,7 +558,6 @@ class GSseq:
         point=0
         change_i=0
         change_j=0
-        print("% tau at ini ", self.tau)
 
         while(ifcontinue==True):
             id = self.solo_difference(ini)
@@ -598,11 +598,14 @@ class GSseq:
             else:
                 ifcontinue=False
 
-        print("% tau at end", self.tau)
-        print("% estimated number of point mutation number over site length:", point / self.sizen)
-        print("% estimated number of IGC number over site length:", igc / self.sizen)
-        print("% estimated number of ith paralog  change over site length:", change_i / self.sizen)
-        print("% estimated number of jth paralog  change over site length:", change_j / self.sizen)
+
+
+
+        print("% branch length", t)
+        print("% estimated number of point mutation number per site:", point / self.sizen)
+        print("% estimated number of IGC number per site:", igc / self.sizen)
+        print("% estimated number of one paralog  change per site:", change_i / self.sizen)
+        print("% estimated number of the other paralog  change per site:", change_j / self.sizen)
         self.measure_difference(ini=deepcopy(inirel),end=deepcopy(ini))
 
         return ini
@@ -668,6 +671,7 @@ class GSseq:
         list = []
         end1=deepcopy(ini)
         list1 = []
+        name_list=[]
 
 
         if self.ifmakeQ==False:
@@ -796,13 +800,17 @@ class GSseq:
 
 
                     if hash_node[end_index] is None:
+                        print("ini node is", self.geneconv.num_to_node[ini_index])
+                        print("end node is", self.geneconv.num_to_node[end_index])
                         ini_seq=deepcopy(hash_node[ini_index])
-                        end_seq = deepcopy(self.GLS_sequnce(ini=ini_seq, t=t[i], k=self.K, tau=self.fix_tau))
+                        end_seq = deepcopy(self.GLS_sequnce(ini=ini_seq,t=t[i], k=self.K, tau=self.fix_tau))
+
+                        print("*******************************")
+
                         hash_node[end_index]=deepcopy(end_seq)
                         if end_index in set(self.geneconv.observable_nodes):
-                      #      print(end_index)
-                   #         print(end_seq)
                             list.append(end_seq)
+                            name_list.append(end_index)
 
                 else:
                     # out group
@@ -860,18 +868,20 @@ class GSseq:
 
                     hash_node[end_index] = deepcopy(end1)
             list.append(end1)
+            name_list.append(branch_root_to_outgroup)
 
 
-        return list
+
+        return list,name_list
 
 
 # translate the sequence with number level into site level
 # 1 -> ATT
 
-    def trans_into_seq(self,ini=None,casenumber=1):
+    def trans_into_seq(self,ini=None,name_list=None,casenumber=1):
         list = []
 
-        name_list=["a","b","c","d","e","f","g","h"]
+
 
         if self.ifmakeQ==True and self.t is None:
 
@@ -884,18 +894,18 @@ class GSseq:
             dict = self.geneconv.state_to_codon
             for i in range(depth):
                 if i==0:
-                   p0 = ">"+name_list[i]+"paralog0"+"\n"
+                   p0 = ">"+ self.geneconv.num_to_node[name_list[i]] +"paralog0"+"\n"
                 else:
-                   p0 = "\n" + ">" + name_list[i] + "paralog0" + "\n"
+                   p0 = "\n" + ">" + self.geneconv.num_to_node[name_list[i]] + "paralog0" + "\n"
 
-                p1 = "\n"+">"+name_list[i]+"paralog1"+"\n"
+                p1 = "\n"+">"+ self.geneconv.num_to_node[name_list[i]] +"paralog1"+"\n"
                 for j in range(self.sizen):
                     p0 = p0 + dict[(ini[i][j]) // 61]
                     p1 = p1 + dict[(ini[i][j]) % 61]
                 list.append(p0)
                 list.append(p1)
 
-            p0 = "\n"++name_list[i]+">paralog0"+"\n"
+            p0 = "\n"+">"+ self.geneconv.num_to_node[name_list[(i+1)]] +"paralog0"+"\n"
             for j in range(self.sizen):
                 p0 = p0 + dict[(ini[i][j])]
 
@@ -904,12 +914,11 @@ class GSseq:
         else:
             dict = self.geneconv.state_to_nt
             for i in range(depth):
-
                 if i==0:
-                   p0 = ">"+name_list[i]+"paralog0"+"\n"
+                   p0 = ">"+self.geneconv.num_to_node[name_list[i]]+"paralog0"+"\n"
                 else:
-                   p0 = "\n" + ">" + name_list[i] + "paralog0" + "\n"
-                p1 = "\n"+">"+name_list[i]+"paralog1"+"\n"
+                   p0 = "\n" + ">" + self.geneconv.num_to_node[name_list[i]] + "paralog0" + "\n"
+                p1 = "\n"+">"+self.geneconv.num_to_node[name_list[i]]+"paralog1"+"\n"
                 for j in range(self.sizen):
                     p0 = p0 + dict[(ini[i][j]) // 4]
                     p1 = p1 + dict[(ini[i][j]) % 4]
@@ -917,7 +926,7 @@ class GSseq:
                 list.append(p1)
 
 
-            p0 = "\n"+">"+name_list[i+1]+"paralog0"+"\n"
+            p0 = "\n"+">"+self.geneconv.num_to_node[name_list[(i+1)]]+"paralog0"+"\n"
 
             for j in range(self.sizen):
 
@@ -960,10 +969,12 @@ class GSseq:
             if(end[i]in str):
                 end_paralog_div=end_paralog_div+1
 
+        print("% tau at ini", self.fix_tau*np.power((ini_paralog_div/self.sizen),self.K))
+        print("% tau at end", self.fix_tau*np.power((end_paralog_div/self.sizen),self.K))
         print("% identity between  paralogs at initial branch:", ini_paralog_div/self.sizen)
         print("% identity between  paralogs at ending branch:", end_paralog_div / self.sizen)
-        print("% site difference between initial and ending branch over site length", mutation_rate/self.sizen)
-        print("**********************")
+        print("% site difference between initial and ending branch per site", mutation_rate/self.sizen)
+
 
 
 
@@ -990,10 +1001,8 @@ if __name__ == '__main__':
     #    self = GSseq(geneconv,pi=[0.25,0.25,0.25,0.25],K=1.01,fix_tau=3.5,sizen=300,omega=1,leafnode=5,ifmakeQ=True)
         self = GSseq(geneconv, ifmakeQ=False)
 
-
-
         aaa=self.topo()
-        self.trans_into_seq(ini=aaa)
+        self.trans_into_seq(ini=aaa[0],name_list=aaa[1])
    #     print(set(self.geneconv.observable_nodes))
 
      #   print(self.GLS_sequnce(ini=aaa))

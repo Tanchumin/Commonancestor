@@ -2881,17 +2881,17 @@ if __name__ == '__main__':
 
 
     Force = None
-    model = 'MG94'
+    model = 'HKY'
 
     save_name = model+name
     geneconv = Embrachtau1(newicktree, alignment_file, paralog, Model=model, Force=Force, clock=None,
                                save_path='../test/save/', save_name=save_name,kbound=5)
 
-    print(geneconv.get_mle())
-    print(print(geneconv.compute_paralog_id()))
+ #   print(geneconv.get_mle())
+#    print(print(geneconv.compute_paralog_id()))
 
 
-   # geneconv.sum_branch(MAX=2,K=1.5)
+  #  geneconv.sum_branch(MAX=3,K=1.5)
 
  #   print(geneconv.get_summary(approx=True,branchtau=True))
 

@@ -1830,7 +1830,7 @@ if __name__ == '__main__':
     print(geneconv.tree)
     print(len(set(geneconv.observable_nodes)))
    # print(geneconv.edge_list)
-  #  print(geneconv.node_to_num)
+    print(geneconv.node_to_num)
   #  print(geneconv.observable_nodes)
   #  print(geneconv.tree["row"])
    #     self.tree = None  # store the tree dictionary used for json likelihood package parsing
