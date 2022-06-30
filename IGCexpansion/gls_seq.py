@@ -27,7 +27,7 @@ class GSseq:
                  geneconv ,
                  sizen=400,branch_list=None,K=None,fix_tau=None,
                  pi=None,omega=None,kappa=None,leafnode=4,
-                 ifmakeQ=False,
+                 ifmakeQ=False,savename=None,
                  ):
 
         self.geneconv                 = geneconv
@@ -103,7 +103,8 @@ class GSseq:
             self.pi = self.geneconv.pi
 
 
-
+        if self.t is None:
+            self.t = self.geneconv.tree['rate']
 
 
 
@@ -580,11 +581,10 @@ class GSseq:
 
             u = u + random.exponential(1/lambda_change)
             if (u <= t):
+               # print(u)
 
                 change_location = np.random.choice(range(self.sizen), 1, p=(p/lambda_change))[0]
                 change_site = int(ini[change_location])
-
-
 
                 a = np.random.choice(range(di1), 1, p=self.Q_new[change_site,])[0]
                 current_state = self.dic_col[change_site, a] - 1
@@ -673,17 +673,8 @@ class GSseq:
         list1 = []
         name_list=[]
 
+        t=self.t
 
-        if self.ifmakeQ==False:
-                t=self.geneconv.tree['rate']
-
-        else:
-            if self.t is None:
-
-                t = 0.04
-                print("Model assumes all branch with the same branch length", t)
-            else:
-                t=self.t
 
 
         if self.ifmakeQ==True and self.t is None:
@@ -800,8 +791,8 @@ class GSseq:
 
 
                     if hash_node[end_index] is None:
-                        print("ini node is", self.geneconv.num_to_node[ini_index])
-                        print("end node is", self.geneconv.num_to_node[end_index])
+                        print("ini node:", self.geneconv.num_to_node[ini_index])
+                        print("end node:", self.geneconv.num_to_node[end_index])
                         ini_seq=deepcopy(hash_node[ini_index])
                         end_seq = deepcopy(self.GLS_sequnce(ini=ini_seq,t=t[i], k=self.K, tau=self.fix_tau))
 
@@ -829,7 +820,7 @@ class GSseq:
                         for ll in range(self.sizen):
                             current_state = ini[ll] // 4
                             u = random.exponential(1 / Q_iiii[int(current_state)])
-                            while (u <= (2 * t[i])):
+                            while (u <= t[i]):
                                 a = np.random.choice(range(4), 1, p=Q[int(current_state),])[0]
                                 current_state = a
                                 u = u + random.exponential(1 / Q_iiii[int(current_state)])
@@ -973,7 +964,7 @@ class GSseq:
         print("% tau at end", self.fix_tau*np.power((end_paralog_div/self.sizen),self.K))
         print("% identity between  paralogs at initial branch:", ini_paralog_div/self.sizen)
         print("% identity between  paralogs at ending branch:", end_paralog_div / self.sizen)
-        print("% site difference between initial and ending branch per site", mutation_rate/self.sizen)
+        print("% site difference between initial and ending branch per site:", mutation_rate/self.sizen)
 
 
 
@@ -995,20 +986,28 @@ if __name__ == '__main__':
         type = 'situation_new'
         save_name = model + name
         geneconv = Embrachtau1(newicktree, alignment_file, paralog, Model=model, Force=Force, clock=None,
-                                   save_path='../test/save/', save_name=save_name,if_rerun=False)
+                                   save_path='../test/save/', save_name=save_name)
 
 
     #    self = GSseq(geneconv,pi=[0.25,0.25,0.25,0.25],K=1.01,fix_tau=3.5,sizen=300,omega=1,leafnode=5,ifmakeQ=True)
-        self = GSseq(geneconv, ifmakeQ=False)
+        branch_list=[0.01,0.22,0.02,0.04,0.06,0.08,0.1,0.12,0.13,0.14,0.15,0.16]
+        self = GSseq(geneconv, sizen=3000,ifmakeQ=True,K=0,fix_tau=2,pi=[0.25,0.25,0.25,0.25],
+                     branch_list=branch_list)
 
         aaa=self.topo()
         self.trans_into_seq(ini=aaa[0],name_list=aaa[1])
-   #     print(set(self.geneconv.observable_nodes))
-
-     #   print(self.GLS_sequnce(ini=aaa))
 
 
-#[0.98735, 0, 0.9398, 0.941275, 0.8757 ,0.875625, 0.81945, 0.820125,  0.770575 ,0.771875]
+        simulate_file='../test/savesample/' + "FIX_k_1_sample.fasta"
+        paralog_simu = ['paralog0', 'paralog1']
+
+        geneconv_simu = Embrachtau1(newicktree, simulate_file, paralog_simu, Model=model, Force=Force, clock=None,
+                               save_path='../test/save/', save_name=save_name)
+
+        geneconv_simu.get_mle()
+        print(geneconv_simu.tree['rate'])
+        print(geneconv_simu.tau)
+
 
 
 
