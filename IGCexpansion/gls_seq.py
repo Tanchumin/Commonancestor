@@ -926,7 +926,7 @@ class GSseq:
             list.append(p0)
 
 
-        save_nameP = '../test/savesample/' + "FIX_k_"+str(casenumber)+'_sample.fasta'
+        save_nameP = self.geneconv.save_path + "FIX_k_"+str(casenumber)+'_sample.fasta'
         with open(save_nameP, 'wb') as f:
             for file in list:
                f.write(file.encode('utf-8'))
@@ -979,6 +979,7 @@ if __name__ == '__main__':
         paralog = ['YBL087C', 'YER117W']
         alignment_file = '../test/yeast/' + name + '.fasta'
         newicktree = '../test/yeast/YeastTree.newick'
+        save_path='../test/save/'
 
         Force = None
         model = 'HKY'
@@ -986,27 +987,28 @@ if __name__ == '__main__':
         type = 'situation_new'
         save_name = model + name
         geneconv = Embrachtau1(newicktree, alignment_file, paralog, Model=model, Force=Force, clock=None,
-                                   save_path='../test/save/', save_name=save_name)
+                                   save_path=save_path, save_name=save_name)
 
 
     #    self = GSseq(geneconv,pi=[0.25,0.25,0.25,0.25],K=1.01,fix_tau=3.5,sizen=300,omega=1,leafnode=5,ifmakeQ=True)
         branch_list=[0.01,0.22,0.02,0.04,0.06,0.08,0.1,0.12,0.13,0.14,0.15,0.16]
-        self = GSseq(geneconv, sizen=3000,ifmakeQ=True,K=0,fix_tau=2,pi=[0.25,0.25,0.25,0.25],
-                     branch_list=branch_list)
+      #  self = GSseq(geneconv, sizen=3000,ifmakeQ=True,K=0,fix_tau=2,pi=[0.25,0.25,0.25,0.25],
+      #               branch_list=branch_list)
+        self = GSseq(geneconv, sizen=4000, ifmakeQ=False)
 
         aaa=self.topo()
         self.trans_into_seq(ini=aaa[0],name_list=aaa[1])
 
 
-        simulate_file='../test/savesample/' + "FIX_k_1_sample.fasta"
+        simulate_file= save_path+ "FIX_k_1_sample.fasta"
         paralog_simu = ['paralog0', 'paralog1']
+        save_name1=save_path+save_name
 
         geneconv_simu = Embrachtau1(newicktree, simulate_file, paralog_simu, Model=model, Force=Force, clock=None,
-                               save_path='../test/save/', save_name=save_name)
+                               save_path=save_path, save_name=save_name1)
 
-        geneconv_simu.get_mle()
-        print(geneconv_simu.tree['rate'])
-        print(geneconv_simu.tau)
+        geneconv_simu.sum_branch(MAX=5,K=1.5)
+
 
 
 

@@ -297,7 +297,7 @@ class Embrachtau1:
                     if os.stat(save_file).st_size > 0:
                         self.initialize_by_save(save_file)
                         print('Successfully loaded parameter value from ' + save_file)
-                        self.if_rerun=False
+#                        self.if_rerun=False
 
                         if self.Model =="MG94":
                               self.k=self.x[6]
@@ -2656,7 +2656,7 @@ class Embrachtau1:
 
         print(list)
 
-        save_nameP = "./save/" + self.Model +"new_tau"+'.txt'
+        save_nameP = self.save_path + self.Model +"new_tau"+'.txt'
         with open(save_nameP, 'wb') as f:
             np.savetxt(f, list)
 
