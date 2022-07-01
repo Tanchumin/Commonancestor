@@ -898,8 +898,7 @@ class GSseq:
 
             p0 = "\n"+">"+ self.geneconv.num_to_node[name_list[(i+1)]] +"paralog0"+"\n"
             for j in range(self.sizen):
-                p0 = p0 + dict[(ini[i][j])]
-
+                p0 = p0 + dict[(ini[i+1][j])]
             list.append(p0)
 
         else:
@@ -920,9 +919,7 @@ class GSseq:
             p0 = "\n"+">"+self.geneconv.num_to_node[name_list[(i+1)]]+"paralog0"+"\n"
 
             for j in range(self.sizen):
-
                 p0 = p0 + dict[(ini[i+1][j])]
-
             list.append(p0)
 
 
@@ -982,7 +979,7 @@ if __name__ == '__main__':
         save_path='../test/save/'
 
         Force = None
-        model = 'HKY'
+        model = 'MG94'
 
         type = 'situation_new'
         save_name = model + name
@@ -994,7 +991,7 @@ if __name__ == '__main__':
         branch_list=[0.01,0.22,0.02,0.04,0.06,0.08,0.1,0.12,0.13,0.14,0.15,0.16]
       #  self = GSseq(geneconv, sizen=3000,ifmakeQ=True,K=0,fix_tau=2,pi=[0.25,0.25,0.25,0.25],
       #               branch_list=branch_list)
-        self = GSseq(geneconv, sizen=4000, ifmakeQ=False)
+        self = GSseq(geneconv, sizen=400, ifmakeQ=False)
 
         aaa=self.topo()
         self.trans_into_seq(ini=aaa[0],name_list=aaa[1])
