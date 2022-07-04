@@ -137,8 +137,12 @@ def read_newick(newick_file, post_dup = 'N1'):
     assert(os.path.isfile(newick_file))  # check if file exists
     tree = Phylo.read(newick_file, 'newick', rooted=True)
 
+
     # locate 1st post-duplication node
     post_dup_clade = list(tree.find_clades(post_dup))[0]
+
+
+
 
     # if the root node is the 1st post-duplication node,
     # then add a duplication node before the root
@@ -152,6 +156,16 @@ def read_newick(newick_file, post_dup = 'N1'):
     ## from http://biopython.org/wiki/Phylo_cookbook
     allclades = list(tree.find_clades(order = 'level'))
     node_to_num = {n.name:i for i, n in enumerate(allclades)}
+
+    length=[]
+
+    for i, n in enumerate(allclades):
+       if i>0:
+          if n.branch_length is not None:
+             length.append(n.branch_length)
+          else:
+             length.append(0.1)
+
     
     edge_list = []
     for parent in tree.find_clades(terminal = False, order = 'level'):
@@ -166,11 +180,11 @@ def read_newick(newick_file, post_dup = 'N1'):
             row = tree_row,
             col = tree_col,
             process = tree_process,
-            rate = np.ones(len(tree_row))
+            rate = length
             )
 
     edge_list = [(clade_a.name, clade_b.name) for clade_a, clade_b in edge_list]
-    return out_tree, edge_list, node_to_num
+    return out_tree, edge_list, node_to_num,length
       
 
 if __name__ == '__main__':

@@ -162,9 +162,12 @@ class Embrachtau1:
 
 
     def get_tree(self):
-        self.tree, self.edge_list, self.node_to_num = read_newick(self.newicktree, self.post_dup)
+        self.tree, self.edge_list, self.node_to_num,length = read_newick(self.newicktree, self.post_dup)
         self.num_to_node = {self.node_to_num[i]: i for i in self.node_to_num}
-        self.edge_to_blen = {edge: self.inibranch for edge in self.edge_list}
+        self.edge_to_blen={}
+        for i in range(len(length)):
+            self.edge_to_blen[self.edge_list[i]] = length[i]
+
 
 
     def nts_to_codons(self):
@@ -231,7 +234,7 @@ class Embrachtau1:
 
         if self.ifmodel=="old":
 
-            self.x_rates = np.log(np.array([0.1 * self.edge_to_blen[edge] for edge in self.edge_to_blen.keys()]))
+            self.x_rates = np.log(np.array([ self.edge_to_blen[edge] for edge in self.edge_to_blen.keys()]))
             if self.Model == 'MG94':
                 # x_process[] = %AG, %A, %C, kappa, omega, tau
 
