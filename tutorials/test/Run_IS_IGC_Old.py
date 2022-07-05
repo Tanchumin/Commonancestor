@@ -4,23 +4,9 @@
 # txu7@ncsu.edu
 
 from __future__ import print_function
-import jsonctmctree.ll, jsonctmctree.interface
 from IGCexpansion.CodonGeneconv import *
-from IGCexpansion.acR import *
-from IGCexpansion.em_pt import *
-from copy import deepcopy
-import os
-import numpy as np
-import pandas as pd
-from numpy import random
-from scipy import linalg
-import copy
-from scipy.stats import poisson
-
-from IGCexpansion.CodonGeneconFunc import isNonsynonymous
-import pickle
-import json
-import numpy.core.multiarray
+from IGCexpansion.em_pt1 import *
+from IGCexpansion.gls_seq import *
 
 
 
@@ -33,17 +19,40 @@ if __name__ == '__main__':
     alignment_file = './' + name + '.fasta'
     newicktree = './YeastTree.newick'
 
-    #   name = 'tau99_01vss'
-    #  Force ={0:np.exp(-0.71464127), 1:np.exp(-0.55541915), 2:np.exp(-0.68806275),3: np.exp( 0.74691342),4: np.exp( -0.5045814)}
-    # %AG, % A, % C, kappa, tau
-    # Force= {0:0.5,1:0.5,2:0.5,3:1,4:0}
+
+
+    save_path='./'
+
     Force = None
     model = 'MG94'
+    save_name = model + name
 
-    type = 'situation1'
-    save_name = model+name
-    geneconv = Embrachtau(newicktree, alignment_file, paralog, Model=model, Force=Force, clock=None,
-                          save_path='./', save_name=save_name)
-                          
-    geneconv.EM_branch_tau()
+
+    geneconv = Embrachtau1(newicktree, alignment_file, paralog, Model=model, Force=Force, clock=None,
+                                 save_path=save_path, save_name=save_name)
+
+    save_name_simu = model + name+"_simu"
+
+
+    self = GSseq(geneconv=geneconv, sizen=400, ifmakeQ=False,Model=model,save_path=save_path, save_name=save_name_simu)
+
+    aaa = self.topo()
+    self.trans_into_seq(ini=aaa[0], name_list=aaa[1])
+
+    simulate_file = save_path + save_name_simu + ".fasta"
+    paralog_simu = ['paralog0', 'paralog1']
+    save_name1 = save_path + save_name+"_simu"
+
+    geneconv_simu = Embrachtau1(newicktree, simulate_file, paralog_simu, Model=model, Force=Force, clock=None,
+                                save_path=save_path, save_name=save_name1)
+
+
+    geneconv_simu.sum_branch(MAX=5,K=1.5)
+
+
+
+
+
+
+
 

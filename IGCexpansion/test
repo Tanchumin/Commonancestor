@@ -18,16 +18,12 @@ import re
 import multiprocessing as mp
 
 def build_dic(dd=3):
-    list= {}
-    for i in range(dd):
-        list[i]=None
+    with open('../save/read.txt') as f:
+        lines = f.readlines()
 
-    for i in range(dd):
-        list[i]="DDDDDDD"
-
-    return list
-
-print(build_dic()[1])
+    print(lines[2])
 
 
 
+
+build_dic()
