@@ -28,7 +28,7 @@ class GSseq:
                  sizen=400,branch_list=None,K=None,fix_tau=None,
                  pi=None,omega=None,kappa=None,
                  ifmakeQ=False,save_name=None,Model="HKY",
-                 save_path=None,
+                 save_path=None,tract_len=None,
                  ):
 
         self.geneconv                 = geneconv
@@ -83,6 +83,12 @@ class GSseq:
 ## self.tau is used to update for Q matriex
         self.tau =fix_tau
         self.fix_tau=fix_tau
+
+
+        self.tract_len=tract_len
+        self.point_mutation= None
+
+
 
 
 
@@ -582,8 +588,6 @@ class GSseq:
             for ii in range(di):
                 Q_iiii[ii] = sum(self.Q[ii,])
 
-            for d in range(di):
-                self.Q_new[d,] = self.Q[d,] / Q_iiii[d]
 
             p = np.zeros(self.sizen)
             lambda_change = 0
@@ -599,7 +603,7 @@ class GSseq:
                 change_location = np.random.choice(range(self.sizen), 1, p=(p/lambda_change))[0]
                 change_site = int(ini[change_location])
 
-                a = np.random.choice(range(di1), 1, p=self.Q_new[change_site,])[0]
+                a = np.random.choice(range(di1), 1, p=(self.Q[change_site,] / Q_iiii[change_site]))[0]
                 current_state = self.dic_col[change_site, a] - 1
                 result=self.point_IGC(change_site,current_state)
                 igc=result[1]+igc
@@ -623,6 +627,138 @@ class GSseq:
 
         return ini
 
+    def GLS_sequnce_tract(self, t=0.1, ini=None,k=1.1, tau=1.1):
+
+        global di
+        global di1
+
+
+        inirel=deepcopy(ini)
+
+        if self.Model == "HKY":
+            di = 16
+            di1 = 9
+
+        else:
+            di = 3721
+            di1 = 27
+
+        u = 0
+        ifcontinue=True
+
+        igc=0
+        point=0
+        change_i=0
+        change_j=0
+
+        while(ifcontinue==True):
+            id = self.solo_difference(ini)
+            self.making_Qg()
+            self.change_t_Q(tau=(np.power(id, k) * tau))
+
+
+            Q_iiii = np.ones((di))
+            for ii in range(di):
+                Q_iiii[ii] = sum(self.Q[ii,])
+
+     #       for d in range(di):
+      #          self.Q_new[d,] = self.Q[d,] / Q_iiii[d]
+
+            p = np.zeros(self.sizen)
+            for ll in range(self.sizen):
+                p[ll] = self.point_mutation[int(ini[ll])]
+
+            point_change=random.uniform(0,1)
+
+            p_IGC = np.ones(self.sizen) * (self.tau / self.tract_len)*2
+            p_IGC[0] = self.tau*2
+
+            lambda_change=sum(p) + sum(p_IGC)
+
+            u = u + random.exponential(1/lambda_change)
+            if (u <= t):
+               # print(u)
+                if point_change <= (sum(p)/lambda_change):
+
+                    change_location = np.random.choice(range(self.sizen), 1, p=(p/sum(p)))[0]
+                    change_site = int(ini[change_location])
+
+
+                    a = np.random.choice(range(di1), 1, p=(self.Q[change_site,] / Q_iiii[change_site]))[0]
+                    current_state = self.dic_col[change_site, a] - 1
+                    result=self.point_IGC(change_site,current_state)
+                    point=point+1
+                    change_j=result[3]+change_j
+                    change_i = result[2] + change_i
+                    ini[change_location] = int(current_state)
+
+                # generate IGC tract:
+                else:
+
+                    ini_change_location = np.random.choice(range(self.sizen), 1, p=(p_IGC / sum(p_IGC)))[0]
+                    tract=random.geometric(1/self.tract_len)
+                    result = self.tract_IGC(deepcopy(ini), tract,ini_change_location)
+                    ini = result[0]
+                    igc=igc+result[1]
+                    change_j = result[3] + change_j
+                    change_i = result[2] + change_i
+
+
+            else:
+                ifcontinue=False
+
+
+
+
+        print("% branch length", t)
+        print("% estimated number of point mutation number per site:", point / self.sizen)
+        print("% estimated number of IGC number per site:", igc / self.sizen)
+        print("% estimated number of one paralog  change per site:", change_i / self.sizen)
+        print("% estimated number of the other paralog  change per site:", change_j / self.sizen)
+        self.measure_difference(ini=deepcopy(inirel),end=deepcopy(ini))
+
+        return ini
+
+    def tract_IGC(self,ini, tract, ini_change_location):
+        u=random.uniform(0,1)
+        IGC=0
+        num_jb=0
+        num_ib=0
+
+        if self.Model=="MG94":
+            site_number=61
+        else:
+            site_number = 4
+
+        if self.sizen<(ini_change_location+tract):
+            tract=self.sizen-ini_change_location
+
+        for index in range(tract):
+                i=index+ini_change_location
+                i_b = ini[i] // site_number
+                j_b = ini[i] % site_number
+                if u<=0.5:
+                    new_ini=i_b*site_number+i_b
+                    ini[i]=new_ini
+                    if i_b !=j_b:
+                        IGC=IGC+1
+                        num_jb = num_jb + 1
+
+                else:
+                    new_ini=j_b*site_number+j_b
+                    ini[i]=new_ini
+                    if i_b !=j_b:
+                        IGC=IGC+1
+                        num_ib = num_ib + 1
+
+
+
+        return ini,IGC,num_ib,num_jb
+
+
+
+
+
     def remake_matrix(self):
             if self.Model == "HKY":
                 Q = self.get_HKYBasic()
@@ -635,6 +771,74 @@ class GSseq:
 
 # use change_t_Q before topo so  that can make new Q conditioned on (tau^id)*K at each GLS step
     def change_t_Q(self, tau=0.99):
+
+
+        if self.point_mutation is None and self.tract_len is not None:
+
+                if self.Q is None:
+                    self.making_Qmatrix()
+
+    #sum_tau is summing up of tau to tell whether the change is IGC
+
+
+                if self.Model == "HKY":
+                    self.point_mutation =np.ones((16))
+                    for ii in range(16):
+                        sum_tau = 0
+                        for jj in range(9):
+                            i_b = ii // 4
+                            j_b = ii % 4
+                            i_p = (self.dic_col[ii, jj] - 1) // 4
+                            j_p = (self.dic_col[ii, jj] - 1) % 4
+                            if i_p == j_p:
+                                if i_b != j_b and i_b == i_p:
+                                    self.Q[ii, jj] = self.Q[ii, jj] - self.tau + tau
+                                    sum_tau=sum_tau+tau
+                                elif (i_b != j_b and j_b == j_p):
+                                    self.Q[ii, jj] = self.Q[ii, jj] - self.tau + tau
+                                    sum_tau = sum_tau + tau
+
+                        self.point_mutation[ii] = sum(self.Q[ii,]) - sum_tau
+
+
+                else:
+                    self.point_mutation = np.ones((3721))
+                    for ii in range(3721):
+                        sum_tau=0
+                        for jj in range(27):
+                            i_b = ii // 61
+                            j_b = ii % 61
+                            i_p = (self.dic_col[ii, jj] - 1) // 61
+                            j_p = (self.dic_col[ii, jj] - 1) % 61
+                            if i_p == j_p:
+                                if i_b != j_b and i_b == i_p:
+                                    cb1 = self.state_to_codon[j_b]
+                                    ca1 = self.state_to_codon[i_b]
+                                    if self.isNonsynonymous(cb1, ca1, self.codon_table):
+                                        self.Q[ii, jj] = self.Q[ii, jj] - (self.tau * self.omega) + (tau * self.omega)
+
+                                        sum_tau = sum_tau + (tau * self.omega)
+                                    else:
+                                        self.Q[ii, jj] = self.Q[ii, jj] - self.tau + tau
+
+                                        sum_tau = sum_tau + tau
+                                elif (i_b != j_b and j_b == j_p):
+                                    cb1 = self.state_to_codon[j_b]
+                                    ca1 = self.state_to_codon[i_b]
+                                    if self.isNonsynonymous(cb1, ca1, self.codon_table):
+                                        self.Q[ii, jj] = self.Q[ii, jj] - (self.tau * self.omega) + (tau * self.omega)
+                                        sum_tau = sum_tau + (tau * self.omega)
+                                    else:
+                                        self.Q[ii, jj] = self.Q[ii, jj] - self.tau + tau
+                                        sum_tau = sum_tau + tau
+
+                        self.point_mutation[ii]=sum(self.Q[ii, ])-sum_tau
+
+
+
+                self.tau = tau
+
+        else:
 
             if self.Q is None:
                 self.making_Qmatrix()
@@ -663,20 +867,18 @@ class GSseq:
                                 cb1 = self.state_to_codon[j_b]
                                 ca1 = self.state_to_codon[i_b]
                                 if self.isNonsynonymous(cb1, ca1, self.codon_table):
-                                    self.Q[ii, jj] = self.Q[ii, jj] - (self.tau*self.omega) + (tau*self.omega)
+                                    self.Q[ii, jj] = self.Q[ii, jj] - (self.tau * self.omega) + (tau * self.omega)
                                 else:
                                     self.Q[ii, jj] = self.Q[ii, jj] - self.tau + tau
                             elif (i_b != j_b and j_b == j_p):
                                 cb1 = self.state_to_codon[j_b]
                                 ca1 = self.state_to_codon[i_b]
                                 if self.isNonsynonymous(cb1, ca1, self.codon_table):
-                                    self.Q[ii, jj] = self.Q[ii, jj] - (self.tau*self.omega) + (tau*self.omega)
+                                    self.Q[ii, jj] = self.Q[ii, jj] - (self.tau * self.omega) + (tau * self.omega)
                                 else:
                                     self.Q[ii, jj] = self.Q[ii, jj] - self.tau + tau
 
             self.tau = tau
-
-
 
     def topo(self):
 
@@ -712,7 +914,10 @@ class GSseq:
                     print("ini node:", self.num_to_node[ini_index])
                     print("end node:", self.num_to_node[end_index])
                     ini_seq=deepcopy(hash_node[ini_index])
-                    end_seq = deepcopy(self.GLS_sequnce(ini=ini_seq,t=self.t[i], k=self.K, tau=self.fix_tau))
+                    if self.tract_len is None:
+                       end_seq = deepcopy(self.GLS_sequnce(ini=ini_seq,t=self.t[i], k=self.K, tau=self.fix_tau))
+                    else:
+                       end_seq = deepcopy(self.GLS_sequnce_tract(ini=ini_seq, t=self.t[i], k=self.K, tau=self.fix_tau))
 
                     print("*******************************")
 
@@ -901,18 +1106,19 @@ if __name__ == '__main__':
 
         type = 'situation_new'
         save_name = model + name
-        geneconv = Embrachtau1(newicktree, alignment_file, paralog, Model=model, Force=Force, clock=None,
-                                   save_path=save_path, save_name=save_name)
+  #      geneconv = Embrachtau1(newicktree, alignment_file, paralog, Model=model, Force=Force, clock=None,
+   #                                save_path=save_path, save_name=save_name)
 
 
     #    self = GSseq(geneconv,pi=[0.25,0.25,0.25,0.25],K=1.01,fix_tau=3.5,sizen=300,omega=1,leafnode=5,ifmakeQ=True)
      #   branch_list=[0.01,0.22,0.02,0.04,0.06,0.08,0.1,0.12,0.13,0.14,0.15,0.16]
-    #    self = GSseq(newicktree=newicktree,sizen=3000,ifmakeQ=True,K=0,fix_tau=0.01,pi=[0.25,0.25,0.25,0.25],
-    #               kappa=1,Model=model,omega=1,save_path=save_path, save_name=save_name)
-
         save_name_simu = model + name + "_simu"
 
-        self = GSseq(geneconv=geneconv, sizen=400, ifmakeQ=False,Model=model,save_path=save_path, save_name=save_name_simu)
+        self = GSseq(newicktree=newicktree,sizen=5000,ifmakeQ=True,K=2,fix_tau=5,pi=[0.25,0.25,0.25,0.25],
+                   kappa=1,Model=model,omega=1,save_path=save_path, save_name=save_name_simu,tract_len=10)
+
+
+ #       self = GSseq(geneconv=geneconv, sizen=400, ifmakeQ=False,Model=model,save_path=save_path, save_name=save_name_simu)
 
         aaa=self.topo()
         self.trans_into_seq(ini=aaa[0],name_list=aaa[1])
@@ -920,12 +1126,14 @@ if __name__ == '__main__':
 
         simulate_file= save_path+save_name_simu +".fasta"
         paralog_simu = ['paralog0', 'paralog1']
-        save_name1=save_path+save_name_simu
+        save_path1 = "./"
+        save_name1=save_name_simu+"t2"
+
 
         geneconv_simu = Embrachtau1(newicktree, simulate_file, paralog_simu, Model=model, Force=Force, clock=None,
-                               save_path=save_path, save_name=save_name1)
+                               save_path=save_path1, save_name=save_name1)
 
-       # geneconv_simu.sum_branch(MAX=5,K=1.5)
+        geneconv_simu.sum_branch(MAX=5,K=1.5)
 
 
 

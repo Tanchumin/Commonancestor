@@ -18,11 +18,18 @@ import re
 import multiprocessing as mp
 
 def build_dic(dd=3):
-    with open('../save/read.txt') as f:
-        lines = f.readlines()
+    list = []
+    for i in range(30):
+        list.append("\n"+"cd")
+        p="\n"+"cd final1/simulation/yeast_YLR333C\ YGR027C/test1\ copy\ "+str(i)+"/"
+        list.append(p)
+        list.append("\n"+"sbatch  Run_IS_IGC_Old.py")
 
-    print(lines[2])
-
+  #  with open('../save/read.txt') as f:
+    #    lines = f.readlines()
+    with open('../save/read.txt', 'wb') as f:
+        for file in list:
+            f.write(file.encode('utf-8'))
 
 
 
