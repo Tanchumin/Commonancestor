@@ -2067,13 +2067,15 @@ class AncestralState:
 
              self.MC_EM(times=times,repeat=repeat,max_time=max_time,tolenrence=tolenrence,simple_state_number=simple_state_number,
                            ifpermutation=ifpermutation,ifsave=ifsave,method=method,EM_circle=EM_circle)
+
              ## self.igc_com 0 difference number between paralog, 1 occupancy time for interval ,2 igc_number,3 state,4 propption = occupancy time/branch length
 
              relationship=np.zeros(shape=(self.type_number-1, 8))
 
 
-             ## relation ship 0 denominator of igc : time * difference,
+             ## relationship 0 denominator of igc : time * difference,
              ## 1 sum of igc events, 2 total time (may be usless),3 ratio: igc rates
+
              for i in range(self.type_number-1):
                 tau=np.zeros(shape=(times))
                 times1=times

@@ -97,6 +97,16 @@ class GSseq:
     def initialize_parameters(self):
 
 
+        self.hash_event={}
+        for i in range(50):
+            self.hash_event[i] = 0
+
+
+        self.hash_event_t={}
+        for i in range(50):
+            self.hash_event_t[i] = 0
+
+
 
 
         if self.ifmakeQ==False:
@@ -675,10 +685,17 @@ class GSseq:
 
             lambda_change=sum(p) + sum(p_IGC)
 
-            u = u + random.exponential(1/lambda_change)
+
+            dwell=random.exponential(1 / lambda_change)
+            u = u + dwell
             if (u <= t):
+                id_igc = int((id * 100) // (2))-1
+
+
                # print(u)
                 if point_change <= (sum(p)/lambda_change):
+
+            #        print("ddddddddddddddddddddddddddd")
 
                     change_location = np.random.choice(range(self.sizen), 1, p=(p/sum(p)))[0]
                     change_site = int(ini[change_location])
@@ -702,6 +719,13 @@ class GSseq:
                     igc=igc+result[1]
                     change_j = result[3] + change_j
                     change_i = result[2] + change_i
+
+
+                    self.hash_event[id_igc]=self.hash_event[id_igc]+result[1]
+
+                self.hash_event_t[id_igc] = self.hash_event_t[id_igc] + (1-id)* dwell
+
+
 
 
             else:
@@ -889,6 +913,7 @@ class GSseq:
 
 
 
+
         out_index=np.where(self.tree['process'] != scipy.stats.mode(self.tree['process'])[0])[0]
 
         branch_root_to_outgroup=self.tree['col'][out_index[0]]
@@ -910,7 +935,7 @@ class GSseq:
 
 
                 if hash_node[end_index] is None:
-                    print(ini_index)
+
                     print("ini node:", self.num_to_node[ini_index])
                     print("end node:", self.num_to_node[end_index])
                     ini_seq=deepcopy(hash_node[ini_index])
@@ -1051,6 +1076,11 @@ class GSseq:
             for file in list:
                f.write(file.encode('utf-8'))
 
+        for i in range(50):
+            if self.hash_event_t[i] >0:
+                print(i)
+                print(self.hash_event[i]/(self.hash_event_t[i]*self.sizen*2))
+
 
 
         return (list)
@@ -1114,14 +1144,29 @@ if __name__ == '__main__':
      #   branch_list=[0.01,0.22,0.02,0.04,0.06,0.08,0.1,0.12,0.13,0.14,0.15,0.16]
         save_name_simu = model + name + "_simu"
 
-        self = GSseq(newicktree=newicktree,sizen=5000,ifmakeQ=True,K=2,fix_tau=5,pi=[0.25,0.25,0.25,0.25],
-                   kappa=1,Model=model,omega=1,save_path=save_path, save_name=save_name_simu,tract_len=10)
+        hashid={}
+        for i in range(50):
+            hashid[i] = 0
+
+        for i in range(10):
+
+            self = GSseq(newicktree=newicktree,sizen=3000,ifmakeQ=True,K=5,fix_tau=6,pi=[0.25,0.25,0.25,0.25],
+                       kappa=1,Model=model,omega=1,save_path=save_path, save_name=save_name_simu,tract_len=10)
 
 
- #       self = GSseq(geneconv=geneconv, sizen=400, ifmakeQ=False,Model=model,save_path=save_path, save_name=save_name_simu)
+     #       self = GSseq(geneconv=geneconv, sizen=400, ifmakeQ=False,Model=model,save_path=save_path, save_name=save_name_simu)
 
-        aaa=self.topo()
-        self.trans_into_seq(ini=aaa[0],name_list=aaa[1])
+            aaa=self.topo()
+            self.trans_into_seq(ini=aaa[0],name_list=aaa[1])
+
+            for j in range(50):
+                if self.hash_event_t[j] > 0:
+                   hashid[j]=   hashid[j]+ (self.hash_event[j] / (self.hash_event_t[j] * self.sizen * 2))
+
+        for i in range(50):
+                print(i)
+                print(hashid[i]/10)
+
 
 
         simulate_file= save_path+save_name_simu +".fasta"
@@ -1130,10 +1175,10 @@ if __name__ == '__main__':
         save_name1=save_name_simu+"t2"
 
 
-        geneconv_simu = Embrachtau1(newicktree, simulate_file, paralog_simu, Model=model, Force=Force, clock=None,
-                               save_path=save_path1, save_name=save_name1)
+     #   geneconv_simu = Embrachtau1(newicktree, simulate_file, paralog_simu, Model=model, Force=Force, clock=None,
+   #                            save_path=save_path1, save_name=save_name1)
 
-        geneconv_simu.sum_branch(MAX=5,K=1.5)
+    #    geneconv_simu.sum_branch(MAX=5,K=1.5)
 
 
 
