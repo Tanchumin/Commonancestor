@@ -1367,7 +1367,7 @@ class Embrachtau1:
                 else:
                     bnds.extend([(-10.0, 7.0)] * (1))
                     if self.noboundk==True:
-                        bnds.extend([(-10.0, 50.0)] * (1))
+                        bnds.extend([(-10.0, 80.0)] * (1))
                     else:
                         bnds.extend([(-10.0, 7)] * (1))
 

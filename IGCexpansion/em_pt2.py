@@ -27,11 +27,12 @@ import numdifftools as nd
 
 
 
-### no joint common for id
-class Embrachtau_new:
+
+### iniset is used for joint ana seq version
+class Embrachtau2:
     def __init__(self, tree_newick, alignment, paralog, Model='MG94', IGC_Omega=None, Tau_Omega = None, nnsites=None, clock=False,joint=False,
                  Force=None, save_path='./save/', save_name=None, post_dup='N1',kbound=5.1,ifmodel="old",inibranch=0.1,noboundk=True,
-                 kini=4.1,tauini=0.4,omegaini=0.5):
+                 kini=4.1,tauini=0.4,omegaini=0.5,dwell_id=True,ifDNA=True,if_rerun=True):
         self.newicktree = tree_newick  # newick tree file loc
         self.seqloc = alignment  # multiple sequence alignment, now need to remove gap before-hand
         self.paralog = paralog  # parlaog list
@@ -128,6 +129,7 @@ class Embrachtau_new:
 
         self.index=0
         self.ifexp=False
+        self.ifDNA=ifDNA
 
 
         #### for bs tau
@@ -137,7 +139,14 @@ class Embrachtau_new:
         self.ini=None
         self.end=None
         self.time=0.1
-        self.if_rerun=True
+        self.if_rerun=if_rerun
+
+        self.dwell_id=dwell_id
+
+
+        ### NOT INCLUEDE BRANCH 0
+        self.update_fix_tau=False
+        self.fixtau=1
 
 
     def initialize_parameters(self):
@@ -158,9 +167,12 @@ class Embrachtau_new:
 
 
     def get_tree(self):
-        self.tree, self.edge_list, self.node_to_num = read_newick(self.newicktree, self.post_dup)
+        self.tree, self.edge_list, self.node_to_num,length = read_newick(self.newicktree, self.post_dup)
         self.num_to_node = {self.node_to_num[i]: i for i in self.node_to_num}
-        self.edge_to_blen = {edge: self.inibranch for edge in self.edge_list}
+        self.edge_to_blen={}
+        for i in range(len(length)):
+            self.edge_to_blen[self.edge_list[i]] = length[i]
+
 
 
     def nts_to_codons(self):
@@ -227,7 +239,7 @@ class Embrachtau_new:
 
         if self.ifmodel=="old":
 
-            self.x_rates = np.log(np.array([0.1 * self.edge_to_blen[edge] for edge in self.edge_to_blen.keys()]))
+            self.x_rates = np.log(np.array([ self.edge_to_blen[edge] for edge in self.edge_to_blen.keys()]))
             if self.Model == 'MG94':
                 # x_process[] = %AG, %A, %C, kappa, omega, tau
 
@@ -293,7 +305,7 @@ class Embrachtau_new:
                     if os.stat(save_file).st_size > 0:
                         self.initialize_by_save(save_file)
                         print('Successfully loaded parameter value from ' + save_file)
-                        self.if_rerun=False
+#                        self.if_rerun=False
 
                         if self.Model =="MG94":
                               self.k=self.x[6]
@@ -526,9 +538,15 @@ class Embrachtau_new:
         else:
             self.get_prior()
             if self.Model=="MG94":
-                 self.processes=self.Get_branch_Q(self.id)
+                 if self.update_fix_tau==False:
+                     self.processes=self.Get_branch_Q(self.id)
+                 else:
+                     self.processes = self.Get_branch_Q(self.id,self.fixtau)
             else:
-                 self.processes = self.Get_branch_QHKY(self.id)
+                if self.update_fix_tau == False:
+                   self.processes = self.Get_branch_QHKY(self.id)
+                else:
+                    self.processes = self.Get_branch_QHKY(self.id, self.fixtau)
 
 
 
@@ -1009,8 +1027,12 @@ class Embrachtau_new:
         # use finite differences to estimate derivatives with respect to these parameters
         other_derivs = []
 
-        self.tau_F = self.tau
-        self.k_F = self.K
+        fix_x=deepcopy(np.array(self.x))
+
+        if self.ifmodel != "old":
+            self.fixtau = deepcopy(self.tau * np.power(self.id[0], self.K))
+            self.update_fix_tau = True
+
 
 
         for i in range(m):
@@ -1030,15 +1052,16 @@ class Embrachtau_new:
   # ll_delta1 is f(x+h/2)
 
 
+
             delta=deepcopy(max(1,abs(self.x[i]))*0.000001)
-            x_plus_delta1 = np.array(self.x)
+            x_plus_delta1 = deepcopy(fix_x)
             x_plus_delta1[i] += delta/2
             self.update_by_x(x_plus_delta1)
             ll_delta1, _ = fn(store=True, edge_derivative=False)
 
  # ll_delta0 is f(x-h/2)
-            x_plus_delta0 = np.array(self.x)
-            x_plus_delta0[i] -= delta
+            x_plus_delta0 = deepcopy(fix_x)
+            x_plus_delta0[i] -= delta/2
             self.update_by_x(x_plus_delta0)
             ll_delta0, _ = fn(store=True, edge_derivative=False)
 
@@ -1049,7 +1072,12 @@ class Embrachtau_new:
             # restore self.x
             self.update_by_x(x)
 
+
+
         other_derivs = np.array(other_derivs)
+
+        if self.ifmodel != "old":
+            self.update_fix_tau = False
 
 
 
@@ -1064,69 +1092,71 @@ class Embrachtau_new:
         f = -ll
         g = -np.concatenate((other_derivs, edge_derivs))
 
-        self.tau_F=self.tau
-        self.k_F=self.K
+      #  self.tau_F=self.tau
+      #  self.k_F=self.K
 
 
 
         return f, g
 
 
-    def loglikelihood_and_gradient2(self, package='new', display=False):
-        '''
-        Modified from Alex's objective_and_gradient function in ctmcaas/adv-log-likelihoods/mle_geneconv_common.py
-        '''
-        self.update_by_x()
-        delta = 1e-8
-        x = deepcopy(self.x)  # store the current x array
-        if package == 'new':
-            fn = self._loglikelihood2
-        else:
-            fn = self._loglikelihood
-
-        ll, edge_derivs = fn(edge_derivative=True)
-
-        m = len(self.x) - len(self.edge_to_blen)
-
-        # use finite differences to estimate derivatives with respect to these parameters
-        other_derivs = []
-
-
-        for i in range(m):
-            if self.Force != None:
-                if i in self.Force.keys():  # check here
-                    other_derivs.append(0.0)
-                    continue
-            x_plus_delta = np.array(self.x)
-            x_plus_delta[i] += delta / 2.0
-            self.update_by_x(x_plus_delta)
-            ll_delta_plus, _ = fn(store=True, edge_derivative=False)
-            x_plus_delta[i] -= delta
-            self.update_by_x(x_plus_delta)
-            ll_delta_minus, _ = fn(store=True, edge_derivative=False)
-
-
-            d_estimate = (ll_delta_plus - ll_delta_minus) / delta
-            other_derivs.append(d_estimate)
-            # restore self.x
-            self.update_by_x(x)
-        other_derivs = np.array(other_derivs)
-
-        if display:
-            print('log likelihood = ', ll,flush=True)
-            print('Edge derivatives = ', edge_derivs,flush=True)
-            print('other derivatives:', other_derivs,flush=True)
-            print('Current x array = ', self.x,flush=True)
-
-
-        self.ll = ll
-        f = -ll
-        g = -np.concatenate((other_derivs, edge_derivs))
-
-        self.tau_F=self.tau
-        self.k_F=self.K
-
-        return f, g
+    # def loglikelihood_and_gradient2(self, package='new', display=False):
+    #     '''
+    #     Modified from Alex's objective_and_gradient function in ctmcaas/adv-log-likelihoods/mle_geneconv_common.py
+    #     '''
+    #     self.update_by_x()
+    #     delta = 1e-8
+    #     x = deepcopy(self.x)  # store the current x array
+    #     if package == 'new':
+    #         fn = self._loglikelihood2
+    #     else:
+    #         fn = self._loglikelihood
+    #
+    #     ll, edge_derivs = fn(edge_derivative=True)
+    #
+    #     m = len(self.x) - len(self.edge_to_blen)
+    #
+    #     # use finite differences to estimate derivatives with respect to these parameters
+    #     other_derivs = []
+    #
+    #     self.tau_F=self.tau
+    #     self.k_F=self.K
+    #
+    #     for i in range(m):
+    #         if self.Force != None:
+    #             if i in self.Force.keys():  # check here
+    #                 other_derivs.append(0.0)
+    #                 continue
+    #         x_plus_delta = np.array(self.x)
+    #         x_plus_delta[i] += delta / 2.0
+    #         self.update_by_x(x_plus_delta)
+    #         ll_delta_plus, _ = fn(store=True, edge_derivative=False)
+    #         x_plus_delta[i] -= delta
+    #         self.update_by_x(x_plus_delta)
+    #         ll_delta_minus, _ = fn(store=True, edge_derivative=False)
+    #
+    #
+    #         d_estimate = (ll_delta_plus - ll_delta_minus) / delta
+    #         other_derivs.append(d_estimate)
+    #         # restore self.x
+    #         self.update_by_x(x)
+    #     other_derivs = np.array(other_derivs)
+    #
+    #     if display:
+    #         print('log likelihood = ', ll,flush=True)
+    #         print('Edge derivatives = ', edge_derivs,flush=True)
+    #         print('other derivatives:', other_derivs,flush=True)
+    #         print('Current x array = ', self.x,flush=True)
+    #
+    #
+    #     self.ll = ll
+    #     f = -ll
+    #     g = -np.concatenate((other_derivs, edge_derivs))
+    #
+    #     self.tau_F=self.tau
+    #     self.k_F=self.K
+    #
+    #     return f, g
 
     def objective_and_gradient(self, display, x):
         self.update_by_x(x)
@@ -1358,7 +1388,7 @@ class Embrachtau_new:
                 else:
                     bnds.extend([(-10.0, 7.0)] * (1))
                     if self.noboundk==True:
-                        bnds.extend([(-10.0, 50.0)] * (1))
+                        bnds.extend([(-10.0, 80.0)] * (1))
                     else:
                         bnds.extend([(-10.0, 7)] * (1))
 
@@ -1488,7 +1518,7 @@ class Embrachtau_new:
 
 
 # here is for MG94
-    def Get_branch_Q(self,paralog_id):
+    def Get_branch_Q(self,paralog_id,ftau=None):
 
         Qbasic = self.get_MG94Basic()
 
@@ -1535,9 +1565,15 @@ class Embrachtau_new:
 
 
                         if isNonsynonymous(cb, ca, self.codon_table):
-                            Tgeneconv = self.tau_F * np.power(paralog_id[branch], self.k_F) *self.get_IGC_omega()
+                            if self.update_fix_tau==False:
+                                Tgeneconv = self.tau * np.power(paralog_id[branch], self.K) * self.get_IGC_omega()
+                            else:
+                               Tgeneconv = ftau *self.get_IGC_omega()
                         else:
-                            Tgeneconv = self.tau_F * np.power(paralog_id[branch], self.k_F)
+                            if self.update_fix_tau==False:
+                                Tgeneconv = self.tau * np.power(paralog_id[branch], self.K)
+                            else:
+                               Tgeneconv = ftau
                         rate_geneconv.append(Qb + Tgeneconv)
 
                         # (ca, cb) to (cb, cb)
@@ -1715,7 +1751,7 @@ class Embrachtau_new:
 
         return Qlist
 
-    def Get_branch_QHKY(self,paralog_id):
+    def Get_branch_QHKY(self,paralog_id,ftau=None):
 
         Qbasic = self.get_HKYBasic()
 
@@ -1740,7 +1776,13 @@ class Embrachtau_new:
                           sd = self.nt_to_state[nd]
                           if i == j:
                               continue
-                          GeneconvRate = get_HKYGeneconvRate(pair_from, pair_to, Qbasic, self.tau_F*np.power(paralog_id[branch], self.k_F))
+
+                          if self.update_fix_tau == False:
+                               GeneconvRate = get_HKYGeneconvRate(pair_from, pair_to, Qbasic,
+                                                               self.tau * np.power(paralog_id[branch], self.K))
+
+                          else:
+                               GeneconvRate = get_HKYGeneconvRate(pair_from, pair_to, Qbasic, ftau)
                           if GeneconvRate != 0.0:
                               row.append((sa, sb))
                               col.append((sc, sd))
@@ -1833,6 +1875,7 @@ class Embrachtau_new:
     def jointly_common_ancstral_inference(self):
 
 
+
         self.ancestral_state_response = deepcopy(self.get_ancestral_state_response_x())
 
         self.node_length = len(self.num_to_node)
@@ -1920,33 +1963,70 @@ class Embrachtau_new:
         return index,ratio_nonsynonymous,ratio_synonymous
 
 
-    def compute_paralog_id(self):
+    def compute_paralog_id(self,repeat=5,ifdnalevel=False):
 
         ttt = len(self.tree['col'])
+        id = np.zeros(ttt)
+        diverge_list = np.ones(ttt)
 
-        expected_DwellTime = self._ExpectedHetDwellTime()
-        if self.Model == "MG94":
+        if self.dwell_id == False:
 
-            id = [1 - ((
-                               expected_DwellTime[0][i] + self.omega * expected_DwellTime[1][i])
+            for mc in range(repeat):
 
-                       / (2 * self.nsites))
+                self.jointly_common_ancstral_inference()
+                for j in range(ttt):
+                    if self.Model == "HKY":
+                        if not j == 1:
+                            ini2 = self.node_to_num[self.edge_list[j][0]]
+                            end2 = self.node_to_num[self.edge_list[j][1]]
+                            ini1 = deepcopy(self.sites[ini2,])
+                            end1 = deepcopy(self.sites[end2,])
+                            diverge_list[j] = diverge_list[j] + (self.difference(ini1)[0] + self.difference(end1)[0]) * 0.5
 
-            # id = [ 1-(((
-            #         expected_DwellTime[0][i] + self.omega * expected_DwellTime[1][i])+
-            #           (
-            #                   expected_DwellTime[2][i] + self.omega * expected_DwellTime[3][i])*2+
-            #           (
-            #                   expected_DwellTime[4][i] + self.omega * expected_DwellTime[5][i]) * 3)
-            #           /(2*3*self.nsites))
+                    if self.Model == "MG94":
+                        if not j == 1:
+                            ini2 = self.node_to_num[self.edge_list[j][0]]
+                            end2 = self.node_to_num[self.edge_list[j][1]]
+                            ini1 = deepcopy(self.sites[ini2,])
+                            end1 = deepcopy(self.sites[end2,])
+                            ini_D = self.difference(ini1,ifdnalevel=ifdnalevel)[0]
+                            end_D = self.difference(end1,ifdnalevel=ifdnalevel)[0]
+                            diverge_list[j] = diverge_list[j] + (float(ini_D + end_D) * 0.5)
 
-                       for i in range(ttt)]
+            for j in range(ttt):
+                if not j == 1:
+                    id[j] = 1-(float(diverge_list[j]) / repeat)/self.nsites
+
         else:
-            id= [1-(expected_DwellTime[i] / (2*self.nsites
-                                            ))
-                       for i in range(ttt)]
 
-        self.id = id
+            self.jointly_common_ancstral_inference()
+
+            if self.Model == "MG94":
+
+                if self.ifDNA==True:
+                    expected_DwellTime = self._ExpectedHetDwellTime_DNA()
+
+                    id = [ 1-(((
+                         expected_DwellTime[0][i] + self.omega * expected_DwellTime[1][i])+
+                           (  expected_DwellTime[2][i] + self.omega * expected_DwellTime[3][i])*2 +
+                          ( expected_DwellTime[4][i] + self.omega * expected_DwellTime[5][i]) * 3)
+                          /(2*3*self.nsites))
+                           for i in range(ttt)]
+                else:
+                    expected_DwellTime = self._ExpectedHetDwellTime()
+                    id = [1 - ((
+                                       expected_DwellTime[0][i] + self.omega * expected_DwellTime[1][i])
+                               / (2 * self.nsites))
+                          for i in range(ttt)]
+
+            else:
+                expected_DwellTime = self._ExpectedHetDwellTime()
+                id = [1 - (expected_DwellTime[i] / (2 * self.nsites
+                                                    ))
+                      for i in range(ttt)]
+
+        self.id=id
+
 
         return id
 
@@ -1960,12 +2040,13 @@ class Embrachtau_new:
             self.update_by_x()
 
 
-    def EM_branch_tau(self,MAX=8,epis=0.01,force=None,K=0.5,bound=False):
+    def EM_branch_tau(self,MAX=8,epis=0.01,force=None,K=0.5,bound=False,ifdnalevel=False):
         list=[]
         list.append(self.nsites)
         ll0=self.get_mle()["fun"]
         pstau=deepcopy(self.tau)
-        self.id = self.compute_paralog_id()
+        self.id = self.compute_paralog_id(ifdnalevel=ifdnalevel)
+        print(self.id)
         idold=deepcopy(self.id)
         print(self.get_Hessian())
         old_sum = self.get_summary(branchtau=True)
@@ -1991,7 +2072,7 @@ class Embrachtau_new:
         i=1
         while i<=MAX and difference >=epis:
             pstau_1 = deepcopy(self.tau)
-            self.compute_paralog_id()
+            self.id = self.compute_paralog_id(ifdnalevel=ifdnalevel)
             ll1=self.get_mle()["fun"]
             difference = abs(self.tau - pstau_1)
 
@@ -2073,7 +2154,7 @@ class Embrachtau_new:
 
 # this function is used to renew ini
     def renew_em_joint(self,ifmodel="EM_full",ifdnalevel=False):
-        self.id = self.compute_paralog_id()
+        self.id = self.compute_paralog_id(ifdnalevel=ifdnalevel)
         print(self.id)
         self.ifmodel=ifmodel
         self.noboundk=True
@@ -2105,7 +2186,7 @@ class Embrachtau_new:
         exp_blen=scene['tree']["edge_rate_scaling_factors"]
 
         self.jointly_common_ancstral_inference()
-        self.compute_paralog_id()
+        self.id = self.compute_paralog_id(ifdnalevel=False)
         igc_total = 0
         mutatation_total = 0
 
@@ -2349,7 +2430,6 @@ class Embrachtau_new:
             Q = linalg.expm(self.Q_original * self.time)
 
             logllsum=0
-            log_value=0.001
 
             for ll in range(self.nsites):
                 log_value=Q[int(self.ini[ll])][int(self.end[ll])]
@@ -2369,17 +2449,19 @@ class Embrachtau_new:
         ll=self.loglikelihood_branch()
 
 
+
         delta = deepcopy(max(1, abs((self.branch_tau))) * 0.000001)
 
+        branchtau=deepcopy((self.branch_tau))
 
-        x_plus_delta1 = deepcopy((self.branch_tau))
+        x_plus_delta1 = deepcopy(branchtau)
         x_plus_delta1 += delta / 2
         self.branch_tau=(x_plus_delta1)
         ll_delta1 = self.loglikelihood_branch()
 
             # ll_delta0 is f(x-h/2)
-        x_plus_delta0 = deepcopy((self.branch_tau))
-        x_plus_delta0 -= delta
+        x_plus_delta0 = deepcopy(branchtau)
+        x_plus_delta0 -= delta/2
         self.branch_tau = (x_plus_delta0)
         ll_delta0 = self.loglikelihood_branch()
 
@@ -2416,7 +2498,7 @@ class Embrachtau_new:
     def test(self):
         self.get_mle()
         self.jointly_common_ancstral_inference()
-        self.id = self.compute_paralog_id()
+        self.id = self.compute_paralog_id(ifdnalevel=False)
 
 
 
@@ -2441,123 +2523,6 @@ class Embrachtau_new:
                     self.time = np.exp(self.x_rates[j])
                     print(self.get_branch_mle(branch=j))
 
-    # def _ExpectedHetDwellTime(self, package='new', display=False):
-    #
-    #     if package == 'new':
-    #         self.scene_ll = self.get_scene()
-    #         if self.Model == 'MG94':
-    #             syn_heterogeneous_states_1 = [(a, b) for (a, b) in
-    #                                         list(product(range(len(self.codon_to_state)), repeat=2)) if
-    #                                         a != b and self.isSynonymous(self.codon_nonstop[a], self.codon_nonstop[b]) and
-    #                                         self.measure_difference_two(self.codon_nonstop[a],
-    #                                                                             self.codon_nonstop[b])==1]
-    #             nonsyn_heterogeneous_states_1 = [(a, b) for (a, b) in
-    #                                            list(product(range(len(self.codon_to_state)), repeat=2)) if
-    #                                            a != b and not self.isSynonymous(self.codon_nonstop[a],
-    #                                                                             self.codon_nonstop[b]) and
-    #                                            self.measure_difference_two(self.codon_nonstop[a],
-    #                                                                             self.codon_nonstop[b])==1]
-    #             syn_heterogeneous_states_2 = [(a, b) for (a, b) in
-    #                                           list(product(range(len(self.codon_to_state)), repeat=2)) if
-    #                                           a != b and self.isSynonymous(self.codon_nonstop[a],
-    #                                                                        self.codon_nonstop[b]) and
-    #                                           self.measure_difference_two(self.codon_nonstop[a],
-    #                                                                       self.codon_nonstop[b]) == 2]
-    #             nonsyn_heterogeneous_states_2 = [(a, b) for (a, b) in
-    #                                              list(product(range(len(self.codon_to_state)), repeat=2)) if
-    #                                              a != b and not self.isSynonymous(self.codon_nonstop[a],
-    #                                                                               self.codon_nonstop[b]) and
-    #                                              self.measure_difference_two(self.codon_nonstop[a],
-    #                                                                          self.codon_nonstop[b]) == 2]
-    #             syn_heterogeneous_states_3 = [(a, b) for (a, b) in
-    #                                           list(product(range(len(self.codon_to_state)), repeat=2)) if
-    #                                           a != b and self.isSynonymous(self.codon_nonstop[a],
-    #                                                                        self.codon_nonstop[b]) and
-    #                                           self.measure_difference_two(self.codon_nonstop[a],
-    #                                                                       self.codon_nonstop[b]) == 3]
-    #             nonsyn_heterogeneous_states_3 = [(a, b) for (a, b) in
-    #                                              list(product(range(len(self.codon_to_state)), repeat=2)) if
-    #                                              a != b and not self.isSynonymous(self.codon_nonstop[a],
-    #                                                                               self.codon_nonstop[b]) and
-    #                                              self.measure_difference_two(self.codon_nonstop[a],
-    #                                                                          self.codon_nonstop[b]) == 3]
-    #             dwell_request = [dict(
-    #                 property='SDWDWEL',
-    #                 state_reduction=dict(
-    #                     states=syn_heterogeneous_states_1,
-    #                     weights=[2] * len(syn_heterogeneous_states_1)
-    #                 )),
-    #                 dict(
-    #                     property='SDWDWEL',
-    #                     state_reduction=dict(
-    #                         states=nonsyn_heterogeneous_states_1,
-    #                         weights=[2] * len(nonsyn_heterogeneous_states_1)
-    #                     )),
-    #                 dict(
-    #                     property='SDWDWEL',
-    #                     state_reduction=dict(
-    #                         states=syn_heterogeneous_states_2,
-    #                         weights=[2] * len(syn_heterogeneous_states_2)
-    #                     )),
-    #                 dict(
-    #                     property='SDWDWEL',
-    #                     state_reduction=dict(
-    #                         states=nonsyn_heterogeneous_states_2,
-    #                         weights=[2] * len(nonsyn_heterogeneous_states_2)
-    #                     )),
-    #                 dict(
-    #                     property='SDWDWEL',
-    #                     state_reduction=dict(
-    #                         states=syn_heterogeneous_states_3,
-    #                         weights=[2] * len(syn_heterogeneous_states_3)
-    #                     )),
-    #                 dict(
-    #                     property='SDWDWEL',
-    #                     state_reduction=dict(
-    #                         states=nonsyn_heterogeneous_states_3,
-    #                         weights=[2] * len(nonsyn_heterogeneous_states_3)
-    #                     ))
-    #             ]
-    #
-    #         elif self.Model == 'HKY':
-    #             heterogeneous_states = [(a, b) for (a, b) in list(product(range(len(self.nt_to_state)), repeat=2)) if
-    #                                     a != b]
-    #             dwell_request = [dict(
-    #                 property='SDWDWEL',
-    #                 state_reduction=dict(
-    #                     states=heterogeneous_states,
-    #                     weights= [2] * len(heterogeneous_states)
-    #                 )
-    #             )]
-    #
-    #         j_in = {
-    #             'scene': self.scene_ll,
-    #             'requests': dwell_request,
-    #         }
-    #         j_out = jsonctmctree.interface.process_json_in(j_in)
-    #
-    #         ttt=len(self.edge_list)
-    #         if self.Model=="MG94":
-    #             ExpectedDwellTime=np.zeros((6,ttt))
-    #
-    #             for i in range(len(self.edge_list)):
-    #                 for j in range(6):
-    #                     ExpectedDwellTime[j][i]=j_out['responses'][j][i]
-    #         else:
-    #             ExpectedDwellTime = np.zeros(ttt)
-    #
-    #             for i in range(len(self.edge_list)):
-    #                  ExpectedDwellTime[i] = j_out['responses'][0][i]
-    #
-    #
-    #
-    #
-    #         return ExpectedDwellTime
-    #     else:
-    #         print('Need to implement this for old package')
-
-
-
     def sum_branch(self,MAX=4,epis=0.01,K=4.1):
 
         list = []
@@ -2565,24 +2530,20 @@ class Embrachtau_new:
         ll0 = self.get_mle()["fun"]
         list.append(ll0)
         list.append(self.tau)
-        list.append(self.omega)
+        if self.Model == "MG94":
+            list.append(self.omega)
         pstau = deepcopy(self.tau)
 
 
-###### old
-        self.compute_paralog_id()
-        print("xxxxxxxxxxxxxxxxxxxxxxxxx")
-        print(self.id)
-        print("xxxxxxxxxxxxxxxxxxxxxxxxx")
+###### oldid
+        self.id = self.compute_paralog_id()
         idold = deepcopy(self.id)
+        print(self.id)
 
-        list.append(pstau)
         for j in range(len(self.edge_list)):
             list.append(idold[j])
         for j in range(len(self.edge_list)):
             list.append(self.x_rates[j])
-
-        self.jointly_common_ancstral_inference()
 
         ttt = len(self.tree['col'])
         for j in range(ttt):
@@ -2605,7 +2566,10 @@ class Embrachtau_new:
                     self.ini = deepcopy(self.sites[ini2,])
                     self.end = deepcopy(self.sites[end2,])
                     self.time = np.exp(self.x_rates[j])
-                    print(self.get_branch_mle(branch=j))
+                    bstau = self.get_branch_mle(branch=j)
+                    print(bstau)
+                    list.append(bstau)
+
 
         self.ifmodel = "EM_full"
         self.K=K
@@ -2651,7 +2615,8 @@ class Embrachtau_new:
             print("K: ", self.K)
             print("new ll: ", ll1)
             list.append(ll1)
-            list.append(self.omega)
+            if self.Model == "MG94":
+                list.append(self.omega)
             list.append(self.tau)
             list.append(self.K)
 
@@ -2671,7 +2636,7 @@ class Embrachtau_new:
             list.append(hessian[0][0])
             list.append(hessian[1][1])
 
-            self.id = self.compute_paralog_id()
+            self.id=self.compute_paralog_id()
             ttt = len(self.tree['col'])
             for j in range(ttt):
                 if self.Model == "HKY":
@@ -2698,7 +2663,6 @@ class Embrachtau_new:
 
         else:
             self.id = self.compute_paralog_id()
-            print(self.id)
             for j in range(len(self.edge_list)):
                 list.append(self.id[j])
             for j in range(len(self.edge_list)):
@@ -2712,7 +2676,7 @@ class Embrachtau_new:
                         self.ini = deepcopy(self.sites[ini2,])
                         self.end = deepcopy(self.sites[end2,])
                         self.time = np.exp(self.x_rates[j])
-                        bstau = self.get_branch_mle(branch=j)
+                        bstau = self.get_branch_mle(branch=j)[0]
                         list.append(bstau)
 
                 if self.Model == "MG94":
@@ -2722,16 +2686,15 @@ class Embrachtau_new:
                         self.ini = deepcopy(self.sites[ini2,])
                         self.end = deepcopy(self.sites[end2,])
                         self.time = np.exp(self.x_rates[j])
-                        bstau = self.get_branch_mle(branch=j)
+                        bstau = self.get_branch_mle(branch=j)[0]
                         list.append(bstau)
 
 
         print(list)
 
-        save_nameP = "./save/" + self.Model +"new_tau"+'.txt'
+        save_nameP = self.save_path + self.Model +"new_tau"+'.txt'
         with open(save_nameP, 'wb') as f:
             np.savetxt(f, list)
-
 
     def measure_difference_two(self,a,b):
         index=0
@@ -2805,6 +2768,141 @@ class Embrachtau_new:
 
 
 
+    def _ExpectedHetDwellTime_DNA(self, package='new', display=False):
+
+        if package == 'new':
+            self.scene_ll = self.get_scene()
+            if self.Model == 'MG94':
+                syn_heterogeneous_states_1 = [(a, b) for (a, b) in
+                                            list(product(range(len(self.codon_to_state)), repeat=2)) if
+                                            a != b and self.isSynonymous(self.codon_nonstop[a], self.codon_nonstop[b]) and
+                                            self.measure_difference_two(self.codon_nonstop[a],
+                                                                                self.codon_nonstop[b])==1]
+                nonsyn_heterogeneous_states_1 = [(a, b) for (a, b) in
+                                               list(product(range(len(self.codon_to_state)), repeat=2)) if
+                                               a != b and not self.isSynonymous(self.codon_nonstop[a],
+                                                                                self.codon_nonstop[b]) and
+                                               self.measure_difference_two(self.codon_nonstop[a],
+                                                                                self.codon_nonstop[b])==1]
+                syn_heterogeneous_states_2 = [(a, b) for (a, b) in
+                                              list(product(range(len(self.codon_to_state)), repeat=2)) if
+                                              a != b and self.isSynonymous(self.codon_nonstop[a],
+                                                                           self.codon_nonstop[b]) and
+                                              self.measure_difference_two(self.codon_nonstop[a],
+                                                                          self.codon_nonstop[b]) == 2]
+                nonsyn_heterogeneous_states_2 = [(a, b) for (a, b) in
+                                                 list(product(range(len(self.codon_to_state)), repeat=2)) if
+                                                 a != b and not self.isSynonymous(self.codon_nonstop[a],
+                                                                                  self.codon_nonstop[b]) and
+                                                 self.measure_difference_two(self.codon_nonstop[a],
+                                                                             self.codon_nonstop[b]) == 2]
+                syn_heterogeneous_states_3 = [(a, b) for (a, b) in
+                                              list(product(range(len(self.codon_to_state)), repeat=2)) if
+                                              a != b and self.isSynonymous(self.codon_nonstop[a],
+                                                                           self.codon_nonstop[b]) and
+                                              self.measure_difference_two(self.codon_nonstop[a],
+                                                                          self.codon_nonstop[b]) == 3]
+                nonsyn_heterogeneous_states_3 = [(a, b) for (a, b) in
+                                                 list(product(range(len(self.codon_to_state)), repeat=2)) if
+                                                 a != b and not self.isSynonymous(self.codon_nonstop[a],
+                                                                                  self.codon_nonstop[b]) and
+                                                 self.measure_difference_two(self.codon_nonstop[a],
+                                                                             self.codon_nonstop[b]) == 3]
+                dwell_request = [dict(
+                    property='SDWDWEL',
+                    state_reduction=dict(
+                        states=syn_heterogeneous_states_1,
+                        weights=[2] * len(syn_heterogeneous_states_1)
+                    )),
+                    dict(
+                        property='SDWDWEL',
+                        state_reduction=dict(
+                            states=nonsyn_heterogeneous_states_1,
+                            weights=[2] * len(nonsyn_heterogeneous_states_1)
+                        )),
+                    dict(
+                        property='SDWDWEL',
+                        state_reduction=dict(
+                            states=syn_heterogeneous_states_2,
+                            weights=[2] * len(syn_heterogeneous_states_2)
+                        )),
+                    dict(
+                        property='SDWDWEL',
+                        state_reduction=dict(
+                            states=nonsyn_heterogeneous_states_2,
+                            weights=[2] * len(nonsyn_heterogeneous_states_2)
+                        )),
+                    dict(
+                        property='SDWDWEL',
+                        state_reduction=dict(
+                            states=syn_heterogeneous_states_3,
+                            weights=[2] * len(syn_heterogeneous_states_3)
+                        )),
+                    dict(
+                        property='SDWDWEL',
+                        state_reduction=dict(
+                            states=nonsyn_heterogeneous_states_3,
+                            weights=[2] * len(nonsyn_heterogeneous_states_3)
+                        ))
+                ]
+
+            elif self.Model == 'HKY':
+                heterogeneous_states = [(a, b) for (a, b) in list(product(range(len(self.nt_to_state)), repeat=2)) if
+                                        a != b]
+                dwell_request = [dict(
+                    property='SDWDWEL',
+                    state_reduction=dict(
+                        states=heterogeneous_states,
+                        weights= [2] * len(heterogeneous_states)
+                    )
+                )]
+
+            j_in = {
+                'scene': self.scene_ll,
+                'requests': dwell_request,
+            }
+            j_out = jsonctmctree.interface.process_json_in(j_in)
+
+            ttt=len(self.edge_list)
+            if self.Model=="MG94":
+                ExpectedDwellTime=np.zeros((6,ttt))
+
+                for i in range(ttt):
+                    for j in range(6):
+                        ExpectedDwellTime[j][i]=j_out['responses'][j][i]
+            else:
+                ExpectedDwellTime = np.zeros(ttt)
+
+                for i in range(len(self.edge_list)):
+                     ExpectedDwellTime[i] = j_out['responses'][0][i]
+
+
+
+            return ExpectedDwellTime
+        else:
+            print('Need to implement this for old package')
+
+
+# Generate parameter for simulation
+
+    def read_parameter_gls(self,if_rerun=False,ifmodel="EM_full"):
+
+        if ifmodel=="EM_full" and if_rerun==False:
+
+            ttt = len(self.tree['col'])
+            id = np.ones(ttt)
+            self.id=id
+            self.ifmodel = "EM_full"
+            self.get_initial_x_process()
+            self.get_processes()
+
+            scene=self.get_scene()
+
+
+        return scene
+
+
+
 
 
 if __name__ == '__main__':
@@ -2819,18 +2917,18 @@ if __name__ == '__main__':
 
 
     Force = None
-    model = 'MG94'
+    model = 'HKY'
 
     save_name = model+name
-    geneconv = Embrachtau_new(newicktree, alignment_file, paralog, Model=model, Force=Force, clock=None,
+    geneconv = Embrachtau2(newicktree, alignment_file, paralog, Model=model, Force=Force, clock=None,
                                save_path='../test/save/', save_name=save_name,kbound=5)
 
-    print(geneconv.get_mle())
-    print(print(geneconv.compute_paralog_id()))
+ #   print(geneconv.get_mle())
+#    print(print(geneconv.compute_paralog_id()))
 
 
+    geneconv.sum_branch(MAX=3,K=1.5)
 
-  #  geneconv.sum_branch(MAX=2)
  #   print(geneconv.get_summary(approx=True,branchtau=True))
 
 
