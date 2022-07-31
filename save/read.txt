@@ -1,94 +1,76 @@
 
 cd
-cd final1/simulation/yeast_YLR333C\ YGR027C/test1\ copy\ 0/
+cd final1/simulation/testfile/testg/test\ copy\ 0/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/simulation/yeast_YLR333C\ YGR027C/test1\ copy\ 1/
+cd final1/simulation/testfile/testg/test\ copy\ 1/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/simulation/yeast_YLR333C\ YGR027C/test1\ copy\ 2/
+cd final1/simulation/testfile/testg/test\ copy\ 2/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/simulation/yeast_YLR333C\ YGR027C/test1\ copy\ 3/
+cd final1/simulation/testfile/testg/test\ copy\ 3/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/simulation/yeast_YLR333C\ YGR027C/test1\ copy\ 4/
+cd final1/simulation/testfile/testg/test\ copy\ 4/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/simulation/yeast_YLR333C\ YGR027C/test1\ copy\ 5/
+cd final1/simulation/testfile/testg/test\ copy\ 5/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/simulation/yeast_YLR333C\ YGR027C/test1\ copy\ 6/
+cd final1/simulation/testfile/testg/test\ copy\ 6/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/simulation/yeast_YLR333C\ YGR027C/test1\ copy\ 7/
+cd final1/simulation/testfile/testg/test\ copy\ 7/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/simulation/yeast_YLR333C\ YGR027C/test1\ copy\ 8/
+cd final1/simulation/testfile/testg/test\ copy\ 8/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/simulation/yeast_YLR333C\ YGR027C/test1\ copy\ 9/
+cd final1/simulation/testfile/testg/test\ copy\ 9/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/simulation/yeast_YLR333C\ YGR027C/test1\ copy\ 10/
+cd final1/simulation/testfile/testg/test\ copy\ 10/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/simulation/yeast_YLR333C\ YGR027C/test1\ copy\ 11/
+cd final1/simulation/testfile/testg/test\ copy\ 11/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/simulation/yeast_YLR333C\ YGR027C/test1\ copy\ 12/
+cd final1/simulation/testfile/testg/test\ copy\ 12/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/simulation/yeast_YLR333C\ YGR027C/test1\ copy\ 13/
+cd final1/simulation/testfile/testg/test\ copy\ 13/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/simulation/yeast_YLR333C\ YGR027C/test1\ copy\ 14/
+cd final1/simulation/testfile/testg/test\ copy\ 14/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/simulation/yeast_YLR333C\ YGR027C/test1\ copy\ 15/
+cd final1/simulation/testfile/testg/test\ copy\ 15/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/simulation/yeast_YLR333C\ YGR027C/test1\ copy\ 16/
+cd final1/simulation/testfile/testg/test\ copy\ 16/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/simulation/yeast_YLR333C\ YGR027C/test1\ copy\ 17/
+cd final1/simulation/testfile/testg/test\ copy\ 17/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/simulation/yeast_YLR333C\ YGR027C/test1\ copy\ 18/
+cd final1/simulation/testfile/testg/test\ copy\ 18/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/simulation/yeast_YLR333C\ YGR027C/test1\ copy\ 19/
+cd final1/simulation/testfile/testg/test\ copy\ 19/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/simulation/yeast_YLR333C\ YGR027C/test1\ copy\ 20/
+cd final1/simulation/testfile/testg/test\ copy\ 20/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/simulation/yeast_YLR333C\ YGR027C/test1\ copy\ 21/
+cd final1/simulation/testfile/testg/test\ copy\ 21/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/simulation/yeast_YLR333C\ YGR027C/test1\ copy\ 22/
+cd final1/simulation/testfile/testg/test\ copy\ 22/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/simulation/yeast_YLR333C\ YGR027C/test1\ copy\ 23/
+cd final1/simulation/testfile/testg/test\ copy\ 23/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/simulation/yeast_YLR333C\ YGR027C/test1\ copy\ 24/
-sbatch  Run_IS_IGC_Old.py
-cd
-cd final1/simulation/yeast_YLR333C\ YGR027C/test1\ copy\ 25/
-sbatch  Run_IS_IGC_Old.py
-cd
-cd final1/simulation/yeast_YLR333C\ YGR027C/test1\ copy\ 26/
-sbatch  Run_IS_IGC_Old.py
-cd
-cd final1/simulation/yeast_YLR333C\ YGR027C/test1\ copy\ 27/
-sbatch  Run_IS_IGC_Old.py
-cd
-cd final1/simulation/yeast_YLR333C\ YGR027C/test1\ copy\ 28/
-sbatch  Run_IS_IGC_Old.py
-cd
-cd final1/simulation/yeast_YLR333C\ YGR027C/test1\ copy\ 29/
-sbatch  Run_IS_IGC_Old.py
-cd
-cd final1/simulation/yeast_YLR333C\ YGR027C/test1\ copy\ 30/
+cd final1/simulation/testfile/testg/test\ copy\ 24/
 sbatch  Run_IS_IGC_Old.py

@@ -19,9 +19,11 @@ import multiprocessing as mp
 
 def build_dic(dd=3):
     list = []
-    for i in range(30):
+    for i in range(25):
         list.append("\n"+"cd")
-        p="\n"+"cd final1/simulation/yeast_YLR333C\ YGR027C/test1\ copy\ "+str(i)+"/"
+      #  p="\n"+"cd final1/simulation/yeast_YER102W_YBL072C/test\ copy\ "+str(i)+"/"
+      #  p = "\n" + "cd final1/simulation/pillar2158/test\ copy\ " + str(i) + "/"
+        p="\n" + "cd final1/simulation/testfile/testg/test\ copy\ " + str(i) + "/"
         list.append(p)
         list.append("\n"+"sbatch  Run_IS_IGC_Old.py")
 
