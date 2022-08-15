@@ -1,76 +1,154 @@
 
 cd
-cd final1/simulation/testfile/testg/test\ copy\ 0/
+cd final1/simulation/testfile/testf521/test\ copy\ 0/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/simulation/testfile/testg/test\ copy\ 1/
+cd final1/simulation/testfile/testf521/test\ copy\ 1/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/simulation/testfile/testg/test\ copy\ 2/
+cd final1/simulation/testfile/testf521/test\ copy\ 2/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/simulation/testfile/testg/test\ copy\ 3/
+cd final1/simulation/testfile/testf521/test\ copy\ 3/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/simulation/testfile/testg/test\ copy\ 4/
+cd final1/simulation/testfile/testf521/test\ copy\ 4/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/simulation/testfile/testg/test\ copy\ 5/
+cd final1/simulation/testfile/testf521/test\ copy\ 5/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/simulation/testfile/testg/test\ copy\ 6/
+cd final1/simulation/testfile/testf521/test\ copy\ 6/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/simulation/testfile/testg/test\ copy\ 7/
+cd final1/simulation/testfile/testf521/test\ copy\ 7/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/simulation/testfile/testg/test\ copy\ 8/
+cd final1/simulation/testfile/testf521/test\ copy\ 8/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/simulation/testfile/testg/test\ copy\ 9/
+cd final1/simulation/testfile/testf521/test\ copy\ 9/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/simulation/testfile/testg/test\ copy\ 10/
+cd final1/simulation/testfile/testf521/test\ copy\ 10/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/simulation/testfile/testg/test\ copy\ 11/
+cd final1/simulation/testfile/testf521/test\ copy\ 11/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/simulation/testfile/testg/test\ copy\ 12/
+cd final1/simulation/testfile/testf521/test\ copy\ 12/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/simulation/testfile/testg/test\ copy\ 13/
+cd final1/simulation/testfile/testf521/test\ copy\ 13/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/simulation/testfile/testg/test\ copy\ 14/
+cd final1/simulation/testfile/testf521/test\ copy\ 14/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/simulation/testfile/testg/test\ copy\ 15/
+cd final1/simulation/testfile/testf521/test\ copy\ 15/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/simulation/testfile/testg/test\ copy\ 16/
+cd final1/simulation/testfile/testf521/test\ copy\ 16/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/simulation/testfile/testg/test\ copy\ 17/
+cd final1/simulation/testfile/testf521/test\ copy\ 17/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/simulation/testfile/testg/test\ copy\ 18/
+cd final1/simulation/testfile/testf521/test\ copy\ 18/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/simulation/testfile/testg/test\ copy\ 19/
+cd final1/simulation/testfile/testf521/test\ copy\ 19/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/simulation/testfile/testg/test\ copy\ 20/
+cd final1/simulation/testfile/testf521/test\ copy\ 20/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/simulation/testfile/testg/test\ copy\ 21/
+cd final1/simulation/testfile/testf521/test\ copy\ 21/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/simulation/testfile/testg/test\ copy\ 22/
+cd final1/simulation/testfile/testf521/test\ copy\ 22/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/simulation/testfile/testg/test\ copy\ 23/
+cd final1/simulation/testfile/testf521/test\ copy\ 23/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/simulation/testfile/testg/test\ copy\ 24/
+cd final1/simulation/testfile/testf521/test\ copy\ 24/
+sbatch  Run_IS_IGC_Old.py
+cd
+cd final1/simulation/testfile/testf521/test\ copy\ 25/
+sbatch  Run_IS_IGC_Old.py
+cd
+cd final1/simulation/testfile/testf521/test\ copy\ 26/
+sbatch  Run_IS_IGC_Old.py
+cd
+cd final1/simulation/testfile/testf521/test\ copy\ 27/
+sbatch  Run_IS_IGC_Old.py
+cd
+cd final1/simulation/testfile/testf521/test\ copy\ 28/
+sbatch  Run_IS_IGC_Old.py
+cd
+cd final1/simulation/testfile/testf521/test\ copy\ 29/
+sbatch  Run_IS_IGC_Old.py
+cd
+cd final1/simulation/testfile/testf521/test\ copy\ 30/
+sbatch  Run_IS_IGC_Old.py
+cd
+cd final1/simulation/testfile/testf521/test\ copy\ 31/
+sbatch  Run_IS_IGC_Old.py
+cd
+cd final1/simulation/testfile/testf521/test\ copy\ 32/
+sbatch  Run_IS_IGC_Old.py
+cd
+cd final1/simulation/testfile/testf521/test\ copy\ 33/
+sbatch  Run_IS_IGC_Old.py
+cd
+cd final1/simulation/testfile/testf521/test\ copy\ 34/
+sbatch  Run_IS_IGC_Old.py
+cd
+cd final1/simulation/testfile/testf521/test\ copy\ 35/
+sbatch  Run_IS_IGC_Old.py
+cd
+cd final1/simulation/testfile/testf521/test\ copy\ 36/
+sbatch  Run_IS_IGC_Old.py
+cd
+cd final1/simulation/testfile/testf521/test\ copy\ 37/
+sbatch  Run_IS_IGC_Old.py
+cd
+cd final1/simulation/testfile/testf521/test\ copy\ 38/
+sbatch  Run_IS_IGC_Old.py
+cd
+cd final1/simulation/testfile/testf521/test\ copy\ 39/
+sbatch  Run_IS_IGC_Old.py
+cd
+cd final1/simulation/testfile/testf521/test\ copy\ 40/
+sbatch  Run_IS_IGC_Old.py
+cd
+cd final1/simulation/testfile/testf521/test\ copy\ 41/
+sbatch  Run_IS_IGC_Old.py
+cd
+cd final1/simulation/testfile/testf521/test\ copy\ 42/
+sbatch  Run_IS_IGC_Old.py
+cd
+cd final1/simulation/testfile/testf521/test\ copy\ 43/
+sbatch  Run_IS_IGC_Old.py
+cd
+cd final1/simulation/testfile/testf521/test\ copy\ 44/
+sbatch  Run_IS_IGC_Old.py
+cd
+cd final1/simulation/testfile/testf521/test\ copy\ 45/
+sbatch  Run_IS_IGC_Old.py
+cd
+cd final1/simulation/testfile/testf521/test\ copy\ 46/
+sbatch  Run_IS_IGC_Old.py
+cd
+cd final1/simulation/testfile/testf521/test\ copy\ 47/
+sbatch  Run_IS_IGC_Old.py
+cd
+cd final1/simulation/testfile/testf521/test\ copy\ 48/
+sbatch  Run_IS_IGC_Old.py
+cd
+cd final1/simulation/testfile/testf521/test\ copy\ 49/
+sbatch  Run_IS_IGC_Old.py
+cd
+cd final1/simulation/testfile/testf521/test\ copy\ 50/
 sbatch  Run_IS_IGC_Old.py

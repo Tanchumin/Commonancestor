@@ -32,7 +32,7 @@ import numdifftools as nd
 class Embrachtau1:
     def __init__(self, tree_newick, alignment, paralog, Model='MG94', IGC_Omega=None, Tau_Omega = None, nnsites=None, clock=False,joint=False,
                  Force=None, save_path='./save/', save_name=None, post_dup='N1',kbound=5.1,ifmodel="old",inibranch=0.1,noboundk=True,
-                 kini=4.1,tauini=0.4,omegaini=0.5,dwell_id=True,ifDNA=False,if_rerun=True):
+                 kini=4.1,tauini=1,omegaini=0.5,dwell_id=True,ifDNA=False,if_rerun=True):
         self.newicktree = tree_newick  # newick tree file loc
         self.seqloc = alignment  # multiple sequence alignment, now need to remove gap before-hand
         self.paralog = paralog  # parlaog list
@@ -2883,14 +2883,14 @@ if __name__ == '__main__':
     newicktree = '../test/yeast/YeastTree.newick'
 
 
-    Force = None
+    Force = {4:0}
     model = 'HKY'
 
-    save_name = model+name
+    save_name = model+name+"testforce"
     geneconv = Embrachtau1(newicktree, alignment_file, paralog, Model=model, Force=Force, clock=None,
                                save_path='../test/save/', save_name=save_name,kbound=5)
 
- #   print(geneconv.get_mle())
+    geneconv.get_mle()
 #    print(print(geneconv.compute_paralog_id()))
 
 
