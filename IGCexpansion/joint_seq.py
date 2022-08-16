@@ -427,7 +427,7 @@ class JointAnalysis_seq:
         listnew=[]
         for i in self.multiprocess_combined_list:
             for j in self.multiprocess_combined_list:
-              if self.siteslist[i]==list[j][2]:
+               if self.siteslist[i]==list[j][2]:
                   listnew.append(list[j])
               #    print(j)
 

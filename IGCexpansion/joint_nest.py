@@ -98,7 +98,6 @@ class JointAnalysis_nest:
 
                    single_x = self.geneconv_list[0].x
                    shared_x = [single_x[i] for i in self.shared_parameters]
-
                    unique_x = [single_x[i] for i in range(len(single_x)) if not i in self.shared_parameters] * len(
                        self.geneconv_list)
                    self.unique_len=len(unique_x)
@@ -120,15 +119,12 @@ class JointAnalysis_nest:
                 for i in range(len(self.paralog_list)):
                     self.fixk[i] = self.x[-1]
 
-
             else:
                 for i in range(len(self.paralog_list)):
                        self.geneconv_list[i].renew_em_joint()
 
                 single_x = self.geneconv_list[0].x
                 shared_x = [single_x[i] for i in self.shared_parameters]
-
-
                 unique_x = np.concatenate([[ self.geneconv_list[ii].x[idx] for idx in range(len(self.geneconv_list[0].x)) if not idx in self.shared_parameters]
                                            for ii in self.multiprocess_combined_list])
                 self.unique_len = len(unique_x)
@@ -336,15 +332,9 @@ class JointAnalysis_nest:
         guess_x = self.x
 
         if parallel:
-       #     result = scipy.optimize.minimize(self.objective_and_gradient_multi_threaded, guess_x, jac=True, method='L-BFGS-B', bounds=self.combine_bounds(),
-                    #                         options={ 'maxcor': 12,'ftol': 1e-8,'maxls': 30})
-
-         #   result = scipy.optimize.minimize(self.objective_and_gradient_multi_threaded, guess_x, jac=True, method='SLSQP',
-            #                         bounds=self.combine_bounds(),
-            #                 options={ 'maxcor': 12,'ftol': 1e-8,'maxls': 30})
 
 
-                 result=scipy.optimize.basinhopping(self.objective_and_gradient_multi_threaded, guess_x, minimizer_kwargs={'method': 'L-BFGS-B', 'jac': True,
+            result=scipy.optimize.basinhopping(self.objective_and_gradient_multi_threaded, guess_x, minimizer_kwargs={'method': 'L-BFGS-B', 'jac': True,
                                                               'bounds': self.combine_bounds()},
                                 niter=150)
         else:
@@ -380,7 +370,6 @@ class JointAnalysis_nest:
         f=0
 
         if self.ifexp==True:
-
             for i in self.multiprocess_combined_list:
                f=self.geneconv_list[i]._loglikelihood3()+f
 
@@ -767,7 +756,6 @@ class JointAnalysis_nest:
                     if self.shared_parameters==4:
                         guess_x = self.x[-1]
                     else:
-
                         guess_x = self.x[-1]
                 else:
                         guess_x=np.zeros(2)
@@ -791,7 +779,6 @@ class JointAnalysis_nest:
             result = scipy.optimize.minimize(self.pool_obj, guess_x, jac=True, method='L-BFGS-B')
         elif opt=="BFGS":
                 result = scipy.optimize.minimize(self.pool_obj, guess_x, jac=True, method='BFGS')
-
         else:
             bnds = [(-5.0, 4.0)] * 1
             bnds.extend([(-5.0, 50.0)] * (1))
@@ -853,7 +840,14 @@ class JointAnalysis_nest:
             print(i)
             i = i + 1
             print(self.geneconv_list[0].K)
-            print(self.geneconv_list[0].tau)
+            if len(self.shared_parameters_for_k) == 1:
+                for i in range(len(self.geneconv_list)):
+                    print(self.geneconv_list[i].tau)
+                    print(self.geneconv_list[i].omega)
+                    print(self.geneconv_list[i].ll)
+            else:
+                print(self.geneconv_list[1].tau)
+
             print(ll1)
             print("xxxxxxxxxxxxxxxxxxxxxxxxxxx")
             print("xxxxxxxxxxxxxxxxxxxxxxxxxxx")
@@ -920,13 +914,13 @@ if __name__ == '__main__':
 
     paralog_list = [paralog_1, paralog_2]
     IGC_Omega = None
-    Shared = [4]
+    Shared = []
     alignment_file_list = [alignment_file_1, alignment_file_2]
     Model = 'HKY'
 
     joint_analysis = JointAnalysis_nest(alignment_file_list,  newicktree, paralog_list, Shared = Shared,
-                                   IGC_Omega = None, Model = Model, Force = Force,Force_share={4:0},
-                                   shared_parameters_for_k=[4,5],Force_share_k={4:0,5:0},tauini=6.0,kini=1.1,
+                                   IGC_Omega = None, Model = Model, Force = Force,Force_share=None,
+                                   shared_parameters_for_k=[5],Force_share_k={5:0},tauini=6.0,kini=1.1,
                                    save_path = '../test/save/')
 
 

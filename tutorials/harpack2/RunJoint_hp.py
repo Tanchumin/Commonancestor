@@ -1,7 +1,7 @@
 #!/bin/python3
 
 from __future__ import print_function
-from IGCexpansion.joint_nest import *
+from IGCexpansion.joint_ana import *
 from copy import deepcopy
 import os
 
@@ -36,7 +36,6 @@ if __name__ == '__main__':
     alignment_file_list = files
     newicktree = '../'+inputFolder+'/intronc.newick'
 
-    Shared = [4]
     shared_parameters_for_k = [4]
 
 
@@ -58,11 +57,16 @@ if __name__ == '__main__':
 
   #  print(paralog_list)
     
-    joint_analysis =JointAnalysis_nest(alignment_file_list,  newicktree, paralog_list, Shared = Shared,
-                                   IGC_Omega = None, Model = Model, Force = Force,Force_share={4:0},
-                                       shared_parameters_for_k=[4, 5], Force_share_k={4: 0, 5: 0},
-                                       tauini=1.2,inibranch=0.2,kini=0.1,
-                                   save_path = './save/')
+   # joint_analysis =JointAnalysis_nest(alignment_file_list,  newicktree, paralog_list, Shared = Shared,
+      #                             IGC_Omega = None, Model = Model, Force = Force,Force_share={4:0},
+   #                                    shared_parameters_for_k=[4, 5], Force_share_k={4: 0, 5: 0},
+     #                                  tauini=1.2,inibranch=0.2,kini=0.1,
+     #                              save_path = './save/')
+    joint_analysis = JointAnalysis(alignment_file_list, newicktree, paralog_list, Shared=[],
+                                            IGC_Omega = None, Model = Model,
+                                            shared_parameters_for_k=[5],
+                                            kini=0.5,
+                                            save_path = './save/')
  #0.2 0.4 best ini by now 28965.8
 
   #  print(joint_analysis.get_seq_mle())

@@ -1027,16 +1027,6 @@ class Embrachtau1:
                     continue
 
 
-          #  x_plus_delta = np.array(self.x)
-          #  x_plus_delta[i] += delta
-          #  self.update_by_x(x_plus_delta)
-          #  ll_delta, _ = fn(store=True, edge_derivative=False)
-        #  d_estimate = (ll_delta - ll) / delta
-
-# finite difference central
-  # ll_delta1 is f(x+h/2)
-
-
             delta=deepcopy(max(1,abs(self.x[i]))*0.000001)
             x_plus_delta1 = deepcopy(fix_x)
             x_plus_delta1[i] += delta/2
@@ -1245,7 +1235,7 @@ class Embrachtau1:
 
 # develop this one to compute hessian
     def objective_wo_derivative1(self, x):
-        assert (len(x)==2)
+
         if self.Model=="MG94":
             self.x[5] = x[0]
             self.x[6] = x[1]

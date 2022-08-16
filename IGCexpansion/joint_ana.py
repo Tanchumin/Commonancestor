@@ -2,9 +2,9 @@
 # coding=utf-8
 
 from IGCexpansion.CodonGeneconv import *
-import multiprocessing as mp
 from IGCexpansion.em_pt import *
 import numdifftools as nd
+from multiprocessing import Pool
 
 
 class JointAnalysis:
@@ -47,6 +47,7 @@ class JointAnalysis:
             self.shared_parameters = []
         else:
             self.shared_parameters = Shared
+
         grand_save_name, individual_save_names = self.get_save_file_names(save_name)
         self.geneconv_list = [Embrachtau(tree_newick = tree_newick, alignment = alignment_file_list[i], paralog = paralog_list[i],
                                               Model = Model,  nnsites = nnsites,
@@ -78,7 +79,6 @@ class JointAnalysis:
                    self.x = np.array(unique_x + shared_x)
 
         else:
-            self.save_name1 = None
             self.save_name1 = self.get_save_file_names(None)[0]
             self.shared_parameters = self.shared_parameters_for_k
 
@@ -96,12 +96,14 @@ class JointAnalysis:
 
                 single_x = self.geneconv_list[0].x
                 shared_x = [single_x[i] for i in self.shared_parameters]
-                unique_x = [single_x[i] for i in range(len(single_x)) if not i in self.shared_parameters] * len(
-                    self.geneconv_list)
+                unique_x = np.concatenate([[self.geneconv_list[ii].x[idx] for idx in range(len(self.geneconv_list[0].x)) if
+                                 not idx in self.shared_parameters]
+                                for ii in self.multiprocess_combined_list])
                 self.unique_len = len(unique_x)
-                self.x = np.array(unique_x + shared_x)
+                self.x = np.concatenate((unique_x, shared_x))
 
         self.update_by_x(self.x)
+
         if self.multiprocess_combined_list is None:
             self.multiprocess_combined_list = range(len(self.geneconv_list))
 
@@ -245,16 +247,28 @@ class JointAnalysis:
         return f, g
 
     def objective_wo_gradient(self, x):
-        self.x[int(self.unique_len)-1] = x[0]
-        self.x[int(self.unique_len)] = x[1]
+        if len(self.shared_parameters_for_k)==1:
+            self.x[-1] = x[0]
+        else:
+            self.x[-2] = x[0]
+            self.x[-1] = x[1]
         self.update_by_x(self.x)
 
+        f=0
+        if  len(self.shared_parameters_for_k)==2:
+            for i in self.multiprocess_combined_list:
+                f = self.geneconv_list[i]._loglikelihood3() + f
 
-        individual_results = [geneconv.objective_wo_derivative(False, geneconv.x) for geneconv in self.geneconv_list]
-        f = sum([result[0] for result in individual_results])
+        else:
+            for i in self.multiprocess_combined_list:
+                f = self.geneconv_list[i]._loglikelihood2()[0] + f
 
-        return f
+        return -f
 
+
+    def _pool_objective_and_gradient(self, num_jsgeneconv):
+        result = self.geneconv_list[num_jsgeneconv].objective_and_gradient(False, self.geneconv_list[num_jsgeneconv].x)
+        return result
 
 
     def _process_objective_and_gradient(self, num_jsgeneconv, display, x, output):
@@ -276,35 +290,15 @@ class JointAnalysis:
 
 
     def objective_and_gradient_multi_threaded(self, x):
+
         self.update_by_x(x)
 
-        # Define an output queue
-        output = mp.Queue()
+        with Pool(processes=len(self.geneconv_list)) as pool:
+            results = pool.map(self._pool_objective_and_gradient, range(len(self.geneconv_list)))
 
-        # Setup a list of processes that we want to run
-        processes = [mp.Process(target=self._process_objective_and_gradient, args=(i, False, x, output)) \
-                     for i in self.multiprocess_combined_list]
 
-        # Run processes
-        for p in processes:
-            p.start()
-
-        # Exit the completed processes
-        for p in processes:
-            p.join()
-
-        # Get process results from the output queue
-        results = [output.get() for p in processes]
 
         #  results store lists, each list store gradients for parameters in corresponding gene
-
-        print("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx")
-        print("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx")
-
-        print(results[1][0])
-
-        print("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx")
-        print("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx")
         ##        pool = mp.Pool(processes = self.num_processes)
         ##        results = [pool.apply(psjsgeneconv.objective_and_gradient, args = (display, x))\
         ##                   for psjsgeneconv in self.psjsgeneconv_list]
@@ -343,7 +337,7 @@ class JointAnalysis:
 
         if parallel:
             result = scipy.optimize.minimize(self.objective_and_gradient_multi_threaded, guess_x, jac=True, method='L-BFGS-B', bounds=self.combine_bounds(),
-                                             options={ 'maxcor': 12,'ftol': 1e-11,'maxls': 30})
+                                             )
         else:
             result = scipy.optimize.minimize(self.objective_and_gradient, guess_x, jac=True, method='L-BFGS-B', bounds=self.combine_bounds())
         print (result)
@@ -376,16 +370,25 @@ class JointAnalysis:
         np.savetxt(summary_file, summary.T, delimiter = ' ', header = header, footer = footer)
 
 
-    def get_Hessian(self):
-        H = nd.Hessian(self.objective_wo_gradient)(np.float128((self.x[int(self.unique_len)-1:int(self.unique_len)+1])))
 
-        return H
+    def get_Hessian(self):
+
+            if len(self.shared_parameters_for_k) == 2:
+                H = nd.Hessian(self.objective_wo_gradient)(np.float128([np.exp(self.x[-2]), self.x[-1]]))
+            else:
+                H = nd.Hessian(self.objective_wo_gradient)(np.float128([self.x[-1]]))
+
+            return H
 
 
     def em_joint(self,epis=0.01,MAX=5):
         ll0=self.get_mle()["fun"]
       #  print(ll0)
-        self.oldtau=deepcopy(self.geneconv_list[1].tau)
+        if len(self.shared_parameters_for_k) == 1:
+            self.oldtau=deepcopy(([self.geneconv_list[i].tau for i in range(len(self.paralog_list))]))
+        else:
+            self.oldtau=deepcopy(self.geneconv_list[1].tau)
+
         pstau =deepcopy(([self.geneconv_list[i].tau for i in range(len(self.paralog_list))]))
         pstau=np.sum(pstau)
         self.ifmodel = "EM_full"
@@ -399,7 +402,13 @@ class JointAnalysis:
         print("EMcycle:")
         print(0)
         print(self.geneconv_list[1].K)
-        print(self.geneconv_list[1].tau)
+        if len(self.shared_parameters_for_k)==1:
+            for i in range(len(self.geneconv_list)):
+                print(self.geneconv_list[i].tau)
+                print(self.geneconv_list[i].omega)
+                print(self.geneconv_list[i].ll)
+        else:
+            print(self.geneconv_list[1].tau)
         print("xxxxxxxxxxxxxxxxx")
         print("xxxxxxxxxxxxxxxxx")
         print("xxxxxxxxxxxxxxxxx")
@@ -411,7 +420,7 @@ class JointAnalysis:
             pstau = deepcopy(tau)
             for ii in range(len(self.paralog_list)):
                  self.geneconv_list[ii].id = self.geneconv_list[ii].compute_paralog_id()
-            self.get_mle()
+            ll1=self.get_mle()["fun"]
             tau = deepcopy(np.exp([self.geneconv_list[i].x[5] for i in range(len(self.paralog_list))]))
             tau = np.sum(tau)
             difference = abs(tau - pstau)
@@ -419,24 +428,45 @@ class JointAnalysis:
             print("EMcycle:")
             print(i)
             i = i + 1
+
             print(self.geneconv_list[1].K)
-            print(self.geneconv_list[1].tau)
-            print("xxxxxxxxxxxxxxxxx")
+            if len(self.shared_parameters_for_k) == 1:
+                for i in range(len(self.geneconv_list)):
+                    print(self.geneconv_list[i].tau)
+                    print(self.geneconv_list[i].omega)
+                    print(self.geneconv_list[i].ll)
+            else:
+                print(self.geneconv_list[1].tau)
             print("xxxxxxxxxxxxxxxxx")
             print("xxxxxxxxxxxxxxxxx")
             print("\n")
 
-        print("xxxxxxxxxxxxxxxxxxx")
+        print("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx")
         print("old tau:")
         print(self.oldtau)
         print("old ll:")
         print(ll0)
+        print("new ll:")
+        print(ll1)
+
+        print(" K:")
+        print(self.geneconv_list[0].K)
+        print("new tau:")
+        if len(self.shared_parameters_for_k) == 1:
+            for i in range(len(self.geneconv_list)):
+                print(self.geneconv_list[i].tau)
+        else:
+            print(self.geneconv_list[1].tau)
+
 
         for i in range(len(self.paralog_list)):
             print("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx")
             print(i)
             print(self.geneconv_list[i].id)
             print(self.geneconv_list[i].x)
+
+        print("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx")
+        print(self.get_Hessian())
 
 #        print(self.get_Hessian())
 
@@ -464,14 +494,13 @@ if __name__ == '__main__':
     alignment_file_list = [alignment_file_1, alignment_file_2]
     Model = 'HKY'
 
-    joint_analysis = JointAnalysis(alignment_file_list,  newicktree, paralog_list, Shared = Shared,
+    joint_analysis = JointAnalysis(alignment_file_list,  newicktree, paralog_list, Shared = [],
                                    IGC_Omega = None, Model = Model, Force = Force,
-                                   save_path = '../test/save/')
+                                   save_path = '../test/save/',shared_parameters_for_k=[5])
 
-    print(joint_analysis.geneconv_list[0].x[1])
+    joint_analysis.em_joint()
 
-    dd=[1.1,2.1]
-    print(np.sum(dd,axis=0))
+
     #joint_analysis.get_mle()
 
 

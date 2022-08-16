@@ -154,7 +154,7 @@ class Embrachtau:
 
 
     def get_tree(self):
-        self.tree, self.edge_list, self.node_to_num = read_newick(self.newicktree, self.post_dup)
+        self.tree, self.edge_list, self.node_to_num ,length= read_newick(self.newicktree, self.post_dup)
         self.num_to_node = {self.node_to_num[i]: i for i in self.node_to_num}
         self.edge_to_blen = {edge: self.inibranch for edge in self.edge_list}
 
@@ -878,7 +878,6 @@ class Embrachtau:
             }
             j_out = jsonctmctree.interface.process_json_in(j_in)
 
-            status = j_out['status']
 
             try:
                 ll = j_out['responses'][0]
@@ -964,6 +963,8 @@ class Embrachtau:
 
       #  print(scene)
         return scene
+
+
 
     def loglikelihood_and_gradient(self, package='new', display=False):
             '''
