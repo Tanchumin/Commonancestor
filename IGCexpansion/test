@@ -19,14 +19,16 @@ import multiprocessing as mp
 
 #pip uninstall IGCexpansion
 #pip install --user git+https://github.com/Tanchumin/Commonancestor.git
+#sbatch -c 4 --mem-per-cpu=16G RunJoint_Yeast.py
+
 
 def build_dic(dd=3):
     list = []
-    for i in range(51):
+    for i in range(101):
         list.append("\n"+"cd")
       #  p="\n"+"cd final1/simulation/yeast_YER102W_YBL072C/test\ copy\ "+str(i)+"/"
       #  p = "\n" + "cd final1/simulation/pillar2158/test\ copy\ " + str(i) + "/"
-        p="\n" + "cd final1/simulation/testfile/testf521/test\ copy\ " + str(i) + "/"
+        p="\n" + "cd final1/simulation/testfile/testy13t1/test\ copy\ " + str(i) + "/"
     #    p = "\n" + "cd final1/simulation/testfile/testgnew/test" + str(i) + "/"
         list.append(p)
         list.append("\n"+"sbatch  Run_IS_IGC_Old.py")
@@ -40,29 +42,6 @@ def build_dic(dd=3):
 
 
 build_dic()
-
-
-
-def merge(nums1, m, nums2, n) -> None:
-    if n == 0:
-        return nums1[0:(m - 1)]
-    else:
-        listout1 = deepcopy(nums1)
-        index_n = 0
-        index_m = 0
-        for i in range(m + n):
-            if (index_m < m and nums2[index_n] >= listout1[index_m]) or index_n >= n:
-                nums1[i] = listout1[index_m]
-                index_m += 1
-            else:
-                nums1[i] = nums2[index_n]
-                index_n += 1
-
-
-print(merge([1,2,3,0,0,0],3,[2,5,6],3))
-
-
-
 
 
 

@@ -204,12 +204,12 @@ class JointAnalysis:
             bnds.extend([(None, 6.0)] * (2))
             if self.Model=="MG94":
                 bnds.extend([(None, 6.0)] * (1))
-                bnds.extend([(None, 4.0)]*(len(self.geneconv_list[0].x) - 6))
+                bnds.extend([(None, 40.0)] * (1))
+                bnds.extend([(-10.0, 4.0)]*(len(self.geneconv_list[0].x) - 7))
 
             else:
-                bnds.extend([(None, 4.0)]*(len(self.geneconv_list[0].x) - 5))
-
-
+                bnds.extend([(None, 40.0)] * (1))
+                bnds.extend([(-10.0, 4.0)] * (len(self.geneconv_list[0].x) - 6))
 
 
         return bnds
