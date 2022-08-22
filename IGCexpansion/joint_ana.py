@@ -167,49 +167,27 @@ class JointAnalysis:
             geneconv.update_by_x(self.combine_x(uniq_x, shared_x))
 
     def get_original_bounds(self):
-        if self.ifmodel=="EM_full":
-           tau=deepcopy(np.log(self.oldtau))
-
-        # if self.ifmodel != "old":
-        #     bnds = [(-4.0, -0.05)] * 3
-        #     bnds.extend([(-10.0, 8.0)] * (3))
-        #     if self.Model=="MG94":
-        #         bnds.extend([(-10.0, 8.0)] * (1))
-        #         bnds.extend([(-10.0, 4.0)]*(len(self.geneconv_list[0].x) - 7))
-        #
-        #     else:
-        #         bnds.extend([(-10.0, 4.0)]*(len(self.geneconv_list[0].x) - 6))
-        #
-        # else:
-        #     bnds = [(-4.0, -0.05)] * 3
-        #     bnds.extend([(-10.0, 7.0)] * (3))
-        #     if self.Model=="MG94":
-        #         bnds.extend([(-10.0, 4.0)]*(len(self.geneconv_list[0].x) - 6))
-        #
-        #     else:
-        #         #ta
-        #         bnds.extend([(-10.0, 4.0)]*(len(self.geneconv_list[0].x) - 5))
 
         if self.ifmodel != "old":
             bnds = [(None, -0.05)] * 3
-            bnds.extend([(None, 6.0)] * (3))
+            bnds.extend([(None, 6.0)] * (2))
             if self.Model=="MG94":
                 bnds.extend([(None, 6.0)] * (1))
-                bnds.extend([(None, 4.0)]*(len(self.geneconv_list[0].x) - 7))
+                bnds.extend([(-20.0, 40.0)] * (1))
+                bnds.extend([(-10.0, 4.0)]*(len(self.geneconv_list[0].x) - 7))
 
             else:
-                bnds.extend([(None, 4.0)]*(len(self.geneconv_list[0].x) - 6))
+                bnds.extend([(-20.0, 40.0)] * (1))
+                bnds.extend([(-10.0, 4.0)]*(len(self.geneconv_list[0].x) - 6))
         else:
             bnds = [(None, -0.05)] * 3
             bnds.extend([(None, 6.0)] * (2))
             if self.Model=="MG94":
                 bnds.extend([(None, 6.0)] * (1))
-                bnds.extend([(None, 40.0)] * (1))
-                bnds.extend([(-10.0, 4.0)]*(len(self.geneconv_list[0].x) - 7))
+                bnds.extend([(-10.0, 4.0)]*(len(self.geneconv_list[0].x) - 6))
 
             else:
-                bnds.extend([(None, 40.0)] * (1))
-                bnds.extend([(-10.0, 4.0)] * (len(self.geneconv_list[0].x) - 6))
+                bnds.extend([(-10.0, 4.0)] * (len(self.geneconv_list[0].x) - 5))
 
 
         return bnds
