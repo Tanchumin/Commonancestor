@@ -120,7 +120,6 @@ class Embrachtau1:
 
         # Initialize all parameters
         self.joint=joint
-        self.ifhessian = False
         self.initialize_parameters()
 
         #hessian
@@ -440,22 +439,10 @@ class Embrachtau1:
                         x_process[6]=np.log(x_process[6])
                     else:
                         x_process[5] = np.log(x_process[5])
-
-
         elif transformation == 'None':
             x_process = self.x_process
         elif transformation == 'Exp_Neg':
             x_process = np.concatenate((self.x_process[:3], -np.log(self.x_process[3:])))
-
-        if self.ifhessian == True:
-                x_process = np.exp(self.x_process)
-
-                if self.Model == "MG94":
-                    x_process[5] = np.log(x_process[5])
-                    x_process[6] = np.log(x_process[6])
-                else:
-                    x_process[4] = np.log(x_process[4])
-                    x_process[5] = np.log(x_process[5])
 
         if Force_process != None:
             for i in Force_process.keys():
@@ -844,6 +831,8 @@ class Embrachtau1:
         Modified from Alex's objective_and_gradient function in ctmcaas/adv-log-likelihoods/mle_geneconv_common.py
         '''
 
+
+
         if store:
             self.scene_ll = self.get_scene()
             scene = self.scene_ll
@@ -878,53 +867,50 @@ class Embrachtau1:
         return ll, edge_derivs
 
 
-    def _loglikelihood3(self, store=True, edge_derivative=False):
-            '''
-            Modified from Alex's objective_and_gradient function in ctmcaas/adv-log-likelihoods/mle_geneconv_common.py
-            '''
-
-            self.ifhessian=True
-            self.update_by_x(self.x)
-
-            if store:
-                self.scene_ll = self.get_scene()
-                scene = self.scene_ll
-            else:
-                scene = self.get_scene()
-
-            log_likelihood_request = {'property': 'snnlogl'}
-            derivatives_request = {'property': 'sdnderi'}
-            if edge_derivative and self.ifmodel != "EM_reduce":
-                requests = [log_likelihood_request, derivatives_request]
-            else:
-                requests = [log_likelihood_request]
-            j_in = {
-                'scene': self.scene_ll,
-                'requests': requests
-            }
-            j_out = jsonctmctree.interface.process_json_in(j_in)
-
-            status = j_out['status']
-
-            try:
-                ll = j_out['responses'][0]
-            except Exception:
-                print("xxxxxxxXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX", flush=True)
-                print(self.x, flush=True)
-                print(edge_derivative, flush=True)
-                print(self.edge_de, flush=True)
-                print(self.scene_ll)
-                print("xxxxxxxXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX", flush=True)
-                pass
-
-            #        ll = j_out['responses'][0]
-            self.ll = ll
-
-          #  print(self.x_process[5])
-
-            #   print(edge_derivs)
-
-            return ll
+    # def _loglikelihood3(self, store=True, edge_derivative=False):
+    #         '''
+    #         Modified from Alex's objective_and_gradient function in ctmcaas/adv-log-likelihoods/mle_geneconv_common.py
+    #         '''
+    #
+    #
+    #         self.update_by_x(self.x)
+    #   #      print(self.x[4])
+    #
+    #         if store:
+    #             self.scene_ll = self.get_scene()
+    #             scene = self.scene_ll
+    #         else:
+    #             scene = self.get_scene()
+    #
+    #         log_likelihood_request = {'property': 'snnlogl'}
+    #         derivatives_request = {'property': 'sdnderi'}
+    #         if edge_derivative and self.ifmodel != "EM_reduce":
+    #             requests = [log_likelihood_request, derivatives_request]
+    #         else:
+    #             requests = [log_likelihood_request]
+    #         j_in = {
+    #             'scene': self.scene_ll,
+    #             'requests': requests
+    #         }
+    #         j_out = jsonctmctree.interface.process_json_in(j_in)
+    #
+    #         status = j_out['status']
+    #
+    #         try:
+    #             ll = j_out['responses'][0]
+    #         except Exception:
+    #             print("xxxxxxxXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX", flush=True)
+    #             print(self.x, flush=True)
+    #             print(edge_derivative, flush=True)
+    #             print(self.edge_de, flush=True)
+    #             print(self.scene_ll)
+    #             print("xxxxxxxXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX", flush=True)
+    #             pass
+    #
+    #         #        ll = j_out['responses'][0]
+    #         self.ll = ll
+    #
+    #         return ll
 
     def _sitewise_loglikelihood(self):
         scene = self.get_scene()
@@ -1236,19 +1222,32 @@ class Embrachtau1:
 # develop this one to compute hessian
     def objective_wo_derivative1(self, x):
 
-        if self.Model=="MG94":
-            self.x[5] = x[0]
-            self.x[6] = x[1]
-        else:
-            self.x[4] = x[0]
-            self.x[5] = x[1]
-
-        self.update_by_x(self.x)
-
         if self.ifexp==False:
+            if self.Model == "MG94":
+                self.x[5] = x[0]
+                self.x[6] = x[1]
+
+            else:
+                self.x[4] = x[0]
+                self.x[5] = x[1]
+            self.update_by_x(self.x)
+            self.id = self.compute_paralog_id()
+            self.update_by_x(self.x)
+
             ll = self._loglikelihood2()[0]
         else:
-            ll = self._loglikelihood3()
+            if self.Model == "MG94":
+                self.x[5] = np.log(x[0])
+                self.x[6] = x[1]
+            else:
+                self.x[4] = np.log(x[0])
+                self.x[5] = x[1]
+
+            self.update_by_x(self.x)
+            self.id = self.compute_paralog_id()
+            self.update_by_x(self.x)
+            ll = self._loglikelihood2()[0]
+
 
         return -ll
 
@@ -1480,7 +1479,6 @@ class Embrachtau1:
 
         taubound=self.tau/np.power(min,self.kbound)
         self.id[1] = 0
-
 
         return taubound
 
@@ -1925,6 +1923,9 @@ class Embrachtau1:
         ttt = len(self.tree['col'])
         id = np.zeros(ttt)
         diverge_list = np.ones(ttt)
+        if self.sites is None:
+            self.jointly_common_ancstral_inference()
+
 
         if self.dwell_id == False:
 
@@ -1956,10 +1957,7 @@ class Embrachtau1:
 
         else:
 
-            self.jointly_common_ancstral_inference()
-
             if self.Model == "MG94":
-
                 if self.ifDNA==True:
                     expected_DwellTime = self._ExpectedHetDwellTime_DNA()
 
@@ -1983,7 +1981,6 @@ class Embrachtau1:
                       for i in range(ttt)]
 
         self.id=id
-
 
         return id
 
@@ -2493,6 +2490,7 @@ class Embrachtau1:
 
 
 ###### oldid
+        self.compute_paralog_id()
         self.id = self.compute_paralog_id()
         idold = deepcopy(self.id)
         print(self.id)
@@ -2535,6 +2533,7 @@ class Embrachtau1:
         if self.if_rerun==True:
 
             self.get_mle()
+            ll1 = self.get_mle()["fun"]
             difference = abs(self.tau - pstau)
 
             print("EMcycle:")
@@ -2873,18 +2872,18 @@ if __name__ == '__main__':
     newicktree = '../test/yeast/YeastTree.newick'
 
 
-    Force = {4:0}
+    Force = None
     model = 'HKY'
 
     save_name = model+name+"testforce"
     geneconv = Embrachtau1(newicktree, alignment_file, paralog, Model=model, Force=Force, clock=None,
                                save_path='../test/save/', save_name=save_name,kbound=5)
 
-    geneconv.get_mle()
+  #  geneconv.get_mle()
 #    print(print(geneconv.compute_paralog_id()))
 
 
-  #  geneconv.sum_branch(MAX=3,K=1.5)
+    geneconv.sum_branch(MAX=1,K=1.5)
 
  #   print(geneconv.get_summary(approx=True,branchtau=True))
 

@@ -225,20 +225,33 @@ class JointAnalysis:
         return f, g
 
     def objective_wo_gradient(self, x):
-        if len(self.shared_parameters_for_k)==1:
-            self.x[-1] = x[0]
-        else:
-            self.x[-2] = x[0]
-            self.x[-1] = x[1]
-        self.update_by_x(self.x)
-
         f=0
         if  len(self.shared_parameters_for_k)==2:
+            if len(self.shared_parameters_for_k) == 1:
+                self.x[-1] = x[0]
+            else:
+                self.x[-2] = np.log(x[0])
+                self.x[-1] = x[1]
+            self.update_by_x(self.x)
+
             for i in self.multiprocess_combined_list:
-                f = self.geneconv_list[i]._loglikelihood3() + f
+                self.geneconv_list[i].update_by_x(self.geneconv_list[i].x)
+                self.geneconv_list[i].id = self.geneconv_list[i].compute_paralog_id()
+                self.geneconv_list[i].update_by_x(self.geneconv_list[i].x)
+                f = self.geneconv_list[i]._loglikelihood2()[0] + f
 
         else:
+            if len(self.shared_parameters_for_k) == 1:
+                self.x[-1] = x[0]
+            else:
+                self.x[-2] = np.log(x[0])
+                self.x[-1] = x[1]
+            self.update_by_x(self.x)
+
             for i in self.multiprocess_combined_list:
+                self.geneconv_list[i].update_by_x(self.geneconv_list[i].x)
+                self.geneconv_list[i].id = self.geneconv_list[i].compute_paralog_id()
+                self.geneconv_list[i].update_by_x(self.geneconv_list[i].x)
                 f = self.geneconv_list[i]._loglikelihood2()[0] + f
 
         return -f

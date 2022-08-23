@@ -124,7 +124,6 @@ class Embrachtau:
 
         # Initialize all parameters
         self.joint=joint
-        self.ifhessian = False
         self.initialize_parameters()
 
         #hessian
@@ -420,16 +419,6 @@ class Embrachtau:
             x_process = self.x_process
         elif transformation == 'Exp_Neg':
             x_process = np.concatenate((self.x_process[:3], -np.log(self.x_process[3:])))
-
-        if self.ifhessian == True:
-                x_process = np.exp(self.x_process)
-
-                if self.Model == "MG94":
-                    x_process[5] = np.log(x_process[5])
-                    x_process[6] = np.log(x_process[6])
-                else:
-                    x_process[4] = np.log(x_process[4])
-                    x_process[5] = np.log(x_process[5])
 
         if Force_process != None:
             for i in Force_process.keys():
@@ -847,57 +836,8 @@ class Embrachtau:
         else:
             edge_derivs = []
 
-     #   print(edge_derivs)
 
         return ll, edge_derivs
-
-
-    def _loglikelihood3(self, store=True, edge_derivative=False):
-            '''
-            Modified from Alex's objective_and_gradient function in ctmcaas/adv-log-likelihoods/mle_geneconv_common.py
-            '''
-
-            self.ifhessian=True
-            self.update_by_x(self.x)
-
-            if store:
-                self.scene_ll = self.get_scene()
-                scene = self.scene_ll
-            else:
-                scene = self.get_scene()
-
-            log_likelihood_request = {'property': 'snnlogl'}
-            derivatives_request = {'property': 'sdnderi'}
-            if edge_derivative and self.ifmodel != "EM_reduce":
-                requests = [log_likelihood_request, derivatives_request]
-            else:
-                requests = [log_likelihood_request]
-            j_in = {
-                'scene': self.scene_ll,
-                'requests': requests
-            }
-            j_out = jsonctmctree.interface.process_json_in(j_in)
-
-
-            try:
-                ll = j_out['responses'][0]
-            except Exception:
-                print("xxxxxxxXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX", flush=True)
-                print(self.x, flush=True)
-                print(edge_derivative, flush=True)
-                print(self.edge_de, flush=True)
-                print(self.scene_ll)
-                print("xxxxxxxXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX", flush=True)
-                pass
-
-            #        ll = j_out['responses'][0]
-            self.ll = ll
-
-          #  print(self.x_process[5])
-
-            #   print(edge_derivs)
-
-            return ll
 
     def _sitewise_loglikelihood(self):
         scene = self.get_scene()
@@ -1206,22 +1146,38 @@ class Embrachtau:
 
 # develop this one to compute hessian
     def objective_wo_derivative1(self, x):
-        assert (len(x)==2)
-        if self.Model=="MG94":
-            self.x[5] = x[0]
-            self.x[6] = x[1]
-        else:
-            self.x[4] = x[0]
-            self.x[5] = x[1]
-
-        self.update_by_x(self.x)
 
         if self.ifexp==False:
+            if self.Model == "MG94":
+                self.x[5] = x[0]
+                self.x[6] = x[1]
+
+            else:
+                self.x[4] = x[0]
+                self.x[5] = x[1]
+            self.update_by_x(self.x)
+            self.id = self.compute_paralog_id()
+            self.update_by_x(self.x)
+
             ll = self._loglikelihood2()[0]
         else:
-            ll = self._loglikelihood3()
+            if self.Model == "MG94":
+                self.x[5] = np.log(x[0])
+                self.x[6] = x[1]
+            else:
+                self.x[4] = np.log(x[0])
+                self.x[5] = x[1]
+
+            self.update_by_x(self.x)
+            self.id = self.compute_paralog_id()
+            self.update_by_x(self.x)
+            ll = self._loglikelihood2()[0]
 
         return -ll
+
+
+
+
 
     def objective_wo_derivative_global(self, display, x):
         if self.clock:
@@ -1891,7 +1847,7 @@ class Embrachtau:
         return index,ratio_nonsynonymous,ratio_synonymous
 
 
-    def compute_paralog_id(self,repeat=10,ifdnalevel=False):
+    def compute_paralog_id(self,repeat=10,ifdnalevel=True):
 
         ttt = len(self.tree['col'])
         id = np.zeros(ttt)
