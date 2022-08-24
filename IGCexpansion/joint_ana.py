@@ -363,9 +363,10 @@ class JointAnalysis:
 
 
     def get_Hessian(self):
+            step = nd.step_generators.MaxStepGenerator(base_step=0.1)
 
             if len(self.shared_parameters_for_k) == 2:
-                H = nd.Hessian(self.objective_wo_gradient)(np.float128([np.exp(self.x[-2]), self.x[-1]]))
+                H = nd.Hessian(self.objective_wo_gradient, step = step)(np.float128([np.exp(self.x[-2]), self.x[-1]]))
             else:
                 H = nd.Hessian(self.objective_wo_gradient)(np.float128([self.x[-1]]))
 

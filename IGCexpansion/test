@@ -1,47 +1,46 @@
 from __future__ import print_function
 import jsonctmctree.ll, jsonctmctree.interface
 from CodonGeneconv import *
-from copy import deepcopy
-import os
+import numdifftools as nd
 import numpy as np
-import pandas as pd
-from numpy import random
-from scipy import linalg
 
 
-from IGCexpansion.CodonGeneconFunc import isNonsynonymous
-import pickle
-import json
-import numpy.core.multiarray
-from scipy.stats import poisson
-import re
-import multiprocessing as mp
+class test:
+    def __init__(self):
+        self.index = 0
 
-#pip uninstall IGCexpansion
-#pip install --user git+https://github.com/Tanchumin/Commonancestor.git
-#sbatch -c 4 --mem-per-cpu=16G RunJoint_Yeast.py
-
-
-def build_dic(dd=3):
-    list = []
-    for i in range(101):
-        list.append("\n"+"cd")
-      #  p="\n"+"cd final1/simulation/yeast_YER102W_YBL072C/test\ copy\ "+str(i)+"/"
-      #  p = "\n" + "cd final1/simulation/pillar2158/test\ copy\ " + str(i) + "/"
-        p="\n" + "cd final1/simulation/testfile/testy13t1/test\ copy\ " + str(i) + "/"
-    #    p = "\n" + "cd final1/simulation/testfile/testgnew/test" + str(i) + "/"
-        list.append(p)
-        list.append("\n"+"sbatch  Run_IS_IGC_Old.py")
-
-  #  with open('../save/read.txt') as f:
-    #    lines = f.readlines()
-    with open('../save/read.txt', 'wb') as f:
-        for file in list:
-            f.write(file.encode('utf-8'))
+    def sum_branch_test1(self):
 
 
 
-build_dic()
+
+        step = nd.step_generators.MaxStepGenerator()
+        print(step)
+        print(nd.Hessian(self.testfunction, step=step)([4]))
+
+
+    def testfunction(self,x):
+        print(x)
+        self.index += 1
+        print(self.index)
+        return (x[0] ** 2 )
+
+    def print11(self):
+        step_gen = nd.step_generators.BasicMaxStepGenerator(base_step=2.0, step_ratio=2,
+                                                            num_steps = 4)
+
+        for s in step_gen():
+            print(s)
+
+        print(np.log1p(np.abs(4)).clip(min=1.0))
+
+
+
+
+if __name__ == '__main__':
+    self=test()
+    self.sum_branch_test1()
+    self.print11()
 
 
 

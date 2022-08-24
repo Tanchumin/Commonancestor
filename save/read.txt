@@ -1,304 +1,304 @@
 
 cd
-cd final1/simulation/testfile/testy13t1/test\ copy\ 0/
+cd final1/yeast_unlimit_tau/test/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/simulation/testfile/testy13t1/test\ copy\ 1/
+cd final1/yeast_unlimit_tau/test1/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/simulation/testfile/testy13t1/test\ copy\ 2/
+cd final1/yeast_unlimit_tau/test2/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/simulation/testfile/testy13t1/test\ copy\ 3/
+cd final1/yeast_unlimit_tau/test3/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/simulation/testfile/testy13t1/test\ copy\ 4/
+cd final1/yeast_unlimit_tau/test4/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/simulation/testfile/testy13t1/test\ copy\ 5/
+cd final1/yeast_unlimit_tau/test5/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/simulation/testfile/testy13t1/test\ copy\ 6/
+cd final1/yeast_unlimit_tau/test6/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/simulation/testfile/testy13t1/test\ copy\ 7/
+cd final1/yeast_unlimit_tau/test7/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/simulation/testfile/testy13t1/test\ copy\ 8/
+cd final1/yeast_unlimit_tau/test8/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/simulation/testfile/testy13t1/test\ copy\ 9/
+cd final1/yeast_unlimit_tau/test9/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/simulation/testfile/testy13t1/test\ copy\ 10/
+cd final1/yeast_unlimit_tau/test10/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/simulation/testfile/testy13t1/test\ copy\ 11/
+cd final1/yeast_unlimit_tau/test11/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/simulation/testfile/testy13t1/test\ copy\ 12/
+cd final1/yeast_unlimit_tau/test12/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/simulation/testfile/testy13t1/test\ copy\ 13/
+cd final1/yeast_unlimit_tau/test13/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/simulation/testfile/testy13t1/test\ copy\ 14/
+cd final1/yeast_unlimit_tau/test14/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/simulation/testfile/testy13t1/test\ copy\ 15/
+cd final1/yeast_unlimit_tau/test15/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/simulation/testfile/testy13t1/test\ copy\ 16/
+cd final1/yeast_unlimit_tau/test16/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/simulation/testfile/testy13t1/test\ copy\ 17/
+cd final1/yeast_unlimit_tau/test17/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/simulation/testfile/testy13t1/test\ copy\ 18/
+cd final1/yeast_unlimit_tau/test18/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/simulation/testfile/testy13t1/test\ copy\ 19/
+cd final1/yeast_unlimit_tau/test19/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/simulation/testfile/testy13t1/test\ copy\ 20/
+cd final1/yeast_unlimit_tau/test20/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/simulation/testfile/testy13t1/test\ copy\ 21/
+cd final1/yeast_unlimit_tau/test21/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/simulation/testfile/testy13t1/test\ copy\ 22/
+cd final1/yeast_unlimit_tau/test22/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/simulation/testfile/testy13t1/test\ copy\ 23/
+cd final1/yeast_unlimit_tau/test23/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/simulation/testfile/testy13t1/test\ copy\ 24/
+cd final1/yeast_unlimit_tau/test24/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/simulation/testfile/testy13t1/test\ copy\ 25/
+cd final1/yeast_unlimit_tau/test25/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/simulation/testfile/testy13t1/test\ copy\ 26/
+cd final1/yeast_unlimit_tau/test26/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/simulation/testfile/testy13t1/test\ copy\ 27/
+cd final1/yeast_unlimit_tau/test27/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/simulation/testfile/testy13t1/test\ copy\ 28/
+cd final1/yeast_unlimit_tau/test28/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/simulation/testfile/testy13t1/test\ copy\ 29/
+cd final1/yeast_unlimit_tau/test29/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/simulation/testfile/testy13t1/test\ copy\ 30/
+cd final1/yeast_unlimit_tau/test30/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/simulation/testfile/testy13t1/test\ copy\ 31/
+cd final1/yeast_unlimit_tau/test31/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/simulation/testfile/testy13t1/test\ copy\ 32/
+cd final1/yeast_unlimit_tau/test32/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/simulation/testfile/testy13t1/test\ copy\ 33/
+cd final1/yeast_unlimit_tau/test33/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/simulation/testfile/testy13t1/test\ copy\ 34/
+cd final1/yeast_unlimit_tau/test34/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/simulation/testfile/testy13t1/test\ copy\ 35/
+cd final1/yeast_unlimit_tau/test35/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/simulation/testfile/testy13t1/test\ copy\ 36/
+cd final1/yeast_unlimit_tau/test36/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/simulation/testfile/testy13t1/test\ copy\ 37/
+cd final1/yeast_unlimit_tau/test37/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/simulation/testfile/testy13t1/test\ copy\ 38/
+cd final1/yeast_unlimit_tau/test38/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/simulation/testfile/testy13t1/test\ copy\ 39/
+cd final1/yeast_unlimit_tau/test39/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/simulation/testfile/testy13t1/test\ copy\ 40/
+cd final1/yeast_unlimit_tau/test40/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/simulation/testfile/testy13t1/test\ copy\ 41/
+cd final1/yeast_unlimit_tau/test41/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/simulation/testfile/testy13t1/test\ copy\ 42/
+cd final1/yeast_unlimit_tau/test42/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/simulation/testfile/testy13t1/test\ copy\ 43/
+cd final1/yeast_unlimit_tau/test43/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/simulation/testfile/testy13t1/test\ copy\ 44/
+cd final1/yeast_unlimit_tau/test44/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/simulation/testfile/testy13t1/test\ copy\ 45/
+cd final1/yeast_unlimit_tau/test45/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/simulation/testfile/testy13t1/test\ copy\ 46/
+cd final1/yeast_unlimit_tau/test46/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/simulation/testfile/testy13t1/test\ copy\ 47/
+cd final1/yeast_unlimit_tau/test47/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/simulation/testfile/testy13t1/test\ copy\ 48/
+cd final1/yeast_unlimit_tau/test48/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/simulation/testfile/testy13t1/test\ copy\ 49/
+cd final1/yeast_unlimit_tau/test49/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/simulation/testfile/testy13t1/test\ copy\ 50/
+cd final1/yeast_unlimit_tau/test50/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/simulation/testfile/testy13t1/test\ copy\ 51/
+cd final1/yeast_unlimit_tau/test51/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/simulation/testfile/testy13t1/test\ copy\ 52/
+cd final1/yeast_unlimit_tau/test52/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/simulation/testfile/testy13t1/test\ copy\ 53/
+cd final1/yeast_unlimit_tau/test53/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/simulation/testfile/testy13t1/test\ copy\ 54/
+cd final1/yeast_unlimit_tau/test54/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/simulation/testfile/testy13t1/test\ copy\ 55/
+cd final1/yeast_unlimit_tau/test55/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/simulation/testfile/testy13t1/test\ copy\ 56/
+cd final1/yeast_unlimit_tau/test56/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/simulation/testfile/testy13t1/test\ copy\ 57/
+cd final1/yeast_unlimit_tau/test57/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/simulation/testfile/testy13t1/test\ copy\ 58/
+cd final1/yeast_unlimit_tau/test58/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/simulation/testfile/testy13t1/test\ copy\ 59/
+cd final1/yeast_unlimit_tau/test59/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/simulation/testfile/testy13t1/test\ copy\ 60/
+cd final1/yeast_unlimit_tau/test60/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/simulation/testfile/testy13t1/test\ copy\ 61/
+cd final1/yeast_unlimit_tau/test61/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/simulation/testfile/testy13t1/test\ copy\ 62/
+cd final1/yeast_unlimit_tau/test62/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/simulation/testfile/testy13t1/test\ copy\ 63/
+cd final1/yeast_unlimit_tau/test63/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/simulation/testfile/testy13t1/test\ copy\ 64/
+cd final1/yeast_unlimit_tau/test64/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/simulation/testfile/testy13t1/test\ copy\ 65/
+cd final1/yeast_unlimit_tau/test65/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/simulation/testfile/testy13t1/test\ copy\ 66/
+cd final1/yeast_unlimit_tau/test66/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/simulation/testfile/testy13t1/test\ copy\ 67/
+cd final1/yeast_unlimit_tau/test67/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/simulation/testfile/testy13t1/test\ copy\ 68/
+cd final1/yeast_unlimit_tau/test68/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/simulation/testfile/testy13t1/test\ copy\ 69/
+cd final1/yeast_unlimit_tau/test69/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/simulation/testfile/testy13t1/test\ copy\ 70/
+cd final1/yeast_unlimit_tau/test70/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/simulation/testfile/testy13t1/test\ copy\ 71/
+cd final1/yeast_unlimit_tau/test71/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/simulation/testfile/testy13t1/test\ copy\ 72/
+cd final1/yeast_unlimit_tau/test72/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/simulation/testfile/testy13t1/test\ copy\ 73/
+cd final1/yeast_unlimit_tau/test73/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/simulation/testfile/testy13t1/test\ copy\ 74/
+cd final1/yeast_unlimit_tau/test74/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/simulation/testfile/testy13t1/test\ copy\ 75/
+cd final1/yeast_unlimit_tau/test75/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/simulation/testfile/testy13t1/test\ copy\ 76/
+cd final1/yeast_unlimit_tau/test76/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/simulation/testfile/testy13t1/test\ copy\ 77/
+cd final1/yeast_unlimit_tau/test77/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/simulation/testfile/testy13t1/test\ copy\ 78/
+cd final1/yeast_unlimit_tau/test78/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/simulation/testfile/testy13t1/test\ copy\ 79/
+cd final1/yeast_unlimit_tau/test79/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/simulation/testfile/testy13t1/test\ copy\ 80/
+cd final1/yeast_unlimit_tau/test80/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/simulation/testfile/testy13t1/test\ copy\ 81/
+cd final1/yeast_unlimit_tau/test81/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/simulation/testfile/testy13t1/test\ copy\ 82/
+cd final1/yeast_unlimit_tau/test82/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/simulation/testfile/testy13t1/test\ copy\ 83/
+cd final1/yeast_unlimit_tau/test83/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/simulation/testfile/testy13t1/test\ copy\ 84/
+cd final1/yeast_unlimit_tau/test84/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/simulation/testfile/testy13t1/test\ copy\ 85/
+cd final1/yeast_unlimit_tau/test85/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/simulation/testfile/testy13t1/test\ copy\ 86/
+cd final1/yeast_unlimit_tau/test86/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/simulation/testfile/testy13t1/test\ copy\ 87/
+cd final1/yeast_unlimit_tau/test87/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/simulation/testfile/testy13t1/test\ copy\ 88/
+cd final1/yeast_unlimit_tau/test88/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/simulation/testfile/testy13t1/test\ copy\ 89/
+cd final1/yeast_unlimit_tau/test89/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/simulation/testfile/testy13t1/test\ copy\ 90/
+cd final1/yeast_unlimit_tau/test90/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/simulation/testfile/testy13t1/test\ copy\ 91/
+cd final1/yeast_unlimit_tau/test91/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/simulation/testfile/testy13t1/test\ copy\ 92/
+cd final1/yeast_unlimit_tau/test92/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/simulation/testfile/testy13t1/test\ copy\ 93/
+cd final1/yeast_unlimit_tau/test93/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/simulation/testfile/testy13t1/test\ copy\ 94/
+cd final1/yeast_unlimit_tau/test94/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/simulation/testfile/testy13t1/test\ copy\ 95/
+cd final1/yeast_unlimit_tau/test95/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/simulation/testfile/testy13t1/test\ copy\ 96/
+cd final1/yeast_unlimit_tau/test96/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/simulation/testfile/testy13t1/test\ copy\ 97/
+cd final1/yeast_unlimit_tau/test97/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/simulation/testfile/testy13t1/test\ copy\ 98/
+cd final1/yeast_unlimit_tau/test98/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/simulation/testfile/testy13t1/test\ copy\ 99/
+cd final1/yeast_unlimit_tau/test99/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/simulation/testfile/testy13t1/test\ copy\ 100/
+cd final1/yeast_unlimit_tau/test100/
 sbatch  Run_IS_IGC_Old.py

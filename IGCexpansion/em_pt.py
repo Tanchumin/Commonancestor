@@ -2053,10 +2053,11 @@ class Embrachtau:
                H = nd.Hessian(self.objective_wo_derivative1)(np.float128((self.x[4:6])))
 
         else:
+            step = nd.step_generators.MaxStepGenerator(base_step=0.1)
             if self.Model == "MG94":
-                H = nd.Hessian(self.objective_wo_derivative1)(np.float128([np.exp(self.x[5]),self.x[6]]))
+                H = nd.Hessian(self.objective_wo_derivative1,step=step)(np.float128([np.exp(self.x[5]),self.x[6]]))
             else:
-                H = nd.Hessian(self.objective_wo_derivative1)([np.exp(self.x[4]),self.x[5]])
+                H = nd.Hessian(self.objective_wo_derivative1,step=step)([np.exp(self.x[4]),self.x[5]])
 
         H=np.linalg.inv(H)
 

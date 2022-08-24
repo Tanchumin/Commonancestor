@@ -1,0 +1,37 @@
+from __future__ import print_function
+import jsonctmctree.ll, jsonctmctree.interface
+from CodonGeneconv import *
+from copy import deepcopy
+import os
+import numpy as np
+import pandas as pd
+from numpy import random
+from scipy import linalg
+
+
+#pip uninstall IGCexpansion
+#pip install --user git+https://github.com/Tanchumin/Commonancestor.git
+#sbatch -c 4 --mem-per-cpu=16G RunJoint_Yeast.py
+
+
+def build_dic(dd=3):
+    list = []
+    for i in range(101):
+        list.append("\n"+"cd")
+      #  p="\n"+"cd final1/simulation/yeast_YER102W_YBL072C/test\ copy\ "+str(i)+"/"
+      #  p = "\n" + "cd final1/simulation/pillar2158/test\ copy\ " + str(i) + "/"
+      #  p="\n" + "cd final1/simulation/testfile/testy13t1/test\ copy\ " + str(i) + "/"
+    #    p = "\n" + "cd final1/simulation/testfile/testgnew/test" + str(i) + "/"
+        p = "\n" + "cd final1/yeast_unlimit_tau/test" + str(i) + "/"
+        list.append(p)
+        list.append("\n"+"sbatch  Run_IS_IGC_Old.py")
+
+  #  with open('../save/read.txt') as f:
+    #    lines = f.readlines()
+    with open('../save/read.txt', 'wb') as f:
+        for file in list:
+            f.write(file.encode('utf-8'))
+
+
+
+build_dic()

@@ -1237,13 +1237,21 @@ class Embrachtau1:
             ll = self._loglikelihood2()[0]
         else:
             if self.Model == "MG94":
-                self.x[5] = np.log(x[0])
+                if x[0]>0:
+                    self.x[5] = np.log(x[0])
+                else:
+                    self.x[5] = np.log(0.0001)
+
                 self.x[6] = x[1]
             else:
-                self.x[4] = np.log(x[0])
+                if x[0]>0:
+                    self.x[4] = np.log(x[0])
+                else:
+                    self.x[4] = np.log(0.0001)
                 self.x[5] = x[1]
 
             self.update_by_x(self.x)
+            print(self.x)
             self.id = self.compute_paralog_id()
             self.update_by_x(self.x)
             ll = self._loglikelihood2()[0]
@@ -1926,7 +1934,6 @@ class Embrachtau1:
         if self.sites is None:
             self.jointly_common_ancstral_inference()
 
-
         if self.dwell_id == False:
 
             for mc in range(repeat):
@@ -1956,7 +1963,6 @@ class Embrachtau1:
                     id[j] = 1-(float(diverge_list[j]) / repeat)/self.nsites
 
         else:
-
             if self.Model == "MG94":
                 if self.ifDNA==True:
                     expected_DwellTime = self._ExpectedHetDwellTime_DNA()
@@ -2124,10 +2130,11 @@ class Embrachtau1:
                H = nd.Hessian(self.objective_wo_derivative1)(np.float128((self.x[4:6])))
 
         else:
+            step = nd.step_generators.MaxStepGenerator(base_step=0.1)
             if self.Model == "MG94":
-                H = nd.Hessian(self.objective_wo_derivative1)(np.float128([np.exp(self.x[5]),self.x[6]]))
+                H = nd.Hessian(self.objective_wo_derivative1,step=step)([np.exp(self.x[5]),self.x[6]])
             else:
-                H = nd.Hessian(self.objective_wo_derivative1)([np.exp(self.x[4]),self.x[5]])
+                H = nd.Hessian(self.objective_wo_derivative1,step=step)([np.exp(self.x[4]),self.x[5]])
 
         H=np.linalg.inv(H)
 
@@ -2490,7 +2497,6 @@ class Embrachtau1:
 
 
 ###### oldid
-        self.compute_paralog_id()
         self.id = self.compute_paralog_id()
         idold = deepcopy(self.id)
         print(self.id)
@@ -2619,6 +2625,12 @@ class Embrachtau1:
 
         else:
             self.id = self.compute_paralog_id()
+            self.ifexp = True
+            hessian = self.get_Hessian()
+            print(hessian)
+            list.append(hessian[0][0])
+            list.append(hessian[1][1])
+
             for j in range(len(self.edge_list)):
                 list.append(self.id[j])
             for j in range(len(self.edge_list)):
@@ -2857,6 +2869,27 @@ class Embrachtau1:
 
         return scene
 
+    def sum_branch_test(self ,K=4.1):
+
+            self.get_mle()
+            self.id = self.compute_paralog_id()
+            self.ifmodel = "EM_full"
+
+            print("xxxxxxxxxxxxxxx")
+            self.get_initial_x_process()
+
+
+
+            self.id = self.compute_paralog_id()
+
+            self.ifexp = True
+            hessian = self.get_Hessian()
+            print(hessian)
+            list.append(hessian[0][0])
+            list.append(hessian[1][1])
+
+
+
 
 
 
@@ -2883,7 +2916,7 @@ if __name__ == '__main__':
 #    print(print(geneconv.compute_paralog_id()))
 
 
-    geneconv.sum_branch(MAX=1,K=1.5)
+    geneconv.sum_branch_test()
 
  #   print(geneconv.get_summary(approx=True,branchtau=True))
 
