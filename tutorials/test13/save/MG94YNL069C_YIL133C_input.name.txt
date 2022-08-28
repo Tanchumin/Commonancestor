@@ -1,0 +1,12 @@
+brahch N0 N1
+brahch N0 kluyveri
+brahch N1 N2
+brahch N1 castellii
+brahch N2 N3
+brahch N2 bayanus
+brahch N3 N4
+brahch N3 kudriavzevii
+brahch N4 N5
+brahch N4 mikatae
+brahch N5 cerevisiae
+brahch N5 paradoxus

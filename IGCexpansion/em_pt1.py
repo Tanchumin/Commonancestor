@@ -1237,6 +1237,7 @@ class Embrachtau1:
             ll = self._loglikelihood2()[0]
         else:
             if self.Model == "MG94":
+
                 if x[0]>0:
                     self.x[5] = np.log(x[0])
                 else:
@@ -1251,7 +1252,6 @@ class Embrachtau1:
                 self.x[5] = x[1]
 
             self.update_by_x(self.x)
-      #      print(self.x)
             self.id = self.compute_paralog_id()
             self.update_by_x(self.x)
             ll = self._loglikelihood2()[0]
@@ -2131,11 +2131,11 @@ class Embrachtau1:
 
         else:
             if self.Model == "MG94":
-                basic = np.exp(self.x[5]) / (2 * (np.max(np.log(np.exp(self.x[5]) + 1), 1))) - 0.2
+                basic = np.exp(self.x[5]) / (2 * (np.maximum(np.log(np.exp(self.x[5]) + 1), 1))) - 0.2
                 step = nd.step_generators.MaxStepGenerator(base_step=basic)
                 H = nd.Hessian(self.objective_wo_derivative1,step=step)([np.exp(self.x[5]),self.x[6]])
             else:
-                basic = np.exp(self.x[4]) / (2 * (np.max(np.log(np.exp(self.x[4]) + 1), 1))) - 0.2
+                basic = np.exp(self.x[4]) / (2 * (np.maximum(np.log(np.exp(self.x[4]) + 1), 1))) - 0.2
                 step = nd.step_generators.MaxStepGenerator(base_step=basic)
                 H = nd.Hessian(self.objective_wo_derivative1,step=step)([np.exp(self.x[4]),self.x[5]])
 
@@ -2887,6 +2887,7 @@ class Embrachtau1:
 
             self.ifexp = True
             hessian = self.get_Hessian()
+            list=[]
             print(hessian)
             list.append(hessian[0][0])
             list.append(hessian[1][1])

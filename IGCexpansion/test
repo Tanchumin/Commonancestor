@@ -19,6 +19,10 @@ class test:
         print(nd.Hessian(self.testfunction, step=step)([4]))
 
 
+    def test1(self):
+        print(np.max(1,2))
+
+
     def testfunction(self,x):
         print(x)
         self.index += 1
@@ -39,8 +43,7 @@ class test:
 
 if __name__ == '__main__':
     self=test()
-    self.sum_branch_test1()
-    self.print11()
+    self.test1()
 
 
 
