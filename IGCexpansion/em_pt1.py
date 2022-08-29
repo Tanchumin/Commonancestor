@@ -2131,11 +2131,11 @@ class Embrachtau1:
 
         else:
             if self.Model == "MG94":
-                basic = np.maximum(np.exp(self.x[5]) / (2 * (np.maximum(np.log(np.exp(self.x[5]) + 1), 1))) - 0.4,0.2)
+                basic = np.maximum(np.exp(self.x[5]) / (2 * (np.maximum(np.log(np.exp(self.x[5]) + 1), 1))) - 0.5,0.2)
                 step = nd.step_generators.MaxStepGenerator(base_step=basic)
                 H = nd.Hessian(self.objective_wo_derivative1,step=step)([np.exp(self.x[5]),self.x[6]])
             else:
-                basic = np.maximum(np.exp(self.x[4]) / (2 * (np.maximum(np.log(np.exp(self.x[4]) + 1), 1))) - 0.4,0.2)
+                basic = np.maximum(np.exp(self.x[4]) / (2 * (np.maximum(np.log(np.exp(self.x[4]) + 1), 1))) - 0.5,0.2)
                 step = nd.step_generators.MaxStepGenerator(base_step=basic)
                 H = nd.Hessian(self.objective_wo_derivative1,step=step)([np.exp(self.x[4]),self.x[5]])
 
