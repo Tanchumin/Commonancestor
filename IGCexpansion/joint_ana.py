@@ -366,7 +366,7 @@ class JointAnalysis:
 
 
             if len(self.shared_parameters_for_k) == 2:
-                basic = np.exp(self.x[-2]) / (2 * (np.maximum(np.log(np.exp(self.x[-2]) + 1), 1))) - 0.2
+                basic =  np.maximum(np.exp(self.x[-2]) / (2 * (np.maximum(np.log(np.exp(self.x[-2]) + 1), 1))) - 0.4,0.2)
                 step = nd.step_generators.MaxStepGenerator(base_step=basic)
                 H = nd.Hessian(self.objective_wo_gradient, step = step)(np.float128([np.exp(self.x[-2]), self.x[-1]]))
             else:
