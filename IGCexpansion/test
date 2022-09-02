@@ -9,25 +9,19 @@ class test:
     def __init__(self):
         self.index = 0
 
+
     def sum_branch_test1(self):
-
-
-
 
         step = nd.step_generators.MaxStepGenerator()
         print(step)
-        print(nd.Hessian(self.testfunction, step=step)([4]))
-
-
-    def test1(self):
-        print(np.max(1,2))
+        print(nd.Hessian(self.testfunction, step=step)([0,0]))
 
 
     def testfunction(self,x):
         print(x)
         self.index += 1
         print(self.index)
-        return (x[0] ** 2 )
+        return (x[0] ** 2+x[1]**2 +x[1]*x[0]+2*x[0])
 
     def print11(self):
         step_gen = nd.step_generators.BasicMaxStepGenerator(base_step=2.0, step_ratio=2,
@@ -43,7 +37,7 @@ class test:
 
 if __name__ == '__main__':
     self=test()
-    self.test1()
+    self.sum_branch_test1()
 
 
 

@@ -230,7 +230,7 @@ class JointAnalysis:
             if len(self.shared_parameters_for_k) == 1:
                 self.x[-1] = x[0]
             else:
-                self.x[-2] = np.log(x[0])
+                self.x[-2] = x[0]
                 self.x[-1] = x[1]
             self.update_by_x(self.x)
 
@@ -244,7 +244,7 @@ class JointAnalysis:
             if len(self.shared_parameters_for_k) == 1:
                 self.x[-1] = x[0]
             else:
-                self.x[-2] = np.log(x[0])
+                self.x[-2] = (x[0])
                 self.x[-1] = x[1]
             self.update_by_x(self.x)
 
@@ -366,11 +366,15 @@ class JointAnalysis:
 
 
             if len(self.shared_parameters_for_k) == 2:
-                basic =  np.maximum(np.exp(self.x[-2]) / (2 * (np.maximum(np.log(np.exp(self.x[-2]) + 1), 1))) - 0.5,0.2)
-                step = nd.step_generators.MaxStepGenerator(base_step=basic)
-                H = nd.Hessian(self.objective_wo_gradient, step = step)(np.float128([np.exp(self.x[-2]), self.x[-1]]))
+          #      basic =  np.maximum(np.exp(self.x[-2]) / (2 * (np.maximum(np.log(np.exp(self.x[-2]) + 1), 1))) - 0.5,0.2)
+           #     step = nd.step_generators.MaxStepGenerator(base_step=basic)
+             #   H = nd.Hessian(self.objective_wo_gradient, step = step)(np.float128([np.exp(self.x[-2]), self.x[-1]]))
+
+                   H = nd.Hessian(self.objective_wo_gradient)(np.float128([(self.x[-2]), self.x[-1]]))
             else:
                 H = nd.Hessian(self.objective_wo_gradient)(np.float128([self.x[-1]]))
+
+
 
             return H
 
@@ -461,8 +465,6 @@ class JointAnalysis:
 
         print("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx")
         print(self.get_Hessian())
-        H = nd.Hessian(self.objective_wo_gradient)(np.float128(self.x[-1]))
-        print(H)
 
 #        print(self.get_Hessian())
 
