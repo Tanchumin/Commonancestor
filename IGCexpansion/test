@@ -12,7 +12,7 @@ class test:
 
     def sum_branch_test1(self):
 
-        step = nd.step_generators.MaxStepGenerator()
+        step = nd.step_generators.MaxStepGenerator(base_step=[1,2])
         print(step)
         print(nd.Hessian(self.testfunction, step=step)([0,0]))
 

@@ -1233,8 +1233,10 @@ class Embrachtau1:
             self.update_by_x(self.x)
             self.id = self.compute_paralog_id()
             self.update_by_x(self.x)
+       #     print(x)
 
             ll = self._loglikelihood2()[0]
+
         else:
             if self.Model == "MG94":
 
@@ -2125,17 +2127,24 @@ class Embrachtau1:
 
         if self.ifexp != True:
             if self.Model=="MG94":
-               H = nd.Hessian(self.objective_wo_derivative1)(np.float128((self.x[5:7])))
+                 basic = np.maximum(self.x[5] / (2 * (np.maximum(np.log(abs(self.x[5]) + 1), 1))) ,
+                                   0.2) / 10
+                 step = nd.step_generators.MaxStepGenerator(base_step=basic)
+
+                 H = nd.Hessian(self.objective_wo_derivative1,step=step)(np.float128((self.x[5:7])))
             else:
-               H = nd.Hessian(self.objective_wo_derivative1)(np.float128((self.x[4:6])))
+                basic = np.maximum(self.x[4] / (2 * (np.maximum(np.log(abs(self.x[4]) + 1), 1))) ,
+                                   0.2) / 10
+                step = nd.step_generators.MaxStepGenerator(base_step=basic)
+                H = nd.Hessian(self.objective_wo_derivative1,step=step)(np.float128((self.x[4:6])))
 
         else:
             if self.Model == "MG94":
-                basic = np.maximum(np.exp(self.x[5]) / (2 * (np.maximum(np.log(np.exp(self.x[5]) + 1), 1))) - 0.5,0.2)
+                basic = np.maximum(np.exp(self.x[5]) / (2 * (np.maximum(np.log(np.exp(self.x[5]) + 1), 1))) - 0.5,0.2)/10
                 step = nd.step_generators.MaxStepGenerator(base_step=basic)
                 H = nd.Hessian(self.objective_wo_derivative1,step=step)([np.exp(self.x[5]),self.x[6]])
             else:
-                basic = np.maximum(np.exp(self.x[4]) / (2 * (np.maximum(np.log(np.exp(self.x[4]) + 1), 1))) - 0.5,0.2)
+                basic = np.maximum(np.exp(self.x[4]) / (2 * (np.maximum(np.log(np.exp(self.x[4]) + 1), 1))) - 0.5,0.2)/10
                 step = nd.step_generators.MaxStepGenerator(base_step=basic)
                 H = nd.Hessian(self.objective_wo_derivative1,step=step)([np.exp(self.x[4]),self.x[5]])
 
@@ -2872,7 +2881,7 @@ class Embrachtau1:
 
         return scene
 
-    def sum_branch_test(self ,K=4.1):
+    def sum_branch_test(self ,id0=None):
 
             self.get_mle()
             self.id = self.compute_paralog_id()
@@ -2883,14 +2892,103 @@ class Embrachtau1:
 
 
 
-            self.id = self.compute_paralog_id()
 
-            self.ifexp = True
-            hessian = self.get_Hessian()
+
+            if id0==None:
+               self.id = self.compute_paralog_id()
+            else:
+                self.id =id0
+
+
+            self.ifexp = False
+            hessian = self.get_Hessian1()
             list=[]
             print(hessian)
             list.append(hessian[0][0])
             list.append(hessian[1][1])
+
+            self.ifexp = True
+            hessian = self.get_Hessian1()
+            list=[]
+            print(hessian)
+            list.append(hessian[0][0])
+            list.append(hessian[1][1])
+
+            self.ifexp = False
+            hessian = self.get_Hessian1(setstep=True)
+            list = []
+            print(hessian)
+            list.append(hessian[0][0])
+            list.append(hessian[1][1])
+
+            self.ifexp = True
+            hessian = self.get_Hessian1(setstep=True)
+            list = []
+            print(hessian)
+            list.append(hessian[0][0])
+            list.append(hessian[1][1])
+
+    def get_Hessian1(self,setstep=False):
+
+        if setstep==False:
+
+            if self.ifexp != True:
+                if self.Model == "MG94":
+                    basic = np.maximum(self.x[5] / (2 * (np.maximum(np.log(abs(self.x[5]) + 1), 1))),
+                                       0.2) / 10
+                    step = nd.step_generators.MaxStepGenerator(base_step=basic)
+
+                    H = nd.Hessian(self.objective_wo_derivative1, step=step)(np.float128((self.x[5:7])))
+                else:
+                    basic = np.maximum(self.x[4] / (2 * (np.maximum(np.log(abs(self.x[4]) + 1), 1))),
+                                       0.2) / 10
+                    step = nd.step_generators.MaxStepGenerator(base_step=basic)
+                    H = nd.Hessian(self.objective_wo_derivative1, step=step)(np.float128((self.x[4:6])))
+
+            else:
+                if self.Model == "MG94":
+                    basic = np.maximum(np.exp(self.x[5]) / (2 * (np.maximum(np.log(np.exp(self.x[5]) + 1), 1))) - 0.5,
+                                       0.2) / 10
+                    step = nd.step_generators.MaxStepGenerator(base_step=basic)
+                    H = nd.Hessian(self.objective_wo_derivative1, step=step)([np.exp(self.x[5]), self.x[6]])
+                else:
+                    basic = np.maximum(np.exp(self.x[4]) / (2 * (np.maximum(np.log(np.exp(self.x[4]) + 1), 1))) - 0.5,
+                                       0.2) / 10
+                    step = nd.step_generators.MaxStepGenerator(base_step=basic)
+                    H = nd.Hessian(self.objective_wo_derivative1, step=step)([np.exp(self.x[4]), self.x[5]])
+
+            H = np.linalg.inv(H)
+
+
+        else:
+
+                if self.ifexp != True:
+                    if self.Model == "MG94":
+                        basic = [deepcopy(max(1,abs(self.x[5]))*0.001),deepcopy(max(1,abs(self.x[6]))*0.001)]
+                        step = nd.step_generators.MaxStepGenerator(base_step=basic,step_nom=1)
+
+                        H = nd.Hessian(self.objective_wo_derivative1, step=step)(np.float128((self.x[5:7])))
+                    else:
+                        basic = [deepcopy(max(1,abs(self.x[4]))*0.0001),deepcopy(max(1,abs(self.x[5]))*0.01)]
+                        step = nd.step_generators.MaxStepGenerator(base_step=basic,step_nom=1)
+                        H = nd.Hessian(self.objective_wo_derivative1, step=step)(np.float128((self.x[4:6])))
+
+                else:
+                    if self.Model == "MG94":
+                        basic = [deepcopy(max(1, np.exp(self.x[5])) * 0.001), deepcopy(max(1, abs(self.x[6])) * 0.001)]
+                        step = nd.step_generators.MaxStepGenerator(base_step=basic, step_nom=1)
+                        H = nd.Hessian(self.objective_wo_derivative1, step=step)([np.exp(self.x[5]), self.x[6]])
+                    else:
+                        basic = [deepcopy(max(1, np.exp(self.x[4])) * 0.001), deepcopy(max(1, abs(self.x[5])) * 0.001)]
+                        step = nd.step_generators.MaxStepGenerator(base_step=basic, step_nom=1)
+                        H = nd.Hessian(self.objective_wo_derivative1, step=step)([np.exp(self.x[4]), self.x[5]])
+
+                H = np.linalg.inv(H)
+
+                return H
+
+        return H
+
 
 
 
@@ -2920,7 +3018,9 @@ if __name__ == '__main__':
 #    print(print(geneconv.compute_paralog_id()))
 
 
-    geneconv.sum_branch_test()
+    geneconv.sum_branch_test(id0=[0.9326130134925631, 1.0, 0.834609616220603, 0.8267228498499286,
+                                  0.7941712107333674, 0.7849171211462617, 0.7896771655905308, 0.758017116692181,
+                                  0.7799356954180342, 0.7597093258876664, 0.7455012840422707, 0.7677272289953266])
 
  #   print(geneconv.get_summary(approx=True,branchtau=True))
 
