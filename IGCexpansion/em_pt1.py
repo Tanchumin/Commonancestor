@@ -2604,11 +2604,13 @@ class Embrachtau1:
             print(hessian)
             list.append(hessian[0][0])
             list.append(hessian[1][1])
+            list.append(hessian[1][0])
             self.ifexp = True
             hessian = self.get_Hessian()
             print(hessian)
             list.append(hessian[0][0])
             list.append(hessian[1][1])
+            list.append(hessian[1][0])
 
             self.id=self.compute_paralog_id()
             ttt = len(self.tree['col'])
