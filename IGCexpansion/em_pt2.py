@@ -28,11 +28,11 @@ import numdifftools as nd
 
 
 
-### iniset is used for joint ana seq version
-class Embrachtau2:
+### reparameter for tau
+class Embrachtau_re:
     def __init__(self, tree_newick, alignment, paralog, Model='MG94', IGC_Omega=None, Tau_Omega = None, nnsites=None, clock=False,joint=False,
                  Force=None, save_path='./save/', save_name=None, post_dup='N1',kbound=5.1,ifmodel="old",inibranch=0.1,noboundk=True,
-                 kini=4.1,tauini=0.4,omegaini=0.5,dwell_id=True,ifDNA=False,if_rerun=True):
+                 kini=4.1,tauini=1,omegaini=0.5,dwell_id=True,ifDNA=False,if_rerun=True):
         self.newicktree = tree_newick  # newick tree file loc
         self.seqloc = alignment  # multiple sequence alignment, now need to remove gap before-hand
         self.paralog = paralog  # parlaog list
@@ -120,7 +120,6 @@ class Embrachtau2:
 
         # Initialize all parameters
         self.joint=joint
-        self.ifhessian = False
         self.initialize_parameters()
 
         #hessian
@@ -142,11 +141,7 @@ class Embrachtau2:
         self.if_rerun=if_rerun
 
         self.dwell_id=dwell_id
-
-
-        ### NOT INCLUEDE BRANCH 0
-        self.update_fix_tau=False
-        self.fixtau=1
+        self.aveid=1
 
 
     def initialize_parameters(self):
@@ -445,22 +440,10 @@ class Embrachtau2:
                         x_process[6]=np.log(x_process[6])
                     else:
                         x_process[5] = np.log(x_process[5])
-
-
         elif transformation == 'None':
             x_process = self.x_process
         elif transformation == 'Exp_Neg':
             x_process = np.concatenate((self.x_process[:3], -np.log(self.x_process[3:])))
-
-        if self.ifhessian == True:
-                x_process = np.exp(self.x_process)
-
-                if self.Model == "MG94":
-                    x_process[5] = np.log(x_process[5])
-                    x_process[6] = np.log(x_process[6])
-                else:
-                    x_process[4] = np.log(x_process[4])
-                    x_process[5] = np.log(x_process[5])
 
         if Force_process != None:
             for i in Force_process.keys():
@@ -538,15 +521,9 @@ class Embrachtau2:
         else:
             self.get_prior()
             if self.Model=="MG94":
-                 if self.update_fix_tau==False:
-                     self.processes=self.Get_branch_Q(self.id)
-                 else:
-                     self.processes = self.Get_branch_Q(self.id,self.fixtau)
+                 self.processes=self.Get_branch_Q(self.id)
             else:
-                if self.update_fix_tau == False:
-                   self.processes = self.Get_branch_QHKY(self.id)
-                else:
-                    self.processes = self.Get_branch_QHKY(self.id, self.fixtau)
+                 self.processes = self.Get_branch_QHKY(self.id)
 
 
 
@@ -855,6 +832,8 @@ class Embrachtau2:
         Modified from Alex's objective_and_gradient function in ctmcaas/adv-log-likelihoods/mle_geneconv_common.py
         '''
 
+
+
         if store:
             self.scene_ll = self.get_scene()
             scene = self.scene_ll
@@ -889,53 +868,50 @@ class Embrachtau2:
         return ll, edge_derivs
 
 
-    def _loglikelihood3(self, store=True, edge_derivative=False):
-            '''
-            Modified from Alex's objective_and_gradient function in ctmcaas/adv-log-likelihoods/mle_geneconv_common.py
-            '''
-
-            self.ifhessian=True
-            self.update_by_x(self.x)
-
-            if store:
-                self.scene_ll = self.get_scene()
-                scene = self.scene_ll
-            else:
-                scene = self.get_scene()
-
-            log_likelihood_request = {'property': 'snnlogl'}
-            derivatives_request = {'property': 'sdnderi'}
-            if edge_derivative and self.ifmodel != "EM_reduce":
-                requests = [log_likelihood_request, derivatives_request]
-            else:
-                requests = [log_likelihood_request]
-            j_in = {
-                'scene': self.scene_ll,
-                'requests': requests
-            }
-            j_out = jsonctmctree.interface.process_json_in(j_in)
-
-            status = j_out['status']
-
-            try:
-                ll = j_out['responses'][0]
-            except Exception:
-                print("xxxxxxxXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX", flush=True)
-                print(self.x, flush=True)
-                print(edge_derivative, flush=True)
-                print(self.edge_de, flush=True)
-                print(self.scene_ll)
-                print("xxxxxxxXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX", flush=True)
-                pass
-
-            #        ll = j_out['responses'][0]
-            self.ll = ll
-
-          #  print(self.x_process[5])
-
-            #   print(edge_derivs)
-
-            return ll
+    # def _loglikelihood3(self, store=True, edge_derivative=False):
+    #         '''
+    #         Modified from Alex's objective_and_gradient function in ctmcaas/adv-log-likelihoods/mle_geneconv_common.py
+    #         '''
+    #
+    #
+    #         self.update_by_x(self.x)
+    #   #      print(self.x[4])
+    #
+    #         if store:
+    #             self.scene_ll = self.get_scene()
+    #             scene = self.scene_ll
+    #         else:
+    #             scene = self.get_scene()
+    #
+    #         log_likelihood_request = {'property': 'snnlogl'}
+    #         derivatives_request = {'property': 'sdnderi'}
+    #         if edge_derivative and self.ifmodel != "EM_reduce":
+    #             requests = [log_likelihood_request, derivatives_request]
+    #         else:
+    #             requests = [log_likelihood_request]
+    #         j_in = {
+    #             'scene': self.scene_ll,
+    #             'requests': requests
+    #         }
+    #         j_out = jsonctmctree.interface.process_json_in(j_in)
+    #
+    #         status = j_out['status']
+    #
+    #         try:
+    #             ll = j_out['responses'][0]
+    #         except Exception:
+    #             print("xxxxxxxXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX", flush=True)
+    #             print(self.x, flush=True)
+    #             print(edge_derivative, flush=True)
+    #             print(self.edge_de, flush=True)
+    #             print(self.scene_ll)
+    #             print("xxxxxxxXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX", flush=True)
+    #             pass
+    #
+    #         #        ll = j_out['responses'][0]
+    #         self.ll = ll
+    #
+    #         return ll
 
     def _sitewise_loglikelihood(self):
         scene = self.get_scene()
@@ -1029,10 +1005,6 @@ class Embrachtau2:
 
         fix_x=deepcopy(np.array(self.x))
 
-        if self.ifmodel != "old":
-            self.fixtau = deepcopy(self.tau * np.power(self.id[0], self.K))
-            self.update_fix_tau = True
-
 
 
         for i in range(m):
@@ -1040,17 +1012,6 @@ class Embrachtau2:
                 if i in self.Force.keys():  # check here
                     other_derivs.append(0.0)
                     continue
-
-
-          #  x_plus_delta = np.array(self.x)
-          #  x_plus_delta[i] += delta
-          #  self.update_by_x(x_plus_delta)
-          #  ll_delta, _ = fn(store=True, edge_derivative=False)
-        #  d_estimate = (ll_delta - ll) / delta
-
-# finite difference central
-  # ll_delta1 is f(x+h/2)
-
 
 
             delta=deepcopy(max(1,abs(self.x[i]))*0.000001)
@@ -1072,12 +1033,7 @@ class Embrachtau2:
             # restore self.x
             self.update_by_x(x)
 
-
-
         other_derivs = np.array(other_derivs)
-
-        if self.ifmodel != "old":
-            self.update_fix_tau = False
 
 
 
@@ -1266,20 +1222,43 @@ class Embrachtau2:
 
 # develop this one to compute hessian
     def objective_wo_derivative1(self, x):
-        assert (len(x)==2)
-        if self.Model=="MG94":
-            self.x[5] = x[0]
-            self.x[6] = x[1]
-        else:
-            self.x[4] = x[0]
-            self.x[5] = x[1]
-
-        self.update_by_x(self.x)
 
         if self.ifexp==False:
+            if self.Model == "MG94":
+                self.x[5] = x[0]
+                self.x[6] = x[1]
+
+            else:
+                self.x[4] = x[0]
+                self.x[5] = x[1]
+            self.update_by_x(self.x)
+            self.id = self.compute_paralog_id()
+            self.update_by_x(self.x)
+       #     print(x)
+
             ll = self._loglikelihood2()[0]
+
         else:
-            ll = self._loglikelihood3()
+            if self.Model == "MG94":
+
+                if x[0]>0:
+                    self.x[5] = np.log(x[0])
+                else:
+                    self.x[5] = np.log(0.0001)
+
+                self.x[6] = x[1]
+            else:
+                if x[0]>0:
+                    self.x[4] = np.log(x[0])
+                else:
+                    self.x[4] = np.log(0.0001)
+                self.x[5] = x[1]
+
+            self.update_by_x(self.x)
+            self.id = self.compute_paralog_id()
+            self.update_by_x(self.x)
+            ll = self._loglikelihood2()[0]
+
 
         return -ll
 
@@ -1388,7 +1367,7 @@ class Embrachtau2:
                 else:
                     bnds.extend([(-10.0, 7.0)] * (1))
                     if self.noboundk==True:
-                        bnds.extend([(-10.0, 80.0)] * (1))
+                        bnds.extend([(-20.0, 200.0)] * (1))
                     else:
                         bnds.extend([(-10.0, 7)] * (1))
 
@@ -1512,13 +1491,14 @@ class Embrachtau2:
         taubound=self.tau/np.power(min,self.kbound)
         self.id[1] = 0
 
-
         return taubound
 
 
 
 # here is for MG94
-    def Get_branch_Q(self,paralog_id,ftau=None):
+    def Get_branch_Q(self,paralog_id):
+
+        paralog_id = paralog_id / (self.aveid)
 
         Qbasic = self.get_MG94Basic()
 
@@ -1565,15 +1545,9 @@ class Embrachtau2:
 
 
                         if isNonsynonymous(cb, ca, self.codon_table):
-                            if self.update_fix_tau==False:
-                                Tgeneconv = self.tau * np.power(paralog_id[branch], self.K) * self.get_IGC_omega()
-                            else:
-                               Tgeneconv = ftau *self.get_IGC_omega()
+                            Tgeneconv = self.tau * np.power(paralog_id[branch], self.K) *self.get_IGC_omega()
                         else:
-                            if self.update_fix_tau==False:
-                                Tgeneconv = self.tau * np.power(paralog_id[branch], self.K)
-                            else:
-                               Tgeneconv = ftau
+                            Tgeneconv = self.tau * np.power(paralog_id[branch], self.K)
                         rate_geneconv.append(Qb + Tgeneconv)
 
                         # (ca, cb) to (cb, cb)
@@ -1751,7 +1725,9 @@ class Embrachtau2:
 
         return Qlist
 
-    def Get_branch_QHKY(self,paralog_id,ftau=None):
+    def Get_branch_QHKY(self,paralog_id):
+
+        paralog_id=paralog_id/(self.aveid)
 
         Qbasic = self.get_HKYBasic()
 
@@ -1776,13 +1752,7 @@ class Embrachtau2:
                           sd = self.nt_to_state[nd]
                           if i == j:
                               continue
-
-                          if self.update_fix_tau == False:
-                               GeneconvRate = get_HKYGeneconvRate(pair_from, pair_to, Qbasic,
-                                                               self.tau * np.power(paralog_id[branch], self.K))
-
-                          else:
-                               GeneconvRate = get_HKYGeneconvRate(pair_from, pair_to, Qbasic, ftau)
+                          GeneconvRate = get_HKYGeneconvRate(pair_from, pair_to, Qbasic, self.tau*np.power(paralog_id[branch], self.K))
                           if GeneconvRate != 0.0:
                               row.append((sa, sb))
                               col.append((sc, sd))
@@ -1968,6 +1938,8 @@ class Embrachtau2:
         ttt = len(self.tree['col'])
         id = np.zeros(ttt)
         diverge_list = np.ones(ttt)
+        if self.sites is None:
+            self.jointly_common_ancstral_inference()
 
         if self.dwell_id == False:
 
@@ -1998,11 +1970,7 @@ class Embrachtau2:
                     id[j] = 1-(float(diverge_list[j]) / repeat)/self.nsites
 
         else:
-
-            self.jointly_common_ancstral_inference()
-
             if self.Model == "MG94":
-
                 if self.ifDNA==True:
                     expected_DwellTime = self._ExpectedHetDwellTime_DNA()
 
@@ -2026,7 +1994,6 @@ class Embrachtau2:
                       for i in range(ttt)]
 
         self.id=id
-
 
         return id
 
@@ -2165,15 +2132,26 @@ class Embrachtau2:
 
         if self.ifexp != True:
             if self.Model=="MG94":
-               H = nd.Hessian(self.objective_wo_derivative1)(np.float128((self.x[5:7])))
+                 basic = np.maximum(self.x[5] / (2 * (np.maximum(np.log(abs(self.x[5]) + 1), 1))) ,
+                                   0.2) / 10
+                 step = nd.step_generators.MaxStepGenerator(base_step=basic)
+
+                 H = nd.Hessian(self.objective_wo_derivative1,step=step)(np.float128((self.x[5:7])))
             else:
-               H = nd.Hessian(self.objective_wo_derivative1)(np.float128((self.x[4:6])))
+                basic = np.maximum(self.x[4] / (2 * (np.maximum(np.log(abs(self.x[4]) + 1), 1))) ,
+                                   0.2) / 10
+                step = nd.step_generators.MaxStepGenerator(base_step=basic)
+                H = nd.Hessian(self.objective_wo_derivative1,step=step)(np.float128((self.x[4:6])))
 
         else:
             if self.Model == "MG94":
-                H = nd.Hessian(self.objective_wo_derivative1)(np.float128([np.exp(self.x[5]),self.x[6]]))
+                basic = np.maximum(np.exp(self.x[5]) / (2 * (np.maximum(np.log(np.exp(self.x[5]) + 1), 1))) - 0.5,0.2)/10
+                step = nd.step_generators.MaxStepGenerator(base_step=basic)
+                H = nd.Hessian(self.objective_wo_derivative1,step=step)([np.exp(self.x[5]),self.x[6]])
             else:
-                H = nd.Hessian(self.objective_wo_derivative1)([np.exp(self.x[4]),self.x[5]])
+                basic = np.maximum(np.exp(self.x[4]) / (2 * (np.maximum(np.log(np.exp(self.x[4]) + 1), 1))) - 0.5,0.2)/10
+                step = nd.step_generators.MaxStepGenerator(base_step=basic)
+                H = nd.Hessian(self.objective_wo_derivative1,step=step)([np.exp(self.x[4]),self.x[5]])
 
         H=np.linalg.inv(H)
 
@@ -2481,7 +2459,7 @@ class Embrachtau2:
     def get_branch_mle(self,branch):
 
 
-        guess_x=np.log(np.power(self.id[branch],self.K)*self.tau)
+        guess_x=np.log(np.power(self.id[branch]/self.aveid,self.K)*self.tau*np.power(self.aveid,self.K))
         self.branch_tau=deepcopy(guess_x)
         bnds = [(-10.0,5.0)]
 
@@ -2536,7 +2514,8 @@ class Embrachtau2:
 
 
 ###### oldid
-        self.id = self.compute_paralog_id()
+        self.id =self.compute_paralog_id()
+        self.aveid=(1+(np.sum(self.id)-self.id[0]-self.id[1])/(len(self.id)-2))/2
         idold = deepcopy(self.id)
         print(self.id)
 
@@ -2578,6 +2557,7 @@ class Embrachtau2:
         if self.if_rerun==True:
 
             self.get_mle()
+            ll1 = self.get_mle()["fun"]
             difference = abs(self.tau - pstau)
 
             print("EMcycle:")
@@ -2594,6 +2574,7 @@ class Embrachtau2:
             while i <= MAX and difference >= epis:
                 pstau_1 = deepcopy(self.tau)
                 self.id = self.compute_paralog_id()
+                self.aveid = (1+(np.sum(self.id)-self.id[0]-self.id[1])/(len(self.id)-2))/2
                 ll1 = self.get_mle()["fun"]
                 difference = abs(self.tau - pstau_1)
 
@@ -2611,9 +2592,12 @@ class Embrachtau2:
                 print("\n")
 
 
+
+
             print("new tau: ", self.tau)
             print("K: ", self.K)
             print("new ll: ", ll1)
+            print("new ave",self.aveid)
             list.append(ll1)
             if self.Model == "MG94":
                 list.append(self.omega)
@@ -2630,11 +2614,13 @@ class Embrachtau2:
             print(hessian)
             list.append(hessian[0][0])
             list.append(hessian[1][1])
+            list.append(hessian[1][0])
             self.ifexp = True
             hessian = self.get_Hessian()
             print(hessian)
             list.append(hessian[0][0])
             list.append(hessian[1][1])
+            list.append(hessian[1][0])
 
             self.id=self.compute_paralog_id()
             ttt = len(self.tree['col'])
@@ -2663,6 +2649,12 @@ class Embrachtau2:
 
         else:
             self.id = self.compute_paralog_id()
+            self.ifexp = True
+            hessian = self.get_Hessian()
+            print(hessian)
+            list.append(hessian[0][0])
+            list.append(hessian[1][1])
+
             for j in range(len(self.edge_list)):
                 list.append(self.id[j])
             for j in range(len(self.edge_list)):
@@ -2901,6 +2893,117 @@ class Embrachtau2:
 
         return scene
 
+    def sum_branch_test(self ,id0=None):
+
+            self.get_mle()
+            self.id = self.compute_paralog_id()
+            self.ifmodel = "EM_full"
+
+            print("xxxxxxxxxxxxxxx")
+            self.get_initial_x_process()
+
+
+
+
+
+            if id0==None:
+               self.id = self.compute_paralog_id()
+            else:
+                self.id =id0
+
+
+            self.ifexp = False
+            hessian = self.get_Hessian1()
+            list=[]
+            print(hessian)
+            list.append(hessian[0][0])
+            list.append(hessian[1][1])
+
+            self.ifexp = True
+            hessian = self.get_Hessian1()
+            list=[]
+            print(hessian)
+            list.append(hessian[0][0])
+            list.append(hessian[1][1])
+
+            self.ifexp = False
+            hessian = self.get_Hessian1(setstep=True)
+            list = []
+            print(hessian)
+            list.append(hessian[0][0])
+            list.append(hessian[1][1])
+
+            self.ifexp = True
+            hessian = self.get_Hessian1(setstep=True)
+            list = []
+            print(hessian)
+            list.append(hessian[0][0])
+            list.append(hessian[1][1])
+
+    def get_Hessian1(self,setstep=False):
+
+        if setstep==False:
+
+            if self.ifexp != True:
+                if self.Model == "MG94":
+                    basic = np.maximum(self.x[5] / (2 * (np.maximum(np.log(abs(self.x[5]) + 1), 1))),
+                                       0.2) / 10
+                    step = nd.step_generators.MaxStepGenerator(base_step=basic)
+
+                    H = nd.Hessian(self.objective_wo_derivative1, step=step)(np.float128((self.x[5:7])))
+                else:
+                    basic = np.maximum(self.x[4] / (2 * (np.maximum(np.log(abs(self.x[4]) + 1), 1))),
+                                       0.2) / 10
+                    step = nd.step_generators.MaxStepGenerator(base_step=basic)
+                    H = nd.Hessian(self.objective_wo_derivative1, step=step)(np.float128((self.x[4:6])))
+
+            else:
+                if self.Model == "MG94":
+                    basic = np.maximum(np.exp(self.x[5]) / (2 * (np.maximum(np.log(np.exp(self.x[5]) + 1), 1))) - 0.5,
+                                       0.2) / 10
+                    step = nd.step_generators.MaxStepGenerator(base_step=basic)
+                    H = nd.Hessian(self.objective_wo_derivative1, step=step)([np.exp(self.x[5]), self.x[6]])
+                else:
+                    basic = np.maximum(np.exp(self.x[4]) / (2 * (np.maximum(np.log(np.exp(self.x[4]) + 1), 1))) - 0.5,
+                                       0.2) / 10
+                    step = nd.step_generators.MaxStepGenerator(base_step=basic)
+                    H = nd.Hessian(self.objective_wo_derivative1, step=step)([np.exp(self.x[4]), self.x[5]])
+
+            H = np.linalg.inv(H)
+
+
+        else:
+
+                if self.ifexp != True:
+                    if self.Model == "MG94":
+                        basic = [deepcopy(max(1,abs(self.x[5]))*0.001),deepcopy(max(1,abs(self.x[6]))*0.001)]
+                        step = nd.step_generators.MaxStepGenerator(base_step=basic,step_nom=1)
+
+                        H = nd.Hessian(self.objective_wo_derivative1, step=step)(np.float128((self.x[5:7])))
+                    else:
+                        basic = [deepcopy(max(1,abs(self.x[4]))*0.0001),deepcopy(max(1,abs(self.x[5]))*0.01)]
+                        step = nd.step_generators.MaxStepGenerator(base_step=basic,step_nom=1)
+                        H = nd.Hessian(self.objective_wo_derivative1, step=step)(np.float128((self.x[4:6])))
+
+                else:
+                    if self.Model == "MG94":
+                        basic = [deepcopy(max(1, np.exp(self.x[5])) * 0.001), deepcopy(max(1, abs(self.x[6])) * 0.001)]
+                        step = nd.step_generators.MaxStepGenerator(base_step=basic, step_nom=1)
+                        H = nd.Hessian(self.objective_wo_derivative1, step=step)([np.exp(self.x[5]), self.x[6]])
+                    else:
+                        basic = [deepcopy(max(1, np.exp(self.x[4])) * 0.001), deepcopy(max(1, abs(self.x[5])) * 0.001)]
+                        step = nd.step_generators.MaxStepGenerator(base_step=basic, step_nom=1)
+                        H = nd.Hessian(self.objective_wo_derivative1, step=step)([np.exp(self.x[4]), self.x[5]])
+
+                H = np.linalg.inv(H)
+
+                return H
+
+        return H
+
+
+
+
 
 
 
@@ -2919,17 +3022,18 @@ if __name__ == '__main__':
     Force = None
     model = 'HKY'
 
-    save_name = model+name
-    geneconv = Embrachtau2(newicktree, alignment_file, paralog, Model=model, Force=Force, clock=None,
+    save_name = model+name+"testforce"
+    geneconv = Embrachtau_re(newicktree, alignment_file, paralog, Model=model, Force=Force, clock=None,
                                save_path='../test/save/', save_name=save_name,kbound=5)
 
- #   print(geneconv.get_mle())
+  #  geneconv.get_mle()
 #    print(print(geneconv.compute_paralog_id()))
+    geneconv.sum_branch()
 
 
-    geneconv.sum_branch(MAX=3,K=1.5)
+ #   geneconv.sum_branch_test(id0=[0.9326130134925631, 1.0, 0.834609616220603, 0.8267228498499286,
+                          ##        0.7799356954180342, 0.7597093258876664, 0.7455012840422707, 0.7677272289953266])
 
- #   print(geneconv.get_summary(approx=True,branchtau=True))
 
 
 
