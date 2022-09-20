@@ -2,7 +2,7 @@
 # coding=utf-8
 
 from IGCexpansion.CodonGeneconv import *
-from IGCexpansion.em_pt import *
+from IGCexpansion.em_pt1 import *
 import numdifftools as nd
 from multiprocessing import Pool
 
@@ -26,7 +26,8 @@ class JointAnalysis:
                  shared_parameters_for_k=[5,6],
                  inibranch=0.1,
                  kini=1.1,
-                 tauini=0.4):
+                 tauini=0.4,
+                 ifDNA=False):
         # first check if the length of all input lists agree
         assert (len(set([len(alignment_file_list), len(paralog_list)])) == 1)
         # doesn't allow IGC-specific omega for HKY model
@@ -38,6 +39,7 @@ class JointAnalysis:
         self.paralog_list  = paralog_list
         self.x             = None
         self.multiprocess_combined_list = multiprocess_combined_list
+        self.ifDNA =ifDNA
 
 
         #share k version:
@@ -49,10 +51,10 @@ class JointAnalysis:
             self.shared_parameters = Shared
 
         grand_save_name, individual_save_names = self.get_save_file_names(save_name)
-        self.geneconv_list = [Embrachtau(tree_newick = tree_newick, alignment = alignment_file_list[i], paralog = paralog_list[i],
+        self.geneconv_list = [Embrachtau1(tree_newick = tree_newick, alignment = alignment_file_list[i], paralog = paralog_list[i],
                                               Model = Model,  nnsites = nnsites,
                                               clock = False, Force = Force, save_path = save_path, save_name = individual_save_names[i],
-                                              post_dup = post_dup,ifmodel="old",inibranch=inibranch,kini=kini,tauini=tauini)
+                                              post_dup = post_dup,ifmodel="old",inibranch=inibranch,kini=kini,tauini=tauini,ifDNA=self.ifDNA)
                               for i in range(len(alignment_file_list))]
         self.save_name     = grand_save_name
 
