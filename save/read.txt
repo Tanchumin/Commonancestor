@@ -1,304 +1,304 @@
 
 cd
-cd final1/yeast_unlimit_tau_DNA/test/
+cd final1/yeast_unlimit_tau_DNAr/test/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/yeast_unlimit_tau_DNA/test1/
+cd final1/yeast_unlimit_tau_DNAr/test1/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/yeast_unlimit_tau_DNA/test2/
+cd final1/yeast_unlimit_tau_DNAr/test2/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/yeast_unlimit_tau_DNA/test3/
+cd final1/yeast_unlimit_tau_DNAr/test3/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/yeast_unlimit_tau_DNA/test4/
+cd final1/yeast_unlimit_tau_DNAr/test4/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/yeast_unlimit_tau_DNA/test5/
+cd final1/yeast_unlimit_tau_DNAr/test5/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/yeast_unlimit_tau_DNA/test6/
+cd final1/yeast_unlimit_tau_DNAr/test6/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/yeast_unlimit_tau_DNA/test7/
+cd final1/yeast_unlimit_tau_DNAr/test7/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/yeast_unlimit_tau_DNA/test8/
+cd final1/yeast_unlimit_tau_DNAr/test8/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/yeast_unlimit_tau_DNA/test9/
+cd final1/yeast_unlimit_tau_DNAr/test9/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/yeast_unlimit_tau_DNA/test10/
+cd final1/yeast_unlimit_tau_DNAr/test10/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/yeast_unlimit_tau_DNA/test11/
+cd final1/yeast_unlimit_tau_DNAr/test11/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/yeast_unlimit_tau_DNA/test12/
+cd final1/yeast_unlimit_tau_DNAr/test12/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/yeast_unlimit_tau_DNA/test13/
+cd final1/yeast_unlimit_tau_DNAr/test13/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/yeast_unlimit_tau_DNA/test14/
+cd final1/yeast_unlimit_tau_DNAr/test14/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/yeast_unlimit_tau_DNA/test15/
+cd final1/yeast_unlimit_tau_DNAr/test15/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/yeast_unlimit_tau_DNA/test16/
+cd final1/yeast_unlimit_tau_DNAr/test16/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/yeast_unlimit_tau_DNA/test17/
+cd final1/yeast_unlimit_tau_DNAr/test17/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/yeast_unlimit_tau_DNA/test18/
+cd final1/yeast_unlimit_tau_DNAr/test18/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/yeast_unlimit_tau_DNA/test19/
+cd final1/yeast_unlimit_tau_DNAr/test19/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/yeast_unlimit_tau_DNA/test20/
+cd final1/yeast_unlimit_tau_DNAr/test20/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/yeast_unlimit_tau_DNA/test21/
+cd final1/yeast_unlimit_tau_DNAr/test21/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/yeast_unlimit_tau_DNA/test22/
+cd final1/yeast_unlimit_tau_DNAr/test22/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/yeast_unlimit_tau_DNA/test23/
+cd final1/yeast_unlimit_tau_DNAr/test23/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/yeast_unlimit_tau_DNA/test24/
+cd final1/yeast_unlimit_tau_DNAr/test24/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/yeast_unlimit_tau_DNA/test25/
+cd final1/yeast_unlimit_tau_DNAr/test25/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/yeast_unlimit_tau_DNA/test26/
+cd final1/yeast_unlimit_tau_DNAr/test26/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/yeast_unlimit_tau_DNA/test27/
+cd final1/yeast_unlimit_tau_DNAr/test27/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/yeast_unlimit_tau_DNA/test28/
+cd final1/yeast_unlimit_tau_DNAr/test28/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/yeast_unlimit_tau_DNA/test29/
+cd final1/yeast_unlimit_tau_DNAr/test29/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/yeast_unlimit_tau_DNA/test30/
+cd final1/yeast_unlimit_tau_DNAr/test30/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/yeast_unlimit_tau_DNA/test31/
+cd final1/yeast_unlimit_tau_DNAr/test31/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/yeast_unlimit_tau_DNA/test32/
+cd final1/yeast_unlimit_tau_DNAr/test32/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/yeast_unlimit_tau_DNA/test33/
+cd final1/yeast_unlimit_tau_DNAr/test33/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/yeast_unlimit_tau_DNA/test34/
+cd final1/yeast_unlimit_tau_DNAr/test34/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/yeast_unlimit_tau_DNA/test35/
+cd final1/yeast_unlimit_tau_DNAr/test35/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/yeast_unlimit_tau_DNA/test36/
+cd final1/yeast_unlimit_tau_DNAr/test36/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/yeast_unlimit_tau_DNA/test37/
+cd final1/yeast_unlimit_tau_DNAr/test37/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/yeast_unlimit_tau_DNA/test38/
+cd final1/yeast_unlimit_tau_DNAr/test38/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/yeast_unlimit_tau_DNA/test39/
+cd final1/yeast_unlimit_tau_DNAr/test39/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/yeast_unlimit_tau_DNA/test40/
+cd final1/yeast_unlimit_tau_DNAr/test40/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/yeast_unlimit_tau_DNA/test41/
+cd final1/yeast_unlimit_tau_DNAr/test41/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/yeast_unlimit_tau_DNA/test42/
+cd final1/yeast_unlimit_tau_DNAr/test42/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/yeast_unlimit_tau_DNA/test43/
+cd final1/yeast_unlimit_tau_DNAr/test43/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/yeast_unlimit_tau_DNA/test44/
+cd final1/yeast_unlimit_tau_DNAr/test44/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/yeast_unlimit_tau_DNA/test45/
+cd final1/yeast_unlimit_tau_DNAr/test45/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/yeast_unlimit_tau_DNA/test46/
+cd final1/yeast_unlimit_tau_DNAr/test46/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/yeast_unlimit_tau_DNA/test47/
+cd final1/yeast_unlimit_tau_DNAr/test47/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/yeast_unlimit_tau_DNA/test48/
+cd final1/yeast_unlimit_tau_DNAr/test48/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/yeast_unlimit_tau_DNA/test49/
+cd final1/yeast_unlimit_tau_DNAr/test49/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/yeast_unlimit_tau_DNA/test50/
+cd final1/yeast_unlimit_tau_DNAr/test50/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/yeast_unlimit_tau_DNA/test51/
+cd final1/yeast_unlimit_tau_DNAr/test51/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/yeast_unlimit_tau_DNA/test52/
+cd final1/yeast_unlimit_tau_DNAr/test52/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/yeast_unlimit_tau_DNA/test53/
+cd final1/yeast_unlimit_tau_DNAr/test53/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/yeast_unlimit_tau_DNA/test54/
+cd final1/yeast_unlimit_tau_DNAr/test54/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/yeast_unlimit_tau_DNA/test55/
+cd final1/yeast_unlimit_tau_DNAr/test55/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/yeast_unlimit_tau_DNA/test56/
+cd final1/yeast_unlimit_tau_DNAr/test56/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/yeast_unlimit_tau_DNA/test57/
+cd final1/yeast_unlimit_tau_DNAr/test57/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/yeast_unlimit_tau_DNA/test58/
+cd final1/yeast_unlimit_tau_DNAr/test58/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/yeast_unlimit_tau_DNA/test59/
+cd final1/yeast_unlimit_tau_DNAr/test59/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/yeast_unlimit_tau_DNA/test60/
+cd final1/yeast_unlimit_tau_DNAr/test60/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/yeast_unlimit_tau_DNA/test61/
+cd final1/yeast_unlimit_tau_DNAr/test61/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/yeast_unlimit_tau_DNA/test62/
+cd final1/yeast_unlimit_tau_DNAr/test62/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/yeast_unlimit_tau_DNA/test63/
+cd final1/yeast_unlimit_tau_DNAr/test63/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/yeast_unlimit_tau_DNA/test64/
+cd final1/yeast_unlimit_tau_DNAr/test64/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/yeast_unlimit_tau_DNA/test65/
+cd final1/yeast_unlimit_tau_DNAr/test65/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/yeast_unlimit_tau_DNA/test66/
+cd final1/yeast_unlimit_tau_DNAr/test66/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/yeast_unlimit_tau_DNA/test67/
+cd final1/yeast_unlimit_tau_DNAr/test67/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/yeast_unlimit_tau_DNA/test68/
+cd final1/yeast_unlimit_tau_DNAr/test68/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/yeast_unlimit_tau_DNA/test69/
+cd final1/yeast_unlimit_tau_DNAr/test69/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/yeast_unlimit_tau_DNA/test70/
+cd final1/yeast_unlimit_tau_DNAr/test70/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/yeast_unlimit_tau_DNA/test71/
+cd final1/yeast_unlimit_tau_DNAr/test71/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/yeast_unlimit_tau_DNA/test72/
+cd final1/yeast_unlimit_tau_DNAr/test72/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/yeast_unlimit_tau_DNA/test73/
+cd final1/yeast_unlimit_tau_DNAr/test73/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/yeast_unlimit_tau_DNA/test74/
+cd final1/yeast_unlimit_tau_DNAr/test74/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/yeast_unlimit_tau_DNA/test75/
+cd final1/yeast_unlimit_tau_DNAr/test75/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/yeast_unlimit_tau_DNA/test76/
+cd final1/yeast_unlimit_tau_DNAr/test76/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/yeast_unlimit_tau_DNA/test77/
+cd final1/yeast_unlimit_tau_DNAr/test77/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/yeast_unlimit_tau_DNA/test78/
+cd final1/yeast_unlimit_tau_DNAr/test78/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/yeast_unlimit_tau_DNA/test79/
+cd final1/yeast_unlimit_tau_DNAr/test79/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/yeast_unlimit_tau_DNA/test80/
+cd final1/yeast_unlimit_tau_DNAr/test80/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/yeast_unlimit_tau_DNA/test81/
+cd final1/yeast_unlimit_tau_DNAr/test81/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/yeast_unlimit_tau_DNA/test82/
+cd final1/yeast_unlimit_tau_DNAr/test82/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/yeast_unlimit_tau_DNA/test83/
+cd final1/yeast_unlimit_tau_DNAr/test83/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/yeast_unlimit_tau_DNA/test84/
+cd final1/yeast_unlimit_tau_DNAr/test84/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/yeast_unlimit_tau_DNA/test85/
+cd final1/yeast_unlimit_tau_DNAr/test85/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/yeast_unlimit_tau_DNA/test86/
+cd final1/yeast_unlimit_tau_DNAr/test86/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/yeast_unlimit_tau_DNA/test87/
+cd final1/yeast_unlimit_tau_DNAr/test87/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/yeast_unlimit_tau_DNA/test88/
+cd final1/yeast_unlimit_tau_DNAr/test88/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/yeast_unlimit_tau_DNA/test89/
+cd final1/yeast_unlimit_tau_DNAr/test89/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/yeast_unlimit_tau_DNA/test90/
+cd final1/yeast_unlimit_tau_DNAr/test90/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/yeast_unlimit_tau_DNA/test91/
+cd final1/yeast_unlimit_tau_DNAr/test91/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/yeast_unlimit_tau_DNA/test92/
+cd final1/yeast_unlimit_tau_DNAr/test92/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/yeast_unlimit_tau_DNA/test93/
+cd final1/yeast_unlimit_tau_DNAr/test93/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/yeast_unlimit_tau_DNA/test94/
+cd final1/yeast_unlimit_tau_DNAr/test94/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/yeast_unlimit_tau_DNA/test95/
+cd final1/yeast_unlimit_tau_DNAr/test95/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/yeast_unlimit_tau_DNA/test96/
+cd final1/yeast_unlimit_tau_DNAr/test96/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/yeast_unlimit_tau_DNA/test97/
+cd final1/yeast_unlimit_tau_DNAr/test97/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/yeast_unlimit_tau_DNA/test98/
+cd final1/yeast_unlimit_tau_DNAr/test98/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/yeast_unlimit_tau_DNA/test99/
+cd final1/yeast_unlimit_tau_DNAr/test99/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/yeast_unlimit_tau_DNA/test100/
+cd final1/yeast_unlimit_tau_DNAr/test100/
 sbatch  Run_IS_IGC_Old.py

@@ -28,7 +28,7 @@ class GSseq:
                  sizen=400,branch_list=None,K=None,fix_tau=None,
                  pi=None,omega=None,kappa=None,
                  ifmakeQ=False,save_name=None,Model="HKY",
-                 save_path=None,tract_len=None,
+                 save_path=None,tract_len=None,ifDNA=False
                  ):
 
         self.geneconv                 = geneconv
@@ -88,7 +88,7 @@ class GSseq:
         self.tract_len=tract_len
         self.point_mutation= None
 
-
+        self.ifDNA=ifDNA
 
 
 
@@ -503,14 +503,28 @@ class GSseq:
                 for i in range(self.sizen):
                     if not ini[i] in str:
                         index = index + 1
+                index = 1 - (index / self.sizen)
             else:
-                for i in range(self.sizen):
-                    ca = (ini[i]) // 61
-                    cb = (ini[i]) % 61
-                    if ca != cb:
-                        index = index + 1
+                if self.ifDNA==False:
+                    for i in range(self.sizen):
+                        ca = (ini[i]) // 61
+                        cb = (ini[i]) % 61
+                        if ca != cb:
+                            index = index + 1
+                    index = 1 - (index / self.sizen)
 
-            index = 1 - (index / self.sizen)
+                else:
+                    for i in range(self.sizen):
+                        ca = (ini[i]) // 61
+                        cb = (ini[i]) % 61
+
+                        cb1 = self.state_to_codon[cb]
+                        ca1 = self.state_to_codon[ca]
+                        for ii in range(3):
+                            if cb1[ii] != ca1[ii]:
+                                index = index + 1
+
+                    index = 1 - (index / (3*self.sizen))
 
             return index
 

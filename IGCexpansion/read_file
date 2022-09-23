@@ -22,7 +22,7 @@ def build_dic(dd=3):
       #  p = "\n" + "cd final1/simulation/pillar2158/test\ copy\ " + str(i) + "/"
       #  p="\n" + "cd final1/simulation/testfile/testy13t1/test\ copy\ " + str(i) + "/"
     #    p = "\n" + "cd final1/simulation/testfile/testgnew/test" + str(i) + "/"
-        p = "\n" + "cd final1/yeast_unlimit_tau_DNA/test" + str(i) + "/"
+        p = "\n" + "cd final1/yeast_unlimit_tau_DNAr/test" + str(i) + "/"
         list.append(p)
         list.append("\n"+"sbatch  Run_IS_IGC_Old.py")
 
