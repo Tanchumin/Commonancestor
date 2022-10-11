@@ -292,9 +292,6 @@ class Embrachtau1:
 
             if self.joint == False:
 
-
-                print(save_file)
-
                 if os.path.isfile(save_file):  # if the save txt file exists and not empty, then read in parameter values
                     if os.stat(save_file).st_size > 0:
                         self.initialize_by_save(save_file)
@@ -305,6 +302,16 @@ class Embrachtau1:
                               self.k=self.x[6]
                         else:
                               self.k = self.x[5]
+
+                        # EM update for id
+
+                        self.update_by_x(self.x)
+                        self.id = self.compute_paralog_id()
+                        self.update_by_x(self.x)
+                        self.id = self.compute_paralog_id()
+                        self.update_by_x(self.x)
+                        self.id = self.compute_paralog_id()
+                        self.update_by_x(self.x)
 
 
 
@@ -342,7 +349,15 @@ class Embrachtau1:
 
         if os.path.isfile(save_file1):  # if the save txt file exists and not empty, then read in parameter values
             if os.stat(save_file1).st_size > 0:
-                self.initialize_by_save(save_file1)
+                self.update_by_x(self.x)
+                self.id = self.compute_paralog_id()
+                print(self.id)
+                self.update_by_x(self.x)
+                self.id = self.compute_paralog_id()
+                self.update_by_x(self.x)
+                self.id = self.compute_paralog_id()
+                self.update_by_x(self.x)
+                print(self.id)
                 print('Successfully loaded parameter value from ' + save_file1)
 
     def update_by_x_clock(self, x_clock=None, transformation='log'):
@@ -2496,7 +2511,7 @@ class Embrachtau1:
                     self.time = np.exp(self.x_rates[j])
                     print(self.get_branch_mle(branch=j))
 
-    def sum_branch(self,MAX=4,epis=0.01,K=4.1):
+    def sum_branch(self,MAX=4,epis=0.01,K=None):
 
         list = []
         list.append(self.nsites)
@@ -2545,7 +2560,8 @@ class Embrachtau1:
 
 
         self.ifmodel = "EM_full"
-        self.K=K
+        if K is not None:
+            self.K=K
         self.get_initial_x_process()
 
         if self.if_rerun==True:
@@ -3020,11 +3036,11 @@ if __name__ == '__main__':
 #    print(print(geneconv.compute_paralog_id()))
 
 
-    geneconv.sum_branch_test(id0=[0.9326130134925631, 1.0, 0.834609616220603, 0.8267228498499286,
-                                  0.7941712107333674, 0.7849171211462617, 0.7896771655905308, 0.758017116692181,
-                                  0.7799356954180342, 0.7597093258876664, 0.7455012840422707, 0.7677272289953266])
+   # geneconv.sum_branch_test(id0=[0.9326130134925631, 1.0, 0.834609616220603, 0.8267228498499286,
+                          #        0.7941712107333674, 0.7849171211462617, 0.7896771655905308, 0.758017116692181,
+                          #        0.7799356954180342, 0.7597093258876664, 0.7455012840422707, 0.7677272289953266])
 
- #   print(geneconv.get_summary(approx=True,branchtau=True))
+    print(geneconv.sum_branch())
 
 
 

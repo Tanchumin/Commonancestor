@@ -84,11 +84,25 @@ class JointAnalysis:
             self.save_name1 = self.get_save_file_names(None)[0]
             self.shared_parameters = self.shared_parameters_for_k
 
-
             if os.path.isfile(self.save_name1):
                 for i in range(len(self.paralog_list)):
                        self.geneconv_list[i].renew_em_joint()
                 self.initialize_by_save(self.save_name1)
+                # idea of EM
+                self.update_by_x(self.x)
+                for ii in range(len(self.paralog_list)):
+                    self.geneconv_list[ii].id = self.geneconv_list[ii].compute_paralog_id()
+                print(self.geneconv_list[0].id)
+                self.update_by_x(self.x)
+                for ii in range(len(self.paralog_list)):
+                    self.geneconv_list[ii].id = self.geneconv_list[ii].compute_paralog_id()
+                print(self.geneconv_list[0].id)
+                self.update_by_x(self.x)
+                for ii in range(len(self.paralog_list)):
+                    self.geneconv_list[ii].id = self.geneconv_list[ii].compute_paralog_id()
+                print(self.geneconv_list[0].id)
+                print(self.geneconv_list[0].K)
+
                 print('Successfully loaded parameter value from ' + self.save_name1)
 
 
@@ -381,7 +395,7 @@ class JointAnalysis:
             return H
 
 
-    def em_joint(self,epis=0.01,MAX=5):
+    def em_joint(self,epis=0.1,MAX=3):
         ll0=self.get_mle()["fun"]
       #  print(ll0)
         if len(self.shared_parameters_for_k) == 1:
