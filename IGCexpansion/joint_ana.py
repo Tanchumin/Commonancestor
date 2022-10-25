@@ -382,12 +382,14 @@ class JointAnalysis:
 
 
             if len(self.shared_parameters_for_k) == 2:
-          #      basic =  np.maximum(np.exp(self.x[-2]) / (2 * (np.maximum(np.log(np.exp(self.x[-2]) + 1), 1))) - 0.5,0.2)
-           #     step = nd.step_generators.MaxStepGenerator(base_step=basic)
-             #   H = nd.Hessian(self.objective_wo_gradient, step = step)(np.float128([np.exp(self.x[-2]), self.x[-1]]))
+                basic =  np.maximum(np.exp(self.x[-2]) / (2 * (np.maximum(np.log(np.exp(self.x[-2]) + 1), 1))) - 0.5,0.2)
+                step = nd.step_generators.MaxStepGenerator(base_step=basic)
+                H = nd.Hessian(self.objective_wo_gradient, step = step)(np.float128([np.exp(self.x[-2]), self.x[-1]]))
 
-                   H = nd.Hessian(self.objective_wo_gradient)(np.float128([(self.x[-2]), self.x[-1]]))
+               #    H = nd.Hessian(self.objective_wo_gradient)(np.float128([(self.x[-2]), self.x[-1]]))
             else:
+             #   basic =  np.maximum((self.x[-1]) / (2 * (np.maximum(np.log(np.exp(self.x[-2]) + 1), 1))) - 0.5,0.2)
+             ##   H = nd.Hessian(self.objective_wo_gradient, step = step)(np.float128([ self.x[-1]]))
                 H = nd.Hessian(self.objective_wo_gradient)(np.float128([self.x[-1]]))
 
 
@@ -483,6 +485,21 @@ class JointAnalysis:
         print(self.get_Hessian())
 
 #        print(self.get_Hessian())
+
+
+    def em_joint_hessian(self,epis=0.1,MAX=3):
+        ll0=self.get_mle()["fun"]
+
+        if len(self.shared_parameters_for_k) == 1:
+            self.oldtau=deepcopy(([self.geneconv_list[i].tau for i in range(len(self.paralog_list))]))
+        else:
+            self.oldtau=deepcopy(self.geneconv_list[1].tau)
+
+        pstau =deepcopy(([self.geneconv_list[i].tau for i in range(len(self.paralog_list))]))
+        self.ifmodel = "EM_full"
+        self.initialize_x()
+
+        self.get_Hessian()
 
 
 
