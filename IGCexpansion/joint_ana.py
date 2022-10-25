@@ -499,7 +499,7 @@ class JointAnalysis:
         self.ifmodel = "EM_full"
         self.initialize_x()
 
-        self.get_Hessian()
+        print(self.get_Hessian())
 
 
 
