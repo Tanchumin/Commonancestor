@@ -488,7 +488,9 @@ class JointAnalysis:
 
 
     def em_joint_hessian(self,epis=0.1,MAX=3):
-        ll0=self.get_mle()["fun"]
+        for ii in range(len(self.paralog_list)):
+            self.geneconv_list[ii].id = self.geneconv_list[ii].compute_paralog_id()
+            print( self.geneconv_list[ii].id)
 
         if len(self.shared_parameters_for_k) == 1:
             self.oldtau=deepcopy(([self.geneconv_list[i].tau for i in range(len(self.paralog_list))]))
