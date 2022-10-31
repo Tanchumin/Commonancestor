@@ -490,16 +490,18 @@ class JointAnalysis:
     def em_joint_hessian(self,epis=0.1,MAX=3):
         for ii in range(len(self.paralog_list)):
             self.geneconv_list[ii].id = self.geneconv_list[ii].compute_paralog_id()
-            print( self.geneconv_list[ii].id)
+            print(self.geneconv_list[ii].id, flush=True)
 
         if len(self.shared_parameters_for_k) == 1:
             self.oldtau=deepcopy(([self.geneconv_list[i].tau for i in range(len(self.paralog_list))]))
         else:
             self.oldtau=deepcopy(self.geneconv_list[1].tau)
 
-        pstau =deepcopy(([self.geneconv_list[i].tau for i in range(len(self.paralog_list))]))
         self.ifmodel = "EM_full"
         self.initialize_x()
+
+        print("success", flush=True)
+        print(self.x, flush=True)
 
         print(self.get_Hessian())
 
