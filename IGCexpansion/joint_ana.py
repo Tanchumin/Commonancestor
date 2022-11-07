@@ -243,11 +243,10 @@ class JointAnalysis:
     def objective_wo_gradient(self, x):
         f=0
         if  len(self.shared_parameters_for_k)==2:
-            if len(self.shared_parameters_for_k) == 1:
-                self.x[-1] = x[0]
-            else:
-                self.x[-2] = x[0]
-                self.x[-1] = x[1]
+
+            self.x[-2] = x[0]
+            self.x[-1] = x[1]
+            print(x[0])
             self.update_by_x(self.x)
 
             for i in self.multiprocess_combined_list:
@@ -255,20 +254,22 @@ class JointAnalysis:
                 self.geneconv_list[i].id = self.geneconv_list[i].compute_paralog_id()
                 self.geneconv_list[i].update_by_x(self.geneconv_list[i].x)
                 f = self.geneconv_list[i]._loglikelihood2()[0] + f
+            print(-f)
 
         else:
             if len(self.shared_parameters_for_k) == 1:
                 self.x[-1] = x[0]
-            else:
-                self.x[-2] = (x[0])
-                self.x[-1] = x[1]
-            self.update_by_x(self.x)
+                self.update_by_x(self.x)
 
-            for i in self.multiprocess_combined_list:
-                self.geneconv_list[i].update_by_x(self.geneconv_list[i].x)
-                self.geneconv_list[i].id = self.geneconv_list[i].compute_paralog_id()
-                self.geneconv_list[i].update_by_x(self.geneconv_list[i].x)
-                f = self.geneconv_list[i]._loglikelihood2()[0] + f
+                for i in self.multiprocess_combined_list:
+                    self.geneconv_list[i].update_by_x(self.geneconv_list[i].x)
+                    self.geneconv_list[i].id = self.geneconv_list[i].compute_paralog_id()
+                    self.geneconv_list[i].update_by_x(self.geneconv_list[i].x)
+                    f = self.geneconv_list[i]._loglikelihood2()[0] + f
+
+                print(-f)
+
+
 
         return -f
 
@@ -382,15 +383,17 @@ class JointAnalysis:
 
 
             if len(self.shared_parameters_for_k) == 2:
-                basic =  np.maximum(np.exp(self.x[-2]) / (2 * (np.maximum(np.log(np.exp(self.x[-2]) + 1), 1))) - 0.5,0.2)
+                basic =  np.maximum((self.x[-2]) / (2 * (np.maximum(np.log(np.exp(self.x[-2]) + 1), 1))) - 0.5,0.4)
                 step = nd.step_generators.MaxStepGenerator(base_step=basic)
-                H = nd.Hessian(self.objective_wo_gradient, step = step)(np.float128([np.exp(self.x[-2]), self.x[-1]]))
+                H = nd.Hessian(self.objective_wo_gradient, step = step)(np.float128([(self.x[-2]), self.x[-1]]))
 
                #    H = nd.Hessian(self.objective_wo_gradient)(np.float128([(self.x[-2]), self.x[-1]]))
             else:
              #   basic =  np.maximum((self.x[-1]) / (2 * (np.maximum(np.log(np.exp(self.x[-2]) + 1), 1))) - 0.5,0.2)
              ##   H = nd.Hessian(self.objective_wo_gradient, step = step)(np.float128([ self.x[-1]]))
                 H = nd.Hessian(self.objective_wo_gradient)(np.float128([self.x[-1]]))
+
+            H = np.linalg.inv(H)
 
 
 
@@ -503,7 +506,16 @@ class JointAnalysis:
         print("success", flush=True)
         print(self.x, flush=True)
 
+
+        for i in range(len(self.paralog_list)):
+            print("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx")
+            print(i)
+            print(self.geneconv_list[i].id, flush=True)
+            print(self.geneconv_list[i].x, flush=True)
+
+        print("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx")
         print(self.get_Hessian())
+
 
 
 

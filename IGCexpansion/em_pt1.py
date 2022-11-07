@@ -1248,7 +1248,6 @@ class Embrachtau1:
             self.update_by_x(self.x)
             self.id = self.compute_paralog_id()
             self.update_by_x(self.x)
-       #     print(x)
 
             ll = self._loglikelihood2()[0]
 
