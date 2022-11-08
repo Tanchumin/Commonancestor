@@ -246,7 +246,7 @@ class JointAnalysis:
 
             self.x[-2] = x[0]
             self.x[-1] = x[1]
-            print(x[0])
+            print(x[0], flush=True)
             self.update_by_x(self.x)
 
             for i in self.multiprocess_combined_list:
@@ -254,7 +254,7 @@ class JointAnalysis:
                 self.geneconv_list[i].id = self.geneconv_list[i].compute_paralog_id()
                 self.geneconv_list[i].update_by_x(self.geneconv_list[i].x)
                 f = self.geneconv_list[i]._loglikelihood2()[0] + f
-            print(-f)
+            print(-f, flush=True)
 
         else:
             if len(self.shared_parameters_for_k) == 1:
@@ -267,7 +267,7 @@ class JointAnalysis:
                     self.geneconv_list[i].update_by_x(self.geneconv_list[i].x)
                     f = self.geneconv_list[i]._loglikelihood2()[0] + f
 
-                print(-f)
+                print(-f, flush=True)
 
 
 
