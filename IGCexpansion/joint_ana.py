@@ -27,7 +27,8 @@ class JointAnalysis:
                  inibranch=0.1,
                  kini=1.1,
                  tauini=0.4,
-                 ifDNA=False):
+                 ifDNA=False,
+                 stepsize=None):
         # first check if the length of all input lists agree
         assert (len(set([len(alignment_file_list), len(paralog_list)])) == 1)
         # doesn't allow IGC-specific omega for HKY model
@@ -62,6 +63,9 @@ class JointAnalysis:
         self.auto_save1 = 0
         self.initialize_x()
         self.shared_parameters_for_k=shared_parameters_for_k
+
+        #step size for inv hessian
+        self.stepsize=stepsize
 
 
     def initialize_x(self):
@@ -383,9 +387,17 @@ class JointAnalysis:
 
 
             if len(self.shared_parameters_for_k) == 2:
-                basic =  np.maximum((self.x[-2]) / (2 * (np.maximum(np.log(np.exp(self.x[-2]) + 1), 1))) - 0.5,0.4)
-                step = nd.step_generators.MaxStepGenerator(base_step=basic)
-                H = nd.Hessian(self.objective_wo_gradient, step = step)(np.float128([(self.x[-2]), self.x[-1]]))
+                if self.stepsize is not None:
+                    # step_nom * base_step * step_ratio ** (-i + offset)
+                    # step norm = np.log(1.718281828459045 + np.abs(x)).clip(min=1)
+                    # base_step = 2
+
+                    basic = self.stepsize
+                    step = nd.step_generators.MaxStepGenerator(base_step=basic)
+                    H = nd.Hessian(self.objective_wo_gradient, step = step)(np.float128([(self.x[-2]), self.x[-1]]))
+
+                else:
+                    H = nd.Hessian(self.objective_wo_gradient)(np.float128([(self.x[-2]), self.x[-1]]))
 
                #    H = nd.Hessian(self.objective_wo_gradient)(np.float128([(self.x[-2]), self.x[-1]]))
             else:
