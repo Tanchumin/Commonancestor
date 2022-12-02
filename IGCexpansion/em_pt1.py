@@ -120,7 +120,8 @@ class Embrachtau1:
 
         # Initialize all parameters
         self.joint=joint
-        self.initialize_parameters()
+
+
 
         #hessian
 
@@ -142,6 +143,11 @@ class Embrachtau1:
 
         self.dwell_id=dwell_id
 
+        self.only_hessian = True
+        self.initialize_parameters()
+
+
+
 
     def initialize_parameters(self):
         self.get_tree()
@@ -149,7 +155,6 @@ class Embrachtau1:
         self.get_initial_x_process()
 
         save_file = self.get_save_file_name()
-
 
         if self.joint==False:
 
@@ -231,6 +236,7 @@ class Embrachtau1:
                 count[i] += ''.join(self.name_to_seq[name]).count('ACGT'[i])
         count = count / count.sum()
 
+
         if self.ifmodel=="old":
 
             self.x_rates = np.log(np.array([ self.edge_to_blen[edge] for edge in self.edge_to_blen.keys()]))
@@ -291,27 +297,27 @@ class Embrachtau1:
                                   self.kappa, self.tau])), self.K)
 
             if self.joint == False:
-
                 if os.path.isfile(save_file):  # if the save txt file exists and not empty, then read in parameter values
                     if os.stat(save_file).st_size > 0:
-                        self.initialize_by_save(save_file)
-                        print('Successfully loaded parameter value from ' + save_file)
-#                        self.if_rerun=False
+                                self.initialize_by_save(save_file)
+                                print('Successfully loaded parameter value from ' + save_file)
+                                #                        self.if_rerun=False
 
-                        if self.Model =="MG94":
-                              self.k=self.x[6]
-                        else:
-                              self.k = self.x[5]
+                                if self.Model == "MG94":
+                                    self.k = self.x[6]
+                                else:
+                                    self.k = self.x[5]
 
-                        # EM update for id
+                                # EM update for id
 
-                        self.update_by_x(self.x)
-                        self.id = self.compute_paralog_id()
-                        self.update_by_x(self.x)
-                        self.id = self.compute_paralog_id()
-                        self.update_by_x(self.x)
-                        self.id = self.compute_paralog_id()
-                        self.update_by_x(self.x)
+                                self.update_by_x(self.x)
+                                self.id = self.compute_paralog_id()
+                                self.update_by_x(self.x)
+                                self.id = self.compute_paralog_id()
+                                self.update_by_x(self.x)
+                                self.id = self.compute_paralog_id()
+                                self.update_by_x(self.x)
+
 
 
 
@@ -343,7 +349,8 @@ class Embrachtau1:
 
         self.update_by_x(transformation=transformation)
 
-# for K
+
+    # for K
     def ini_by_file(self):
         save_file1 = self.get_save_file_name()
 
@@ -351,7 +358,6 @@ class Embrachtau1:
             if os.stat(save_file1).st_size > 0:
                 self.update_by_x(self.x)
                 self.id = self.compute_paralog_id()
-                print(self.id)
                 self.update_by_x(self.x)
                 self.id = self.compute_paralog_id()
                 self.update_by_x(self.x)
@@ -429,17 +435,21 @@ class Embrachtau1:
 
     def update_by_x(self, x=None, transformation='log'):
         k = len(self.edge_to_blen)
+
         if x is not None:
             self.x = x
         self.x_process, self.x_rates = self.x[:-k], self.x[-k:]
+
         Force_process = None
         Force_rates = None
+
         if self.Force != None:
       #      print(self.Force)
             Force_process = {i: self.Force[i] for i in self.Force.keys() if i < len(self.x) - k}
 
             Force_rates = {(i - len(self.x_process)): self.Force[i] for i in self.Force.keys() if
                            not i < len(self.x) - k}
+
         self.unpack_x_process(Force_process=Force_process, transformation=transformation)
         self.unpack_x_rates(Force_rates=Force_rates, transformation=transformation)
 
@@ -454,6 +464,7 @@ class Embrachtau1:
                         x_process[6]=np.log(x_process[6])
                     else:
                         x_process[5] = np.log(x_process[5])
+
         elif transformation == 'None':
             x_process = self.x_process
         elif transformation == 'Exp_Neg':
@@ -2137,20 +2148,32 @@ class Embrachtau1:
         self.get_initial_x_process()
 
 
-    def get_Hessian(self):
+    def get_Hessian(self,basicstep=None):
 
         if self.ifexp != True:
-            if self.Model=="MG94":
-                 basic = np.maximum(self.x[5] / (2 * (np.maximum(np.log(abs(self.x[5]) + 1), 1))) ,
-                                   0.2) / 10
-                 step = nd.step_generators.MaxStepGenerator(base_step=basic)
+            if basicstep is None:
+                if self.Model=="MG94":
+                     basic = np.maximum(self.x[5] / (2 * (np.maximum(np.log(abs(self.x[5]) + 1), 1))) ,
+                                       0.2) / 10
+                     step = nd.step_generators.MaxStepGenerator(base_step=basic)
 
-                 H = nd.Hessian(self.objective_wo_derivative1,step=step)(np.float128((self.x[5:7])))
+                     H = nd.Hessian(self.objective_wo_derivative1,step=step)(np.float128((self.x[5:7])))
+                else:
+                    basic = np.maximum(self.x[4] / (2 * (np.maximum(np.log(abs(self.x[4]) + 1), 1))) ,
+                                       0.2) / 10
+                    step = nd.step_generators.MaxStepGenerator(base_step=basic)
+                    H = nd.Hessian(self.objective_wo_derivative1,step=step)(np.float128((self.x[4:6])))
+
             else:
-                basic = np.maximum(self.x[4] / (2 * (np.maximum(np.log(abs(self.x[4]) + 1), 1))) ,
-                                   0.2) / 10
-                step = nd.step_generators.MaxStepGenerator(base_step=basic)
-                H = nd.Hessian(self.objective_wo_derivative1,step=step)(np.float128((self.x[4:6])))
+                if self.Model == "MG94":
+                    basic = basicstep
+                    step = nd.step_generators.MaxStepGenerator(base_step=basic)
+                    H = nd.Hessian(self.objective_wo_derivative1, step=step)(np.float128((self.x[5:7])))
+                else:
+                    basic = basicstep
+                    step = nd.step_generators.MaxStepGenerator(base_step=basic)
+                    H = nd.Hessian(self.objective_wo_derivative1, step=step)(np.float128((self.x[4:6])))
+
 
         else:
             if self.Model == "MG94":
@@ -2513,121 +2536,30 @@ class Embrachtau1:
     def sum_branch(self,MAX=4,epis=0.01,K=None):
 
         list = []
-        list.append(self.nsites)
-        ll0 = self.get_mle()["fun"]
-        list.append(ll0)
-        list.append(self.tau)
-        if self.Model == "MG94":
-            list.append(self.omega)
-        pstau = deepcopy(self.tau)
 
 
-###### oldid
-        self.id = self.compute_paralog_id()
-        idold = deepcopy(self.id)
-        print(self.id)
-
-        for j in range(len(self.edge_list)):
-            list.append(idold[j])
-        for j in range(len(self.edge_list)):
-            list.append(self.x_rates[j])
-
-        ttt = len(self.tree['col'])
-        for j in range(ttt):
-            if self.Model == "HKY":
-                if j > 1:
-                    ini2 = self.node_to_num[self.edge_list[j][0]]
-                    end2 = self.node_to_num[self.edge_list[j][1]]
-                    self.ini = deepcopy(self.sites[ini2,])
-                    self.end = deepcopy(self.sites[end2,])
-                    self.time = np.exp(self.x_rates[j])
-                    bstau=self.get_branch_mle(branch=j)
-                    print(bstau)
-                    list.append(bstau)
+        if self.only_hessian==False:
 
 
-            if self.Model == "MG94":
-                if j > 1:
-                    ini2 = self.node_to_num[self.edge_list[j][0]]
-                    end2 = self.node_to_num[self.edge_list[j][1]]
-                    self.ini = deepcopy(self.sites[ini2,])
-                    self.end = deepcopy(self.sites[end2,])
-                    self.time = np.exp(self.x_rates[j])
-                    bstau = self.get_branch_mle(branch=j)
-                    print(bstau)
-                    list.append(bstau)
-
-
-        self.ifmodel = "EM_full"
-        if K is not None:
-            self.K=K
-        self.get_initial_x_process()
-
-        if self.if_rerun==True:
-
-            self.get_mle()
-            ll1 = self.get_mle()["fun"]
-            difference = abs(self.tau - pstau)
-
-            print("EMcycle:")
-            print(0)
-            print(self.id)
-            print(self.K)
-            print(self.tau)
-            print("xxxxxxxxxxxxxxxxx")
-            print("xxxxxxxxxxxxxxxxx")
-            print("xxxxxxxxxxxxxxxxx")
-            print("\n")
-
-            i = 1
-            while i <= MAX and difference >= epis:
-                pstau_1 = deepcopy(self.tau)
-                self.id = self.compute_paralog_id()
-                ll1 = self.get_mle()["fun"]
-                difference = abs(self.tau - pstau_1)
-
-                print("EMcycle:")
-                print(i)
-                i = i + 1
-                print(self.id)
-                print("K:")
-                print(self.K)
-                print("Tau:")
-                print(self.tau)
-                print("xxxxxxxxxxxxxxxxx")
-                print("xxxxxxxxxxxxxxxxx")
-                print("xxxxxxxxxxxxxxxxx")
-                print("\n")
-
-
-            print("new tau: ", self.tau)
-            print("K: ", self.K)
-            print("new ll: ", ll1)
-            list.append(ll1)
+            list.append(self.nsites)
+            ll0 = self.get_mle()["fun"]
+            list.append(ll0)
+            list.append(self.tau)
             if self.Model == "MG94":
                 list.append(self.omega)
-            list.append(self.tau)
-            list.append(self.K)
+            pstau = deepcopy(self.tau)
 
+
+    ###### oldid
+            self.id = self.compute_paralog_id()
+            idold = deepcopy(self.id)
+            print(self.id)
 
             for j in range(len(self.edge_list)):
-                list.append(self.id[j])
+                list.append(idold[j])
             for j in range(len(self.edge_list)):
                 list.append(self.x_rates[j])
 
-            hessian = self.get_Hessian()
-            print(hessian)
-            list.append(hessian[0][0])
-            list.append(hessian[1][1])
-            list.append(hessian[1][0])
-            self.ifexp = True
-            hessian = self.get_Hessian()
-            print(hessian)
-            list.append(hessian[0][0])
-            list.append(hessian[1][1])
-            list.append(hessian[1][0])
-
-            self.id=self.compute_paralog_id()
             ttt = len(self.tree['col'])
             for j in range(ttt):
                 if self.Model == "HKY":
@@ -2637,9 +2569,10 @@ class Embrachtau1:
                         self.ini = deepcopy(self.sites[ini2,])
                         self.end = deepcopy(self.sites[end2,])
                         self.time = np.exp(self.x_rates[j])
-                        bstau = self.get_branch_mle(branch=j)
+                        bstau=self.get_branch_mle(branch=j)
                         print(bstau)
                         list.append(bstau)
+
 
                 if self.Model == "MG94":
                     if j > 1:
@@ -2651,45 +2584,169 @@ class Embrachtau1:
                         bstau = self.get_branch_mle(branch=j)
                         print(bstau)
                         list.append(bstau)
+
+
+            self.ifmodel = "EM_full"
+            if K is not None:
+                self.K=K
+            self.get_initial_x_process()
+
+            if self.if_rerun==True:
+
+                self.get_mle()
+                ll1 = self.get_mle()["fun"]
+                difference = abs(self.tau - pstau)
+
+                print("EMcycle:")
+                print(0)
+                print(self.id)
+                print(self.K)
+                print(self.tau)
+                print("xxxxxxxxxxxxxxxxx")
+                print("xxxxxxxxxxxxxxxxx")
+                print("xxxxxxxxxxxxxxxxx")
+                print("\n")
+
+                i = 1
+                while i <= MAX and difference >= epis:
+                    pstau_1 = deepcopy(self.tau)
+                    self.id = self.compute_paralog_id()
+                    ll1 = self.get_mle()["fun"]
+                    difference = abs(self.tau - pstau_1)
+
+                    print("EMcycle:")
+                    print(i)
+                    i = i + 1
+                    print(self.id)
+                    print("K:")
+                    print(self.K)
+                    print("Tau:")
+                    print(self.tau)
+                    print("xxxxxxxxxxxxxxxxx")
+                    print("xxxxxxxxxxxxxxxxx")
+                    print("xxxxxxxxxxxxxxxxx")
+                    print("\n")
+
+
+                print("new tau: ", self.tau)
+                print("K: ", self.K)
+                print("new ll: ", ll1)
+                list.append(ll1)
+                if self.Model == "MG94":
+                    list.append(self.omega)
+                list.append(self.tau)
+                list.append(self.K)
+
+
+                for j in range(len(self.edge_list)):
+                    list.append(self.id[j])
+                for j in range(len(self.edge_list)):
+                    list.append(self.x_rates[j])
+
+                hessian = self.get_Hessian()
+                print(hessian)
+                list.append(hessian[0][0])
+                list.append(hessian[1][1])
+                list.append(hessian[1][0])
+                self.ifexp = True
+                hessian = self.get_Hessian()
+                print(hessian)
+                list.append(hessian[0][0])
+                list.append(hessian[1][1])
+                list.append(hessian[1][0])
+
+                self.id=self.compute_paralog_id()
+                ttt = len(self.tree['col'])
+                for j in range(ttt):
+                    if self.Model == "HKY":
+                        if j > 1:
+                            ini2 = self.node_to_num[self.edge_list[j][0]]
+                            end2 = self.node_to_num[self.edge_list[j][1]]
+                            self.ini = deepcopy(self.sites[ini2,])
+                            self.end = deepcopy(self.sites[end2,])
+                            self.time = np.exp(self.x_rates[j])
+                            bstau = self.get_branch_mle(branch=j)
+                            print(bstau)
+                            list.append(bstau)
+
+                    if self.Model == "MG94":
+                        if j > 1:
+                            ini2 = self.node_to_num[self.edge_list[j][0]]
+                            end2 = self.node_to_num[self.edge_list[j][1]]
+                            self.ini = deepcopy(self.sites[ini2,])
+                            self.end = deepcopy(self.sites[end2,])
+                            self.time = np.exp(self.x_rates[j])
+                            bstau = self.get_branch_mle(branch=j)
+                            print(bstau)
+                            list.append(bstau)
+
+            else:
+                self.id = self.compute_paralog_id()
+                self.ifexp = True
+                hessian = self.get_Hessian()
+                print(hessian)
+                list.append(hessian[0][0])
+                list.append(hessian[1][1])
+
+                for j in range(len(self.edge_list)):
+                    list.append(self.id[j])
+                for j in range(len(self.edge_list)):
+                    list.append(self.x_rates[j])
+
+                for j in range(len(self.edge_list)):
+                    if self.Model == "HKY":
+                        if j > 1:
+                            ini2 = self.node_to_num[self.edge_list[j][0]]
+                            end2 = self.node_to_num[self.edge_list[j][1]]
+                            self.ini = deepcopy(self.sites[ini2,])
+                            self.end = deepcopy(self.sites[end2,])
+                            self.time = np.exp(self.x_rates[j])
+                            bstau = self.get_branch_mle(branch=j)[0]
+                            list.append(bstau)
+
+                    if self.Model == "MG94":
+                        if j > 1:
+                            ini2 = self.node_to_num[self.edge_list[j][0]]
+                            end2 = self.node_to_num[self.edge_list[j][1]]
+                            self.ini = deepcopy(self.sites[ini2,])
+                            self.end = deepcopy(self.sites[end2,])
+                            self.time = np.exp(self.x_rates[j])
+                            bstau = self.get_branch_mle(branch=j)[0]
+                            list.append(bstau)
+
+
+            print(list)
+            save_nameP = self.save_path + self.Model + "new_tau" + '.txt'
+
 
         else:
+
+
+            print(self.x)
             self.id = self.compute_paralog_id()
-            self.ifexp = True
-            hessian = self.get_Hessian()
-            print(hessian)
-            list.append(hessian[0][0])
-            list.append(hessian[1][1])
+            print(self.id, flush=True)
 
-            for j in range(len(self.edge_list)):
-                list.append(self.id[j])
-            for j in range(len(self.edge_list)):
-                list.append(self.x_rates[j])
+            self.ifmodel = "EM_full"
+            self.get_initial_x_process()
+            self.ini_by_file()
+            print(self.tau,flush=True)
+            print(self.id,flush=True)
 
-            for j in range(len(self.edge_list)):
-                if self.Model == "HKY":
-                    if j > 1:
-                        ini2 = self.node_to_num[self.edge_list[j][0]]
-                        end2 = self.node_to_num[self.edge_list[j][1]]
-                        self.ini = deepcopy(self.sites[ini2,])
-                        self.end = deepcopy(self.sites[end2,])
-                        self.time = np.exp(self.x_rates[j])
-                        bstau = self.get_branch_mle(branch=j)[0]
-                        list.append(bstau)
+            print("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx")
 
-                if self.Model == "MG94":
-                    if j > 1:
-                        ini2 = self.node_to_num[self.edge_list[j][0]]
-                        end2 = self.node_to_num[self.edge_list[j][1]]
-                        self.ini = deepcopy(self.sites[ini2,])
-                        self.end = deepcopy(self.sites[end2,])
-                        self.time = np.exp(self.x_rates[j])
-                        bstau = self.get_branch_mle(branch=j)[0]
-                        list.append(bstau)
+            step=[0.01,0.05,0.1,0.2,0.3,0.5,0.8,1,2,3,5]
 
+            self.ifexp = False
 
-        print(list)
+            for i in range(10):
+                hessian=self.get_Hessian(basicstep=step[i])
+                print(hessian)
+                list.append(hessian[0][0])
+                list.append(hessian[1][1])
+                list.append(hessian[1][0])
 
-        save_nameP = self.save_path + self.Model +"new_tau"+'.txt'
+            save_nameP = self.save_path + self.Model + "new_tau_noh" + '.txt'
+
         with open(save_nameP, 'wb') as f:
             np.savetxt(f, list)
 
@@ -3027,7 +3084,7 @@ if __name__ == '__main__':
     Force = None
     model = 'HKY'
 
-    save_name = model+name+"testforce"
+    save_name = model+name
     geneconv = Embrachtau1(newicktree, alignment_file, paralog, Model=model, Force=Force, clock=None,
                                save_path='../test/save/', save_name=save_name,kbound=5)
 
