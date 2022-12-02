@@ -2740,7 +2740,7 @@ class Embrachtau1:
 
             for i in range(10):
                 hessian=self.get_Hessian(basicstep=step[i])
-                print(hessian)
+                print(hessian,flush=True)
                 list.append(hessian[0][0])
                 list.append(hessian[1][1])
                 list.append(hessian[1][0])
