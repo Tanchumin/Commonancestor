@@ -2905,7 +2905,6 @@ class Embrachtau_re:
 
 
 
-
             if id0==None:
                self.id = self.compute_paralog_id()
             else:

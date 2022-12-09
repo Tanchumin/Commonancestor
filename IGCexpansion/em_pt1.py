@@ -2721,7 +2721,6 @@ class Embrachtau1:
 
         else:
 
-
             print(self.x)
             self.id = self.compute_paralog_id()
             print(self.id, flush=True)

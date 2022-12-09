@@ -21,7 +21,7 @@ class test:
         print(x)
         self.index += 1
         print(self.index)
-        return (x[0] ** 2+x[1]**2 +x[1]*x[0]+2*x[0])
+        return ((x[0] ** 2+x[1]**2 +x[1]*x[0]+2*x[0]))
 
     def print11(self):
         step_gen = nd.step_generators.BasicMaxStepGenerator(base_step=2.0, step_ratio=2,
@@ -34,8 +34,10 @@ class test:
 
     def test1(self):
         basic = 0.4
-        step = nd.step_generators.MinStepGenerator(base_step=basic)
+        step = nd.step_generators.MaxStepGenerator(base_step=basic)
+
         H = nd.Hessian(self.testfunction, step=step)([2,2])
+        print(H)
 
 
 
@@ -44,7 +46,6 @@ class test:
 if __name__ == '__main__':
     dd=test()
     dd.test1()
-    print(nd.extrapolation.EPS)
 
 
 

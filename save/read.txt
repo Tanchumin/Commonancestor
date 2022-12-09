@@ -1,28 +1,46 @@
 
 cd
-cd final1/YeastSeq4r20
-sbatch -c 2 --mem-per-cpu=16G RunJoint_Yeast.py
+cd final1/yeast_unlimit_tau_DNA/test/
+sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/YeastSeq4r21
-sbatch -c 2 --mem-per-cpu=16G RunJoint_Yeast.py
+cd final1/yeast_unlimit_tau_DNA/test1/
+sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/YeastSeq4r22
-sbatch -c 2 --mem-per-cpu=16G RunJoint_Yeast.py
+cd final1/yeast_unlimit_tau_DNA/test2/
+sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/YeastSeq4r23
-sbatch -c 2 --mem-per-cpu=16G RunJoint_Yeast.py
+cd final1/yeast_unlimit_tau_DNA/test3/
+sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/YeastSeq4r24
-sbatch -c 2 --mem-per-cpu=16G RunJoint_Yeast.py
+cd final1/yeast_unlimit_tau_DNA/test4/
+sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/YeastSeq4r25
-sbatch -c 2 --mem-per-cpu=16G RunJoint_Yeast.py
+cd final1/yeast_unlimit_tau_DNA/test5/
+sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/YeastSeq4r26
-sbatch -c 2 --mem-per-cpu=16G RunJoint_Yeast.py
+cd final1/yeast_unlimit_tau_DNA/test6/
+sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/YeastSeq4r27
-sbatch -c 2 --mem-per-cpu=16G RunJoint_Yeast.py
+cd final1/yeast_unlimit_tau_DNA/test7/
+sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/YeastSeq4r28
-sbatch -c 2 --mem-per-cpu=16G RunJoint_Yeast.py
+cd final1/yeast_unlimit_tau_DNA/test8/
+sbatch  Run_IS_IGC_Old.py
+cd
+cd final1/yeast_unlimit_tau_DNA/test9/
+sbatch  Run_IS_IGC_Old.py
+cd
+cd final1/yeast_unlimit_tau_DNA/test10/
+sbatch  Run_IS_IGC_Old.py
+cd
+cd final1/yeast_unlimit_tau_DNA/test11/
+sbatch  Run_IS_IGC_Old.py
+cd
+cd final1/yeast_unlimit_tau_DNA/test12/
+sbatch  Run_IS_IGC_Old.py
+cd
+cd final1/yeast_unlimit_tau_DNA/test13/
+sbatch  Run_IS_IGC_Old.py
+cd
+cd final1/yeast_unlimit_tau_DNA/test14/
+sbatch  Run_IS_IGC_Old.py

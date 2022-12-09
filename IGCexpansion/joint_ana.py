@@ -245,12 +245,18 @@ class JointAnalysis:
         return f, g
 
     def objective_wo_gradient(self, x):
+        list=[]
+
+
+
         f=0
         if  len(self.shared_parameters_for_k)==2:
 
             self.x[-2] = x[0]
             self.x[-1] = x[1]
             print(x[0], flush=True)
+
+
             self.update_by_x(self.x)
 
             for i in self.multiprocess_combined_list:
@@ -259,6 +265,7 @@ class JointAnalysis:
                 self.geneconv_list[i].update_by_x(self.geneconv_list[i].x)
                 f = self.geneconv_list[i]._loglikelihood2()[0] + f
             print(-f, flush=True)
+            list.append(-f)
 
         else:
             if len(self.shared_parameters_for_k) == 1:
@@ -274,6 +281,9 @@ class JointAnalysis:
                 print(-f, flush=True)
 
 
+        save_nameP = "./" + self.Model +'hessian.txt'
+        with open(save_nameP, 'wb') as f1:
+            np.savetxt(f1, list)
 
         return -f
 
@@ -526,11 +536,61 @@ class JointAnalysis:
             print(self.geneconv_list[i].x, flush=True)
 
         print("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx")
-        print(self.get_Hessian())
+      #  print(self.get_Hessian())
+        self.surface()
 
 
+    def surface(self):
+        list = []
+
+        d2=deepcopy(self.x[-2])
+        d1=deepcopy(self.x[-1])
 
 
+        if len(self.shared_parameters_for_k) == 2:
+            for i in range(15):
+                for j  in range(15):
+                    f = 0
+
+                    index_i=(i-7)/30
+                    index_j = (j - 7) / 30
+
+
+                    self.x[-2] = deepcopy(d2+index_i)
+                    self.x[-1] = deepcopy(d1+index_j)
+                    list.append(self.x[-2])
+                    list.append(self.x[-1])
+                    print(self.x[-1])
+                    self.update_by_x(self.x)
+
+                    for i in self.multiprocess_combined_list:
+                        self.geneconv_list[i].update_by_x(self.geneconv_list[i].x)
+                        self.geneconv_list[i].id = self.geneconv_list[i].compute_paralog_id()
+                        self.geneconv_list[i].update_by_x(self.geneconv_list[i].x)
+                        f = self.geneconv_list[i]._loglikelihood2()[0] + f
+                    print(-f, flush=True)
+                    list.append(-f)
+
+        else:
+            if len(self.shared_parameters_for_k) == 1:
+                    for j in range(15):
+                        index_j = (j - 7) / 30
+                        self.x[-1] = deepcopy(d1 + index_j)
+                        self.update_by_x(self.x)
+
+                        for i in self.multiprocess_combined_list:
+                            self.geneconv_list[i].update_by_x(self.geneconv_list[i].x)
+                            self.geneconv_list[i].id = self.geneconv_list[i].compute_paralog_id()
+                            self.geneconv_list[i].update_by_x(self.geneconv_list[i].x)
+                            f = self.geneconv_list[i]._loglikelihood2()[0] + f
+
+                        print(-f, flush=True)
+
+        save_nameP = "./" + self.Model + 'hessian.txt'
+        with open(save_nameP, 'wb') as f1:
+            np.savetxt(f1, list)
+
+        return -f
 
 
 
@@ -549,15 +609,15 @@ if __name__ == '__main__':
 
     paralog_list = [paralog_1, paralog_2]
     IGC_Omega = None
-    Shared = [5]
+    Shared = [4]
     alignment_file_list = [alignment_file_1, alignment_file_2]
     Model = 'HKY'
 
     joint_analysis = JointAnalysis(alignment_file_list,  newicktree, paralog_list, Shared = [],
                                    IGC_Omega = None, Model = Model, Force = Force,
-                                   save_path = '../test/save/',shared_parameters_for_k=[5])
+                                   save_path = '../test/save/',shared_parameters_for_k=[4,5])
 
-    joint_analysis.em_joint()
+    joint_analysis.em_joint_hessian()
 
 
     #joint_analysis.get_mle()
