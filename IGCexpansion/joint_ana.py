@@ -293,6 +293,14 @@ class JointAnalysis:
         return result
 
 
+    def _pool_objective_and_gradient1(self, num_jsgeneconv):
+        self.geneconv_list[num_jsgeneconv].update_by_x(self.geneconv_list[num_jsgeneconv].x)
+        self.geneconv_list[num_jsgeneconv].id = self.geneconv_list[num_jsgeneconv].compute_paralog_id()
+        self.geneconv_list[num_jsgeneconv].update_by_x(self.geneconv_list[num_jsgeneconv].x)
+        result = self.geneconv_list[num_jsgeneconv]._loglikelihood2()[0]
+        return result
+
+
     def _process_objective_and_gradient(self, num_jsgeneconv, display, x, output):
         if self.Model=="MG94":
         #    print(num_jsgeneconv,flush=True)
@@ -548,26 +556,28 @@ class JointAnalysis:
 
 
         if len(self.shared_parameters_for_k) == 2:
-            for i in range(15):
-                for j  in range(15):
-                    f = 0
-
-                    index_i=(i-7)/30
-                    index_j = (j - 7) / 30
+            for ii in range(13):
+                for j  in range(13):
+                    index_j = (j - 6) / 25
+                    index_i = (ii - 6) / 25
 
 
-                    self.x[-2] = deepcopy(d2+index_i)
+                    self.x[-2] = deepcopy(d2 + index_i)
                     self.x[-1] = deepcopy(d1+index_j)
                     list.append(self.x[-2])
                     list.append(self.x[-1])
-                    print(self.x[-1])
                     self.update_by_x(self.x)
 
-                    for i in self.multiprocess_combined_list:
-                        self.geneconv_list[i].update_by_x(self.geneconv_list[i].x)
-                        self.geneconv_list[i].id = self.geneconv_list[i].compute_paralog_id()
-                        self.geneconv_list[i].update_by_x(self.geneconv_list[i].x)
-                        f = self.geneconv_list[i]._loglikelihood2()[0] + f
+                    with Pool(processes=len(self.geneconv_list)) as pool:
+                        results = pool.map(self._pool_objective_and_gradient1, range(len(self.geneconv_list)))
+
+                    f = sum([result for result in results])
+
+                 #   for i in self.multiprocess_combined_list:
+                  #      self.geneconv_list[i].update_by_x(self.geneconv_list[i].x)
+                 #       self.geneconv_list[i].id = self.geneconv_list[i].compute_paralog_id()
+                  #      self.geneconv_list[i].update_by_x(self.geneconv_list[i].x)
+                  #      f = self.geneconv_list[i]._loglikelihood2()[0] + f
                     print(-f, flush=True)
                     list.append(-f)
 
