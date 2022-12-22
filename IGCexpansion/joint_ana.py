@@ -548,7 +548,7 @@ class JointAnalysis:
         self.surface()
 
 
-    def surface(self):
+    def surface(self,med=7,scaletau=40,scalek=25/4):
         list = []
 
         d2=deepcopy(self.x[-2])
@@ -556,10 +556,10 @@ class JointAnalysis:
 
 
         if len(self.shared_parameters_for_k) == 2:
-            for ii in range(13):
-                for j  in range(13):
-                    index_j = (j - 6) / 25
-                    index_i = (ii - 6) / 25
+            for ii in range(med*2+1):
+                for j  in range(med*2+1):
+                    index_j = ((j - med) / scalek)
+                    index_i = (ii - med) / scaletau
 
 
                     self.x[-2] = deepcopy(d2 + index_i)
@@ -583,8 +583,8 @@ class JointAnalysis:
 
         else:
             if len(self.shared_parameters_for_k) == 1:
-                    for j in range(15):
-                        index_j = (j - 7) / 30
+                    for j in range(med*2+1):
+                        index_j = (j - med) / scalek
                         self.x[-1] = deepcopy(d1 + index_j)
                         self.update_by_x(self.x)
 
