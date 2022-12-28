@@ -520,7 +520,7 @@ class JointAnalysis:
 #        print(self.get_Hessian())
 
 
-    def em_joint_hessian(self,epis=0.1,MAX=3):
+    def em_joint_hessian(self,epis=0.1,MAX=3,med=7,scaletau=40,scalek=25/4):
         for ii in range(len(self.paralog_list)):
             self.geneconv_list[ii].id = self.geneconv_list[ii].compute_paralog_id()
             print(self.geneconv_list[ii].id, flush=True)
@@ -545,7 +545,7 @@ class JointAnalysis:
 
         print("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx")
       #  print(self.get_Hessian())
-        self.surface()
+        self.surface(med=med,scaletau=scaletau,scalek=scalek)
 
 
     def surface(self,med=7,scaletau=40,scalek=25/4):
