@@ -41,8 +41,8 @@ class test:
 
 
     def test3(self):
-        dic={"d":1,"dd":2}
-        print(list(dic.keys())[0])
+        dic={"d":1,"dd":2,"ddd":4}
+        print(sum(list(dic.values())[1:]))
 
 
 

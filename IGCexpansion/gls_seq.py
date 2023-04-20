@@ -92,8 +92,8 @@ class GSseq:
 
 
 ## self.listprop is to record the prop of change
-        self.listprop={1:1}
-        self.listproptimes = {1:1}
+        self.listprop={1:0}
+        self.listproptimes = {1:0}
 
 
 
@@ -585,7 +585,7 @@ class GSseq:
 
 # GLS algorithm on sequence level, which just generate on ini and end sequence
 
-    def GLS_sequnce(self, t=0.1, ini=None,k=1.1, tau=1.1):
+    def GLS_sequnce(self, t=0.1, ini=None,k=1.1, tau=1.1,iffirst=False):
 
         global di
         global di1
@@ -642,20 +642,15 @@ class GSseq:
                 change_i = result[2] + change_i
                 ini[change_location] = int(current_state)
 
-                if id in self.listprop.keys():
-                    self.listprop[id] += (result[0] / (result[1]+ result[0]))
-                    self.listproptimes[id] +=1
-               #     print("nonid")
-                 #   print(result[0] / (result[1]+ result[0]))
-                 #   print("id")
-                 #   print(id)
-                else:
-                    self.listprop[id]= (result[0] / (result[1]+ result[0]))
-                    self.listproptimes[id] = 1
-                  #  print("nonid")
-                  #  print(result[0] / (result[1] + result[0]))
-                  #  print("id")
-                  #  print(id)
+                if iffirst==False:
+
+                    if id in self.listprop.keys():
+                        self.listprop[id] += result[1]
+                        self.listproptimes[id] +=1
+
+                    else:
+                        self.listprop[id]= result[1]
+                        self.listproptimes[id] = 1
 
 
             else:
@@ -672,7 +667,7 @@ class GSseq:
 
         return ini
 
-    def GLS_sequnce_tract(self, t=0.1, ini=None,k=1.1, tau=1.1):
+    def GLS_sequnce_tract(self, t=0.1, ini=None,k=1.1, tau=1.1,iffirst=False):
 
         global di
         global di1
@@ -952,8 +947,7 @@ class GSseq:
         branch_root_to_outgroup=self.tree['col'][out_index[0]]
 
 
-        print(len(self.tree['row']))
-
+        #print(len(self.tree['row']))
 
         length_edge=len(self.tree['row'])
         hash_node={}
@@ -975,19 +969,24 @@ class GSseq:
                     print("end node:", self.num_to_node[end_index])
                     ini_seq=deepcopy(hash_node[ini_index])
                     if self.tract_len is None:
-                       end_seq = deepcopy(self.GLS_sequnce(ini=ini_seq,t=self.t[i], k=self.K, tau=self.fix_tau))
+                       if i==0:
+                           end_seq = deepcopy(self.GLS_sequnce(ini=ini_seq,t=self.t[i], k=self.K, tau=self.fix_tau,iffirst=True))
+                       else:
+                           end_seq = deepcopy(
+                               self.GLS_sequnce(ini=ini_seq, t=self.t[i], k=self.K, tau=self.fix_tau))
 
-                       print(self.listprop.keys())
-                       print(self.listprop.values())
-                       print(self.listproptimes.keys())
-                       print(self.listproptimes.values())
+
+                     #  print(self.listprop.keys())
+                     #  print(self.listprop.values())
+                     #  print(self.listproptimes.keys())
+                     #  print(self.listproptimes.values())
 
                     else:
                        end_seq = deepcopy(self.GLS_sequnce_tract(ini=ini_seq, t=self.t[i], k=self.K, tau=self.fix_tau))
-                       print(self.listprop.keys())
-                       print(self.listprop.values())
-                       print(self.listproptimes.keys())
-                       print(self.listproptimes.values())
+                     #  print(self.listprop.keys())
+                     #  print(self.listprop.values())
+                      # print(self.listproptimes.keys())
+                     #  print(self.listproptimes.values())
 
                     print("*******************************")
 
@@ -1167,24 +1166,24 @@ class GSseq:
         len_dic=len(self.listproptimes.keys())
         out1=0
         out2=0
-        for i in range(len_dic-1):
-            out1=out1+(list(self.listprop.keys())[i]-list(self.listprop.keys())[i+1])*\
-                (self.listprop[list(self.listprop.keys())[i+1]]/self.listproptimes[list(self.listprop.keys())[i+1]]+\
-                 self.listprop[list(self.listprop.keys())[i]]/self.listproptimes[list(self.listprop.keys())[i]])/2
-            out2 = out2 + (list(self.listprop.keys())[i] - list(self.listprop.keys())[i + 1]) * \
-                   (1-(self.listprop[list(self.listprop.keys())[i + 1]] / self.listproptimes[
-                       list(self.listprop.keys())[i + 1]] + \
-                    self.listprop[list(self.listprop.keys())[i]] / self.listproptimes[
-                        list(self.listprop.keys())[i]]) / 2)
+  #      for i in range(len_dic-1):
+       #     out1=out1+(list(self.listprop.keys())[i]-list(self.listprop.keys())[i+1])*\
+        #         (self.listprop[list(self.listprop.keys())[i+1]]/self.listproptimes[list(self.listprop.keys())[i+1]]+\
+        #         self.listprop[list(self.listprop.keys())[i]]/self.listproptimes[list(self.listprop.keys())[i]])/2
+        #     out2 = out2 + (list(self.listprop.keys())[i] - list(self.listprop.keys())[i + 1]) * \
+        #           (1-(self.listprop[list(self.listprop.keys())[i + 1]] / self.listproptimes[
+        #              list(self.listprop.keys())[i + 1]] + \
+        #           self.listprop[list(self.listprop.keys())[i]] / self.listproptimes[
+        #                list(self.listprop.keys())[i]]) / 2)
+
+        out3=np.sum(list(self.listprop.values())[1:])/np.sum(list(self.listproptimes.values())[1:])
 
 
-        out=out2/(out1+out2)
-
-        return out
+        return out3
 
 
 
-    def proportion_change_IGC(self,repeats=5):
+    def proportion_change_IGC(self,repeats=3):
         pro_IGC=0
         for i in range(repeats):
 
@@ -1192,7 +1191,7 @@ class GSseq:
             out=self.compute_ave()
             pro_IGC =pro_IGC+out
             self.listprop={1:0}
-            self.listproptimes = {1:1}
+            self.listproptimes = {1:0}
 
 
         print(pro_IGC/repeats)
@@ -1224,7 +1223,6 @@ if __name__ == '__main__':
 
         save_name_simu = model + name + "_simu"
         len_seq=geneconv.nsites
-        print(geneconv.K)
 
 
         self = GSseq(geneconv=geneconv, sizen=len_seq, ifmakeQ=False, Model=model, save_path=save_path,
