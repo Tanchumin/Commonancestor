@@ -40,12 +40,18 @@ class test:
         print(H)
 
 
+    def test3(self):
+        dic={"d":1,"dd":2}
+        print(list(dic.keys())[0])
+
+
 
 
 
 if __name__ == '__main__':
     dd=test()
-    dd.test1()
+    dd.test3()
+
 
 
 

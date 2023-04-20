@@ -91,6 +91,12 @@ class GSseq:
         self.ifDNA=ifDNA
 
 
+## self.listprop is to record the prop of change
+        self.listprop={1:1}
+        self.listproptimes = {1:1}
+
+
+
 
         self.initialize_parameters()
 
@@ -636,9 +642,24 @@ class GSseq:
                 change_i = result[2] + change_i
                 ini[change_location] = int(current_state)
 
+                if id in self.listprop.keys():
+                    self.listprop[id] += (result[0] / (result[1]+ result[0]))
+                    self.listproptimes[id] +=1
+               #     print("nonid")
+                 #   print(result[0] / (result[1]+ result[0]))
+                 #   print("id")
+                 #   print(id)
+                else:
+                    self.listprop[id]= (result[0] / (result[1]+ result[0]))
+                    self.listproptimes[id] = 1
+                  #  print("nonid")
+                  #  print(result[0] / (result[1] + result[0]))
+                  #  print("id")
+                  #  print(id)
+
+
             else:
                 ifcontinue=False
-
 
 
 
@@ -926,11 +947,12 @@ class GSseq:
         name_list=[]
 
 
-
-
         out_index=np.where(self.tree['process'] != scipy.stats.mode(self.tree['process'])[0])[0]
 
         branch_root_to_outgroup=self.tree['col'][out_index[0]]
+
+
+        print(len(self.tree['row']))
 
 
         length_edge=len(self.tree['row'])
@@ -939,7 +961,6 @@ class GSseq:
             hash_node[i] = None
 
         hash_node[0]=deepcopy(ini)
-
 
         for i in range(length_edge):
 
@@ -955,8 +976,18 @@ class GSseq:
                     ini_seq=deepcopy(hash_node[ini_index])
                     if self.tract_len is None:
                        end_seq = deepcopy(self.GLS_sequnce(ini=ini_seq,t=self.t[i], k=self.K, tau=self.fix_tau))
+
+                       print(self.listprop.keys())
+                       print(self.listprop.values())
+                       print(self.listproptimes.keys())
+                       print(self.listproptimes.values())
+
                     else:
                        end_seq = deepcopy(self.GLS_sequnce_tract(ini=ini_seq, t=self.t[i], k=self.K, tau=self.fix_tau))
+                       print(self.listprop.keys())
+                       print(self.listprop.values())
+                       print(self.listproptimes.keys())
+                       print(self.listproptimes.values())
 
                     print("*******************************")
 
@@ -1132,6 +1163,43 @@ class GSseq:
 
 
 
+    def compute_ave(self):
+        len_dic=len(self.listproptimes.keys())
+        out1=0
+        out2=0
+        for i in range(len_dic-1):
+            out1=out1+(list(self.listprop.keys())[i]-list(self.listprop.keys())[i+1])*\
+                (self.listprop[list(self.listprop.keys())[i+1]]/self.listproptimes[list(self.listprop.keys())[i+1]]+\
+                 self.listprop[list(self.listprop.keys())[i]]/self.listproptimes[list(self.listprop.keys())[i]])/2
+            out2 = out2 + (list(self.listprop.keys())[i] - list(self.listprop.keys())[i + 1]) * \
+                   (1-(self.listprop[list(self.listprop.keys())[i + 1]] / self.listproptimes[
+                       list(self.listprop.keys())[i + 1]] + \
+                    self.listprop[list(self.listprop.keys())[i]] / self.listproptimes[
+                        list(self.listprop.keys())[i]]) / 2)
+
+
+        out=out2/(out1+out2)
+
+        return out
+
+
+
+    def proportion_change_IGC(self,repeats=5):
+        pro_IGC=0
+        for i in range(repeats):
+
+            self.topo()
+            out=self.compute_ave()
+            pro_IGC =pro_IGC+out
+            self.listprop={1:0}
+            self.listproptimes = {1:1}
+
+
+        print(pro_IGC/repeats)
+
+
+
+
 
 
 
@@ -1146,47 +1214,54 @@ if __name__ == '__main__':
         save_path='../test/save/'
 
         Force = None
-        model = 'HKY'
+        model = 'MG94'
 
         type = 'situation_new'
         save_name = model + name
-  #      geneconv = Embrachtau1(newicktree, alignment_file, paralog, Model=model, Force=Force, clock=None,
-   #                                save_path=save_path, save_name=save_name)
+        geneconv = Embrachtau1(newicktree, alignment_file, paralog, Model=model, Force=Force, clock=None,
+                                  save_path=save_path, save_name=save_name)
 
 
-    #    self = GSseq(geneconv,pi=[0.25,0.25,0.25,0.25],K=1.01,fix_tau=3.5,sizen=300,omega=1,leafnode=5,ifmakeQ=True)
-     #   branch_list=[0.01,0.22,0.02,0.04,0.06,0.08,0.1,0.12,0.13,0.14,0.15,0.16]
         save_name_simu = model + name + "_simu"
+        len_seq=geneconv.nsites
+        print(geneconv.K)
 
-        hashid={}
-        for i in range(50):
-            hashid[i] = 0
 
-        for i in range(10):
+        self = GSseq(geneconv=geneconv, sizen=len_seq, ifmakeQ=False, Model=model, save_path=save_path,
+                     save_name=save_name_simu, ifDNA=True)
 
-            self = GSseq(newicktree=newicktree,sizen=3000,ifmakeQ=True,K=5,fix_tau=6,pi=[0.25,0.25,0.25,0.25],
-                       kappa=1,Model=model,omega=1,save_path=save_path, save_name=save_name_simu,tract_len=10)
+        self.proportion_change_IGC()
+
+
+
+        #    self = GSseq(geneconv,pi=[0.25,0.25,0.25,0.25],K=1.01,fix_tau=3.5,sizen=300,omega=1,leafnode=5,ifmakeQ=True)
+     #   branch_list=[0.01,0.22,0.02,0.04,0.06,0.08,0.1,0.12,0.13,0.14,0.15,0.16]
+
+   #     hashid={}
+    #    for i in range(1):
+    #        hashid[i] = 0
+
+    #    for i in range(10):
+
+ #       self = GSseq(newicktree=newicktree,sizen=3000,ifmakeQ=True,K=5,fix_tau=6,pi=[0.25,0.25,0.25,0.25],
+     #                  kappa=1,Model=model,omega=1,save_path=save_path, save_name=save_name_simu,tract_len=10)
 
 
      #       self = GSseq(geneconv=geneconv, sizen=400, ifmakeQ=False,Model=model,save_path=save_path, save_name=save_name_simu)
 
-            aaa=self.topo()
-            self.trans_into_seq(ini=aaa[0],name_list=aaa[1])
+       #     aaa=self.topo()
+         #   self.trans_into_seq(ini=aaa[0],name_list=aaa[1])
 
-            for j in range(50):
-                if self.hash_event_t[j] > 0:
-                   hashid[j]=   hashid[j]+ (self.hash_event[j] / (self.hash_event_t[j] * self.sizen * 2))
-
-        for i in range(50):
-                print(i)
-                print(hashid[i]/10)
+   ##           if self.hash_event_t[j] > 0:
+       ##  for i in range(50):
+       #         print(i)
+       #         print(hashid[i]/10)
 
 
 
-        simulate_file= save_path+save_name_simu +".fasta"
-        paralog_simu = ['paralog0', 'paralog1']
-        save_path1 = "./"
-        save_name1=save_name_simu+"t2"
+    ##  paralog_simu = ['paralog0', 'paralog1']
+     #   save_path1 = "./"
+     #   save_name1=save_name_simu+"t2"
 
 
      #   geneconv_simu = Embrachtau1(newicktree, simulate_file, paralog_simu, Model=model, Force=Force, clock=None,
