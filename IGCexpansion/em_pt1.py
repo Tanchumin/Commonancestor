@@ -2951,6 +2951,11 @@ class Embrachtau1:
 
             scene=self.get_scene()
 
+        else:
+            ttt = len(self.tree['col'])
+            self.get_initial_x_process()
+            self.get_processes()
+            scene = self.get_scene()
 
         return scene
 

@@ -25,10 +25,11 @@ class GSseq:
 
     def __init__(self,
                  geneconv=None,newicktree=None,
-                 sizen=400,branch_list=None,K=None,fix_tau=None,
+                 sizen=400,branch_list=None,K=0,fix_tau=None,
                  pi=None,omega=None,kappa=None,
                  ifmakeQ=False,save_name=None,Model="HKY",
-                 save_path=None,tract_len=None,ifDNA=False
+                 save_path=None,tract_len=None,ifDNA=False,
+                 ifmodel="EM_full",
                  ):
 
         self.geneconv                 = geneconv
@@ -95,6 +96,10 @@ class GSseq:
         self.listprop={1:0}
         self.listproptimes = {1:0}
 
+        # decide which model to run
+
+        self.ifmodel=ifmodel
+
 
 
 
@@ -118,14 +123,15 @@ class GSseq:
         if self.ifmakeQ==False:
             print("The parameters and tree are inherited from inputs")
             self.tree = deepcopy(self.geneconv.tree)
-            self.scene=self.geneconv.read_parameter_gls()
+            self.scene=self.geneconv.read_parameter_gls(ifmodel=self.ifmodel)
             self.pi = deepcopy(self.geneconv.pi)
             self.t = self.geneconv.tree['rate']
             self.kappa=self.geneconv.kappa
             self.omega=self.geneconv.omega
             self.tau=self.geneconv.tau
             self.fix_tau=self.geneconv.tau
-            self.K=self.geneconv.K
+            if self.ifmodel!="old":
+                  self.K=self.geneconv.K
             self.observable_nodes=self.geneconv.observable_nodes
             self.num_to_node = self.geneconv.num_to_node
 
