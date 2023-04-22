@@ -334,6 +334,10 @@ class GSseq:
         return [process_basic, process_geneconv]
 
 
+    def isNonsynonymous(self, ca, cb, codon_table):
+        return (codon_table[ca] != codon_table[cb])
+
+
     def get_prior(self):
 
         if self.Model == 'MG94':
@@ -568,14 +572,45 @@ class GSseq:
                 # y_coor is corresponding coor for igc
                 y_coor = np.argwhere(self.dic_col[int(pre),] == (int(post) + 1))[0]
                 qq = self.Q[int(pre), y_coor]
-                igc = (self.tau) / qq
-                point=1-igc
+
+
+                cb1=self.state_to_codon[j_b]
+                ca1 = self.state_to_codon[j_p]
+
+
+
+                if self.isNonsynonymous(cb1, ca1, self.codon_table):
+                    igc = (self.tau*self.omega) / qq
+                else:
+                    igc = (self.tau ) / qq
+
+                point = 1 - igc
+
+                if point < 0:
+                    print("cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc")
+
+
 
             elif (i_b != j_b and j_b == j_p):
                 y_coor = np.argwhere(self.dic_col[int(pre),] == (int(post) + 1))[0]
                 qq = self.Q[int(pre), y_coor]
-                igc = (self.tau) / qq
+
+                cb1 = self.state_to_codon[i_b]
+                ca1 = self.state_to_codon[i_p]
+
+                if self.isNonsynonymous(cb1, ca1, self.codon_table):
+                    igc = (self.tau*self.omega) / qq
+                else:
+                    igc = (self.tau ) / qq
+
                 point = 1 - igc
+
+
+                if point < 0:
+                    print("cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc")
+
+
+
         else:
             point=1
 
