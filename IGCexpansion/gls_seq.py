@@ -1223,10 +1223,12 @@ class GSseq:
         return out3
 
 
+# i made repeat=1000 just to rerun for 1 time, then i will recover the repeats as the input
 
-    def proportion_change_IGC(self,repeats=3):
+    def proportion_change_IGC(self,repeats=10):
         pro_IGC=0
-        for i in range(repeats):
+        repeat=1000
+        for i in range(repeat):
 
             self.topo()
             out=self.compute_ave()
@@ -1234,8 +1236,7 @@ class GSseq:
             self.listprop={1:0}
             self.listproptimes = {1:0}
 
-
-        print(pro_IGC/repeats)
+        print(pro_IGC/repeat)
 
 
 

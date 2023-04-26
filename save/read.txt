@@ -1,46 +1,136 @@
 
 cd
-cd final1/yeast_unlimit_tau_pro_x/test0/
+cd final1/fish_unlimit_tau_pro/755/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/yeast_unlimit_tau_pro_x/test1/
+cd final1/fish_unlimit_tau_pro/2210/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/yeast_unlimit_tau_pro_x/test2/
+cd final1/fish_unlimit_tau_pro/3309/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/yeast_unlimit_tau_pro_x/test3/
+cd final1/fish_unlimit_tau_pro/4570/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/yeast_unlimit_tau_pro_x/test4/
+cd final1/fish_unlimit_tau_pro/337/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/yeast_unlimit_tau_pro_x/test5/
+cd final1/fish_unlimit_tau_pro/561/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/yeast_unlimit_tau_pro_x/test6/
+cd final1/fish_unlimit_tau_pro/1050/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/yeast_unlimit_tau_pro_x/test7/
+cd final1/fish_unlimit_tau_pro/3390/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/yeast_unlimit_tau_pro_x/test8/
+cd final1/fish_unlimit_tau_pro/3337/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/yeast_unlimit_tau_pro_x/test9/
+cd final1/fish_unlimit_tau_pro/211/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/yeast_unlimit_tau_pro_x/test10/
+cd final1/fish_unlimit_tau_pro/2158/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/yeast_unlimit_tau_pro_x/test11/
+cd final1/fish_unlimit_tau_pro/5316/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/yeast_unlimit_tau_pro_x/test12/
+cd final1/fish_unlimit_tau_pro/479/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/yeast_unlimit_tau_pro_x/test13/
+cd final1/fish_unlimit_tau_pro/4494/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/yeast_unlimit_tau_pro_x/test14/
+cd final1/fish_unlimit_tau_pro/2371/
+sbatch  Run_IS_IGC_Old.py
+cd
+cd final1/fish_unlimit_tau_pro/2382/
+sbatch  Run_IS_IGC_Old.py
+cd
+cd final1/fish_unlimit_tau_pro/5153/
+sbatch  Run_IS_IGC_Old.py
+cd
+cd final1/fish_unlimit_tau_pro/3295/
+sbatch  Run_IS_IGC_Old.py
+cd
+cd final1/fish_unlimit_tau_pro/2129/
+sbatch  Run_IS_IGC_Old.py
+cd
+cd final1/fish_unlimit_tau_pro/521/
+sbatch  Run_IS_IGC_Old.py
+cd
+cd final1/fish_unlimit_tau_pro/526/
+sbatch  Run_IS_IGC_Old.py
+cd
+cd final1/fish_unlimit_tau_pro/4553/
+sbatch  Run_IS_IGC_Old.py
+cd
+cd final1/fish_unlimit_tau_pro/3346/
+sbatch  Run_IS_IGC_Old.py
+cd
+cd final1/fish_unlimit_tau_pro/4932/
+sbatch  Run_IS_IGC_Old.py
+cd
+cd final1/fish_unlimit_tau_pro/1215/
+sbatch  Run_IS_IGC_Old.py
+cd
+cd final1/fish_unlimit_tau_pro/2861/
+sbatch  Run_IS_IGC_Old.py
+cd
+cd final1/fish_unlimit_tau_pro/3347/
+sbatch  Run_IS_IGC_Old.py
+cd
+cd final1/fish_unlimit_tau_pro/2214/
+sbatch  Run_IS_IGC_Old.py
+cd
+cd final1/fish_unlimit_tau_pro/735/
+sbatch  Run_IS_IGC_Old.py
+cd
+cd final1/fish_unlimit_tau_pro/5233/
+sbatch  Run_IS_IGC_Old.py
+cd
+cd final1/fish_unlimit_tau_pro/3994/
+sbatch  Run_IS_IGC_Old.py
+cd
+cd final1/fish_unlimit_tau_pro/1053/
+sbatch  Run_IS_IGC_Old.py
+cd
+cd final1/fish_unlimit_tau_pro/223/
+sbatch  Run_IS_IGC_Old.py
+cd
+cd final1/fish_unlimit_tau_pro/2358/
+sbatch  Run_IS_IGC_Old.py
+cd
+cd final1/fish_unlimit_tau_pro/4063/
+sbatch  Run_IS_IGC_Old.py
+cd
+cd final1/fish_unlimit_tau_pro/4031/
+sbatch  Run_IS_IGC_Old.py
+cd
+cd final1/fish_unlimit_tau_pro/3278/
+sbatch  Run_IS_IGC_Old.py
+cd
+cd final1/fish_unlimit_tau_pro/222/
+sbatch  Run_IS_IGC_Old.py
+cd
+cd final1/fish_unlimit_tau_pro/4268/
+sbatch  Run_IS_IGC_Old.py
+cd
+cd final1/fish_unlimit_tau_pro/214/
+sbatch  Run_IS_IGC_Old.py
+cd
+cd final1/fish_unlimit_tau_pro/4025/
+sbatch  Run_IS_IGC_Old.py
+cd
+cd final1/fish_unlimit_tau_pro/2321/
+sbatch  Run_IS_IGC_Old.py
+cd
+cd final1/fish_unlimit_tau_pro/4287/
+sbatch  Run_IS_IGC_Old.py
+cd
+cd final1/fish_unlimit_tau_pro/852/
+sbatch  Run_IS_IGC_Old.py
+cd
+cd final1/fish_unlimit_tau_pro/5550/
 sbatch  Run_IS_IGC_Old.py
