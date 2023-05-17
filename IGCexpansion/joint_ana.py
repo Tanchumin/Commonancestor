@@ -1,7 +1,6 @@
 #! /usr/bin/python3
 # coding=utf-8
 
-from IGCexpansion.CodonGeneconv import *
 from IGCexpansion.em_pt1 import *
 import numdifftools as nd
 from multiprocessing import Pool

@@ -1886,11 +1886,8 @@ class Embrachtau:
             expected_DwellTime = self._ExpectedHetDwellTime()
             if self.Model == "MG94":
                 id = [1 - ((
-                                    expected_DwellTime[0][i] + self.omega * expected_DwellTime[1][i])
-
-
+                                    expected_DwellTime[0][i] + expected_DwellTime[1][i])
                            / (2 * self.nsites))
-
                       for i in range(ttt)]
 
                 # id = [ 1-(((

@@ -8,17 +8,12 @@ from __future__ import print_function
 from em_pt1 import *
 from copy import deepcopy
 from CodonGeneconFunc import *
-import os
 import numpy as np
 import scipy
-import array
 from numpy import random
-from scipy import linalg
-import copy
 from scipy.stats import poisson
-
 from IGCexpansion.CodonGeneconFunc import isNonsynonymous
-import numpy.core.multiarray
+
 
 
 class GSseq:

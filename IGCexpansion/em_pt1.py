@@ -6,21 +6,12 @@
 # txu7@ncsu.edu
 
 from __future__ import print_function, absolute_import
-from CodonGeneconFunc import *
-
-import argparse
-# from jsonctmctree.extras import optimize_em
-import ast
 import jsonctmctree.ll, jsonctmctree.interface
 from CodonGeneconv import *
 from copy import deepcopy
 import os
 import numpy as np
-import pandas as pd
-from numpy import random
 from scipy import linalg
-
-
 from IGCexpansion.CodonGeneconFunc import isNonsynonymous
 import numdifftools as nd
 
@@ -1902,7 +1893,7 @@ class Embrachtau1:
                 'requests': requests
             }
             j_out = jsonctmctree.interface.process_json_in(j_in, debug = True)
-            if j_out['status'] is 'feasible':
+            if j_out['status'] == 'feasible':
                 result = j_out['responses'][0]
             else:
                 raise RuntimeError('Failed at obtaining ancestral state distributions.')
@@ -1964,7 +1955,7 @@ class Embrachtau1:
         if self.dwell_id == False:
 
             for mc in range(repeat):
-
+                print("ddddd")
                 self.jointly_common_ancstral_inference()
                 for j in range(ttt):
                     if self.Model == "HKY":
@@ -1974,6 +1965,12 @@ class Embrachtau1:
                             ini1 = deepcopy(self.sites[ini2,])
                             end1 = deepcopy(self.sites[end2,])
                             diverge_list[j] = diverge_list[j] + (self.difference(ini1)[0] + self.difference(end1)[0]) * 0.5
+                            print("ccccccccccccc")
+                            print("ddddd")
+                            print(1-self.difference(ini1)[0] / self.nsites)
+                            print(1-self.difference(end1)[0]/self.nsites)
+                            print("ddddd")
+                            print("ccccccccccccc")
 
                     if self.Model == "MG94":
                         if not j == 1:
@@ -1995,21 +1992,21 @@ class Embrachtau1:
                     expected_DwellTime = self._ExpectedHetDwellTime_DNA()
 
                     id = [ 1-(((
-                         expected_DwellTime[0][i] + self.omega * expected_DwellTime[1][i])+
-                           (  expected_DwellTime[2][i] + self.omega * expected_DwellTime[3][i])*2 +
-                          ( expected_DwellTime[4][i] + self.omega * expected_DwellTime[5][i]) * 3)
+                         expected_DwellTime[0][i] +  expected_DwellTime[1][i])+
+                           (  expected_DwellTime[2][i] +  expected_DwellTime[3][i])*2 +
+                          ( expected_DwellTime[4][i] +  expected_DwellTime[5][i]) * 3)
                           /(2*3*self.nsites))
                            for i in range(ttt)]
                 else:
                     expected_DwellTime = self._ExpectedHetDwellTime()
                     id = [1 - ((
-                                       expected_DwellTime[0][i] + self.omega * expected_DwellTime[1][i])
+                                       expected_DwellTime[0][i] +  expected_DwellTime[1][i])
                                / (2 * self.nsites))
                           for i in range(ttt)]
 
             else:
                 expected_DwellTime = self._ExpectedHetDwellTime()
-                id = [1 - (expected_DwellTime[i] / (2 * self.nsites
+                id = [1 - (expected_DwellTime[i] / (2* self.nsites
                                                     ))
                       for i in range(ttt)]
 
@@ -2157,22 +2154,22 @@ class Embrachtau1:
                                        0.2) / 10
                      step = nd.step_generators.MaxStepGenerator(base_step=basic)
 
-                     H = nd.Hessian(self.objective_wo_derivative1,step=step)(np.float128((self.x[5:7])))
+                     H = nd.Hessian(self.objective_wo_derivative1,step=step)(np.float32((self.x[5:7])))
                 else:
                     basic = np.maximum(self.x[4] / (2 * (np.maximum(np.log(abs(self.x[4]) + 1), 1))) ,
                                        0.2) / 10
                     step = nd.step_generators.MaxStepGenerator(base_step=basic)
-                    H = nd.Hessian(self.objective_wo_derivative1,step=step)(np.float128((self.x[4:6])))
+                    H = nd.Hessian(self.objective_wo_derivative1,step=step)(np.float32((self.x[4:6])))
 
             else:
                 if self.Model == "MG94":
                     basic = basicstep
                     step = nd.step_generators.MaxStepGenerator(base_step=basic)
-                    H = nd.Hessian(self.objective_wo_derivative1, step=step)(np.float128((self.x[5:7])))
+                    H = nd.Hessian(self.objective_wo_derivative1, step=step)(np.float32((self.x[5:7])))
                 else:
                     basic = basicstep
                     step = nd.step_generators.MaxStepGenerator(base_step=basic)
-                    H = nd.Hessian(self.objective_wo_derivative1, step=step)(np.float128((self.x[4:6])))
+                    H = nd.Hessian(self.objective_wo_derivative1, step=step)(np.float32((self.x[4:6])))
 
 
         else:
@@ -3015,12 +3012,12 @@ class Embrachtau1:
                                        0.2) / 10
                     step = nd.step_generators.MaxStepGenerator(base_step=basic)
 
-                    H = nd.Hessian(self.objective_wo_derivative1, step=step)(np.float128((self.x[5:7])))
+                    H = nd.Hessian(self.objective_wo_derivative1, step=step)(np.float32((self.x[5:7])))
                 else:
                     basic = np.maximum(self.x[4] / (2 * (np.maximum(np.log(abs(self.x[4]) + 1), 1))),
                                        0.2) / 10
                     step = nd.step_generators.MaxStepGenerator(base_step=basic)
-                    H = nd.Hessian(self.objective_wo_derivative1, step=step)(np.float128((self.x[4:6])))
+                    H = nd.Hessian(self.objective_wo_derivative1, step=step)(np.float32((self.x[4:6])))
 
             else:
                 if self.Model == "MG94":
@@ -3044,11 +3041,11 @@ class Embrachtau1:
                         basic = [deepcopy(max(1,abs(self.x[5]))*0.001),deepcopy(max(1,abs(self.x[6]))*0.001)]
                         step = nd.step_generators.MaxStepGenerator(base_step=basic,step_nom=1)
 
-                        H = nd.Hessian(self.objective_wo_derivative1, step=step)(np.float128((self.x[5:7])))
+                        H = nd.Hessian(self.objective_wo_derivative1, step=step)(np.float32((self.x[5:7])))
                     else:
                         basic = [deepcopy(max(1,abs(self.x[4]))*0.0001),deepcopy(max(1,abs(self.x[5]))*0.01)]
                         step = nd.step_generators.MaxStepGenerator(base_step=basic,step_nom=1)
-                        H = nd.Hessian(self.objective_wo_derivative1, step=step)(np.float128((self.x[4:6])))
+                        H = nd.Hessian(self.objective_wo_derivative1, step=step)(np.float32((self.x[4:6])))
 
                 else:
                     if self.Model == "MG94":
@@ -3091,15 +3088,17 @@ if __name__ == '__main__':
     geneconv = Embrachtau1(newicktree, alignment_file, paralog, Model=model, Force=Force, clock=None,
                                save_path='../test/save/', save_name=save_name,kbound=5)
 
-  #  geneconv.get_mle()
-#    print(print(geneconv.compute_paralog_id()))
+    geneconv.get_mle()
+    print(geneconv.compute_paralog_id())
+    geneconv.dwell_id=False
+    print(geneconv.compute_paralog_id())
 
 
    # geneconv.sum_branch_test(id0=[0.9326130134925631, 1.0, 0.834609616220603, 0.8267228498499286,
                           #        0.7941712107333674, 0.7849171211462617, 0.7896771655905308, 0.758017116692181,
                           #        0.7799356954180342, 0.7597093258876664, 0.7455012840422707, 0.7677272289953266])
 
-    print(geneconv.sum_branch())
+  #  print(geneconv.sum_branch())
 
 
 
