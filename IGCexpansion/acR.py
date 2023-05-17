@@ -706,20 +706,20 @@ class AncestralState1:
                                         expected_DwellTime[0][i] + expected_DwellTime[1][i]) +
                                 (expected_DwellTime[2][i] + expected_DwellTime[3][i]) * 2 +
                                 (expected_DwellTime[4][i] + expected_DwellTime[5][i]) * 3)
-                               / (2 * 3 * self.nsites))
+                               / (2 * 3 * self.geneconv.nsites))
                           for i in range(ttt)]
 
                     diverge_listnonsynonymous = [1 - (((
                                                            expected_DwellTime[1][i]) +
                                                        (expected_DwellTime[3][i]) * 2 +
                                                        (expected_DwellTime[5][i]) * 3)
-                                                      / (2 * 3 * self.nsites))
+                                                      / (2 * 3 * self.geneconv.nsites))
                                                  for i in range(ttt)]
                     diverge_listsynonymous = [1 - (((
                                                         expected_DwellTime[0][i]) +
                                                     (expected_DwellTime[2][i]) * 2 +
                                                     (expected_DwellTime[4][i]) * 3)
-                                                   / (2 * 3 * self.nsites))
+                                                   / (2 * 3 * self.geneconv.nsites))
                                               for i in range(ttt)]
 
 
@@ -728,7 +728,7 @@ class AncestralState1:
                     expected_DwellTime = self._ExpectedHetDwellTime()
                     id = [1 - ((
                                        expected_DwellTime[0][i] + expected_DwellTime[1][i])
-                               / (2 * self.nsites))
+                               / (2 * self.geneconv.nsites))
                           for i in range(ttt)]
 
                     diverge_listnonsynonymous = [1 - ((
@@ -951,6 +951,14 @@ class AncestralState1:
         else:
             print('Need to implement this for old package')
 
+    def measure_difference_two(self,a,b):
+        index=0
+
+        for i in range(3):
+            if a[i]!=b[i]:
+                index=index+1
+
+        return index
 
     def _ExpectedHetDwellTime_DNA(self, package='new', display=False):
 
@@ -958,40 +966,40 @@ class AncestralState1:
             self.scene_ll = self.get_scene()
             if self.Model == 'MG94':
                 syn_heterogeneous_states_1 = [(a, b) for (a, b) in
-                                            list(product(range(len(self.codon_to_state)), repeat=2)) if
-                                            a != b and self.isSynonymous(self.codon_nonstop[a], self.codon_nonstop[b]) and
-                                            self.measure_difference_two(self.codon_nonstop[a],
-                                                                                self.codon_nonstop[b])==1]
+                                            list(product(range(len(self.geneconv.codon_to_state)), repeat=2)) if
+                                            a != b and self.isSynonymous(self.geneconv.codon_nonstop[a], self.geneconv.codon_nonstop[b]) and
+                                            self.measure_difference_two(self.geneconv.codon_nonstop[a],
+                                                                                self.geneconv.codon_nonstop[b])==1]
                 nonsyn_heterogeneous_states_1 = [(a, b) for (a, b) in
-                                               list(product(range(len(self.codon_to_state)), repeat=2)) if
-                                               a != b and not self.isSynonymous(self.codon_nonstop[a],
-                                                                                self.codon_nonstop[b]) and
-                                               self.measure_difference_two(self.codon_nonstop[a],
-                                                                                self.codon_nonstop[b])==1]
+                                               list(product(range(len(self.geneconv.codon_to_state)), repeat=2)) if
+                                               a != b and not self.isSynonymous(self.geneconv.codon_nonstop[a],
+                                                                                self.geneconv.codon_nonstop[b]) and
+                                               self.measure_difference_two(self.geneconv.codon_nonstop[a],
+                                                                                self.geneconv.codon_nonstop[b])==1]
                 syn_heterogeneous_states_2 = [(a, b) for (a, b) in
-                                              list(product(range(len(self.codon_to_state)), repeat=2)) if
-                                              a != b and self.isSynonymous(self.codon_nonstop[a],
-                                                                           self.codon_nonstop[b]) and
-                                              self.measure_difference_two(self.codon_nonstop[a],
-                                                                          self.codon_nonstop[b]) == 2]
+                                              list(product(range(len(self.geneconv.codon_to_state)), repeat=2)) if
+                                              a != b and self.isSynonymous(self.geneconv.codon_nonstop[a],
+                                                                           self.geneconv.codon_nonstop[b]) and
+                                              self.measure_difference_two(self.geneconv.codon_nonstop[a],
+                                                                          self.geneconv.codon_nonstop[b]) == 2]
                 nonsyn_heterogeneous_states_2 = [(a, b) for (a, b) in
-                                                 list(product(range(len(self.codon_to_state)), repeat=2)) if
-                                                 a != b and not self.isSynonymous(self.codon_nonstop[a],
-                                                                                  self.codon_nonstop[b]) and
-                                                 self.measure_difference_two(self.codon_nonstop[a],
-                                                                             self.codon_nonstop[b]) == 2]
+                                                 list(product(range(len(self.geneconv.codon_to_state)), repeat=2)) if
+                                                 a != b and not self.isSynonymous(self.geneconv.codon_nonstop[a],
+                                                                                  self.geneconv.codon_nonstop[b]) and
+                                                 self.measure_difference_two(self.geneconv.codon_nonstop[a],
+                                                                             self.geneconv.codon_nonstop[b]) == 2]
                 syn_heterogeneous_states_3 = [(a, b) for (a, b) in
-                                              list(product(range(len(self.codon_to_state)), repeat=2)) if
-                                              a != b and self.isSynonymous(self.codon_nonstop[a],
-                                                                           self.codon_nonstop[b]) and
-                                              self.measure_difference_two(self.codon_nonstop[a],
-                                                                          self.codon_nonstop[b]) == 3]
+                                              list(product(range(len(self.geneconv.codon_to_state)), repeat=2)) if
+                                              a != b and self.isSynonymous(self.geneconv.codon_nonstop[a],
+                                                                           self.geneconv.codon_nonstop[b]) and
+                                              self.measure_difference_two(self.geneconv.codon_nonstop[a],
+                                                                          self.geneconv.codon_nonstop[b]) == 3]
                 nonsyn_heterogeneous_states_3 = [(a, b) for (a, b) in
-                                                 list(product(range(len(self.codon_to_state)), repeat=2)) if
-                                                 a != b and not self.isSynonymous(self.codon_nonstop[a],
-                                                                                  self.codon_nonstop[b]) and
-                                                 self.measure_difference_two(self.codon_nonstop[a],
-                                                                             self.codon_nonstop[b]) == 3]
+                                                 list(product(range(len(self.geneconv.codon_to_state)), repeat=2)) if
+                                                 a != b and not self.isSynonymous(self.geneconv.codon_nonstop[a],
+                                                                                  self.geneconv.codon_nonstop[b]) and
+                                                 self.measure_difference_two(self.geneconv.codon_nonstop[a],
+                                                                             self.geneconv.codon_nonstop[b]) == 3]
                 dwell_request = [dict(
                     property='SDWDWEL',
                     state_reduction=dict(
@@ -1031,7 +1039,7 @@ class AncestralState1:
                 ]
 
             elif self.Model == 'HKY':
-                heterogeneous_states = [(a, b) for (a, b) in list(product(range(len(self.nt_to_state)), repeat=2)) if
+                heterogeneous_states = [(a, b) for (a, b) in list(product(range(len(self.geneconv.nt_to_state)), repeat=2)) if
                                         a != b]
                 dwell_request = [dict(
                     property='SDWDWEL',
@@ -1047,7 +1055,7 @@ class AncestralState1:
             }
             j_out = jsonctmctree.interface.process_json_in(j_in)
 
-            ttt=len(self.edge_list)
+            ttt=len(self.geneconv.edge_list)
             if self.Model=="MG94":
                 ExpectedDwellTime=np.zeros((6,ttt))
 
@@ -1057,7 +1065,7 @@ class AncestralState1:
             else:
                 ExpectedDwellTime = np.zeros(ttt)
 
-                for i in range(len(self.edge_list)):
+                for i in range(len(self.geneconv.edge_list)):
                      ExpectedDwellTime[i] = j_out['responses'][0][i]
 
 
