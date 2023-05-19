@@ -24,6 +24,7 @@ class Embrachtau1:
     def __init__(self, tree_newick, alignment, paralog, Model='MG94', IGC_Omega=None, Tau_Omega = None, nnsites=None, clock=False,joint=False,
                  Force=None, save_path='./save/', save_name=None, post_dup='N1',kbound=5.1,ifmodel="old",inibranch=0.1,noboundk=True,
                  kini=4.1,tauini=1,omegaini=0.5,dwell_id=True,ifDNA=True,if_rerun=True):
+
         self.newicktree = tree_newick  # newick tree file loc
         self.seqloc = alignment  # multiple sequence alignment, now need to remove gap before-hand
         self.paralog = paralog  # parlaog list
@@ -79,19 +80,21 @@ class Embrachtau1:
         self.pi = None  # real values
         self.kappa = 0.87  # real values
         self.omega = omegaini  # real values
+
         # set ini value for key parameters
-        self.tau = tauini  # real values
-        self.tau_F=tauini
-        self.k_F = kini
-        self.K=kini
-        self.inibranch=inibranch
-        self.sites=None
+        self.tau = tauini  # initial tau
+     #   self.tau_F=tauini # initial tau
+    #    self.k_F = kini # initial K
+        self.K=kini # initial K
+        self.inibranch=inibranch # initial branch
+        self.sites=None # store internal nodes from ancestral inference
         self.processes = None # list of basic and geneconv rate matrices. Each matrix is a dictionary used for json parsing
-        self.ifmodel=ifmodel
-        self.id=None
-        self.bound=False
-        self.kbound=kbound
-        self.noboundk=noboundk
+
+        self.ifmodel=ifmodel # "old" model without studying K,
+        self.id=None # the paralog identity level for all branches
+        self.bound=False # set bound for other paramters in mle
+        self.kbound=kbound # set bound for K in mle
+        self.noboundk=noboundk  # noboundk  from -inf to inf
 
         self.hessian = False
         #debug for shared version
@@ -109,11 +112,7 @@ class Embrachtau1:
         # ancestral reconstruction series
         self.reconstruction_series = None  # nodes * paralogs * 'string'
 
-        # Initialize all parameters
-        self.joint=joint
-        #hessian
-
-
+        self.joint=joint  # Initialize all parameters to construct internal paralog
 
         self.index=0
         self.ifexp=False
@@ -2522,11 +2521,9 @@ class Embrachtau1:
                     self.time = np.exp(self.x_rates[j])
                     print(self.get_branch_mle(branch=j))
 
-    def sum_branch(self,MAX=4,epis=0.01,K=None):
+    def sum_branch(self,MAX=4,epis=0.05,K=None):
 
         list = []
-
-
         if self.only_hessian==False:
 
 
@@ -2537,7 +2534,6 @@ class Embrachtau1:
             if self.Model == "MG94":
                 list.append(self.omega)
             pstau = deepcopy(self.tau)
-
 
     ###### oldid
             self.id = self.compute_paralog_id()
@@ -2558,9 +2554,9 @@ class Embrachtau1:
                         self.ini = deepcopy(self.sites[ini2,])
                         self.end = deepcopy(self.sites[end2,])
                         self.time = np.exp(self.x_rates[j])
-                        bstau=self.get_branch_mle(branch=j)
-                        print(bstau)
-                        list.append(bstau)
+                     #   bstau=self.get_branch_mle(branch=j)
+                        #    print(bstau)
+                    #    list.append(bstau)
 
 
                 if self.Model == "MG94":
@@ -2570,9 +2566,9 @@ class Embrachtau1:
                         self.ini = deepcopy(self.sites[ini2,])
                         self.end = deepcopy(self.sites[end2,])
                         self.time = np.exp(self.x_rates[j])
-                        bstau = self.get_branch_mle(branch=j)
-                        print(bstau)
-                        list.append(bstau)
+                        #    bstau = self.get_branch_mle(branch=j)
+                        #     print(bstau)
+                        #    list.append(bstau)
 
 
             self.ifmodel = "EM_full"
@@ -2626,7 +2622,6 @@ class Embrachtau1:
                 list.append(self.tau)
                 list.append(self.K)
 
-
                 for j in range(len(self.edge_list)):
                     list.append(self.id[j])
                 for j in range(len(self.edge_list)):
@@ -2654,9 +2649,9 @@ class Embrachtau1:
                             self.ini = deepcopy(self.sites[ini2,])
                             self.end = deepcopy(self.sites[end2,])
                             self.time = np.exp(self.x_rates[j])
-                            bstau = self.get_branch_mle(branch=j)
-                            print(bstau)
-                            list.append(bstau)
+                  #          bstau = self.get_branch_mle(branch=j)
+                    #        print(bstau)
+                   #         list.append(bstau)
 
                     if self.Model == "MG94":
                         if j > 1:
@@ -2665,9 +2660,9 @@ class Embrachtau1:
                             self.ini = deepcopy(self.sites[ini2,])
                             self.end = deepcopy(self.sites[end2,])
                             self.time = np.exp(self.x_rates[j])
-                            bstau = self.get_branch_mle(branch=j)
-                            print(bstau)
-                            list.append(bstau)
+                    #        bstau = self.get_branch_mle(branch=j)
+                    #        print(bstau)
+                    #        list.append(bstau)
 
             else:
                 self.id = self.compute_paralog_id()
@@ -2690,8 +2685,8 @@ class Embrachtau1:
                             self.ini = deepcopy(self.sites[ini2,])
                             self.end = deepcopy(self.sites[end2,])
                             self.time = np.exp(self.x_rates[j])
-                            bstau = self.get_branch_mle(branch=j)[0]
-                            list.append(bstau)
+                       #     bstau = self.get_branch_mle(branch=j)[0]
+                         #   list.append(bstau)
 
                     if self.Model == "MG94":
                         if j > 1:
@@ -2700,8 +2695,8 @@ class Embrachtau1:
                             self.ini = deepcopy(self.sites[ini2,])
                             self.end = deepcopy(self.sites[end2,])
                             self.time = np.exp(self.x_rates[j])
-                            bstau = self.get_branch_mle(branch=j)[0]
-                            list.append(bstau)
+                        #    bstau = self.get_branch_mle(branch=j)[0]
+                        #    list.append(bstau)
 
 
             print(list)
@@ -2956,10 +2951,6 @@ class Embrachtau1:
             print("xxxxxxxxxxxxxxx")
             self.get_initial_x_process()
 
-
-
-
-
             if id0==None:
                self.id = self.compute_paralog_id()
             else:
@@ -3077,7 +3068,7 @@ if __name__ == '__main__':
     model = 'HKY'
 
     save_name = model+name
-    geneconv = Embrachtau1(newicktree, alignment_file, paralog, Model=model, Force=Force, clock=None,
+    geneconv = Embrachtau1(newicktree, alignment_file, paralog, Model=model, Force=Force,
                                save_path='../test/save/', save_name=save_name,kbound=5)
 
   #  geneconv.get_mle()
@@ -3088,18 +3079,6 @@ if __name__ == '__main__':
    # geneconv.sum_branch_test(id0=[0.9326130134925631, 1.0, 0.834609616220603, 0.8267228498499286,
                           #        0.7941712107333674, 0.7849171211462617, 0.7896771655905308, 0.758017116692181,
                           #        0.7799356954180342, 0.7597093258876664, 0.7455012840422707, 0.7677272289953266])
-
-  #  print(geneconv.sum_branch())
-
-
-
-
-
-
-
-
-
-
 
 
   #  geneconv.get_mle()
