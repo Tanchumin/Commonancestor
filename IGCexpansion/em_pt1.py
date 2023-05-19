@@ -2554,7 +2554,7 @@ class Embrachtau1:
                         self.ini = deepcopy(self.sites[ini2,])
                         self.end = deepcopy(self.sites[end2,])
                         self.time = np.exp(self.x_rates[j])
-                     #   bstau=self.get_branch_mle(branch=j)
+                     #   bstau=self.get_branch_mle(branch=j)[0]
                         #    print(bstau)
                     #    list.append(bstau)
 
@@ -2566,7 +2566,7 @@ class Embrachtau1:
                         self.ini = deepcopy(self.sites[ini2,])
                         self.end = deepcopy(self.sites[end2,])
                         self.time = np.exp(self.x_rates[j])
-                        #    bstau = self.get_branch_mle(branch=j)
+                        #    bstau = self.get_branch_mle(branch=j)[0]
                         #     print(bstau)
                         #    list.append(bstau)
 
@@ -2662,9 +2662,9 @@ class Embrachtau1:
                             self.ini = deepcopy(self.sites[ini2,])
                             self.end = deepcopy(self.sites[end2,])
                             self.time = np.exp(self.x_rates[j])
-                  #          bstau = self.get_branch_mle(branch=j)
-                    #        print(bstau)
-                   #         list.append(bstau)
+                            bstau = self.get_branch_mle(branch=j)[0]
+                            print(bstau)
+                            list.append(bstau)
 
                     if self.Model == "MG94":
                         if j > 1:
@@ -2673,9 +2673,9 @@ class Embrachtau1:
                             self.ini = deepcopy(self.sites[ini2,])
                             self.end = deepcopy(self.sites[end2,])
                             self.time = np.exp(self.x_rates[j])
-                    #        bstau = self.get_branch_mle(branch=j)
-                    #        print(bstau)
-                    #        list.append(bstau)
+                            bstau = self.get_branch_mle(branch=j)[0]
+                            print(bstau)
+                            list.append(bstau)
 
             else:
                 self.id = self.compute_paralog_id()
