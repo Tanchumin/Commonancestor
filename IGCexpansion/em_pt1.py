@@ -111,9 +111,6 @@ class Embrachtau1:
 
         # Initialize all parameters
         self.joint=joint
-
-
-
         #hessian
 
 
@@ -300,16 +297,14 @@ class Embrachtau1:
                                     self.k = self.x[5]
 
                                 # EM update for id
-
+                                self.update_by_x(self.x)
+                                self.id = self.compute_paralog_id()
+                                print("dddddd111111111")
                                 self.update_by_x(self.x)
                                 self.id = self.compute_paralog_id()
                                 self.update_by_x(self.x)
                                 self.id = self.compute_paralog_id()
                                 self.update_by_x(self.x)
-                                self.id = self.compute_paralog_id()
-                                self.update_by_x(self.x)
-
-
 
 
         if transformation == 'log' :
@@ -720,9 +715,6 @@ class Embrachtau1:
         if np.dot(self.prior_distribution, Qbasic.sum(axis=1))!=0:
             expected_rate = np.dot(self.prior_distribution, Qbasic.sum(axis=1))
         else:
-         #   print(self.prior_distribution)
-         #   print(Qbasic.sum(axis=1))
-          #  print(Qbasic)
             expected_rate = 1
         Qbasic = Qbasic / expected_rate
         return Qbasic
@@ -3088,10 +3080,10 @@ if __name__ == '__main__':
     geneconv = Embrachtau1(newicktree, alignment_file, paralog, Model=model, Force=Force, clock=None,
                                save_path='../test/save/', save_name=save_name,kbound=5)
 
-    geneconv.get_mle()
+  #  geneconv.get_mle()
 
 
-  #  geneconv.sum_branch()
+    geneconv.sum_branch()
 
    # geneconv.sum_branch_test(id0=[0.9326130134925631, 1.0, 0.834609616220603, 0.8267228498499286,
                           #        0.7941712107333674, 0.7849171211462617, 0.7896771655905308, 0.758017116692181,
@@ -3115,9 +3107,9 @@ if __name__ == '__main__':
   #  print(geneconv.get_Hessian())
 
 
-    print(geneconv.compute_paralog_id())
-    geneconv.dwell_id=False
-    print(geneconv.compute_paralog_id())
+  #  print(geneconv.compute_paralog_id())
+  #  geneconv.dwell_id=False
+ #   print(geneconv.compute_paralog_id())
 
 
    # geneconv.EM_branch_tau(MAX=5,epis=0.01,force=None,K=2)

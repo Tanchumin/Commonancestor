@@ -1,6 +1,4 @@
 from __future__ import print_function
-import jsonctmctree.ll, jsonctmctree.interface
-from CodonGeneconv import *
 import numdifftools as nd
 import numpy as np
 

@@ -13,11 +13,12 @@ engine by Alex Griffing, modified by Xiang Ji)
 [networkx](https://networkx.github.io/)
 [numpy](https://numpy.org/)
 [scipy](https://www.scipy.org/)
+[numdifftools](https://pypi.org/project/numdifftools/)
 
 (you could install them by
 
 `
-pip install --user Biopython networkx numpy scipy
+pip install --user Biopython networkx numpy scipy numdifftools
 `)
 
 
