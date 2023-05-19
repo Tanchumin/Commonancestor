@@ -11,7 +11,6 @@ from __future__ import print_function
 import jsonctmctree.ll, jsonctmctree.interface
 from CodonGeneconv import *
 from copy import deepcopy
-import os
 import numpy as np
 import pandas as pd
 from numpy import random

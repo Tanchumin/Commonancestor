@@ -95,16 +95,15 @@ class JointAnalysis:
                 self.update_by_x(self.x)
                 for ii in range(len(self.paralog_list)):
                     self.geneconv_list[ii].id = self.geneconv_list[ii].compute_paralog_id()
-                print(self.geneconv_list[0].id)
                 self.update_by_x(self.x)
                 for ii in range(len(self.paralog_list)):
                     self.geneconv_list[ii].id = self.geneconv_list[ii].compute_paralog_id()
-                print(self.geneconv_list[0].id)
+          #      print(self.geneconv_list[0].id)
                 self.update_by_x(self.x)
                 for ii in range(len(self.paralog_list)):
                     self.geneconv_list[ii].id = self.geneconv_list[ii].compute_paralog_id()
-                print(self.geneconv_list[0].id)
-                print(self.geneconv_list[0].K)
+            #    print(self.geneconv_list[0].id)
+             #   print(self.geneconv_list[0].K)
 
                 print('Successfully loaded parameter value from ' + self.save_name1)
 
@@ -423,7 +422,7 @@ class JointAnalysis:
             return H
 
 
-    def em_joint(self,epis=0.1,MAX=3):
+    def em_joint(self,epis=0.3,MAX=3):
         ll0=self.get_mle()["fun"]
       #  print(ll0)
         if len(self.shared_parameters_for_k) == 1:
@@ -431,10 +430,12 @@ class JointAnalysis:
         else:
             self.oldtau=deepcopy(self.geneconv_list[1].tau)
 
-        pstau =deepcopy(([self.geneconv_list[i].tau for i in range(len(self.paralog_list))]))
-        pstau=np.sum(pstau)
+
         self.ifmodel = "EM_full"
         self.initialize_x()
+
+        pstau = deepcopy(([self.geneconv_list[i].tau for i in range(len(self.paralog_list))]))
+        pstau = np.sum(pstau)
 
         self.get_mle()
         tau = deepcopy(([self.geneconv_list[i].tau for i in range(len(self.paralog_list))]))
@@ -566,11 +567,7 @@ class JointAnalysis:
 
                     f = sum([result for result in results])
 
-                 #   for i in self.multiprocess_combined_list:
-                  #      self.geneconv_list[i].update_by_x(self.geneconv_list[i].x)
-                 #       self.geneconv_list[i].id = self.geneconv_list[i].compute_paralog_id()
-                  #      self.geneconv_list[i].update_by_x(self.geneconv_list[i].x)
-                  #      f = self.geneconv_list[i]._loglikelihood2()[0] + f
+
                     print(-f, flush=True)
                     list.append(-f)
 
@@ -620,10 +617,10 @@ if __name__ == '__main__':
                                    IGC_Omega = None, Model = Model, Force = Force,
                                    save_path = '../test/save/',shared_parameters_for_k=[4,5])
 
-    joint_analysis.em_joint_hessian()
+   # joint_analysis.em_joint_hessian()
 
 
-    #joint_analysis.get_mle()
+    joint_analysis.em_joint()
 
 
 

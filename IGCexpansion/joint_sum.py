@@ -1,11 +1,9 @@
 #! /usr/bin/python3
 # coding=utf-8
 
-from IGCexpansion.CodonGeneconv import *
 import multiprocessing as mp
 from IGCexpansion.em_pt import *
 import numdifftools as nd
-from scipy import  *
 from multiprocessing import Pool
 
 
