@@ -2575,12 +2575,20 @@ class Embrachtau1:
             if K is not None:
                 self.K=K
             self.get_initial_x_process()
+            pstau = deepcopy(self.tau)
 
             if self.if_rerun==True:
 
                 self.get_mle()
                 ll1 = self.get_mle()["fun"]
+
+                self.update_by_x(self.x)
+                self.id = self.compute_paralog_id()
+                self.update_by_x(self.x)
+                self.id = self.compute_paralog_id()
+
                 difference = abs(self.tau - pstau)
+                print(difference)
 
                 print("EMcycle:")
                 print(0)
@@ -2595,9 +2603,14 @@ class Embrachtau1:
                 i = 1
                 while i <= MAX and difference >= epis:
                     pstau_1 = deepcopy(self.tau)
-                    self.id = self.compute_paralog_id()
+
                     ll1 = self.get_mle()["fun"]
+                    self.update_by_x(self.x)
+                    self.id = self.compute_paralog_id()
+                    self.update_by_x(self.x)
+                    self.id = self.compute_paralog_id()
                     difference = abs(self.tau - pstau_1)
+                    print(difference)
 
                     print("EMcycle:")
                     print(i)
