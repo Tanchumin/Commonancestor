@@ -10,7 +10,6 @@ from IGCexpansion.CodonGeneconv import *
 from copy import deepcopy
 import numpy as np
 
-from scipy import linalg
 
 
 
@@ -38,6 +37,9 @@ class AncestralState1:
         self.node_length              = None
         self.dic_col                  = None
 
+        self.sites_length = self.geneconv.nsites
+        self.Model = self.geneconv.Model
+
         self.codon_table = geneconv.codon_table
         self.tau =geneconv.tau
         self.omega=geneconv.omega
@@ -50,16 +52,8 @@ class AncestralState1:
         self.dic_di = None
         self.tauoriginal=0
 
-        # history from monte carlo
-        self.time_list= None
-        self.state_list = None
-        self.effect_matrix= None
-        self.big_number_matrix= None
-        self.dis_matrix = None
 
         self.node_length=0
-        self.sites_length = self.geneconv.nsites
-        self.Model=self.geneconv.Model
         self.ifmarginal = False
         self.process=self.geneconv.processes
 
@@ -69,12 +63,8 @@ class AncestralState1:
 # igc_com is matrix contain paralog difference,difference time, igc state, paralog category
         self.relationship=None
         self.igc_com=None
-
         self.judge=None
-        self.P_list= None
-        self.Q_original=None
         self.ifmax=False
-        self.ifXiang=True
 
         self.name=self.geneconv.save_name
 
@@ -128,7 +118,7 @@ class AncestralState1:
                 'requests': requests
             }
             j_out = jsonctmctree.interface.process_json_in(j_in)
-            if j_out['status'] is 'feasible':
+            if j_out['status'] == 'feasible':
                 result = j_out['responses'][0]
             else:
                 raise RuntimeError('Failed at obtaining ancestral state distributions.')
@@ -159,7 +149,7 @@ class AncestralState1:
                 'requests': requests
             }
             j_out = jsonctmctree.interface.process_json_in(j_in, debug = True)
-            if j_out['status'] is 'feasible':
+            if j_out['status'] == 'feasible':
                 result = j_out['responses'][0]
             else:
                 raise RuntimeError('Failed at obtaining ancestral state distributions.')
@@ -247,7 +237,7 @@ class AncestralState1:
 
 
     def translate_into_seq(self,ifmarginal=False,paralog=1):
-        promax=self.get_maxpro_index(ifmarginal,paralog)
+        promax=self.get_maxpro_index(ifmarginal=ifmarginal,paralog=paralog)
         list = []
 
         if self.Model == 'MG94':
@@ -387,244 +377,13 @@ class AncestralState1:
 
         self.judge=judge
 
-       # self.get_scene()
-      #  scene=self.scene
-      #  print(scene['process_definitions'])
 
 # compute Q matrix  with 0
-    def original_Q(selfs):
-        if self.Q is None:
-            self.making_Qmatrix()
-
-        if self.Model == 'HKY':
-            self.Q_original = np.zeros(shape=(16, 16))
-            for i in range(16):
-                for j in range(9):
-                    index=int(self.dic_col[i,j]-1)
-                    if(index>=0):
-                        self.Q_original[i,index]=self.Q[i,j]
-
-            for k in  range(16):
-                self.Q_original[k,k]=-sum(self.Q_original[k,])
-
-        else:
-            self.Q_original = np.zeros(shape=(3721, 3721))
-            for i in range(3721):
-                for j in range(27):
-                    index=int(self.dic_col[i,j]-1)
-                    self.Q_original[i,index]=self.Q[i,j]
-
-            for k in  range(3721):
-                self.Q_original[k, k]=-sum(self.Q_original[k,])
-
-# making matrices to store possibility for internal node
-    def making_possibility_internal(self):
-
-        if self.judge is None:
-            self.judge_state_children()
-
-        # self.Q original is 16*16 Q matrix
-        if self.Q_original is None:
-            self.original_Q()
-
-        self.get_maxpro_index()
-
-        internal_node = self.get_interior_node()
-        P_list = []
-        tree_len=len(self.scene['tree']["column_nodes"])
-
-# P_list store the P matrix
-        if self.Model=="HKY":
-            statenumber = 16
-            for i in range(tree_len):
-                if i==1:
-                    time = self.scene['tree']["edge_rate_scaling_factors"][i]
-                    Q1 = geneconv.get_HKYBasic()
-
-                    for k in range(4):
-                          Q1[k, k] = -sum(Q1[k,])
-                    Q=linalg.expm(Q1 * time)
-                    P_list.append(Q)
-                else:
-                    time=self.scene['tree']["edge_rate_scaling_factors"][i]
-                    Q=linalg.expm(self.Q_original * time)
-                    P_list.append(Q)
-
-            save_nameP = '../test/savesample/Ind_' + "QQQ" + 'sample.txt'
-            np.savetxt(save_nameP, self.Q_original.T)
-
-        else:
-            statenumber = 3721
-            for i in range(tree_len):
-                if i == 1:
-                    time = self.scene['tree']["edge_rate_scaling_factors"][i]
-                    Q1 = geneconv.get_MG94Basic()
-                    for k in range(61):
-                        Q1[k, k] = -sum(Q1[k,])
-                    Q = linalg.expm(Q1 * time)
-                    P_list.append(Q)
-                else:
-                    time = self.scene['tree']["edge_rate_scaling_factors"][i]
-                    Q = linalg.expm(self.Q_original * time)
-                    P_list.append(Q)
-
-            save_nameP = '../test/savesample/Ind_' + "QQQ" + 'sample.txt'
-            np.savetxt(save_nameP, self.Q_original.T)
-
-
-
-        #p_n is list store the  probabolity matrices for  internal nodel
-        p_n=[]
-        for i in range(len(self.judge)):
-            p_n.append(0)
-
-        # tree_to store the topology of each internal  node
-        tree_to=np.zeros(shape=(3, len(self.judge)))
-
-
-        for i in range(len(self.judge)-1):
-            inode= internal_node[len(self.judge)-1-i]
-            state=int(self.judge[len(self.judge)-1-i])
-            diverge=1
-            for j in range(tree_len-1):
-                if(self.geneconv.node_to_num[geneconv.edge_list[j][0]]==inode and diverge==1):
-                    diverge=diverge+1
-                    left = self.geneconv.node_to_num[geneconv.edge_list[j][1]]
-                    right= self.geneconv.node_to_num[geneconv.edge_list[j+1][1]]
-                    tree_to[1,len(self.judge)-i-1]=left
-                    tree_to[2,len(self.judge)-i-1]=right
-                    p_node = np.zeros(shape=(self.sites_length, statenumber))
-
-                    if(state==0):
-                        for sites in range(self.sites_length):
-                            leftpoint=int(self.sites[left,sites])
-                            rightpoint=int(self.sites[right,sites])
-                            for current in range(statenumber):
-                                 p_node[sites,current]=P_list[j+1][current,rightpoint]*P_list[j][current,leftpoint]
-
-                        p_n[len(self.judge)-i-1]=p_node
-
-                    elif(state==2):
-                        right = int(internal_node.index(right))
-                        rightm = p_n[right]
-                        # rightm is p we caulcate before which is a matrix site.length*16
-                        for kk in range(self.sites_length):
-                            leftpoint = int(self.sites[left, kk])
-                            rightpoint=rightm[kk,]
-                            for current in range(statenumber):
-                                p1=0
-                                for kkkk in range(statenumber):
-                                    p1=P_list[j+1][current,kkkk]*rightpoint[kkkk]+p1
-                                p_node[kk, current] = p1* P_list[j][current,leftpoint]
-                        p_n[len(self.judge) - i-1] = p_node
-
-
-                    elif(state==3):
-                        left = int(internal_node.index(left))
-                        leftm = p_n[left]
-                        # leftm is p we caulcate before which is a matrix site.length*16
-                        for sites in range(self.sites_length):
-                            rightpoint = int(self.sites[right, sites])
-                            leftpoint=leftm[sites,]
-                            for current in range(statenumber):
-                                p1=0
-                                for kkkk in range(statenumber):
-                                    p1=P_list[j][current,kkkk]*leftpoint[kkkk]+p1
-                                p_node[sites, current] = p1* P_list[j+1][current,rightpoint]
-                        p_n[len(self.judge) - i-1] = p_node
-
-                    else:
-                        left = int(internal_node.index(left))
-                        leftm = p_n[left]
-                        right = int(internal_node.index(right))
-                        rightm = p_n[right]
-
-                        # leftm is p we calculate before which is a matrix site.length*16
-                        for kk in range(self.sites_length):
-                            leftpoint=leftm[kk,]
-                            rightpoint = rightm[kk,]
-                            for kkk in range(statenumber):
-                                p1=0
-                                p2=0
-                                for kkkk in range(statenumber):
-                                    p1=P_list[j][kkk,kkkk]*leftpoint[kkkk]+p1
-                                    p2 = P_list[j+1][kkk, kkkk] * rightpoint[kkkk] + p2
-                                p_node[kk, kkk] = p1* p2
-                        p_n[len(self.judge) - i-1] = p_node
-
-        self.p_n=p_n
-        self.P_list=P_list
-        self.tree_to=tree_to
-
-       # print((self.sites[2,1]%4))
-
 
 
     def jointly_common_ancstral_inference(self,ifcircle=False,taulist=None):
 
-        if self.ifXiang==False:
-            if ifcircle==False:
-                self.making_possibility_internal()
-            else:
-                self.making_possibility_internal_EM(taulist=taulist)
 
-            tree_len = len(self.scene['tree']["column_nodes"])
-            internal_node = self.get_interior_node()
-            index=1
-            j=0
-           # print(internal_node)
-
-    # try to find parent of internal node
-            while index < len(internal_node):
-                if (self.geneconv.node_to_num[geneconv.edge_list[j][1]]==internal_node[index]):
-                    self.tree_to[0,index]=self.geneconv.node_to_num[geneconv.edge_list[j][0]]
-                    index=index+1
-                j=j+1
-
-
-            if self.Model=="HKY":
-                for j in range(self.sites_length):
-                    self.sites[0,j]=np.random.choice(range(16), 1, p=np.array(self.ancestral_state_response[j])[:, 0])[0]
-
-                for i in range(tree_len):
-                    if(i>0 and i in set(internal_node)):
-                        index=internal_node.index(i)
-                        for j in range(self.sites_length):
-                            selectp=np.ones(16)
-                            parent = int(self.tree_to[0, (index)])
-                           # print(parent)
-                            parent = int(self.sites[parent,j])
-                            for k in range(16):
-                                selectp[k]=self.P_list[i-1][parent,k]*self.p_n[index][j,k]
-                            selectp=selectp/sum(selectp)
-                            if(np.any(selectp)<0):
-                                print(selectp)
-                            self.sites[i,j]=np.random.choice(range(16), 1, p=selectp)[0]
-
-
-
-            else:
-                for j in range(self.sites_length):
-                    self.sites[0, j] = \
-                    np.random.choice(range(3721), 1, p=np.array(self.ancestral_state_response[j])[:, 0])[0]
-
-                for i in range(tree_len):
-                    if (i > 0 and i in set(internal_node)):
-                        index = internal_node.index(i)
-                        for j in range(self.sites_length):
-                            selectp = np.ones(3721)
-                            parent = int(self.tree_to[0, (index)])
-                            # print(parent)
-                            parent = int(self.sites[parent, j])
-                            for k in range(3721):
-                                selectp[k] = self.P_list[i - 1][parent, k] * self.p_n[index][j, k]
-                            selectp = selectp / sum(selectp)
-                            self.sites[i, j] = np.random.choice(range(3721), 1, p=selectp)[0]
-
-
-
-
-        if  self.ifXiang==True:
             self.ancestral_state_response = deepcopy(self.get_ancestral_state_response_x())
 
             self.node_length = len(self.get_num_to_node())
@@ -683,9 +442,7 @@ class AncestralState1:
             list.append(self.geneconv.omega)
 
         diverge_list=[]
-
         ttt = len(self.geneconv.tree['col'])
-        id = np.zeros(ttt)
 
         diverge_listnonsynonymous = np.zeros(ttt)
         diverge_listsynonymous = np.zeros(ttt)
@@ -870,14 +627,6 @@ class AncestralState1:
         with open(save_nameP, 'wb') as f:
            np.savetxt(f, list)
 
-
-   #     save_nameP = "./save/"+self.name +'.txt'
-   #     with open(save_nameP, 'w+') as f:
-   #         np.savetxt(f, list, delimiter=' ', )
-
-
-    #    save_nameP1 = "./save/"+self.name +'.name.txt'
-     #   np.savetxt(save_nameP1, list1,fmt="%s")
 
 
 
@@ -1131,12 +880,3 @@ if __name__ == '__main__':
 
     scene = self.get_scene()
     self.get_paralog_diverge()
-
-
-
-
- #   print(scene['tree']['edge_processes'])
-
-   # self.get_paralog_diverge()
-  #  print(geneconv.omega)
-  #  print(geneconv.IGC_Omega)

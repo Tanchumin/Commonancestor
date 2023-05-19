@@ -326,12 +326,6 @@ class JointAnalysis:
             results = pool.map(self._pool_objective_and_gradient, range(len(self.geneconv_list)))
 
 
-
-        #  results store lists, each list store gradients for parameters in corresponding gene
-        ##        pool = mp.Pool(processes = self.num_processes)
-        ##        results = [pool.apply(psjsgeneconv.objective_and_gradient, args = (display, x))\
-        ##                   for psjsgeneconv in self.psjsgeneconv_list]
-
         f = sum([result[0] for result in results])
         # uniq_derivatives will get unique derivatives for each gene
         uniq_derivatives = np.concatenate([[result[1][idx] for idx in range(len(result[1])) if not idx in self.shared_parameters] for result in results])

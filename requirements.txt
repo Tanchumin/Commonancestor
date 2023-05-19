@@ -2,4 +2,6 @@ Biopython
 networkx
 numpy
 scipy
+numdifftools
+multiprocessing
 

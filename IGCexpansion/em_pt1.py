@@ -2006,7 +2006,7 @@ class Embrachtau1:
 
             else:
                 expected_DwellTime = self._ExpectedHetDwellTime()
-                id = [1 - (expected_DwellTime[i] / (2* self.nsites
+                id = [1 - (expected_DwellTime[i] / ( 2*self.nsites
                                                     ))
                       for i in range(ttt)]
 
@@ -3089,7 +3089,9 @@ if __name__ == '__main__':
                                save_path='../test/save/', save_name=save_name,kbound=5)
 
     geneconv.get_mle()
-    geneconv.sum_branch()
+
+
+  #  geneconv.sum_branch()
 
    # geneconv.sum_branch_test(id0=[0.9326130134925631, 1.0, 0.834609616220603, 0.8267228498499286,
                           #        0.7941712107333674, 0.7849171211462617, 0.7896771655905308, 0.758017116692181,
@@ -3113,7 +3115,10 @@ if __name__ == '__main__':
   #  print(geneconv.get_Hessian())
 
 
- #   print(geneconv.compute_paralog_id())
+    print(geneconv.compute_paralog_id())
+    geneconv.dwell_id=False
+    print(geneconv.compute_paralog_id())
+
 
    # geneconv.EM_branch_tau(MAX=5,epis=0.01,force=None,K=2)
 
