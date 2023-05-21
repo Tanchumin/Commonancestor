@@ -440,6 +440,18 @@ class JointAnalysis:
         self.get_mle()
         tau = deepcopy(([self.geneconv_list[i].tau for i in range(len(self.paralog_list))]))
         tau=np.sum(tau)
+
+        self.update_by_x(self.x)
+        for ii in range(len(self.paralog_list)):
+            self.geneconv_list[ii].id = self.geneconv_list[ii].compute_paralog_id()
+        self.update_by_x(self.x)
+        for ii in range(len(self.paralog_list)):
+            self.geneconv_list[ii].id = self.geneconv_list[ii].compute_paralog_id()
+        self.update_by_x(self.x)
+        for ii in range(len(self.paralog_list)):
+            self.geneconv_list[ii].id = self.geneconv_list[ii].compute_paralog_id()
+        self.update_by_x(self.x)
+
         difference = abs(tau - pstau)
 
         print("EMcycle:")
@@ -461,12 +473,23 @@ class JointAnalysis:
         i=1
         while i<=MAX and difference >=epis:
             pstau = deepcopy(tau)
-            for ii in range(len(self.paralog_list)):
-                 self.geneconv_list[ii].id = self.geneconv_list[ii].compute_paralog_id()
+
+
             ll1=self.get_mle()["fun"]
             tau = deepcopy(np.exp([self.geneconv_list[i].x[5] for i in range(len(self.paralog_list))]))
             tau = np.sum(tau)
             difference = abs(tau - pstau)
+
+            self.update_by_x(self.x)
+            for ii in range(len(self.paralog_list)):
+                self.geneconv_list[ii].id = self.geneconv_list[ii].compute_paralog_id()
+            self.update_by_x(self.x)
+            for ii in range(len(self.paralog_list)):
+                self.geneconv_list[ii].id = self.geneconv_list[ii].compute_paralog_id()
+            self.update_by_x(self.x)
+            for ii in range(len(self.paralog_list)):
+                    self.geneconv_list[ii].id = self.geneconv_list[ii].compute_paralog_id()
+            self.update_by_x(self.x)
 
             print("EMcycle:")
             print(i)
