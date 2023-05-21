@@ -89,7 +89,12 @@ python Run_IS_IGC.py
 `
 
 
-##### Tutorials
 
-For independent site IGC (IS-IGC) analyses, please refer to this [tutorial](tutorials/IndependentSiteTutorial.md).  
-There are two versions of the software that implement the same IS-IGC approach.  The difference between them is the flexibility of considering different duplication/loss histories where the first version assumes one single duplication event without loss which the second version does not.
+##### Tutorials
+The latest update introduces several new features. The addition includes enhancements to various modules. 
+The [em_pt1] module with class [Embrachtau1] now incorporates the number of paralog divergences, allowing for the
+investigation of how the IGC  rate changes with paralog identity levels. 
+The [joint_ana] module, featuring the [JointAnalysis] class, enables the analysis 
+of multiple genes by utilizing a shared IGC rate and K. 
+The [gls_seq] module with the [GSseq] class,
+facilitates the simulation of sequences based on assigned parameters.
