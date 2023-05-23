@@ -296,9 +296,9 @@ class Embrachtau1:
                                     self.k = self.x[5]
 
                                 # EM update for id
+                                print("update paralog id 3 times based on loading paramters")
                                 self.update_by_x(self.x)
                                 self.id = self.compute_paralog_id()
-                                print("dddddd111111111")
                                 self.update_by_x(self.x)
                                 self.id = self.compute_paralog_id()
                                 self.update_by_x(self.x)
@@ -1352,8 +1352,8 @@ class Embrachtau1:
                 edge_bnds = [(None, 4.0)] * len(self.x_rates)
                 edge_bnds[1] = (self.minlogblen, 4.0)
             elif self.ifmodel=="EM_full":
-                bnds.extend([(-10.0, 6.0)] * (len(self.x_process) - 5))
-                edge_bnds = [(-10.0, 4.0)] * len(self.x_rates)
+                bnds.extend([(-8.0, 6.0)] * (len(self.x_process) - 5))
+                edge_bnds = [(-8.0, 4.0)] * len(self.x_rates)
                 edge_bnds[1] = (self.minlogblen, None)
             else:
                 bnds = [(None, 7.0)] * 1
@@ -1361,7 +1361,7 @@ class Embrachtau1:
 
 #tau and K
             if self.ifmodel=="old":
-                bnds.extend([(-10.0, 6.0)] * (1))
+                bnds.extend([(-8.0, 6.0)] * (1))
 
             if self.ifmodel=="EM_full":
                 if self.bound == True:
@@ -1371,11 +1371,11 @@ class Embrachtau1:
                     khigh = np.log(deepcopy(float(self.kbound)))
                     bnds.extend([(-4, khigh)] * (1))
                 else:
-                    bnds.extend([(-10.0, 7.0)] * (1))
+                    bnds.extend([(-8.0, 7.0)] * (1))
                     if self.noboundk==True:
                         bnds.extend([(-10.0, 80.0)] * (1))
                     else:
-                        bnds.extend([(-10.0, 7)] * (1))
+                        bnds.extend([(-8.0, 7)] * (1))
 
 
             bnds.extend(edge_bnds)
@@ -2521,7 +2521,7 @@ class Embrachtau1:
                     self.time = np.exp(self.x_rates[j])
                     print(self.get_branch_mle(branch=j))
 
-    def sum_branch(self,MAX=4,epis=0.05,K=None):
+    def sum_branch(self,MAX=3,epis=0.1,K=None):
 
         list = []
         if self.only_hessian==False:
@@ -2662,9 +2662,9 @@ class Embrachtau1:
                             self.ini = deepcopy(self.sites[ini2,])
                             self.end = deepcopy(self.sites[end2,])
                             self.time = np.exp(self.x_rates[j])
-                            bstau = self.get_branch_mle(branch=j)[0]
-                            print(bstau)
-                            list.append(bstau)
+                   #         bstau = self.get_branch_mle(branch=j)[0]
+                      #      print(bstau)
+                     #       list.append(bstau)
 
                     if self.Model == "MG94":
                         if j > 1:
@@ -2673,9 +2673,9 @@ class Embrachtau1:
                             self.ini = deepcopy(self.sites[ini2,])
                             self.end = deepcopy(self.sites[end2,])
                             self.time = np.exp(self.x_rates[j])
-                            bstau = self.get_branch_mle(branch=j)[0]
-                            print(bstau)
-                            list.append(bstau)
+                     #       bstau = self.get_branch_mle(branch=j)[0]
+                      #      print(bstau)
+                      #      list.append(bstau)
 
             else:
                 self.id = self.compute_paralog_id()

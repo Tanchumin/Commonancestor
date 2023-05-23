@@ -13,13 +13,13 @@ import os
 
 def build_dic(dd=3):
     list = []
-    for i in range(15):
+    for i in range(14):
         list.append("\n"+"cd")
       #  p="\n"+"cd final1/simulation/yeast_YER102W_YBL072C/test\ copy\ "+str(i)+"/"
       #  p = "\n" + "cd final1/simulation/pillar2158/test\ copy\ " + str(i) + "/"
     #    p="\n" + "cd final1/simub_y13_DNA/test1\ copy\ " + str(i) + "/"
     #    p = "\n" + "cd final1/simulation/testfile/testgnew/test" + str(i) + "/"
-        p = "\n" + "cd final1/yeast_unlimit_tau_pro/test" + str(i) + "/"
+        p = "\n" + "cd final2/yeast_unlimit_tau_DNA2/test" + str(i) + "/"
      #   p="\n" + "cd final1/YeastSeq4r2" + str(i)
         list.append(p)
       #  list.append("\n" + "sbatch -c 2 --mem-per-cpu=16G RunJoint_Yeast.py")

@@ -40,7 +40,7 @@ class test:
 
     def test3(self):
         dic={"d":1,"dd":2,"ddd":4}
-        print(sum(list(dic.values())[1:]))
+        print(np.sum(list(dic.values())[1:]))
 
 
 

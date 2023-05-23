@@ -1,136 +1,43 @@
 
 cd
-cd final1/fish_unlimit_tau_pro/755/
+cd final2/yeast_unlimit_tau_DNA2/test0/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/fish_unlimit_tau_pro/2210/
+cd final2/yeast_unlimit_tau_DNA2/test1/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/fish_unlimit_tau_pro/3309/
+cd final2/yeast_unlimit_tau_DNA2/test2/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/fish_unlimit_tau_pro/4570/
+cd final2/yeast_unlimit_tau_DNA2/test3/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/fish_unlimit_tau_pro/337/
+cd final2/yeast_unlimit_tau_DNA2/test4/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/fish_unlimit_tau_pro/561/
+cd final2/yeast_unlimit_tau_DNA2/test5/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/fish_unlimit_tau_pro/1050/
+cd final2/yeast_unlimit_tau_DNA2/test6/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/fish_unlimit_tau_pro/3390/
+cd final2/yeast_unlimit_tau_DNA2/test7/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/fish_unlimit_tau_pro/3337/
+cd final2/yeast_unlimit_tau_DNA2/test8/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/fish_unlimit_tau_pro/211/
+cd final2/yeast_unlimit_tau_DNA2/test9/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/fish_unlimit_tau_pro/2158/
+cd final2/yeast_unlimit_tau_DNA2/test10/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/fish_unlimit_tau_pro/5316/
+cd final2/yeast_unlimit_tau_DNA2/test11/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/fish_unlimit_tau_pro/479/
+cd final2/yeast_unlimit_tau_DNA2/test12/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final1/fish_unlimit_tau_pro/4494/
-sbatch  Run_IS_IGC_Old.py
-cd
-cd final1/fish_unlimit_tau_pro/2371/
-sbatch  Run_IS_IGC_Old.py
-cd
-cd final1/fish_unlimit_tau_pro/2382/
-sbatch  Run_IS_IGC_Old.py
-cd
-cd final1/fish_unlimit_tau_pro/5153/
-sbatch  Run_IS_IGC_Old.py
-cd
-cd final1/fish_unlimit_tau_pro/3295/
-sbatch  Run_IS_IGC_Old.py
-cd
-cd final1/fish_unlimit_tau_pro/2129/
-sbatch  Run_IS_IGC_Old.py
-cd
-cd final1/fish_unlimit_tau_pro/521/
-sbatch  Run_IS_IGC_Old.py
-cd
-cd final1/fish_unlimit_tau_pro/526/
-sbatch  Run_IS_IGC_Old.py
-cd
-cd final1/fish_unlimit_tau_pro/4553/
-sbatch  Run_IS_IGC_Old.py
-cd
-cd final1/fish_unlimit_tau_pro/3346/
-sbatch  Run_IS_IGC_Old.py
-cd
-cd final1/fish_unlimit_tau_pro/4932/
-sbatch  Run_IS_IGC_Old.py
-cd
-cd final1/fish_unlimit_tau_pro/1215/
-sbatch  Run_IS_IGC_Old.py
-cd
-cd final1/fish_unlimit_tau_pro/2861/
-sbatch  Run_IS_IGC_Old.py
-cd
-cd final1/fish_unlimit_tau_pro/3347/
-sbatch  Run_IS_IGC_Old.py
-cd
-cd final1/fish_unlimit_tau_pro/2214/
-sbatch  Run_IS_IGC_Old.py
-cd
-cd final1/fish_unlimit_tau_pro/735/
-sbatch  Run_IS_IGC_Old.py
-cd
-cd final1/fish_unlimit_tau_pro/5233/
-sbatch  Run_IS_IGC_Old.py
-cd
-cd final1/fish_unlimit_tau_pro/3994/
-sbatch  Run_IS_IGC_Old.py
-cd
-cd final1/fish_unlimit_tau_pro/1053/
-sbatch  Run_IS_IGC_Old.py
-cd
-cd final1/fish_unlimit_tau_pro/223/
-sbatch  Run_IS_IGC_Old.py
-cd
-cd final1/fish_unlimit_tau_pro/2358/
-sbatch  Run_IS_IGC_Old.py
-cd
-cd final1/fish_unlimit_tau_pro/4063/
-sbatch  Run_IS_IGC_Old.py
-cd
-cd final1/fish_unlimit_tau_pro/4031/
-sbatch  Run_IS_IGC_Old.py
-cd
-cd final1/fish_unlimit_tau_pro/3278/
-sbatch  Run_IS_IGC_Old.py
-cd
-cd final1/fish_unlimit_tau_pro/222/
-sbatch  Run_IS_IGC_Old.py
-cd
-cd final1/fish_unlimit_tau_pro/4268/
-sbatch  Run_IS_IGC_Old.py
-cd
-cd final1/fish_unlimit_tau_pro/214/
-sbatch  Run_IS_IGC_Old.py
-cd
-cd final1/fish_unlimit_tau_pro/4025/
-sbatch  Run_IS_IGC_Old.py
-cd
-cd final1/fish_unlimit_tau_pro/2321/
-sbatch  Run_IS_IGC_Old.py
-cd
-cd final1/fish_unlimit_tau_pro/4287/
-sbatch  Run_IS_IGC_Old.py
-cd
-cd final1/fish_unlimit_tau_pro/852/
-sbatch  Run_IS_IGC_Old.py
-cd
-cd final1/fish_unlimit_tau_pro/5550/
+cd final2/yeast_unlimit_tau_DNA2/test13/
 sbatch  Run_IS_IGC_Old.py

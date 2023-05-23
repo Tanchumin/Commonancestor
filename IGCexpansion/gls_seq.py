@@ -1199,9 +1199,9 @@ class GSseq:
 
 
     def compute_ave(self):
-        len_dic=len(self.listproptimes.keys())
-        out1=0
-        out2=0
+      #  len_dic=len(self.listproptimes.keys())
+     #   out1=0
+     #   out2=0
   #      for i in range(len_dic-1):
        #     out1=out1+(list(self.listprop.keys())[i]-list(self.listprop.keys())[i+1])*\
         #         (self.listprop[list(self.listprop.keys())[i+1]]/self.listproptimes[list(self.listprop.keys())[i+1]]+\
@@ -1212,7 +1212,11 @@ class GSseq:
         #           self.listprop[list(self.listprop.keys())[i]] / self.listproptimes[
         #                list(self.listprop.keys())[i]]) / 2)
 
-        out3=np.sum(list(self.listprop.values())[1:])/np.sum(list(self.listproptimes.values())[1:])
+
+        out3=sum(list(self.listprop.values())[1:])/sum(list(self.listproptimes.values())[1:])
+        print(out3)
+        print(list(self.listprop.values()))
+        print(list(self.listproptimes.values()))
 
 
         return out3
@@ -1222,8 +1226,8 @@ class GSseq:
 
     def proportion_change_IGC(self,repeats=10):
         pro_IGC=0
-        repeat=1000
-        for i in range(repeat):
+
+        for i in range(repeats):
 
             self.topo()
             out=self.compute_ave()
@@ -1231,7 +1235,7 @@ class GSseq:
             self.listprop={1:0}
             self.listproptimes = {1:0}
 
-        print(pro_IGC/repeat)
+        print(pro_IGC/repeats)
 
 
 
@@ -1287,22 +1291,7 @@ if __name__ == '__main__':
        #     aaa=self.topo()
          #   self.trans_into_seq(ini=aaa[0],name_list=aaa[1])
 
-   ##           if self.hash_event_t[j] > 0:
-       ##  for i in range(50):
-       #         print(i)
-       #         print(hashid[i]/10)
 
-
-
-    ##  paralog_simu = ['paralog0', 'paralog1']
-     #   save_path1 = "./"
-     #   save_name1=save_name_simu+"t2"
-
-
-     #   geneconv_simu = Embrachtau1(newicktree, simulate_file, paralog_simu, Model=model, Force=Force, clock=None,
-   #                            save_path=save_path1, save_name=save_name1)
-
-    #    geneconv_simu.sum_branch(MAX=5,K=1.5)
 
 
 
