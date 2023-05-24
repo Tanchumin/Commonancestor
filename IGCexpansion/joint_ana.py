@@ -68,6 +68,10 @@ class JointAnalysis:
 
 
     def initialize_x(self):
+        print("The joint likelihood will be presented as ll/ #gene ")
+        print("MAX iter: 160")
+
+
         if self.ifmodel == "old":
             if os.path.isfile(self.save_name):
                 self.initialize_by_save(self.save_name)
@@ -325,7 +329,7 @@ class JointAnalysis:
             results = pool.map(self._pool_objective_and_gradient, range(len(self.geneconv_list)))
 
 
-        f = sum([result[0] for result in results])
+        f = sum([result[0] for result in results])/len(self.geneconv_list)
         # uniq_derivatives will get unique derivatives for each gene
         uniq_derivatives = np.concatenate([[result[1][idx] for idx in range(len(result[1])) if not idx in self.shared_parameters] for result in results])
         # for  shared parameter, the derivatives is computed as sum of all genes' corresponding derivaties
@@ -339,13 +343,13 @@ class JointAnalysis:
 
         # Now save parameter values
         if self.ifmodel=="old":
-            self.auto_save += 1
+            self.auto_save += 2
             if self.auto_save == JointAnalysis.auto_save_step:
                 self.save_x()
                 self.auto_save = 0
 
         else:
-            self.auto_save1 += 1
+            self.auto_save1 += 2
             if self.auto_save1 == JointAnalysis.auto_save_step:
                 self.save_x()
                 self.auto_save1 = 0
@@ -359,7 +363,7 @@ class JointAnalysis:
 
         if parallel:
             result = scipy.optimize.minimize(self.objective_and_gradient_multi_threaded, guess_x, jac=True, method='L-BFGS-B', bounds=self.combine_bounds(),
-                                             )
+                                             options={'maxiter': 160,'gtol': 1e-04})
         else:
             result = scipy.optimize.minimize(self.objective_and_gradient, guess_x, jac=True, method='L-BFGS-B', bounds=self.combine_bounds())
         print (result)
@@ -414,15 +418,13 @@ class JointAnalysis:
              #   basic =  np.maximum((self.x[-1]) / (2 * (np.maximum(np.log(np.exp(self.x[-2]) + 1), 1))) - 0.5,0.2)
              ##   H = nd.Hessian(self.objective_wo_gradient, step = step)(np.float128([ self.x[-1]]))
                 H = nd.Hessian(self.objective_wo_gradient)(np.float128([self.x[-1]]))
-
             H = np.linalg.inv(H)
-
 
 
             return H
 
 
-    def em_joint(self,epis=0.3,MAX=3):
+    def em_joint(self,epis=0.4,MAX=2):
         ll0=self.get_mle()["fun"]
       #  print(ll0)
         if len(self.shared_parameters_for_k) == 1:
@@ -473,7 +475,6 @@ class JointAnalysis:
         i=1
         while i<=MAX and difference >=epis:
             pstau = deepcopy(tau)
-
 
             ll1=self.get_mle()["fun"]
             tau = deepcopy(np.exp([self.geneconv_list[i].x[5] for i in range(len(self.paralog_list))]))

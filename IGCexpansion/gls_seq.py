@@ -575,14 +575,14 @@ class GSseq:
 
 
                 if self.isNonsynonymous(cb1, ca1, self.codon_table):
-                    igc = (self.tau*self.omega) / qq
+                    igc = ((self.tau*self.omega) / qq)[0]
                 else:
-                    igc = (self.tau ) / qq
+                    igc = ((self.tau ) / qq)[0]
 
                 point = 1 - igc
 
                 if point < 0:
-                    print("cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc")
+                    print("strange result")
 
 
 
@@ -594,15 +594,15 @@ class GSseq:
                 ca1 = self.state_to_codon[i_p]
 
                 if self.isNonsynonymous(cb1, ca1, self.codon_table):
-                    igc = (self.tau*self.omega) / qq
+                    igc = ((self.tau*self.omega) / qq)[0]
                 else:
-                    igc = (self.tau ) / qq
+                    igc = ((self.tau ) / qq)[0]
 
                 point = 1 - igc
 
 
                 if point < 0:
-                    print("cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc")
+                    print("strange result")
 
 
 
@@ -613,6 +613,7 @@ class GSseq:
             change_i=1
         else:
             change_j = 1
+
 
 
 
@@ -664,7 +665,6 @@ class GSseq:
 
             u = u + random.exponential(1/lambda_change)
             if (u <= t):
-               # print(u)
 
                 change_location = np.random.choice(range(self.sizen), 1, p=(p/lambda_change))[0]
                 change_site = int(ini[change_location])
@@ -703,7 +703,7 @@ class GSseq:
 
         return ini
 
-    def GLS_sequnce_tract(self, t=0.1, ini=None,k=1.1, tau=1.1,iffirst=False):
+    def GLS_sequnce_tract(self, t=0.1, ini=None,k=1.1, tau=1.1):
 
         global di
         global di1
@@ -790,8 +790,6 @@ class GSseq:
                     self.hash_event[id_igc]=self.hash_event[id_igc]+result[1]
 
                 self.hash_event_t[id_igc] = self.hash_event_t[id_igc] + (1-id)* dwell
-
-
 
 
             else:
@@ -978,8 +976,7 @@ class GSseq:
         name_list=[]
 
 
-        out_index=np.where(self.tree['process'] != scipy.stats.mode(self.tree['process'])[0])[0]
-
+        out_index=np.where(self.tree['process'] != scipy.stats.mode(self.tree['process'],keepdims=True)[0])[0]
         branch_root_to_outgroup=self.tree['col'][out_index[0]]
 
 
@@ -1097,7 +1094,7 @@ class GSseq:
 # translate the sequence with number level into site level
 # 1 -> ATT
 
-    def trans_into_seq(self,ini=None,name_list=None,casenumber=1):
+    def trans_into_seq(self,ini=None,name_list=None):
         list = []
 
 
@@ -1214,9 +1211,7 @@ class GSseq:
 
 
         out3=sum(list(self.listprop.values())[1:])/sum(list(self.listproptimes.values())[1:])
-        print(out3)
-        print(list(self.listprop.values()))
-        print(list(self.listproptimes.values()))
+
 
 
         return out3
@@ -1224,7 +1219,7 @@ class GSseq:
 
 # i made repeat=1000 just to rerun for 1 time, then i will recover the repeats as the input
 
-    def proportion_change_IGC(self,repeats=10):
+    def proportion_change_IGC(self,repeats=2):
         pro_IGC=0
 
         for i in range(repeats):
@@ -1267,7 +1262,7 @@ if __name__ == '__main__':
 
 
         self = GSseq(geneconv=geneconv, sizen=len_seq, ifmakeQ=False, Model=model, save_path=save_path,
-                     save_name=save_name_simu, ifDNA=True)
+                     save_name=save_name_simu, ifDNA=True,ifmodel="Old")
 
         self.proportion_change_IGC()
 

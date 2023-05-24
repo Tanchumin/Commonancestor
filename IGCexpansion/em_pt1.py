@@ -2680,10 +2680,10 @@ class Embrachtau1:
             else:
                 self.id = self.compute_paralog_id()
                 self.ifexp = True
-                hessian = self.get_Hessian()
-                print(hessian)
-                list.append(hessian[0][0])
-                list.append(hessian[1][1])
+        #        hessian = self.get_Hessian()
+         #       print(hessian)
+        #        list.append(hessian[0][0])
+        #        list.append(hessian[1][1])
 
                 for j in range(len(self.edge_list)):
                     list.append(self.id[j])
@@ -2698,8 +2698,8 @@ class Embrachtau1:
                             self.ini = deepcopy(self.sites[ini2,])
                             self.end = deepcopy(self.sites[end2,])
                             self.time = np.exp(self.x_rates[j])
-                       #     bstau = self.get_branch_mle(branch=j)[0]
-                         #   list.append(bstau)
+                            bstau = self.get_branch_mle(branch=j)[0]
+                            list.append(bstau)
 
                     if self.Model == "MG94":
                         if j > 1:
@@ -2708,8 +2708,8 @@ class Embrachtau1:
                             self.ini = deepcopy(self.sites[ini2,])
                             self.end = deepcopy(self.sites[end2,])
                             self.time = np.exp(self.x_rates[j])
-                        #    bstau = self.get_branch_mle(branch=j)[0]
-                        #    list.append(bstau)
+                            bstau = self.get_branch_mle(branch=j)[0]
+                            list.append(bstau)
 
 
             print(list)
