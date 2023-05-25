@@ -976,7 +976,7 @@ class GSseq:
         name_list=[]
 
 
-        out_index=np.where(self.tree['process'] != scipy.stats.mode(self.tree['process'],keepdims=True)[0])[0]
+        out_index=np.where(self.tree['process'] != scipy.stats.mode(self.tree['process'],keepdims=False)[0])[0]
         branch_root_to_outgroup=self.tree['col'][out_index[0]]
 
 
