@@ -3084,10 +3084,12 @@ if __name__ == '__main__':
     geneconv = Embrachtau1(newicktree, alignment_file, paralog, Model=model, Force=Force,
                                save_path='../test/save/', save_name=save_name,kbound=5)
 
+
+
   #  geneconv.get_mle()
 
 
-    geneconv.sum_branch()
+ #   print(geneconv._ExpectedHetDwellTime())
 
    # geneconv.sum_branch_test(id0=[0.9326130134925631, 1.0, 0.834609616220603, 0.8267228498499286,
                           #        0.7941712107333674, 0.7849171211462617, 0.7896771655905308, 0.758017116692181,

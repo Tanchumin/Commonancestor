@@ -579,7 +579,7 @@ class AncestralState1:
                     list.append(d)
 
 
-
+        # branch tau
         for j in range(ttt):
                     list.append(tau[0][j])
 

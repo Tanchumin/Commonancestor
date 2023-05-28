@@ -69,7 +69,7 @@ class JointAnalysis:
 
     def initialize_x(self):
         print("The joint likelihood will be presented as ll/ #gene ")
-        print("MAX iter: 160")
+        print("MAX iter: 200")
 
 
         if self.ifmodel == "old":
@@ -363,7 +363,7 @@ class JointAnalysis:
 
         if parallel:
             result = scipy.optimize.minimize(self.objective_and_gradient_multi_threaded, guess_x, jac=True, method='L-BFGS-B', bounds=self.combine_bounds(),
-                                             options={'maxiter': 160,'gtol': 1e-04})
+                                             options={'maxiter': 200,'gtol': 1e-04})
         else:
             result = scipy.optimize.minimize(self.objective_and_gradient, guess_x, jac=True, method='L-BFGS-B', bounds=self.combine_bounds())
         print (result)

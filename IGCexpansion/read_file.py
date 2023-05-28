@@ -33,13 +33,13 @@ def build_dic(dd=3):
 
 
 def read_dic(dd=3):
-        folder = '/Users/txu7/Desktop/fish_unlimit_tau_DNA_pro'
+        folder = '/Users/tanchumin/Desktop/fish_synon/'
         sub_folders = [name for name in os.listdir(folder) if os.path.isdir(os.path.join(folder, name))]
 
         list = []
         for i in range(len(sub_folders)):
             list.append("\n" + "cd")
-            p = "\n" + "cd final1/fish_unlimit_tau_pro/" + str(sub_folders[i]) + "/"
+            p = "\n" + "cd final2/fish_synon/" + str(sub_folders[i]) + "/"
             list.append(p)
             list.append("\n" + "sbatch  Run_IS_IGC_Old.py")
         with open('../save/read.txt', 'wb') as f:
@@ -47,5 +47,5 @@ def read_dic(dd=3):
                 f.write(file.encode('utf-8'))
 
 
-build_dic()
-#read_dic()
+#build_dic()
+read_dic()
