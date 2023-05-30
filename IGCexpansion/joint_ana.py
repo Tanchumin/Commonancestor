@@ -439,7 +439,7 @@ class JointAnalysis:
         pstau = deepcopy(([self.geneconv_list[i].tau for i in range(len(self.paralog_list))]))
         pstau = np.sum(pstau)
 
-        self.get_mle()
+        ll1=self.get_mle()
         tau = deepcopy(([self.geneconv_list[i].tau for i in range(len(self.paralog_list))]))
         tau=np.sum(tau)
 
