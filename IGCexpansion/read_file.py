@@ -7,7 +7,7 @@ import os
 
 
 #pip uninstall IGCexpansion
-#pip install --user git+https://github.com/Tanchumin/Commonancestor.git
+#test9
 #sbatch -c 4 --mem-per-cpu=16G RunJoint_Yeast.py
 
 
@@ -33,13 +33,13 @@ def build_dic(dd=3):
 
 
 def read_dic(dd=3):
-        folder = '/Users/tanchumin/Desktop/fish_synon/'
+        folder = '/Users/tanchumin/Desktop/fish_unlimit_tau_DNA2/'
         sub_folders = [name for name in os.listdir(folder) if os.path.isdir(os.path.join(folder, name))]
 
         list = []
         for i in range(len(sub_folders)):
             list.append("\n" + "cd")
-            p = "\n" + "cd final2/fish_synon/" + str(sub_folders[i]) + "/"
+            p = "\n" + "cd final2/fish_unlimit_tau_DNA2/" + str(sub_folders[i]) + "/"
             list.append(p)
             list.append("\n" + "sbatch  Run_IS_IGC_Old.py")
         with open('../save/read.txt', 'wb') as f:

@@ -27,7 +27,8 @@ class JointAnalysis:
                  kini=1.1,
                  tauini=0.4,
                  ifDNA=False,
-                 stepsize=None):
+                 stepsize=None,
+                 maxi=350):
         # first check if the length of all input lists agree
         assert (len(set([len(alignment_file_list), len(paralog_list)])) == 1)
         # doesn't allow IGC-specific omega for HKY model
@@ -40,6 +41,8 @@ class JointAnalysis:
         self.x             = None
         self.multiprocess_combined_list = multiprocess_combined_list
         self.ifDNA =ifDNA
+
+        self.maxi=maxi
 
 
         #share k version:
@@ -69,7 +72,7 @@ class JointAnalysis:
 
     def initialize_x(self):
         print("The joint likelihood will be presented as ll/ #gene ")
-        print("MAX iter: 200")
+        print("MAX iter:",self.maxi)
 
 
         if self.ifmodel == "old":
@@ -358,12 +361,11 @@ class JointAnalysis:
 
     def get_mle(self, parallel = True):
         self.update_by_x(self.x)
-
         guess_x = self.x
 
         if parallel:
             result = scipy.optimize.minimize(self.objective_and_gradient_multi_threaded, guess_x, jac=True, method='L-BFGS-B', bounds=self.combine_bounds(),
-                                             options={'maxiter': 200,'gtol': 1e-04})
+                                             options={'maxiter': self.maxi,'gtol': 1e-04})
         else:
             result = scipy.optimize.minimize(self.objective_and_gradient, guess_x, jac=True, method='L-BFGS-B', bounds=self.combine_bounds())
         print (result)
@@ -637,9 +639,9 @@ if __name__ == '__main__':
     alignment_file_list = [alignment_file_1, alignment_file_2]
     Model = 'HKY'
 
-    joint_analysis = JointAnalysis(alignment_file_list,  newicktree, paralog_list, Shared = [],
+    joint_analysis = JointAnalysis(alignment_file_list,  newicktree, paralog_list, Shared = [4],
                                    IGC_Omega = None, Model = Model, Force = Force,
-                                   save_path = '../test/save/',shared_parameters_for_k=[4,5])
+                                   save_path = '../test/save/',shared_parameters_for_k=[])
 
    # joint_analysis.em_joint_hessian()
 

@@ -1,136 +1,136 @@
 
 cd
-cd final2/fish_synon/755/
+cd final2/fish_unlimit_tau_DNA2/755/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final2/fish_synon/2210/
+cd final2/fish_unlimit_tau_DNA2/2210/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final2/fish_synon/3309/
+cd final2/fish_unlimit_tau_DNA2/3309/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final2/fish_synon/4570/
+cd final2/fish_unlimit_tau_DNA2/4570/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final2/fish_synon/337/
+cd final2/fish_unlimit_tau_DNA2/337/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final2/fish_synon/561/
+cd final2/fish_unlimit_tau_DNA2/561/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final2/fish_synon/1050/
+cd final2/fish_unlimit_tau_DNA2/1050/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final2/fish_synon/3390/
+cd final2/fish_unlimit_tau_DNA2/3390/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final2/fish_synon/3337/
+cd final2/fish_unlimit_tau_DNA2/3337/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final2/fish_synon/211/
+cd final2/fish_unlimit_tau_DNA2/211/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final2/fish_synon/2158/
+cd final2/fish_unlimit_tau_DNA2/2158/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final2/fish_synon/5316/
+cd final2/fish_unlimit_tau_DNA2/5316/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final2/fish_synon/479/
+cd final2/fish_unlimit_tau_DNA2/479/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final2/fish_synon/4494/
+cd final2/fish_unlimit_tau_DNA2/4494/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final2/fish_synon/2371/
+cd final2/fish_unlimit_tau_DNA2/2371/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final2/fish_synon/2382/
+cd final2/fish_unlimit_tau_DNA2/2382/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final2/fish_synon/5153/
+cd final2/fish_unlimit_tau_DNA2/5153/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final2/fish_synon/3295/
+cd final2/fish_unlimit_tau_DNA2/3295/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final2/fish_synon/2129/
+cd final2/fish_unlimit_tau_DNA2/2129/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final2/fish_synon/521/
+cd final2/fish_unlimit_tau_DNA2/521/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final2/fish_synon/526/
+cd final2/fish_unlimit_tau_DNA2/526/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final2/fish_synon/4553/
+cd final2/fish_unlimit_tau_DNA2/4553/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final2/fish_synon/3346/
+cd final2/fish_unlimit_tau_DNA2/3346/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final2/fish_synon/4932/
+cd final2/fish_unlimit_tau_DNA2/4932/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final2/fish_synon/1215/
+cd final2/fish_unlimit_tau_DNA2/1215/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final2/fish_synon/2861/
+cd final2/fish_unlimit_tau_DNA2/2861/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final2/fish_synon/3347/
+cd final2/fish_unlimit_tau_DNA2/3347/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final2/fish_synon/2214/
+cd final2/fish_unlimit_tau_DNA2/2214/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final2/fish_synon/735/
+cd final2/fish_unlimit_tau_DNA2/735/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final2/fish_synon/5233/
+cd final2/fish_unlimit_tau_DNA2/5233/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final2/fish_synon/3994/
+cd final2/fish_unlimit_tau_DNA2/3994/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final2/fish_synon/1053/
+cd final2/fish_unlimit_tau_DNA2/1053/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final2/fish_synon/223/
+cd final2/fish_unlimit_tau_DNA2/223/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final2/fish_synon/2358/
+cd final2/fish_unlimit_tau_DNA2/2358/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final2/fish_synon/4063/
+cd final2/fish_unlimit_tau_DNA2/4063/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final2/fish_synon/4031/
+cd final2/fish_unlimit_tau_DNA2/4031/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final2/fish_synon/3278/
+cd final2/fish_unlimit_tau_DNA2/3278/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final2/fish_synon/222/
+cd final2/fish_unlimit_tau_DNA2/222/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final2/fish_synon/4268/
+cd final2/fish_unlimit_tau_DNA2/4268/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final2/fish_synon/214/
+cd final2/fish_unlimit_tau_DNA2/214/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final2/fish_synon/4025/
+cd final2/fish_unlimit_tau_DNA2/4025/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final2/fish_synon/2321/
+cd final2/fish_unlimit_tau_DNA2/2321/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final2/fish_synon/4287/
+cd final2/fish_unlimit_tau_DNA2/4287/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final2/fish_synon/852/
+cd final2/fish_unlimit_tau_DNA2/852/
 sbatch  Run_IS_IGC_Old.py
 cd
-cd final2/fish_synon/5550/
+cd final2/fish_unlimit_tau_DNA2/5550/
 sbatch  Run_IS_IGC_Old.py
